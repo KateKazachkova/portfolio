@@ -28,20 +28,27 @@ export async function getProjects() {
 }
 
 export async function getCertificates() {
-  const response = await notion.databases.query({
-    database_id: process.env.NOTION_CERTIFICATES_DB!,
-    sorts: [{ property: "Date", direction: "descending" }],
-  });
+  if (!process.env.NOTION_CERTIFICATES_DB) return [];
 
-  return response.results.map((page: any) => {
-    const props = page.properties;
-    return {
-      id: page.id,
-      name: props.Name?.title?.[0]?.plain_text ?? "",
-      issuer: props.Issuer?.rich_text?.[0]?.plain_text ?? "",
-      date: props.Date?.date?.start ?? null,
-      url: props.URL?.url ?? null,
-      category: props.Category?.select?.name ?? null,
-    };
-  });
+  try {
+    const response = await notion.databases.query({
+      database_id: process.env.NOTION_CERTIFICATES_DB,
+      sorts: [{ property: "Date", direction: "descending" }],
+    });
+
+    return response.results.map((page: any) => {
+      const props = page.properties;
+      return {
+        id: page.id,
+        name: props.Name?.title?.[0]?.plain_text ?? "",
+        issuer: props.Issuer?.rich_text?.[0]?.plain_text ?? "",
+        date: props.Date?.date?.start ?? null,
+        url: props.URL?.url ?? null,
+        category: props.Category?.select?.name ?? null,
+      };
+    });
+  } catch (e) {
+    console.error("Notion certificates error:", e);
+    return [];
+  }
 }

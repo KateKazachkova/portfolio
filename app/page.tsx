@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback } from "react";
 
 const W = 360;
 const H = 520;
@@ -10,22 +10,8 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isDragging = useRef(false);
   const lastMouse = useRef({ x: 0, y: 0 });
-  const rafRef = useRef<number>(0);
-  const autoAngle = useRef(20);
 
-  const [rot, setRot] = useState({ x: -10, y: 20 });
-
-  useEffect(() => {
-    const animate = () => {
-      if (!isDragging.current) {
-        autoAngle.current += 0.1;
-        setRot((r) => ({ ...r, y: autoAngle.current }));
-      }
-      rafRef.current = requestAnimationFrame(animate);
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+  const [rot, setRot] = useState({ x: -12, y: 22 });
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     isDragging.current = true;
@@ -37,9 +23,8 @@ export default function Home() {
     const dx = e.clientX - lastMouse.current.x;
     const dy = e.clientY - lastMouse.current.y;
     lastMouse.current = { x: e.clientX, y: e.clientY };
-    autoAngle.current += dx * 0.5;
     setRot((r) => ({
-      x: Math.max(-50, Math.min(50, r.x - dy * 0.4)),
+      x: Math.max(-60, Math.min(60, r.x - dy * 0.4)),
       y: r.y + dx * 0.5,
     }));
   }, []);

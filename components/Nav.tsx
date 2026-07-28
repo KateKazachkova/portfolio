@@ -56,7 +56,7 @@ export default function Nav() {
 
           {/* Download CV */}
           <a
-            href="/cv.pdf"
+            href="https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf"
             target="_blank"
             rel="noopener noreferrer"
             className="uppercase font-bold transition-colors hover:opacity-80"

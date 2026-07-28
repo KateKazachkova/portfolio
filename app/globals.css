@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
+/* Make Tailwind's dark: variant respond to [data-theme="dark"] */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light (day) */
+  --bg: #f0ebe0;
+  --fg: #14110d;
+  --panel: #fdf6ee;      /* box front / cards */
+  --inner: #f0e8d8;      /* inner window bg */
+  --border: #111111;
+  --muted: #8a827a;
+  --accent: #f5e642;     /* yellow — constant */
+  --accent-red: #e8212e; /* red — constant */
+  --night: 0;            /* doll darkening: 0 = none */
+}
+
+[data-theme="dark"] {
+  /* Warm dark (night) */
+  --bg: #1a1613;
+  --fg: #f0ebe0;
+  --panel: #221d18;
+  --inner: #2a241e;
+  --border: #f0ebe0;
+  --muted: #9a9086;
+  --night: 0.35;         /* darken the doll at night */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+/* Centralised dark overrides for the Tailwind grays used across pages */
+[data-theme="dark"] .text-gray-900 { color: #f0ebe0; }
+[data-theme="dark"] .text-gray-700 { color: #d8d0c6; }
+[data-theme="dark"] .text-gray-600 { color: #c7bfb4; }
+[data-theme="dark"] .text-gray-500 { color: #a89f94; }
+[data-theme="dark"] .text-gray-400 { color: #8a827a; }
+[data-theme="dark"] .text-gray-300 { color: #6b645c; }
+[data-theme="dark"] .bg-gray-100 { background-color: #221d18; }
+[data-theme="dark"] .bg-gray-50 { background-color: #201b16; }
+[data-theme="dark"] .border-gray-100 { border-color: #2f2822; }
+[data-theme="dark"] .border-gray-300 { border-color: #3d352d; }
+[data-theme="dark"] a.underline { color: inherit; }

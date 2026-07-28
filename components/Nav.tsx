@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 const LINKS = [
   { href: "/work", label: "Work" },
@@ -14,19 +15,25 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 bg-[#f0ebe0]/90 backdrop-blur-sm border-b-2 border-black">
+    <header
+      className="sticky top-0 z-50 backdrop-blur-sm"
+      style={{
+        background: "color-mix(in srgb, var(--bg) 90%, transparent)",
+        borderBottom: "2px solid var(--border)",
+      }}
+    >
       <nav className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         {/* Brand */}
         <Link
           href="/"
-          className="font-black uppercase tracking-tight text-black"
-          style={{ fontSize: 18, letterSpacing: "-0.02em" }}
+          className="font-black uppercase tracking-tight"
+          style={{ fontSize: 18, letterSpacing: "-0.02em", color: "var(--fg)" }}
         >
-          KATE<span className="text-[#e8212e]">™</span>
+          KATE<span style={{ color: "var(--accent-red)" }}>™</span>
         </Link>
 
         {/* Links */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
           {LINKS.map((link) => {
             const active = pathname === link.href || pathname.startsWith(link.href + "/");
             return (
@@ -37,8 +44,8 @@ export default function Nav() {
                 style={{
                   fontSize: 11,
                   letterSpacing: "0.12em",
-                  color: active ? "#000" : "#888",
-                  borderBottom: active ? "2px solid #f5e642" : "2px solid transparent",
+                  color: active ? "var(--fg)" : "var(--muted)",
+                  borderBottom: active ? "2px solid var(--accent)" : "2px solid transparent",
                   paddingBottom: 2,
                 }}
               >
@@ -52,11 +59,19 @@ export default function Nav() {
             href="/cv.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="uppercase font-bold bg-black text-[#f5e642] hover:bg-[#e8212e] hover:text-white transition-colors"
-            style={{ fontSize: 11, letterSpacing: "0.1em", padding: "6px 12px" }}
+            className="uppercase font-bold transition-colors hover:opacity-80"
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.1em",
+              padding: "6px 12px",
+              background: "var(--border)",
+              color: "var(--bg)",
+            }}
           >
             Download CV
           </a>
+
+          <ThemeToggle />
         </div>
       </nav>
     </header>

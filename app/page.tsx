@@ -33,7 +33,8 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen bg-[#f0ebe0] flex flex-col items-center justify-center gap-6 select-none"
+      className="min-h-screen flex flex-col items-center justify-center gap-6 select-none"
+      style={{ background: "var(--bg)" }}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
@@ -55,8 +56,8 @@ export default function Home() {
             width: W, height: H,
             transform: `translateZ(${D / 2}px)`,
             backfaceVisibility: "hidden",
-            background: "#fdf6ee",
-            border: "3px solid #111",
+            background: "var(--panel)",
+            border: "3px solid var(--border)",
             display: "flex", flexDirection: "column",
             overflow: "hidden",
           }}>
@@ -86,8 +87,8 @@ export default function Home() {
               display: "flex",
               alignItems: "flex-end",
               position: "relative",
-              background: "#f0e8d8",
-              borderTop: "2px solid #111",
+              background: "var(--inner)",
+              borderTop: "2px solid var(--border)",
             }}>
               {/* Left space — future items */}
               <div style={{
@@ -100,7 +101,7 @@ export default function Home() {
                 {[0, 1, 2].map(i => (
                   <div key={i} style={{
                     width: 52, height: 52,
-                    border: "1.5px dashed #bbb",
+                    border: "1.5px dashed var(--muted)",
                     borderRadius: 4,
                   }} />
                 ))}
@@ -119,6 +120,15 @@ export default function Home() {
                     objectPosition: "center top",
                   }}
                 />
+                {/* Night darkening overlay */}
+                <div style={{
+                  position: "absolute", inset: 0,
+                  background: "#0f0b08",
+                  opacity: "var(--night)",
+                  mixBlendMode: "multiply",
+                  pointerEvents: "none",
+                  transition: "opacity 0.3s ease",
+                }} />
               </div>
 
               {/* Right space — future items */}
@@ -131,7 +141,7 @@ export default function Home() {
                 {[0, 1, 2].map(i => (
                   <div key={i} style={{
                     width: 52, height: 52,
-                    border: "1.5px dashed #bbb",
+                    border: "1.5px dashed var(--muted)",
                     borderRadius: 4,
                   }} />
                 ))}
@@ -233,7 +243,7 @@ export default function Home() {
         </div>
       </div>
 
-      <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, color: "#bbb" }}>
+      <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, color: "var(--muted)" }}>
         drag to rotate
       </p>
     </main>

@@ -52,3 +52,30 @@ export async function getCertificates() {
     return [];
   }
 }
+
+export async function getAwards() {
+  if (!process.env.NOTION_AWARDS_DB) return [];
+
+  try {
+    const response = await notion.databases.query({
+      database_id: process.env.NOTION_AWARDS_DB,
+      sorts: [{ property: "Year", direction: "descending" }],
+    });
+
+    return response.results.map((page: any) => {
+      const props = page.properties;
+      return {
+        id: page.id,
+        name: props.Name?.title?.[0]?.plain_text ?? "",
+        project: props.Project?.rich_text?.[0]?.plain_text ?? "",
+        issuer: props.Issuer?.rich_text?.[0]?.plain_text ?? "",
+        year: props.Year?.number ?? null,
+        category: props.Category?.select?.name ?? null,
+        url: props.URL?.url ?? null,
+      };
+    });
+  } catch (e) {
+    console.error("Notion awards error:", e);
+    return [];
+  }
+}

@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
           {projects.map((project: any) => (
             <a
               key={project.id}
-              href={`/projects/${project.slug}`}
+              href={`/work/${project.slug}`}
               className="group block border border-gray-100 rounded-2xl overflow-hidden hover:border-gray-300 transition-colors"
             >
               {project.cover && (

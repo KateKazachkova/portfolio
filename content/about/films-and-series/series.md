@@ -13,7 +13,7 @@ Why I like it: I like the blend of real historical events with fictional ones.
 Poster: posters/sleepy-hollow-2016.jpg
 
 ## Star City
-Year:
+Year: 2026
 Why I like it:
 Poster: posters/star-city.jpg
 
@@ -33,7 +33,7 @@ Why I like it:
 Poster: posters/archive-81-2022.jpg
 
 ## Widow's Bay
-Year:
+Year: 2026
 Why I like it:
 Poster: posters/widows-bay.jpeg
 
@@ -53,7 +53,7 @@ Why I like it:
 Poster: posters/the-witcher.jpeg
 
 ## Something Very Bad Is Going to Happen
-Year:
+Year: 2026
 Why I like it:
 Poster: posters/something-very-bad.jpeg
 

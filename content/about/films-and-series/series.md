@@ -61,3 +61,68 @@ Poster: posters/something-very-bad.jpeg
 Year: 2024
 Why I like it:
 Poster: posters/georgie-and-mandy.jpg
+
+## Tales from the Crypt
+Year: 1989
+Why I like it:
+Poster: posters/tales-from-the-crypt.jpeg
+
+## Outlander: Blood of My Blood
+Year: 2025
+Why I like it:
+Poster: posters/outlander-blood-of-my-blood.jpeg
+
+## The Mentalist
+Year: 2008
+Why I like it:
+Poster: posters/the-mentalist.jpg
+
+## Good Omens
+Year: 2019
+Why I like it:
+Poster: posters/good-omens.webp
+
+## Dexter: Resurrection
+Year: 2025
+Why I like it:
+Poster: posters/dexter-resurrection.jpeg
+
+## Dexter
+Year: 2006
+Why I like it:
+Poster: posters/dexter.webp
+
+## Murdoch Mysteries
+Year: 2008
+Why I like it:
+Poster: posters/murdoch-mysteries.jpg
+
+## Bones
+Year: 2005
+Why I like it:
+Poster: posters/bones.jpeg
+
+## Lucifer
+Year: 2016
+Why I like it:
+Poster: posters/lucifer.jpg
+
+## Are You Afraid of the Dark?
+Year: 1990
+Why I like it:
+Poster: posters/are-you-afraid-of-the-dark.jpg
+
+## 3 Body Problem
+Year: 2024
+Why I like it:
+Poster: posters/3-body-problem.jpg
+
+## Doctor Who
+Year: 2005
+Why I like it:
+Poster: posters/doctor-who.jpg
+
+## Evil
+Year: 2019
+Why I like it:
+Poster: posters/evil.jpg

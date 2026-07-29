@@ -126,3 +126,33 @@ Poster: posters/doctor-who.jpg
 Year: 2019
 Why I like it:
 Poster: posters/evil.jpg
+
+## The X-Files
+Year: 1993
+Why I like it:
+Poster: posters/the-x-files.jpeg
+
+## American Horror Story
+Year: 2011
+Why I like it:
+Poster: posters/american-horror-story.webp
+
+## American Gods
+Year: 2017
+Why I like it:
+Poster: posters/american-gods.jpeg
+
+## Supernatural
+Year: 2005
+Why I like it:
+Poster: posters/supernatural.jpg
+
+## The Angry Beavers
+Year: 1997
+Why I like it:
+Poster: posters/the-angry-beavers.jpg
+
+## The 10th Kingdom
+Year: 1999
+Why I like it:
+Poster: posters/the-10th-kingdom.jpg

@@ -36,3 +36,13 @@ Poster: posters/it-chapter-two.jpeg
 Year: 1985
 Why I like it:
 Poster: posters/once-bitten.jpeg
+
+## Constantine
+Year: 2005
+Why I like it:
+Poster: posters/constantine.webp
+
+## Bridget Jones's Diary
+Year: 2001
+Why I like it:
+Poster: posters/bridget-joness-diary.jpg

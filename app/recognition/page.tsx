@@ -5,6 +5,7 @@ import {
   VERIFIED_PROJECTS,
   ORGANISATIONS,
   AWARD_RECORDS,
+  PROJECT_ORDER,
 } from "@/lib/awards";
 
 export const metadata = {
@@ -15,7 +16,12 @@ export const metadata = {
 const mono = "var(--font-mono), ui-monospace, monospace";
 
 export default function QualityCheck() {
-  const recordsByYear = [...AWARD_RECORDS].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+  const recordsByProject = PROJECT_ORDER
+    .map((project) => ({
+      project,
+      records: AWARD_RECORDS.filter((r) => r.project === project),
+    }))
+    .filter((g) => g.records.length > 0);
 
   return (
     <main className="min-h-screen">
@@ -196,24 +202,28 @@ export default function QualityCheck() {
           The full archive — {AWARD_STATS.gold} Gold · {AWARD_STATS.silver} Silver · {AWARD_STATS.bronze} Bronze, plus web distinctions.
         </p>
 
-        <div className="border-t-2" style={{ borderColor: "var(--border)" }}>
-          {/* header row */}
-          <div className="hidden md:grid grid-cols-[70px_1fr_1fr_1fr] gap-4 py-3 border-b" style={{ borderColor: "var(--border)", fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }}>
-            <span className="text-gray-400 uppercase">Year</span>
-            <span className="text-gray-400 uppercase">Award</span>
-            <span className="text-gray-400 uppercase">Project</span>
-            <span className="text-gray-400 uppercase">Recognition</span>
-          </div>
-          {recordsByYear.map((r) => (
-            <div key={r.id} className="grid grid-cols-1 md:grid-cols-[70px_1fr_1fr_1fr] gap-1 md:gap-4 py-4 border-b" style={{ borderColor: "var(--border)" }}>
-              <span style={{ fontFamily: mono, fontSize: 12 }} className="text-gray-400">{r.year ?? "—"}</span>
-              <span className="text-sm font-semibold" style={{ color: "var(--fg)" }}>
-                {r.externalUrl ? (
-                  <a href={r.externalUrl} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
-                ) : r.awardName}
-              </span>
-              <span className="text-sm text-gray-500">{r.project}</span>
-              <span className="text-sm" style={{ color: "var(--fg)" }}>{r.recognition}</span>
+        <div className="space-y-10">
+          {recordsByProject.map((group) => (
+            <div key={group.project}>
+              {/* group header */}
+              <div className="flex items-baseline justify-between border-b-2 pb-2 mb-1" style={{ borderColor: "var(--border)" }}>
+                <h3 className="text-sm font-black uppercase tracking-wide" style={{ color: "var(--fg)" }}>{group.project}</h3>
+                <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }} className="text-gray-400 uppercase">
+                  {group.records.length} record{group.records.length > 1 ? "s" : ""}
+                </span>
+              </div>
+              {group.records.map((r) => (
+                <div key={r.id} className="grid grid-cols-1 md:grid-cols-[60px_1.2fr_1.4fr_0.8fr] gap-1 md:gap-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+                  <span style={{ fontFamily: mono, fontSize: 12 }} className="text-gray-400">{r.year ?? "—"}</span>
+                  <span className="text-sm font-semibold" style={{ color: "var(--fg)" }}>
+                    {r.externalUrl ? (
+                      <a href={r.externalUrl} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
+                    ) : r.awardName}
+                  </span>
+                  <span className="text-sm text-gray-500">{r.category ?? ""}</span>
+                  <span className="text-sm md:text-right" style={{ color: "var(--fg)" }}>{r.recognition}</span>
+                </div>
+              ))}
             </div>
           ))}
         </div>

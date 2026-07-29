@@ -161,32 +161,48 @@ export type AwardRecord = {
   project: string;
   year: number | null;
   recognition: string;
+  category: string | null;
   externalUrl: string | null;
   featured: boolean;
 };
 
+// Display order for grouping records by project.
+export const PROJECT_ORDER = ["Ukrainska 15", "BulkSource", "WayPro", "OnsiSoft", "Agora"];
+
 export const AWARD_RECORDS: AwardRecord[] = [
-  { id: "muse-u15-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", externalUrl: null, featured: true },
-  { id: "muse-u15-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", externalUrl: null, featured: true },
-  { id: "cssda-u15", awardName: "CSS Design Awards", organisation: "CSS Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Best UI · Best UX · Best Innovation · Special Kudos", externalUrl: null, featured: true },
-  { id: "csswinner-u15", awardName: "CSS Winner", organisation: "CSS Winner", project: "Ukrainska 15", year: 2026, recognition: "Star", externalUrl: null, featured: true },
-  { id: "cssnectar-u15", awardName: "CSS Nectar", organisation: "CSS Nectar", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", externalUrl: null, featured: false },
-  { id: "designnominees-u15", awardName: "Design Nominees", organisation: "Design Nominees", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", externalUrl: null, featured: false },
-  { id: "french-u15", awardName: "French Design Awards", organisation: "French Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Silver", externalUrl: null, featured: false },
+  // ── Ukrainska 15 ──
+  { id: "muse-u15-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: null, externalUrl: null, featured: true },
+  { id: "muse-u15-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: null, externalUrl: null, featured: true },
+  { id: "cssda-u15", awardName: "CSS Design Awards", organisation: "CSS Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Best UI · Best UX · Best Innovation · Special Kudos", category: null, externalUrl: null, featured: true },
+  { id: "csswinner-u15", awardName: "CSS Winner", organisation: "CSS Winner", project: "Ukrainska 15", year: 2026, recognition: "Star", category: null, externalUrl: null, featured: true },
+  { id: "cssnectar-u15", awardName: "CSS Nectar", organisation: "CSS Nectar", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", category: null, externalUrl: null, featured: false },
+  { id: "designnominees-u15", awardName: "Design Nominees", organisation: "Design Nominees", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", category: null, externalUrl: null, featured: false },
+  { id: "french-u15", awardName: "French Design Awards", organisation: "French Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Silver", category: null, externalUrl: null, featured: false },
 
-  { id: "indigo-waypro", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "WayPro", year: 2025, recognition: "2× Gold + Silver", externalUrl: null, featured: true },
-  { id: "davey-waypro", awardName: "Davey Awards", organisation: "Davey Awards", project: "WayPro", year: 2025, recognition: "Gold — Best UI", externalUrl: null, featured: true },
-  { id: "london-waypro", awardName: "London Design Awards", organisation: "London Design Awards", project: "WayPro", year: 2024, recognition: "Gold", externalUrl: null, featured: false },
-  { id: "muse-waypro", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "WayPro", year: 2025, recognition: "Silver", externalUrl: null, featured: false },
+  // ── BulkSource ──
+  { id: "london-bulksource", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "3× Silver", category: null, externalUrl: null, featured: false },
+  { id: "nyx-bulksource", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "3× Silver", category: null, externalUrl: null, featured: false },
+  { id: "indigo-bulksource-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Silver", category: "Digital Tools & Utilities", externalUrl: null, featured: false },
+  { id: "indigo-bulksource-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Silver", category: "Interactive Design", externalUrl: null, featured: false },
+  { id: "indigo-bulksource-3", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrl: null, featured: false },
+  { id: "nyproduct-bulksource", awardName: "NY Product Design Awards", organisation: "NY Product Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: null, externalUrl: null, featured: false },
 
-  { id: "london-bulksource", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "3× Silver", externalUrl: null, featured: false },
-  { id: "nyx-bulksource", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "3× Silver", externalUrl: null, featured: false },
-  { id: "indigo-bulksource", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "2× Silver + Bronze", externalUrl: null, featured: false },
-  { id: "nyproduct-bulksource", awardName: "NY Product Design Awards", organisation: "NY Product Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", externalUrl: null, featured: false },
+  // ── WayPro ──
+  { id: "indigo-waypro-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "WayPro", year: 2025, recognition: "Gold", category: "Mobile App", externalUrl: null, featured: true },
+  { id: "indigo-waypro-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "WayPro", year: 2025, recognition: "Gold", category: "Mobile Interaction & Experience", externalUrl: null, featured: true },
+  { id: "indigo-waypro-3", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "WayPro", year: 2025, recognition: "Silver", category: null, externalUrl: null, featured: false },
+  { id: "davey-waypro", awardName: "Davey Awards", organisation: "Davey Awards", project: "WayPro", year: 2025, recognition: "Gold", category: "Mobile Features — Best UI", externalUrl: null, featured: true },
+  { id: "london-waypro", awardName: "London Design Awards", organisation: "London Design Awards", project: "WayPro", year: 2024, recognition: "Gold", category: null, externalUrl: null, featured: false },
+  { id: "muse-waypro", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "WayPro", year: 2025, recognition: "Silver", category: null, externalUrl: null, featured: false },
 
-  { id: "nyx-onsisoft", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", externalUrl: null, featured: false },
-  { id: "muse-onsisoft", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", externalUrl: null, featured: false },
-  { id: "indigo-onsisoft", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Silver + Bronze", externalUrl: null, featured: false },
+  // ── OnsiSoft ──
+  { id: "nyx-onsisoft", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", category: null, externalUrl: null, featured: false },
+  { id: "muse-onsisoft", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", category: null, externalUrl: null, featured: false },
+  { id: "indigo-onsisoft-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Digital Tools & Utilities", externalUrl: null, featured: false },
+  { id: "indigo-onsisoft-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrl: null, featured: false },
 
-  { id: "indigo-agora", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Silver + 2× Bronze", externalUrl: null, featured: false },
+  // ── Agora (88 Ltd, 2020) ──
+  { id: "indigo-agora-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Silver", category: "WordPress Themes", externalUrl: null, featured: false },
+  { id: "indigo-agora-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Bronze", category: "Website Design", externalUrl: null, featured: false },
+  { id: "indigo-agora-3", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrl: null, featured: false },
 ];

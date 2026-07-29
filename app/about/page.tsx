@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getFilms, getSeries, type WatchItem } from "@/lib/content";
+import FilmStack from "@/components/FilmStack";
 import { getRideStats, getLongestRides } from "@/lib/strava";
 import { polylineToSvgPath } from "@/lib/polyline";
 import { buildStaticMapUrl } from "@/lib/staticmap";
@@ -335,7 +336,12 @@ export default async function About() {
       <Part n="08" title="Reference Library">
         <p className="text-gray-500 mb-8 max-w-2xl">What I watch — a small archive of series and films on the shelf.</p>
         <WatchSection title="Series" items={series} />
-        <WatchSection title="Films" items={films} />
+        <div className="mt-10">
+          <p style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
+            Films · {films.length} · VHS shelf
+          </p>
+          <FilmStack films={films} />
+        </div>
       </Part>
     </main>
   );

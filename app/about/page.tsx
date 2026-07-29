@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getFilms, getSeries, type WatchItem } from "@/lib/content";
 import { getRideStats, getLongestRides } from "@/lib/strava";
 import { polylineToSvgPath } from "@/lib/polyline";
+import { buildStaticMapUrl } from "@/lib/staticmap";
 
 export const revalidate = 3600;
 
@@ -260,6 +261,7 @@ export default async function About() {
               <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-4">Longest rides</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {activities.map((a) => {
+                  const mapUrl = a.polyline ? buildStaticMapUrl(a.polyline) : null;
                   const path = a.polyline ? polylineToSvgPath(a.polyline) : null;
                   return (
                     <a
@@ -271,7 +273,10 @@ export default async function About() {
                     >
                       {/* Route map */}
                       <div className="aspect-square flex items-center justify-center" style={{ background: "var(--inner)" }}>
-                        {path ? (
+                        {mapUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={mapUrl} alt={`Route of ${a.name}`} className="w-full h-full object-cover" />
+                        ) : path ? (
                           <svg viewBox="0 0 100 100" className="w-full h-full">
                             <path d={path} fill="none" stroke="var(--accent-red)" strokeWidth={2}
                               strokeLinejoin="round" strokeLinecap="round" />

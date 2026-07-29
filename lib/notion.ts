@@ -59,17 +59,18 @@ export async function getAwards() {
   try {
     const response = await notion.databases.query({
       database_id: process.env.NOTION_AWARDS_DB,
-      sorts: [{ property: "Year", direction: "descending" }],
+      sorts: [{ property: "Date", direction: "descending" }],
     });
 
     return response.results.map((page: any) => {
       const props = page.properties;
+      const dateStart = props.Date?.date?.start ?? null;
       return {
         id: page.id,
         name: props.Name?.title?.[0]?.plain_text ?? "",
         project: props.Project?.rich_text?.[0]?.plain_text ?? "",
         issuer: props.Issuer?.rich_text?.[0]?.plain_text ?? "",
-        year: props.Year?.number ?? null,
+        year: dateStart ? new Date(dateStart).getFullYear() : null,
         category: props.Category?.select?.name ?? null,
         url: props.URL?.url ?? null,
       };

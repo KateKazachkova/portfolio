@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getFilms, getSeries, type WatchItem } from "@/lib/content";
-import { getRunStats, getRecentActivities } from "@/lib/strava";
+import { getRideStats, getLongestRides } from "@/lib/strava";
 
 export const revalidate = 3600;
 
@@ -113,7 +113,7 @@ const SKILLS = [
 export default async function About() {
   const films = getFilms();
   const series = getSeries();
-  const [stats, activities] = await Promise.all([getRunStats(), getRecentActivities(3)]);
+  const [stats, activities] = await Promise.all([getRideStats(), getLongestRides(3)]);
 
   return (
     <main className="min-h-screen px-8 py-20 max-w-5xl mx-auto">
@@ -228,7 +228,7 @@ export default async function About() {
       {stats && (
         <section className="mb-16">
           <div className="flex items-baseline justify-between mb-5">
-            <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold">Running 🏃</h2>
+            <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold">Cycling 🚴</h2>
             <a
               href="https://www.strava.com/athletes/52565503"
               target="_blank" rel="noopener noreferrer"
@@ -242,7 +242,7 @@ export default async function About() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             {[
               { label: "Distance", value: `${stats.distanceKm.toLocaleString()} km` },
-              { label: "Runs", value: stats.runs.toLocaleString() },
+              { label: "Rides", value: stats.rides.toLocaleString() },
               { label: "Time", value: `${stats.timeHours.toLocaleString()} h` },
               { label: "Elevation", value: `${stats.elevationM.toLocaleString()} m` },
             ].map((s) => (
@@ -253,9 +253,10 @@ export default async function About() {
             ))}
           </div>
 
-          {/* Recent activities */}
+          {/* Longest rides */}
           {activities.length > 0 && (
             <div className="divide-y divide-gray-100">
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold pb-2">Longest rides</p>
               {activities.map((a) => (
                 <div key={a.id} className="flex items-center justify-between gap-4 py-3">
                   <div>

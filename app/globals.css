@@ -4,27 +4,38 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  /* Light (day) */
-  --bg: #f0ebe0;
-  --fg: #14110d;
-  --panel: #fdf6ee;      /* box front / cards */
-  --inner: #f0e8d8;      /* inner window bg */
-  --border: #111111;
-  --muted: #8a827a;
-  --accent: #f5e642;     /* yellow — constant */
-  --accent-red: #e8212e; /* red — constant */
+  /* Light (day) — warm paper archive */
+  --bg: #efe9dd;         /* warm paper */
+  --fg: #201d18;         /* soft black / graphite */
+  --panel: #f7f2e8;      /* card / document sheet */
+  --inner: #e7e0d1;      /* inner window / recessed */
+  --border: #26221c;     /* soft black ink border */
+  --hairline: #cdc5b4;   /* thin archive divider */
+  --muted: #8c8375;      /* muted grey */
+  /* Ink accents — use sparingly */
+  --accent: #f2df3f;     /* highlighter yellow */
+  --accent-red: #d8352a; /* deep red ink */
+  --accent-blue: #2f4a6b;/* archive blue */
+  --accent-green: #3d6b4c;/* inspection green */
   --night: 0;            /* doll darkening: 0 = none */
+  --grain: 0.05;         /* paper grain strength */
 }
 
 [data-theme="dark"] {
   /* Warm dark (night) */
   --bg: #1a1613;
-  --fg: #f0ebe0;
+  --fg: #efe7d8;
   --panel: #221d18;
   --inner: #2a241e;
-  --border: #f0ebe0;
+  --border: #efe7d8;
+  --hairline: #3a332b;
   --muted: #9a9086;
+  --accent: #f2df3f;
+  --accent-red: #e8443a;
+  --accent-blue: #6f93bd;
+  --accent-green: #6fa07f;
   --night: 0.35;         /* darken the doll at night */
+  --grain: 0.04;
 }
 
 @theme inline {
@@ -35,11 +46,79 @@
 }
 
 body {
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--fg);
   font-family: Arial, Helvetica, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
 }
+
+/* Paper grain — a faint, fixed overlay so surfaces feel printed, not digital */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="dark"] body::before { mix-blend-mode: screen; }
+
+/* Keep page content above the grain */
+body > * { position: relative; z-index: 1; }
+
+/* ── Materiality helpers ── */
+/* Thin archive divider */
+.hairline { border-color: var(--hairline) !important; }
+
+/* Inspection stamp — rotated ink outline */
+.stamp {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  border: 2px solid var(--accent-red);
+  color: var(--accent-red);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 4px 10px;
+  transform: rotate(-4deg);
+  display: inline-block;
+}
+
+/* Masking-tape strip */
+.tape {
+  position: relative;
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+  padding: 2px 12px;
+  transform: rotate(-1.5deg);
+}
+
+/* Document / archive reference number */
+.doc-ref {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* Index-card / document sheet */
+.sheet {
+  background: var(--panel);
+  border: 2px solid var(--border);
+}
+
+/* Corner registration/crop marks on a bordered block */
+.crop-marks { position: relative; }
+.crop-marks::before,
+.crop-marks::after {
+  content: "";
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: var(--muted);
+  border-style: solid;
+}
+.crop-marks::before { top: -5px; left: -5px; border-width: 1px 0 0 1px; }
+.crop-marks::after { bottom: -5px; right: -5px; border-width: 0 1px 1px 0; }
 
 /* Centralised dark overrides for the Tailwind grays used across pages */
 [data-theme="dark"] .text-gray-900 { color: #f0ebe0; }

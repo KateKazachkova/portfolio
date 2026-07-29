@@ -6,6 +6,19 @@ import { buildStaticMapUrl } from "@/lib/staticmap";
 
 export const revalidate = 3600;
 
+const mono = "var(--font-mono), ui-monospace, monospace";
+
+const SPECS: [string, string][] = [
+  ["MODEL", "KATE™"],
+  ["SERIAL", "PD-001"],
+  ["CATEGORY", "Product Designer"],
+  ["ASSEMBLED", "Ukraine"],
+  ["CURRENT LOCATION", "Poland"],
+  ["EXPERIENCE", "10 years"],
+  ["KNOWN FEATURES", "Systems thinking · engineering mindset"],
+  ["KNOWN ISSUE", "Still asks “Why?”"],
+];
+
 const EXPERIENCE = [
   {
     company: "AMTOSS (ACT Software)",
@@ -118,47 +131,73 @@ export default async function About() {
   const [stats, activities] = await Promise.all([getRideStats(), getLongestRides(3)]);
 
   return (
-    <main className="min-h-screen px-8 py-20 max-w-5xl mx-auto">
-      <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">About</p>
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">Kate Kazachkova</h1>
-      <div className="text-lg text-gray-600 leading-relaxed max-w-2xl mb-16 space-y-4">
-        <p>
-          Product design leader with 10 years in UX and product design and a background
-          in physics (DAAD scholarship). I head the product design department at AMTOSS
-          and lead design of BulkSource — a US B2B supply-chain SaaS platform I designed
-          from 0→1 and carried single-handedly for four years before building the design
-          team around it.
+    <main className="min-h-screen px-8 py-16 max-w-5xl mx-auto">
+      {/* ── Manual cover ── */}
+      <div className="border-2 p-8 md:p-12 mb-20" style={{ borderColor: "var(--border)" }}>
+        <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em" }} className="text-gray-400 uppercase mb-6">
+          Assembly Manual · PD-001
         </p>
-        <p>
-          My work has earned 30 international design awards, and a product I design was
-          featured on Fox Business national TV. Beyond my job I lead the IxDF Kharkiv
-          chapter, author accredited university-level design courses, and have mentored
-          500+ designers. I aim to bring this experience in complex B2B systems and
-          design communities to the UK&apos;s digital technology sector.
+        <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-3" style={{ color: "var(--fg)" }}>
+          Kate Kazachkova
+        </h1>
+        <p className="text-lg text-gray-500 mb-10">
+          Product Designer Doll™ — assembly &amp; operation guide.
         </p>
+
+        {/* Spec table */}
+        <div className="border-t-2 grid grid-cols-1 sm:grid-cols-2 gap-x-10" style={{ borderColor: "var(--border)" }}>
+          {SPECS.map(([k, v], i) => (
+            <div
+              key={k}
+              className="flex justify-between gap-4 py-3 border-b"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase pt-0.5">{k}</span>
+              <span style={{ fontFamily: mono, fontSize: 12 }} className="text-right font-semibold" >{v}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Experience */}
-      <section className="mb-16">
-        <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-6">Experience</h2>
+      {/* 01 — Overview */}
+      <Part n="01" title="Overview">
+        <div className="text-lg text-gray-600 leading-relaxed max-w-2xl space-y-4">
+          <p>
+            Product design leader with 10 years in UX and product design and a background
+            in physics (DAAD scholarship). I head the product design department at AMTOSS
+            and lead design of BulkSource — a US B2B supply-chain SaaS platform I designed
+            from 0→1 and carried single-handedly for four years before building the design
+            team around it.
+          </p>
+          <p>
+            My work has earned 30 international design awards, and a product I design was
+            featured on Fox Business national TV. Beyond my job I lead the IxDF Kharkiv
+            chapter, author accredited university-level design courses, and have mentored
+            500+ designers.
+          </p>
+        </div>
+      </Part>
+
+      {/* 02 — Field History */}
+      <Part n="02" title="Field History">
         {EXPERIENCE.map((job) => (
-          <div key={job.company} className="mb-10">
+          <div key={job.company} className="mb-10 last:mb-0">
             <div className="flex items-baseline justify-between flex-wrap gap-2">
               <h3 className="text-xl font-semibold text-gray-900">{job.company}</h3>
-              <span className="text-sm text-gray-400">{job.period}</span>
+              <span style={{ fontFamily: mono, fontSize: 11 }} className="text-gray-400">{job.period}</span>
             </div>
             <p className="text-sm text-gray-500 italic mt-1 mb-5">{job.note}</p>
-            <div className="space-y-6 border-l-2 border-gray-100 pl-5">
+            <div className="space-y-6 border-l-2 pl-5" style={{ borderColor: "var(--border)" }}>
               {job.roles.map((role) => (
                 <div key={role.title}>
                   <div className="flex items-baseline justify-between flex-wrap gap-2 mb-2">
                     <p className="font-semibold text-gray-900">{role.title}</p>
-                    <span className="text-xs text-gray-400">{role.period}</span>
+                    <span style={{ fontFamily: mono, fontSize: 10 }} className="text-gray-400">{role.period}</span>
                   </div>
                   <ul className="space-y-2">
                     {role.points.map((p) => (
                       <li key={p} className="text-sm text-gray-600 leading-relaxed flex gap-2">
-                        <span className="text-gray-300">✦</span>
+                        <span style={{ color: "var(--accent-red)" }}>✦</span>
                         <span>{p}</span>
                       </li>
                     ))}
@@ -168,79 +207,68 @@ export default async function About() {
             </div>
           </div>
         ))}
-      </section>
+      </Part>
 
-      {/* Leadership beyond work */}
-      <section className="mb-16">
-        <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-6">Community, Teaching &amp; Mentoring</h2>
+      {/* 03 — Community & Teaching */}
+      <Part n="03" title="Community & Teaching">
         <div className="space-y-6">
           {TEACHING.map((item) => (
             <div key={item.title}>
               <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
                 <p className="font-semibold text-gray-900">{item.title}</p>
-                <span className="text-xs text-gray-400 whitespace-nowrap">{item.period}</span>
+                <span style={{ fontFamily: mono, fontSize: 10 }} className="text-gray-400 whitespace-nowrap">{item.period}</span>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">{item.text}</p>
             </div>
           ))}
         </div>
-      </section>
+      </Part>
 
-      {/* Education */}
-      <section className="mb-16">
-        <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-6">Education</h2>
-        <div className="divide-y divide-gray-100">
+      {/* 04 — Specifications */}
+      <Part n="04" title="Specifications">
+        <div className="mb-8">
+          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">Capabilities</p>
+          <div className="flex flex-wrap gap-2">
+            {SKILLS.map((s) => (
+              <span key={s} className="text-sm font-medium px-3 py-1 border" style={{ borderColor: "var(--border)" }}>{s}</span>
+            ))}
+          </div>
+          <p className="text-sm text-gray-500 mt-4">Languages: Ukrainian (native) · Russian (fluent) · English</p>
+        </div>
+
+        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-3">Education</p>
+        <div className="border-t" style={{ borderColor: "var(--border)" }}>
           {EDUCATION.map((e) => (
-            <div key={e.degree} className="flex items-start justify-between gap-6 py-4">
+            <div key={e.degree} className="flex items-start justify-between gap-6 py-3 border-b" style={{ borderColor: "var(--border)" }}>
               <div>
-                <p className="font-medium text-gray-900">{e.degree}</p>
-                <p className="text-sm text-gray-500 mt-1">{e.org}</p>
+                <p className="font-medium text-gray-900 text-sm">{e.degree}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{e.org}</p>
               </div>
-              <span className="text-sm text-gray-400 whitespace-nowrap">{e.period}</span>
+              <span style={{ fontFamily: mono, fontSize: 11 }} className="text-gray-400 whitespace-nowrap">{e.period}</span>
             </div>
           ))}
         </div>
-      </section>
+      </Part>
 
-      {/* Skills */}
-      <section className="mb-16">
-        <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-5">Skills</h2>
-        <div className="flex flex-wrap gap-2">
-          {SKILLS.map((s) => (
-            <span key={s} className="text-sm font-medium px-3 py-1 border" style={{ borderColor: "var(--border)" }}>
-              {s}
-            </span>
-          ))}
-        </div>
-        <p className="text-sm text-gray-500 mt-4">Ukrainian (native) · Russian (fluent) · English</p>
-      </section>
-
-      {/* Recognition callout */}
-      <section className="mb-16">
+      {/* 05 — Recognition */}
+      <Part n="05" title="Recognition">
         <div className="flex items-baseline justify-between mb-3">
-          <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold">Recognition</h2>
-          <Link href="/recognition" className="text-xs font-bold uppercase tracking-wider underline hover:no-underline">
-            All awards →
+          <p className="text-gray-600">30 international design awards — 6 Gold · 20 Silver · 4 Bronze.</p>
+          <Link href="/recognition" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
+            Quality Check →
           </Link>
         </div>
-        <p className="text-gray-600">30 international design awards — 6 Gold · 20 Silver · 4 Bronze.</p>
-      </section>
+      </Part>
 
-      {/* Running — Strava */}
+      {/* 06 — Cycling */}
       {stats && (
-        <section className="mb-16">
-          <div className="flex items-baseline justify-between mb-5">
-            <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold">Cycling 🚴</h2>
-            <a
-              href="https://www.strava.com/athletes/52565503"
-              target="_blank" rel="noopener noreferrer"
-              className="text-xs font-bold uppercase tracking-wider underline hover:no-underline"
-            >
-              Strava →
+        <Part n="06" title="Cycling — Field Telemetry">
+          <div className="flex justify-end mb-4">
+            <a href="https://www.strava.com/athletes/52565503" target="_blank" rel="noopener noreferrer"
+              className="uppercase font-bold underline hover:no-underline text-gray-400" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
+              Strava ↗
             </a>
           </div>
-
-          {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
             {[
               { label: "Distance", value: `${stats.distanceKm.toLocaleString()} km` },
@@ -250,46 +278,37 @@ export default async function About() {
             ].map((s) => (
               <div key={s.label} className="border-2 p-4" style={{ borderColor: "var(--border)" }}>
                 <div className="text-2xl font-black" style={{ color: "var(--fg)" }}>{s.value}</div>
-                <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mt-1">{s.label}</div>
+                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }} className="text-gray-400 uppercase mt-1">{s.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Longest rides */}
           {activities.length > 0 && (
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-4">Longest rides</p>
+              <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">Longest rides</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {activities.map((a) => {
                   const mapUrl = a.polyline ? buildStaticMapUrl(a.polyline) : null;
                   const path = a.polyline ? polylineToSvgPath(a.polyline) : null;
                   return (
-                    <a
-                      key={a.id}
-                      href={`https://www.strava.com/activities/${a.id}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="group block border-2 overflow-hidden hover:opacity-90 transition-opacity"
-                      style={{ borderColor: "var(--border)" }}
-                    >
-                      {/* Route map */}
+                    <a key={a.id} href={`https://www.strava.com/activities/${a.id}`} target="_blank" rel="noopener noreferrer"
+                      className="group block border-2 overflow-hidden hover:opacity-90 transition-opacity" style={{ borderColor: "var(--border)" }}>
                       <div className="aspect-square flex items-center justify-center" style={{ background: "var(--inner)" }}>
                         {mapUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={mapUrl} alt={`Route of ${a.name}`} className="w-full h-full object-cover" />
                         ) : path ? (
                           <svg viewBox="0 0 100 100" className="w-full h-full">
-                            <path d={path} fill="none" stroke="var(--accent-red)" strokeWidth={2}
-                              strokeLinejoin="round" strokeLinecap="round" />
+                            <path d={path} fill="none" stroke="var(--accent-red)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
                           </svg>
                         ) : (
                           <span className="text-xs text-gray-400">No route</span>
                         )}
                       </div>
-                      {/* Info */}
                       <div className="p-3 border-t-2" style={{ borderColor: "var(--border)" }}>
                         <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{a.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">{a.distanceKm} km · {a.movingMin} min</p>
-                        <p className="text-[11px] text-gray-400 mt-0.5">
+                        <p style={{ fontFamily: mono, fontSize: 11 }} className="text-gray-500 mt-1">{a.distanceKm} km · {a.movingMin} min</p>
+                        <p style={{ fontFamily: mono, fontSize: 10 }} className="text-gray-400 mt-0.5">
                           {a.date ? new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""}
                         </p>
                       </div>
@@ -299,24 +318,38 @@ export default async function About() {
               </div>
             </div>
           )}
-        </section>
+        </Part>
       )}
 
-      {/* Travels preview → map */}
-      <section className="mb-16">
-        <div className="flex items-baseline justify-between mb-5">
-          <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold">Travels</h2>
-          <Link href="/about/map" className="text-xs font-bold uppercase tracking-wider underline hover:no-underline">
+      {/* 07 — Travels */}
+      <Part n="07" title="Travels">
+        <div className="flex items-baseline justify-between">
+          <p className="text-gray-500 italic">A map of places I&apos;ve been — coming soon.</p>
+          <Link href="/about/map" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
             View map →
           </Link>
         </div>
-        <p className="text-gray-500 italic">A map of places I&apos;ve been — coming soon.</p>
-      </section>
+      </Part>
 
-      {/* Watching */}
-      <WatchSection title="Series" items={series} />
-      <WatchSection title="Films" items={films} />
+      {/* 08 — Reference Library */}
+      <Part n="08" title="Reference Library">
+        <p className="text-gray-500 mb-8 max-w-2xl">What I watch — a small archive of series and films on the shelf.</p>
+        <WatchSection title="Series" items={series} />
+        <WatchSection title="Films" items={films} />
+      </Part>
     </main>
+  );
+}
+
+function Part({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
+  return (
+    <section className="mb-20 last:mb-0">
+      <div className="flex items-baseline gap-4 mb-6 border-b-2 pb-3" style={{ borderColor: "var(--border)" }}>
+        <span style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
+        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>{title}</h2>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -324,34 +357,25 @@ function WatchSection({ title, items }: { title: string; items: WatchItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <section className="mb-16">
-      <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-5">
-        {title} <span className="text-gray-300">· {items.length}</span>
-      </h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+    <div className="mb-10 last:mb-0">
+      <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
+        {title} · {items.length}
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         {items.map((item) => (
           <div key={item.title} className="group">
-            <div
-              className="aspect-[2/3] border-2 overflow-hidden flex items-center justify-center mb-2"
-              style={{ borderColor: "var(--border)", background: "var(--inner)" }}
-            >
+            <div className="aspect-[2/3] border-2 overflow-hidden flex items-center justify-center mb-2" style={{ borderColor: "var(--border)", background: "var(--inner)" }}>
               {item.poster ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={item.poster} alt={item.title} className="w-full h-full object-cover" />
               ) : (
-                <span
-                  className="text-center px-2 font-black uppercase leading-tight"
-                  style={{ fontSize: 13, letterSpacing: "-0.01em", color: "var(--fg)" }}
-                >
-                  {item.title}
-                </span>
+                <span className="text-center px-2 font-black uppercase leading-tight" style={{ fontSize: 12, color: "var(--fg)" }}>{item.title}</span>
               )}
             </div>
-            <p className="text-sm font-semibold text-gray-900 leading-tight">{item.title}</p>
-            {item.why && <p className="text-xs text-gray-500 italic mt-1 leading-snug">{item.why}</p>}
+            <p className="text-xs font-semibold text-gray-900 leading-tight">{item.title}</p>
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

@@ -39,6 +39,7 @@ export type StravaActivity = {
   movingMin: number;
   date: string;
   type: string;
+  polyline: string | null;
 };
 
 export async function getRideStats(): Promise<StravaStats> {
@@ -97,6 +98,7 @@ export async function getLongestRides(limit = 3): Promise<StravaActivity[]> {
       movingMin: Math.round((a.moving_time ?? 0) / 60),
       date: a.start_date_local ?? "",
       type: a.type ?? "",
+      polyline: a.map?.summary_polyline || null,
     }));
 }
 

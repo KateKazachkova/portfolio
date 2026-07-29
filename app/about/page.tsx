@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getFilms, getSeries, type WatchItem } from "@/lib/content";
 import { getRideStats, getLongestRides } from "@/lib/strava";
+import { polylineToSvgPath } from "@/lib/polyline";
 
 export const revalidate = 3600;
 
@@ -255,19 +256,42 @@ export default async function About() {
 
           {/* Longest rides */}
           {activities.length > 0 && (
-            <div className="divide-y divide-gray-100">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold pb-2">Longest rides</p>
-              {activities.map((a) => (
-                <div key={a.id} className="flex items-center justify-between gap-4 py-3">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">{a.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {a.date ? new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""}
-                    </p>
-                  </div>
-                  <span className="text-sm text-gray-500 whitespace-nowrap">{a.distanceKm} km · {a.movingMin} min</span>
-                </div>
-              ))}
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-4">Longest rides</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {activities.map((a) => {
+                  const path = a.polyline ? polylineToSvgPath(a.polyline) : null;
+                  return (
+                    <a
+                      key={a.id}
+                      href={`https://www.strava.com/activities/${a.id}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="group block border-2 overflow-hidden hover:opacity-90 transition-opacity"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      {/* Route map */}
+                      <div className="aspect-square flex items-center justify-center" style={{ background: "var(--inner)" }}>
+                        {path ? (
+                          <svg viewBox="0 0 100 100" className="w-full h-full">
+                            <path d={path} fill="none" stroke="var(--accent-red)" strokeWidth={2}
+                              strokeLinejoin="round" strokeLinecap="round" />
+                          </svg>
+                        ) : (
+                          <span className="text-xs text-gray-400">No route</span>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div className="p-3 border-t-2" style={{ borderColor: "var(--border)" }}>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{a.name}</p>
+                        <p className="text-xs text-gray-500 mt-1">{a.distanceKm} km · {a.movingMin} min</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">
+                          {a.date ? new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""}
+                        </p>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           )}
         </section>

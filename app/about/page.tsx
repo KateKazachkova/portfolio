@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { getFilms, getSeries, type WatchItem } from "@/lib/content";
+import { getRunStats, getRecentActivities } from "@/lib/strava";
+
+export const revalidate = 3600;
 
 const EXPERIENCE = [
   {
@@ -107,9 +110,10 @@ const SKILLS = [
   "Business Analysis", "AI-First Design (Figma + Claude)", "Figma", "Adobe Creative Suite",
 ];
 
-export default function About() {
+export default async function About() {
   const films = getFilms();
   const series = getSeries();
+  const [stats, activities] = await Promise.all([getRunStats(), getRecentActivities(3)]);
 
   return (
     <main className="min-h-screen px-8 py-20 max-w-5xl mx-auto">
@@ -219,6 +223,54 @@ export default function About() {
         </div>
         <p className="text-gray-600">30 international design awards — 6 Gold · 20 Silver · 4 Bronze.</p>
       </section>
+
+      {/* Running — Strava */}
+      {stats && (
+        <section className="mb-16">
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="text-xs uppercase tracking-widest text-gray-400 font-bold">Running 🏃</h2>
+            <a
+              href="https://www.strava.com/athletes/52565503"
+              target="_blank" rel="noopener noreferrer"
+              className="text-xs font-bold uppercase tracking-wider underline hover:no-underline"
+            >
+              Strava →
+            </a>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            {[
+              { label: "Distance", value: `${stats.distanceKm.toLocaleString()} km` },
+              { label: "Runs", value: stats.runs.toLocaleString() },
+              { label: "Time", value: `${stats.timeHours.toLocaleString()} h` },
+              { label: "Elevation", value: `${stats.elevationM.toLocaleString()} m` },
+            ].map((s) => (
+              <div key={s.label} className="border-2 p-4" style={{ borderColor: "var(--border)" }}>
+                <div className="text-2xl font-black" style={{ color: "var(--fg)" }}>{s.value}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mt-1">{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent activities */}
+          {activities.length > 0 && (
+            <div className="divide-y divide-gray-100">
+              {activities.map((a) => (
+                <div key={a.id} className="flex items-center justify-between gap-4 py-3">
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">{a.name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {a.date ? new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""}
+                    </p>
+                  </div>
+                  <span className="text-sm text-gray-500 whitespace-nowrap">{a.distanceKm} km · {a.movingMin} min</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Travels preview → map */}
       <section className="mb-16">

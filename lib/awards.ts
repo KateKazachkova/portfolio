@@ -187,4 +187,6 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "nyx-onsisoft", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", externalUrl: null, featured: false },
   { id: "muse-onsisoft", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", externalUrl: null, featured: false },
   { id: "indigo-onsisoft", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Silver + Bronze", externalUrl: null, featured: false },
+
+  { id: "indigo-agora", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Silver + 2× Bronze", externalUrl: null, featured: false },
 ];

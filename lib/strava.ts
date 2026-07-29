@@ -124,6 +124,7 @@ export async function getRecentActivities(limit = 3): Promise<StravaActivity[]> 
         movingMin: Math.round((a.moving_time ?? 0) / 60),
         date: a.start_date_local ?? "",
         type: a.type ?? "",
+        polyline: a.map?.summary_polyline || null,
       }));
   } catch {
     return [];

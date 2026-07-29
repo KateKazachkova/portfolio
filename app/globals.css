@@ -5,20 +5,20 @@
 
 :root {
   /* Light (day) — warm paper archive */
-  --bg: #efe9dd;         /* warm paper */
+  --bg: #e9e0cd;         /* warm paper */
   --fg: #201d18;         /* soft black / graphite */
-  --panel: #f7f2e8;      /* card / document sheet */
-  --inner: #e7e0d1;      /* inner window / recessed */
-  --border: #26221c;     /* soft black ink border */
-  --hairline: #cdc5b4;   /* thin archive divider */
-  --muted: #8c8375;      /* muted grey */
+  --panel: #f4ecdb;      /* card / document sheet */
+  --inner: #ded4bf;      /* inner window / recessed */
+  --border: #2a251d;     /* soft black ink border */
+  --hairline: #c3b9a3;   /* thin archive divider */
+  --muted: #857c6c;      /* muted grey */
   /* Ink accents — use sparingly */
   --accent: #f2df3f;     /* highlighter yellow */
   --accent-red: #d8352a; /* deep red ink */
   --accent-blue: #2f4a6b;/* archive blue */
   --accent-green: #3d6b4c;/* inspection green */
   --night: 0;            /* doll darkening: 0 = none */
-  --grain: 0.05;         /* paper grain strength */
+  --grain: 0.09;         /* paper grain strength */
 }
 
 [data-theme="dark"] {

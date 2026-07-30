@@ -26,10 +26,10 @@ export default function Home() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/suitcase/open.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" draggable={false} />
 
-        {/* Trophy on the left shelf */}
+        {/* Trophy on the left shelf (top cubby above the drawers) */}
         <div
           className="group"
-          style={{ position: "absolute", left: "26.5%", top: "13%", width: "11.5%" }}
+          style={{ position: "absolute", left: "28%", top: "11.5%", width: "10%" }}
           title="Award — In recognition of “Redesigning the Redesign”"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

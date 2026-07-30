@@ -68,6 +68,23 @@ body::before {
 /* Keep page content above the grain */
 body > * { position: relative; z-index: 1; }
 
+/* ── Time-of-day ambient wash (set via data-daytime on <html>) ── */
+:root { --ambient: transparent; }
+:root[data-daytime="morning"] { --ambient: radial-gradient(130% 90% at 78% -12%, rgba(255,204,128,0.34), rgba(255,204,128,0) 55%); }
+:root[data-daytime="day"]     { --ambient: linear-gradient(180deg, rgba(188,214,255,0.16), rgba(255,255,255,0) 42%); }
+:root[data-daytime="evening"] { --ambient: radial-gradient(135% 105% at 18% 112%, rgba(233,138,66,0.38), rgba(233,138,66,0) 55%); }
+:root[data-daytime="night"]   { --ambient: radial-gradient(120% 95% at 50% -12%, rgba(64,96,158,0.40), rgba(30,40,70,0.10) 60%); }
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--ambient, transparent);
+  transition: background 0.7s ease;
+}
+
 /* ── Materiality helpers ── */
 /* Thin archive divider */
 .hairline { border-color: var(--hairline) !important; }

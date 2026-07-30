@@ -1,44 +1,17 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
-
-type Edition = {
-  key: string;
-  label: string;
-  slogan: string | null;
-  range: string;
-  items: string[];
-};
-
-const EDITIONS: Record<string, Edition> = {
-  morning: { key: "morning", label: "Morning Edition", slogan: "Loading… Please Wait", range: "07–09", items: ["Mushroom mug", "Blue cardigan", "Stitch pyjamas"] },
-  office:  { key: "office",  label: "Day Edition",     slogan: "The Investigator",   range: "09–17", items: ["Polaroid", "Notebook", "VHS", "Case folder"] },
-  street:  { key: "street",  label: "Street Edition",  slogan: "Urban Explorer",     range: "17–19", items: ["Flashlight", "Old map", "Compass", "Key"] },
-  evening: { key: "evening", label: "Evening Edition", slogan: null,                 range: "19–23", items: [] },
-  night:   { key: "night",   label: "Deep Night Edition", slogan: "Archive Mode",    range: "23–07", items: ["Blanket", "Harari books", "Film negatives"] },
-};
-
-function editionForHour(h: number): Edition {
-  if (h >= 7 && h < 9) return EDITIONS.morning;
-  if (h >= 9 && h < 17) return EDITIONS.office;
-  if (h >= 17 && h < 19) return EDITIONS.street;
-  if (h >= 19 && h < 23) return EDITIONS.evening;
-  return EDITIONS.night;
-}
+import { useTime } from "@/components/TimeProvider";
+import { EDITIONS, editionForHour } from "@/lib/time";
 
 const mono = "var(--font-mono), ui-monospace, monospace";
 
 export default function Home() {
-  const [hour, setHour] = useState<number | null>(null);
-
-  useEffect(() => { setHour(new Date().getHours()); }, []);
-  const setNow = useCallback(() => setHour(new Date().getHours()), []);
-
+  const { hour, setHour, setNow } = useTime();
   const edition = hour === null ? EDITIONS.office : editionForHour(hour);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14" style={{ background: "var(--bg)" }}>
+    <main className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14" style={{ background: "transparent" }}>
 
       {/* Eyebrow */}
       <div className="text-center">
@@ -71,7 +44,7 @@ export default function Home() {
 
       {/* Caption */}
       <div className="text-center -mt-2">
-        <p style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em" }} className="uppercase" >
+        <p style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em" }} className="uppercase">
           {edition.label}{edition.slogan ? ` · “${edition.slogan}”` : ""}
         </p>
         <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }} className="text-gray-400 uppercase mt-1">

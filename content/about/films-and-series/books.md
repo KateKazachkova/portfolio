@@ -26,3 +26,13 @@ Poster: posters/21-lessons.webp
 Year: 1943
 Why I like it:
 Poster: posters/the-little-prince.jpeg
+
+## Animal Farm
+Year: 1945
+Why I like it:
+Poster: posters/animal-farm.jpg
+
+## Monday Begins on Saturday
+Year: 1965
+Why I like it:
+Poster: posters/monday-begins-on-saturday.jpeg

@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { getFilms, getSeries, type WatchItem } from "@/lib/content";
+import { getFilms, getSeries, getBooks } from "@/lib/content";
 import FilmStack from "@/components/FilmStack";
+import DiscStack from "@/components/DiscStack";
+import BookShelf from "@/components/BookShelf";
 import { getRideStats, getLongestRides } from "@/lib/strava";
 import { polylineToSvgPath } from "@/lib/polyline";
 import { buildStaticMapUrl } from "@/lib/staticmap";
@@ -129,6 +131,7 @@ const SKILLS = [
 export default async function About() {
   const films = getFilms();
   const series = getSeries();
+  const books = getBooks();
   const [stats, activities] = await Promise.all([getRideStats(), getLongestRides(3)]);
 
   return (
@@ -334,13 +337,34 @@ export default async function About() {
 
       {/* 08 — Reference Library */}
       <Part n="08" title="Reference Library">
-        <p className="text-gray-500 mb-8 max-w-2xl">What I watch — a small archive of series and films on the shelf.</p>
-        <WatchSection title="Series" items={series} />
-        <div className="mt-10">
-          <p style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
+        <p className="text-gray-500 mb-10 max-w-2xl">What I watch and read — a small archive on the shelf.</p>
+
+        {/* Series — disc rack */}
+        <div className="mb-12">
+          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
+            Series · {series.length} · disc rack
+          </p>
+          <DiscStack series={series} />
+        </div>
+
+        {/* Films — VHS shelf */}
+        <div className="mb-12">
+          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
             Films · {films.length} · VHS shelf
           </p>
           <FilmStack films={films} />
+        </div>
+
+        {/* Books — shelf */}
+        <div>
+          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
+            Books · {books.length} · shelf
+          </p>
+          {books.length > 0 ? (
+            <BookShelf books={books} />
+          ) : (
+            <p className="text-gray-400 italic text-sm">Books — coming soon.</p>
+          )}
         </div>
       </Part>
     </main>
@@ -359,29 +383,3 @@ function Part({ n, title, children }: { n: string; title: string; children: Reac
   );
 }
 
-function WatchSection({ title, items }: { title: string; items: WatchItem[] }) {
-  if (items.length === 0) return null;
-
-  return (
-    <div className="mb-10 last:mb-0">
-      <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
-        {title} · {items.length}
-      </p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {items.map((item) => (
-          <div key={item.title} className="group">
-            <div className="aspect-[2/3] border-2 overflow-hidden flex items-center justify-center mb-2" style={{ borderColor: "var(--border)", background: "var(--inner)" }}>
-              {item.poster ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.poster} alt={item.title} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-center px-2 font-black uppercase leading-tight" style={{ fontSize: 12, color: "var(--fg)" }}>{item.title}</span>
-              )}
-            </div>
-            <p className="text-xs font-semibold text-gray-900 leading-tight">{item.title}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}

@@ -61,3 +61,7 @@ export function getFilms(): WatchItem[] {
 export function getSeries(): WatchItem[] {
   return parseList("series.md");
 }
+
+export function getBooks(): WatchItem[] {
+  return parseList("books.md");
+}

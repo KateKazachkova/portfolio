@@ -39,7 +39,7 @@ const EDITIONS: Record<string, Edition> = {
   },
   night: {
     key: "night", label: "Deep Night Edition", slogan: "Archive Mode", range: "23–07",
-    image: null,
+    image: "/dolls/night.png",
     items: ["Fluffy blanket", "Harari books", "Film negatives"],
   },
 };
@@ -280,7 +280,7 @@ export default function Home() {
       {/* Manual clock */}
       <div className="mt-4">
         <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase text-center mb-3">
-          Set the time {hour !== null ? `· ${String(hour).padStart(2, "0")}:00` : ""}
+          Set the time {hour !== null ? `· ${((hour % 12) || 12)}:00 ${hour >= 12 ? "PM" : "AM"}` : ""}
         </p>
         <EditionClock hour={hour ?? 12} onChange={setHour} onNow={setNow} />
       </div>

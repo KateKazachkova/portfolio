@@ -26,6 +26,22 @@ export default function Home() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/suitcase/open.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" draggable={false} />
 
+        {/* Trophy on the left shelf */}
+        <div
+          className="group"
+          style={{ position: "absolute", left: "26.5%", top: "13%", width: "11.5%" }}
+          title="Award — In recognition of “Redesigning the Redesign”"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/trophy.png"
+            alt="Award: Redesigning the Redesign"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ border: "2px solid var(--border)", boxShadow: "0 6px 10px rgba(0,0,0,0.4)" }}
+            draggable={false}
+          />
+        </div>
+
         {/* Doll in the central niche */}
         <div
           className="group"

@@ -38,18 +38,18 @@ export default function Home() {
 
       {/* Suitcase */}
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
-        {/* Ground shadow */}
+        {/* Contact shadow — sits right under the base */}
         <div
           aria-hidden
           style={{
             position: "absolute",
             left: "50%",
-            bottom: "-1%",
+            bottom: "11%",
             transform: "translateX(-50%)",
-            width: "78%",
-            height: "7%",
-            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.30), rgba(0,0,0,0) 70%)",
-            filter: "blur(7px)",
+            width: "88%",
+            height: "3.5%",
+            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.40), rgba(0,0,0,0) 72%)",
+            filter: "blur(5px)",
             zIndex: 0,
           }}
         />

@@ -59,7 +59,7 @@ export default function Home() {
         {/* Trophy on the left shelf (top cubby above the drawers) */}
         <div
           className="group"
-          style={{ position: "absolute", left: "28%", top: "11.5%", width: "10%" }}
+          style={{ position: "absolute", left: "28%", top: "11.5%", width: "10%", zIndex: 2 }}
           title="Award — In recognition of “Redesigning the Redesign”"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -75,7 +75,7 @@ export default function Home() {
         {/* Doll in the central niche */}
         <div
           className="group"
-          style={{ position: "absolute", left: "49%", bottom: "18%", height: "60%", transform: "translateX(-50%)" }}
+          style={{ position: "absolute", left: "49.4%", bottom: "20%", height: "58%", transform: "translateX(-50%)", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

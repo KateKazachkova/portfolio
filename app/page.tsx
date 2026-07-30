@@ -11,9 +11,16 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 // <video> errors and hides gracefully, leaving the static suitcase.
 const INTRO_SRC = "/suitcase/intro.webm";
 
+// Animated (transparent WebM) doll per edition; falls back to the static cutout.
+const EDITION_VIDEO: Record<string, string> = {
+  office: "/dolls/video/office.webm",
+};
+
 export default function Home() {
   const { hour, setHour, setNow } = useTime();
   const edition = hour === null ? EDITIONS.office : editionForHour(hour);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const dollVideo = EDITION_VIDEO[edition.key];
 
   // Play the opening clip once per visitor (localStorage-gated)
   const [showIntro, setShowIntro] = useState(false);
@@ -77,14 +84,26 @@ export default function Home() {
           className="group"
           style={{ position: "absolute", left: "49.4%", bottom: "20%", height: "58%", transform: "translateX(-50%)", zIndex: 2 }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`/dolls/cut/${edition.key}.png`}
-            alt={edition.label}
-            className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
-            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
-            draggable={false}
-          />
+          {dollVideo && !videoFailed ? (
+            <video
+              key={dollVideo}
+              src={dollVideo}
+              autoPlay muted loop playsInline
+              onError={() => setVideoFailed(true)}
+              poster={`/dolls/cut/${edition.key}.png`}
+              className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
+              style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/dolls/cut/${edition.key}.png`}
+              alt={edition.label}
+              className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
+              style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
+              draggable={false}
+            />
+          )}
         </div>
 
         {/* Intro clip — plays once, then reveals the static suitcase */}

@@ -7,7 +7,22 @@ Why I like it: ...
 Poster: posters/filename.jpg   (book cover — put the file in public/posters/)
 -->
 
-## Title
-Year:
+## Sapiens: A Brief History of Humankind
+Year: 2011
 Why I like it:
-Poster:
+Poster: posters/sapiens.jpg
+
+## Homo Deus: A Brief History of Tomorrow
+Year: 2015
+Why I like it:
+Poster: posters/homo-deus.jpg
+
+## 21 Lessons for the 21st Century
+Year: 2018
+Why I like it:
+Poster: posters/21-lessons.webp
+
+## The Little Prince
+Year: 1943
+Why I like it:
+Poster: posters/the-little-prince.jpeg

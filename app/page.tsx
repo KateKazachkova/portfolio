@@ -38,8 +38,23 @@ export default function Home() {
 
       {/* Suitcase */}
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
+        {/* Ground shadow */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: "-1%",
+            transform: "translateX(-50%)",
+            width: "78%",
+            height: "7%",
+            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.30), rgba(0,0,0,0) 70%)",
+            filter: "blur(7px)",
+            zIndex: 0,
+          }}
+        />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/suitcase/open.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" draggable={false} />
+        <img src="/suitcase/open.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" style={{ zIndex: 1 }} draggable={false} />
 
         {/* Trophy on the left shelf (top cubby above the drawers) */}
         <div

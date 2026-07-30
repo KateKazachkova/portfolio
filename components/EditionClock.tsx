@@ -23,6 +23,8 @@ export default function EditionClock({
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const dragging = useRef(false);
+  const hourRef = useRef(hour);
+  hourRef.current = hour;
 
   const isPM = hour >= 12;
   // 12h face: 12 at top, 30° per hour.
@@ -40,10 +42,19 @@ export default function EditionClock({
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
     const deg = (Math.atan2(clientY - cy, clientX - cx) * 180) / Math.PI + 90;
-    const h12 = Math.round((((deg % 360) + 360) % 360) / 30) % 12; // 0..11
-    const next = isPM ? h12 + 12 : h12; // keep current AM/PM half
-    onChange(next % 24);
-  }, [onChange, isPM]);
+    const targetH12 = Math.round((((deg % 360) + 360) % 360) / 30) % 12; // 0..11
+
+    // Move by the shortest step from the current position, applied to the
+    // absolute 24h hour — so passing 12 o'clock carries over into AM/PM.
+    const cur = hourRef.current;
+    const curH12 = cur % 12;
+    let delta = targetH12 - curH12;
+    if (delta > 6) delta -= 12;
+    if (delta < -6) delta += 12;
+    const next = (cur + delta + 24) % 24;
+    hourRef.current = next;
+    onChange(next);
+  }, [onChange]);
 
   const toggleMeridiem = () => onChange(isPM ? hour - 12 : hour + 12);
 

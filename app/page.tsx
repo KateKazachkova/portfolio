@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import EditionClock from "@/components/EditionClock";
 
 const W = 360;
 const H = 520;
@@ -56,12 +57,15 @@ export default function Home() {
   const lastMouse = useRef({ x: 0, y: 0 });
 
   const [rot, setRot] = useState({ x: -12, y: 22 });
-  const [edition, setEdition] = useState<Edition | null>(null);
+  const [hour, setHour] = useState<number | null>(null);
 
-  // Pick edition from the visitor's local time (client only → no hydration mismatch)
+  // Default to the visitor's local time (client only → no hydration mismatch)
   useEffect(() => {
-    setEdition(editionForHour(new Date().getHours()));
+    setHour(new Date().getHours());
   }, []);
+
+  const setNow = useCallback(() => setHour(new Date().getHours()), []);
+  const edition = hour === null ? null : editionForHour(hour);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     isDragging.current = true;
@@ -265,12 +269,20 @@ export default function Home() {
       <div className="text-center">
         {edition && (
           <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-1">
-            {edition.label} · shown for your local time
+            {edition.label}{edition.slogan ? ` · “${edition.slogan}”` : ""}
           </p>
         )}
         <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, color: "var(--muted)" }}>
-          drag to rotate
+          drag box to rotate
         </p>
+      </div>
+
+      {/* Manual clock */}
+      <div className="mt-4">
+        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase text-center mb-3">
+          Set the time {hour !== null ? `· ${String(hour).padStart(2, "0")}:00` : ""}
+        </p>
+        <EditionClock hour={hour ?? 12} onChange={setHour} onNow={setNow} />
       </div>
     </main>
   );

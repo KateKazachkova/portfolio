@@ -37,7 +37,7 @@ export default function Home() {
             src="/items/trophy.png"
             alt="Award: Redesigning the Redesign"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ border: "2px solid var(--border)", boxShadow: "0 6px 10px rgba(0,0,0,0.4)" }}
+            style={{ filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.35))" }}
             draggable={false}
           />
         </div>

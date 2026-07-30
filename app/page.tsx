@@ -1,14 +1,29 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour } from "@/lib/time";
 
 const mono = "var(--font-mono), ui-monospace, monospace";
 
+// Intro clip (transparent WebM). Drop the file here; until it exists the
+// <video> errors and hides gracefully, leaving the static suitcase.
+const INTRO_SRC = "/suitcase/intro.webm";
+
 export default function Home() {
   const { hour, setHour, setNow } = useTime();
   const edition = hour === null ? EDITIONS.office : editionForHour(hour);
+
+  // Play the opening clip once per visitor (localStorage-gated)
+  const [showIntro, setShowIntro] = useState(false);
+  useEffect(() => {
+    try { if (!localStorage.getItem("introSeen")) setShowIntro(true); } catch {}
+  }, []);
+  const endIntro = () => {
+    setShowIntro(false);
+    try { localStorage.setItem("introSeen", "1"); } catch {}
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14" style={{ background: "transparent" }}>
@@ -56,6 +71,20 @@ export default function Home() {
             draggable={false}
           />
         </div>
+
+        {/* Intro clip — plays once, then reveals the static suitcase */}
+        {showIntro && (
+          <video
+            src={INTRO_SRC}
+            autoPlay
+            muted
+            playsInline
+            onEnded={endIntro}
+            onError={endIntro}
+            className="absolute inset-0 w-full h-full object-contain z-20"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
       </div>
 
       {/* Caption */}

@@ -120,10 +120,20 @@ export default function Home() {
           />
         </div>
 
+        {/* Brass gallery rail across the middle shelf — sits in front of the cassettes */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/top boarder.png"
+          alt=""
+          aria-hidden
+          style={{ position: "absolute", left: "8.7%", top: "43.5%", width: "16.5%", height: "auto", zIndex: 3 }}
+          draggable={false}
+        />
+
         {/* Right door — bottom shelf: books */}
         <div
           className="group"
-          style={{ position: "absolute", left: "75.5%", top: "70%", width: "12%", zIndex: 2 }}
+          style={{ position: "absolute", left: "75.5%", top: "67.5%", width: "11.4%", zIndex: 2 }}
           title="Animal Farm · The Little Prince"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

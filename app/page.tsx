@@ -82,7 +82,7 @@ export default function Home() {
         {/* Left door — top shelf: TV box sets */}
         <div
           className="group"
-          style={{ position: "absolute", left: "10.5%", top: "12.6%", width: "13%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.5%", top: "13.7%", width: "13%", zIndex: 2 }}
           title="Box sets — Doctor Who · How I Met Your Mother"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

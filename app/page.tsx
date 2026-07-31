@@ -101,7 +101,7 @@ export default function Home() {
           src="/items/top boarder.png"
           alt=""
           aria-hidden
-          style={{ position: "absolute", left: "9.5%", top: "23%", width: "14.85%", height: "auto", zIndex: 3 }}
+          style={{ position: "absolute", left: "10%", top: "23.7%", width: "13.8%", height: "auto", zIndex: 3 }}
           draggable={false}
         />
 
@@ -127,7 +127,7 @@ export default function Home() {
           src="/items/top boarder.png"
           alt=""
           aria-hidden
-          style={{ position: "absolute", left: "9.5%", top: "45%", width: "14.85%", height: "auto", zIndex: 3 }}
+          style={{ position: "absolute", left: "10%", top: "45.7%", width: "13.8%", height: "auto", zIndex: 3 }}
           draggable={false}
         />
 

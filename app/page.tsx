@@ -61,7 +61,7 @@ export default function Home() {
           }}
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/suitcase/open.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" style={{ zIndex: 1 }} draggable={false} />
+        <img src="/suitcase/open2.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" style={{ zIndex: 1 }} draggable={false} />
 
         {/* Trophy on the left shelf (top cubby above the drawers) */}
         <div

@@ -4,26 +4,27 @@ import { useState } from "react";
 
 /**
  * Evening edition — the doll sits in the niche and reads.
- * The clip is pre-cropped to the niche and carries its own feathered alpha
- * (exported from the .mov), so it drops straight onto the suitcase niche with
- * no CSS masking. It plays the sit-down-and-read transition once and then
- * holds on its last frame (the settled reading pose).
  *
- * loop + tea accent will be added once those clips are exported with the
- * identical crop.
+ * The clip is generated straight into a crop of the real suitcase niche
+ * (openpart.png), so it is OPAQUE and drops onto the niche region 1:1 — no
+ * masking, no clip-path, no per-pixel fitting. The overlay rect below is the
+ * exact position of that niche crop inside the suitcase image, found by
+ * template-matching (corr 0.997), so it lines up on both open.png and open2.png.
  *
- * Safari can't play VP9-alpha video, so a matching poster (the settled reading
- * frame, with alpha) sits behind and shows there and during the load gap.
+ * A poster (the video's own first frame) sits behind and shows during the load
+ * gap and as the fallback where the browser can't autoplay the video.
+ *
+ * A tea-sip accent will be layered on once its clip is regenerated.
  */
-const SIT = "/dolls/video/evening_sit2.webm";
-const POSTER = "/dolls/video/evening_niche_poster.png";
+const READ = "/dolls/video/evening_read.mp4";
+const POSTER = "/dolls/video/niche_poster.jpg";
 
-// Placement of the niche crop inside the suitcase container (aspect 410/800).
+// Exact niche rect inside the suitcase container (matches openpart.png).
 const NICHE = {
   position: "absolute",
-  left: "40.05%",
-  top: "23.99%",
-  width: "19.05%",
+  left: "40.62%",
+  top: "11.43%",
+  width: "18.16%",
   height: "auto",
   maxWidth: "none",
   display: "block",
@@ -42,9 +43,10 @@ export default function EveningNiche() {
       />
       {!failed && (
         <video
-          src={SIT}
+          src={READ}
           autoPlay
           muted
+          loop
           playsInline
           onError={() => setFailed(true)}
           style={{ ...NICHE, zIndex: 3 }}

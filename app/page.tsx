@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
+import EveningNiche from "@/components/EveningNiche";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour } from "@/lib/time";
 
@@ -100,7 +101,7 @@ export default function Home() {
           src="/items/top boarder.png"
           alt=""
           aria-hidden
-          style={{ position: "absolute", left: "8.7%", top: "21.5%", width: "16.5%", height: "auto", zIndex: 3 }}
+          style={{ position: "absolute", left: "9.5%", top: "23%", width: "14.85%", height: "auto", zIndex: 3 }}
           draggable={false}
         />
 
@@ -126,14 +127,14 @@ export default function Home() {
           src="/items/top boarder.png"
           alt=""
           aria-hidden
-          style={{ position: "absolute", left: "8.7%", top: "43.5%", width: "16.5%", height: "auto", zIndex: 3 }}
+          style={{ position: "absolute", left: "9.5%", top: "45%", width: "14.85%", height: "auto", zIndex: 3 }}
           draggable={false}
         />
 
         {/* Right door — bottom shelf: books */}
         <div
           className="group"
-          style={{ position: "absolute", left: "75.5%", top: "67.5%", width: "11.4%", zIndex: 2 }}
+          style={{ position: "absolute", left: "75.5%", top: "69%", width: "11.4%", zIndex: 2 }}
           title="Animal Farm · The Little Prince"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -163,32 +164,37 @@ export default function Home() {
         </div>
         */}
 
-        {/* Doll in the central niche */}
-        <div
-          className="group"
-          style={{ position: "absolute", left: "49.4%", bottom: "20%", height: "58%", transform: "translateX(-50%)", zIndex: 2 }}
-        >
-          {dollVideo && !videoFailed ? (
-            <video
-              key={dollVideo}
-              src={dollVideo}
-              autoPlay muted loop playsInline
-              onError={() => setVideoFailed(true)}
-              poster={`/dolls/cut/${edition.key}.png`}
-              className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
-              style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={`/dolls/cut/${edition.key}.png`}
-              alt={edition.label}
-              className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
-              style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
-              draggable={false}
-            />
-          )}
-        </div>
+        {/* Central niche — Evening plays the sit → read → tea video sequence
+            (clipped to the niche arch); other editions show the doll cutout. */}
+        {edition.key === "evening" ? (
+          <EveningNiche />
+        ) : (
+          <div
+            className="group"
+            style={{ position: "absolute", left: "49.4%", bottom: "20%", height: "58%", transform: "translateX(-50%)", zIndex: 2 }}
+          >
+            {dollVideo && !videoFailed ? (
+              <video
+                key={dollVideo}
+                src={dollVideo}
+                autoPlay muted loop playsInline
+                onError={() => setVideoFailed(true)}
+                poster={`/dolls/cut/${edition.key}.png`}
+                className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
+                style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/dolls/cut/${edition.key}.png`}
+                alt={edition.label}
+                className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
+                style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
+                draggable={false}
+              />
+            )}
+          </div>
+        )}
 
         {/* Intro clip – plays once, then reveals the static suitcase */}
         {showIntro && (

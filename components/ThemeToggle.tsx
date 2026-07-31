@@ -21,7 +21,7 @@ export default function ThemeToggle() {
 
   // Avoid hydration mismatch – render a neutral button until mounted
   if (theme === null) {
-    return <span style={{ width: 32, height: 32, display: "inline-block" }} aria-hidden />;
+    return <span style={{ width: 26, height: 26, display: "inline-block" }} aria-hidden />;
   }
 
   return (
@@ -30,11 +30,11 @@ export default function ThemeToggle() {
       aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
       className="flex items-center justify-center border-2 transition-colors"
       style={{
-        width: 32,
-        height: 32,
+        width: 26,
+        height: 26,
         borderColor: "var(--border)",
         color: "var(--fg)",
-        fontSize: 14,
+        fontSize: 12,
         lineHeight: 1,
       }}
     >

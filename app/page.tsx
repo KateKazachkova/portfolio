@@ -108,7 +108,7 @@ export default function Home() {
         {/* Left door — middle shelf: books */}
         <div
           className="group"
-          style={{ position: "absolute", left: "11.3%", top: "34.5%", width: "11.4%", zIndex: 2 }}
+          style={{ position: "absolute", left: "12.2%", top: "32.8%", width: "11.4%", zIndex: 2 }}
           title="The 10th Kingdom · Are You Afraid of the Dark?"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

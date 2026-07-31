@@ -82,7 +82,7 @@ export default function Home() {
         {/* Left door — top shelf: TV box sets */}
         <div
           className="group"
-          style={{ position: "absolute", left: "10.5%", top: "13.7%", width: "13%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.5%", top: "13.0%", width: "13%", zIndex: 2 }}
           title="Box sets — Doctor Who · How I Met Your Mother"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -108,7 +108,7 @@ export default function Home() {
         {/* Left door — middle shelf: books */}
         <div
           className="group"
-          style={{ position: "absolute", left: "12.2%", top: "32.8%", width: "11.4%", zIndex: 2 }}
+          style={{ position: "absolute", left: "14.9%", top: "29.8%", width: "9.4%", zIndex: 2 }}
           title="The 10th Kingdom · Are You Afraid of the Dark?"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -36,6 +36,7 @@ const CLIP = {
 const FILL = {
   position: "absolute",
   width: "214%",
+  maxWidth: "none", // override Tailwind Preflight's `img,video{max-width:100%}`, which would clamp the 214% scale
   left: "-53.5%",
   top: "-8.3%",
   height: "auto",

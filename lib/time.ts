@@ -24,7 +24,7 @@ export function editionForHour(h: number): Edition {
 
 export type Daytime = "morning" | "day" | "evening" | "night";
 
-// Ambient mood for the whole site — groups the 5 editions into 4 moods.
+// Ambient mood for the whole site – groups the 5 editions into 4 moods.
 export function daytimeForHour(h: number): Daytime {
   const e = editionForHour(h).key;
   if (e === "morning") return "morning";

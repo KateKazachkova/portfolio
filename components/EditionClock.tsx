@@ -45,7 +45,7 @@ export default function EditionClock({
     const targetH12 = Math.round((((deg % 360) + 360) % 360) / 30) % 12; // 0..11
 
     // Move by the shortest step from the current position, applied to the
-    // absolute 24h hour — so passing 12 o'clock carries over into AM/PM.
+    // absolute 24h hour – so passing 12 o'clock carries over into AM/PM.
     const cur = hourRef.current;
     const curH12 = cur % 12;
     let delta = targetH12 - curH12;

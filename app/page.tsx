@@ -45,7 +45,7 @@ export default function Home() {
 
       {/* Suitcase */}
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
-        {/* Contact shadow — sits right under the base */}
+        {/* Contact shadow – sits right under the base */}
         <div
           aria-hidden
           style={{
@@ -67,7 +67,7 @@ export default function Home() {
         <div
           className="group"
           style={{ position: "absolute", left: "28%", top: "11.5%", width: "10%", zIndex: 2 }}
-          title="Award — In recognition of “Redesigning the Redesign”"
+          title="Award – In recognition of “Redesigning the Redesign”"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -106,7 +106,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* Intro clip — plays once, then reveals the static suitcase */}
+        {/* Intro clip – plays once, then reveals the static suitcase */}
         {showIntro && (
           <video
             src={INTRO_SRC}

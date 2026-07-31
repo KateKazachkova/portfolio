@@ -25,27 +25,27 @@ const SPECS: [string, string][] = [
 const EXPERIENCE = [
   {
     company: "AMTOSS (ACT Software)",
-    period: "Jan 2021 — Present",
+    period: "Jan 2021 – Present",
     note: "B2B SaaS across supply-chain, compliance, EdTech and IT-management. Joined as the sole product designer and built the flagship platform BulkSource from the ground up; progressed to Head of Design in four years.",
     roles: [
       {
         title: "Head of Design Department",
-        period: "Apr 2025 — Present",
+        period: "Apr 2025 – Present",
         points: [
           "Own design strategy and scale product-design processes across four cross-functional B2B products (BulkSource, OnsiSoft, SaberWing, Atlas Technica).",
-          "Grew the design team from one designer to five in 14 months — hiring, onboarding and mentorship, within an open, collaborative culture.",
-          "Built a Claude plugin with seven custom AI-agent skills automating the end-to-end Figma workflow — cutting full-screen design time from 70–90 min to ~10 min (≈85%).",
+          "Grew the design team from one designer to five in 14 months – hiring, onboarding and mentorship, within an open, collaborative culture.",
+          "Built a Claude plugin with seven custom AI-agent skills automating the end-to-end Figma workflow – cutting full-screen design time from 70–90 min to ~10 min (≈85%).",
           "Led the Transportation Management System (TMS) from concept to launch, and managed the native iOS app for field reps through to App Store release.",
-          "SaberWing (AI-first EdTech for UK schools): led UX/UI from concept — AI learning assistant, student profiles, the tutor system and the UX style guide.",
+          "SaberWing (AI-first EdTech for UK schools): led UX/UI from concept – AI learning assistant, student profiles, the tutor system and the UX style guide.",
         ],
       },
       {
         title: "Senior Product Designer",
-        period: "Jan 2021 — Apr 2025",
+        period: "Jan 2021 – Apr 2025",
         points: [
-          "Designed the BulkSource B2B supply-chain SaaS from the ground up (0→1) as the sole product designer — business analysis, UX research, UI, design systems and developer handoff.",
+          "Designed the BulkSource B2B supply-chain SaaS from the ground up (0→1) as the sole product designer – business analysis, UX research, UI, design systems and developer handoff.",
           "Built all core modules across web, a native Windows desktop app (integrating with on-site truck scales) and mobile; led the platform's first full redesign, supporting growth to a dozen US states.",
-          "OnsiSoft: drove design of the compliance & benefits SaaS for US government contractors — reduced support requests by 71% and lifted onboarding completion by 76%.",
+          "OnsiSoft: drove design of the compliance & benefits SaaS for US government contractors – reduced support requests by 71% and lifted onboarding completion by 76%.",
           "Atlas Technica: designed the MSP / IT-management web portal. WayPro: designed an award-winning logistics/route mobile app.",
           "BulkSource featured on Fox Business “The Claman Countdown” (2021) and named to the BuiltWorlds 2023 Infrastructure 50.",
         ],
@@ -53,22 +53,22 @@ const EXPERIENCE = [
     ],
   },
   {
-    company: "88 Ltd — Malta",
-    period: "Apr 2018 — Apr 2020",
+    company: "88 Ltd – Malta",
+    period: "Apr 2018 – Apr 2020",
     note: "Digital agency and product house serving banking, aviation, real-estate and public-sector clients.",
     roles: [
       {
         title: "Senior UX/UI Designer",
-        period: "Apr 2019 — Apr 2020",
+        period: "Apr 2019 – Apr 2020",
         points: [
-          "Led UX/UI of WISH — a research distribution & development system built with the NHS and Imperial College London — across the full enterprise platform (~14 screens).",
+          "Led UX/UI of WISH – a research distribution & development system built with the NHS and Imperial College London – across the full enterprise platform (~14 screens).",
           "Senior designer on flagship accounts: APS Bank, Izola Bank, AgriBank, RE/MAX Malta and Air Malta; trusted with the redesign of 88's own website.",
-          "Designed the Agora corporate website — Indigo Design Award 2020 winner (Silver + 2× Bronze); mentored a junior designer through live projects.",
+          "Designed the Agora corporate website – Indigo Design Award 2020 winner (Silver + 2× Bronze); mentored a junior designer through live projects.",
         ],
       },
       {
         title: "UX/UI & Graphic Designer",
-        period: "Apr 2018 — Apr 2019",
+        period: "Apr 2018 – Apr 2019",
         points: [
           "Designed multi-page websites and prototypes for RE/MAX Malta, Sunseeker Malta and others; delivered a two-app UX/UI system (Hashly).",
           "Produced editorial publications for the President's Foundation for the Wellbeing of Society (Office of the President of Malta); promoted to Senior within a year.",
@@ -78,12 +78,12 @@ const EXPERIENCE = [
   },
   {
     company: "Freelance & Contract",
-    period: "2015 — Apr 2018",
+    period: "2015 – Apr 2018",
     note: "Mapi7 · ART CUBE and independent clients.",
     roles: [
       {
         title: "Product Designer",
-        period: "2015 — Apr 2018",
+        period: "2015 – Apr 2018",
         points: [
           "Redesigned an e-commerce store and photobook constructor with before/after usability testing (Mapi7); full-cycle e-commerce design (ART CUBE).",
           "Freelance UX/UI and graphic design from 2015.",
@@ -95,32 +95,32 @@ const EXPERIENCE = [
 
 const TEACHING = [
   {
-    title: "Kharkiv Local Leader — Interaction Design Foundation (IxDF)",
-    period: "May 2025 — Present",
+    title: "Kharkiv Local Leader – Interaction Design Foundation (IxDF)",
+    period: "May 2025 – Present",
     text: "Lead one of six national IxDF chapters in Ukraine: 4+ meetups on design skills, AI in design and mentorship; publicly endorsed by the IxDF Ukraine lead.",
   },
   {
-    title: "Educator & Speaker — Kharkiv IT Cluster",
-    period: "Jun 2024 — Present",
+    title: "Educator & Speaker – Kharkiv IT Cluster",
+    period: "Jun 2024 – Present",
     text: "Authored and taught three accredited courses (Visual Design Basics, Design Systems 180h/6 ECTS, Product Design 90h/3 ECTS). My Product Design course was adopted into Zaporizhzhia National University's bachelor programme. Guest lectures to 50+ students across 4 universities.",
   },
   {
-    title: "Mentor — БУДЬ / INSCIENCE · Women For The Future · Happy Monday",
-    period: "2025 — Present",
+    title: "Mentor – БУДЬ / INSCIENCE · Women For The Future · Happy Monday",
+    period: "2025 – Present",
     text: "Mentored 53 designers through 66 one-to-one sessions; ran 14 sessions in Women For The Future. Published Figma Community templates with 14,400+ views and 3,300+ uses worldwide.",
   },
   {
-    title: "Conference Speaker — selected talks",
-    period: "2018 · 2025 — 2026",
-    text: "“Designing Boring Systems That Run the World” — Warsaw IT Days 2026 (co-presented). “AI for Designers” — AI Marathon, Kharkiv IT Cluster. Public workshops with 650+ YouTube views.",
+    title: "Conference Speaker – selected talks",
+    period: "2018 · 2025 – 2026",
+    text: "“Designing Boring Systems That Run the World” – Warsaw IT Days 2026 (co-presented). “AI for Designers” – AI Marathon, Kharkiv IT Cluster. Public workshops with 650+ YouTube views.",
   },
 ];
 
 const EDUCATION = [
-  { degree: "PhD track (Aspirantura), Solid State Physics", org: "V. N. Karazin Kharkiv National University", period: "2014 — 2021" },
+  { degree: "PhD track (Aspirantura), Solid State Physics", org: "V. N. Karazin Kharkiv National University", period: "2014 – 2021" },
   { degree: "Leonhard Euler Scholarship (DAAD)", org: "University of Duisburg-Essen", period: "2014" },
-  { degree: "Master's degree (with honours), Condensed Matter Physics", org: "V. N. Karazin Kharkiv National University", period: "2013 — 2014" },
-  { degree: "Bachelor's degree (with honours)", org: "V. N. Karazin Kharkiv National University", period: "2009 — 2013" },
+  { degree: "Master's degree (with honours), Condensed Matter Physics", org: "V. N. Karazin Kharkiv National University", period: "2013 – 2014" },
+  { degree: "Bachelor's degree (with honours)", org: "V. N. Karazin Kharkiv National University", period: "2009 – 2013" },
 ];
 
 const SKILLS = [
@@ -145,7 +145,7 @@ export default async function About() {
           Kate Kazachkova
         </h1>
         <p className="text-lg text-gray-500 mb-10">
-          Product Designer Doll™ — assembly &amp; operation guide.
+          Product Designer Doll™ – assembly &amp; operation guide.
         </p>
 
         {/* Spec table */}
@@ -163,13 +163,13 @@ export default async function About() {
         </div>
       </div>
 
-      {/* 01 — Overview */}
+      {/* 01 – Overview */}
       <Part n="01" title="Overview">
         <div className="text-lg text-gray-600 leading-relaxed max-w-2xl space-y-4">
           <p>
             Product design leader with 10 years in UX and product design and a background
             in physics (DAAD scholarship). I head the product design department at AMTOSS
-            and lead design of BulkSource — a US B2B supply-chain SaaS platform I designed
+            and lead design of BulkSource – a US B2B supply-chain SaaS platform I designed
             from 0→1 and carried single-handedly for four years before building the design
             team around it.
           </p>
@@ -182,7 +182,7 @@ export default async function About() {
         </div>
       </Part>
 
-      {/* 02 — Field History */}
+      {/* 02 – Field History */}
       <Part n="02" title="Field History">
         {EXPERIENCE.map((job) => (
           <div key={job.company} className="mb-10 last:mb-0">
@@ -213,7 +213,7 @@ export default async function About() {
         ))}
       </Part>
 
-      {/* 03 — Community & Teaching */}
+      {/* 03 – Community & Teaching */}
       <Part n="03" title="Community & Teaching">
         <div className="space-y-6">
           {TEACHING.map((item) => (
@@ -228,7 +228,7 @@ export default async function About() {
         </div>
       </Part>
 
-      {/* 04 — Specifications */}
+      {/* 04 – Specifications */}
       <Part n="04" title="Specifications">
         <div className="mb-8">
           <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">Capabilities</p>
@@ -254,19 +254,19 @@ export default async function About() {
         </div>
       </Part>
 
-      {/* 05 — Recognition */}
+      {/* 05 – Recognition */}
       <Part n="05" title="Recognition">
         <div className="flex items-baseline justify-between mb-3">
-          <p className="text-gray-600">30 international design awards — 6 Gold · 20 Silver · 4 Bronze.</p>
+          <p className="text-gray-600">30 international design awards – 6 Gold · 20 Silver · 4 Bronze.</p>
           <Link href="/recognition" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
             Quality Check →
           </Link>
         </div>
       </Part>
 
-      {/* 06 — Cycling */}
+      {/* 06 – Cycling */}
       {stats && (
-        <Part n="06" title="Cycling — Field Telemetry">
+        <Part n="06" title="Cycling – Field Telemetry">
           <div className="flex justify-end mb-4">
             <a href="https://www.strava.com/athletes/52565503" target="_blank" rel="noopener noreferrer"
               className="uppercase font-bold underline hover:no-underline text-gray-400" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
@@ -325,21 +325,21 @@ export default async function About() {
         </Part>
       )}
 
-      {/* 07 — Travels */}
+      {/* 07 – Travels */}
       <Part n="07" title="Travels">
         <div className="flex items-baseline justify-between">
-          <p className="text-gray-500 italic">A map of places I&apos;ve been — coming soon.</p>
+          <p className="text-gray-500 italic">A map of places I&apos;ve been – coming soon.</p>
           <Link href="/about/map" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
             View map →
           </Link>
         </div>
       </Part>
 
-      {/* 08 — Reference Library */}
+      {/* 08 – Reference Library */}
       <Part n="08" title="Reference Library">
-        <p className="text-gray-500 mb-10 max-w-2xl">What I watch and read — a small archive on the shelf.</p>
+        <p className="text-gray-500 mb-10 max-w-2xl">What I watch and read – a small archive on the shelf.</p>
 
-        {/* Series — disc rack */}
+        {/* Series – disc rack */}
         <div className="mb-12">
           <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
             Series · {series.length} · disc rack
@@ -347,7 +347,7 @@ export default async function About() {
           <DiscStack series={series} />
         </div>
 
-        {/* Films — VHS shelf */}
+        {/* Films – VHS shelf */}
         <div className="mb-12">
           <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
             Films · {films.length} · VHS shelf
@@ -355,7 +355,7 @@ export default async function About() {
           <FilmStack films={films} />
         </div>
 
-        {/* Books — shelf */}
+        {/* Books – shelf */}
         <div>
           <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
             Books · {books.length} · shelf
@@ -363,7 +363,7 @@ export default async function About() {
           {books.length > 0 ? (
             <BookShelf books={books} />
           ) : (
-            <p className="text-gray-400 italic text-sm">Books — coming soon.</p>
+            <p className="text-gray-400 italic text-sm">Books – coming soon.</p>
           )}
         </div>
       </Part>
@@ -375,7 +375,7 @@ function Part({ n, title, children }: { n: string; title: string; children: Reac
   return (
     <section className="mb-20 last:mb-0">
       <div className="flex items-baseline gap-4 mb-6 border-b-2 pb-3" style={{ borderColor: "var(--border)" }}>
-        <span style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
+        <span style={{ fontFamily: mono, fontSize: 20, fontWeight: 700, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
         <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>{title}</h2>
       </div>
       {children}

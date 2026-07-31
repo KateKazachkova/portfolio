@@ -12,7 +12,7 @@ export default function TravelMap() {
       <h1 className="text-4xl font-bold text-gray-900 mb-12">Where I&apos;ve been</h1>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Left — places navigation */}
+        {/* Left – places navigation */}
         <aside className="w-full md:w-56 shrink-0">
           <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-4 font-bold">Places</p>
           <ul className="space-y-1">
@@ -27,17 +27,17 @@ export default function TravelMap() {
           <p className="text-xs text-gray-300 italic mt-4">More places coming soon</p>
         </aside>
 
-        {/* Right — map placeholder */}
+        {/* Right – map placeholder */}
         <div className="flex-1">
           <div className="border-2 border-black overflow-hidden bg-[#d9d4c8]">
             <img
               src="/travel-vhs.jpg"
-              alt="Travel places — placeholder"
+              alt="Travel places – placeholder"
               className="w-full h-auto block"
             />
           </div>
           <p className="text-sm text-gray-500 italic mt-4 max-w-xl">
-            Placeholder. I want to build an interactive map here — click a place on
+            Placeholder. I want to build an interactive map here – click a place on
             the left and the map flies to it, showing photos and notes from that trip,
             styled like a stack of retro VHS tapes.
           </p>

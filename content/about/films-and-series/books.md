@@ -4,7 +4,7 @@
 ## Title
 Year: 2020
 Why I like it: ...
-Poster: posters/filename.jpg   (book cover — put the file in public/posters/)
+Poster: posters/filename.jpg   (book cover – put the file in public/posters/)
 -->
 
 ## Sapiens: A Brief History of Humankind

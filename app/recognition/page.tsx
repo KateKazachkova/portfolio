@@ -9,7 +9,7 @@ import {
 } from "@/lib/awards";
 
 export const metadata = {
-  title: "Quality Check — Kate Kazachkova",
+  title: "Quality Check – Kate Kazachkova",
   description: "Independent product inspection: 30+ international awards recognising the work.",
 };
 
@@ -45,11 +45,14 @@ export default function QualityCheck() {
             Quality Check
           </h1>
           <p className="text-xl md:text-2xl font-semibold leading-snug max-w-2xl mb-4" style={{ color: "var(--fg)" }}>
-            Every product claims to be good. This one was tested by independent juries.
+            Every product claims to be good.
+            <br />
+            This one was tested by independent juries.
           </p>
           <p className="text-gray-500 leading-relaxed max-w-2xl mb-10">
-            More than 30 international awards and distinctions have recognised my work across
-            user experience, interface design, innovation and digital storytelling.
+            Since 2020 the work has been entered into 11 international competitions –
+            earning 6 Gold, 20 Silver and 4 Bronze awards, plus web distinctions
+            including Site of the Day and judges&apos; Special Kudos.
           </p>
 
           {/* big stat */}
@@ -199,7 +202,7 @@ export default function QualityCheck() {
       <section className="px-8 py-16 pb-28 max-w-5xl mx-auto">
         <SectionHeading n="05" title="Inspection Records" />
         <p className="text-gray-500 max-w-2xl mb-8 leading-relaxed">
-          The full archive — {AWARD_STATS.gold} Gold · {AWARD_STATS.silver} Silver · {AWARD_STATS.bronze} Bronze, plus web distinctions.
+          The full archive – {AWARD_STATS.gold} Gold · {AWARD_STATS.silver} Silver · {AWARD_STATS.bronze} Bronze, plus web distinctions.
         </p>
 
         <div className="space-y-10">
@@ -214,7 +217,7 @@ export default function QualityCheck() {
               </div>
               {group.records.map((r) => (
                 <div key={r.id} className="grid grid-cols-1 md:grid-cols-[60px_1.2fr_1.4fr_0.8fr] gap-1 md:gap-4 py-3 border-b" style={{ borderColor: "var(--border)" }}>
-                  <span style={{ fontFamily: mono, fontSize: 12 }} className="text-gray-400">{r.year ?? "—"}</span>
+                  <span style={{ fontFamily: mono, fontSize: 12 }} className="text-gray-400">{r.year ?? "–"}</span>
                   <span className="text-sm font-semibold" style={{ color: "var(--fg)" }}>
                     {r.externalUrl ? (
                       <a href={r.externalUrl} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
@@ -239,7 +242,7 @@ export default function QualityCheck() {
 function SectionHeading({ n, title }: { n: string; title: string }) {
   return (
     <div className="flex items-baseline gap-4 mb-3">
-      <span style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
+      <span style={{ fontFamily: mono, fontSize: 20, fontWeight: 700, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
       <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>{title}</h2>
     </div>
   );

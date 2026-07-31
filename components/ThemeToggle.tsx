@@ -19,7 +19,7 @@ export default function ThemeToggle() {
     setTheme(next);
   };
 
-  // Avoid hydration mismatch — render a neutral button until mounted
+  // Avoid hydration mismatch – render a neutral button until mounted
   if (theme === null) {
     return <span style={{ width: 32, height: 32, display: "inline-block" }} aria-hidden />;
   }

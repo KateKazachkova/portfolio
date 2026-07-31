@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kate Kazachkova — Product Designer",
+  title: "Kate Kazachkova – Product Designer",
   description: "Product designer. Limited Edition №001. Available for hire.",
 };
 

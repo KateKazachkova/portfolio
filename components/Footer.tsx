@@ -36,7 +36,7 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* care instructions — one small smile */}
+        {/* care instructions – one small smile */}
         <p className="text-xs text-gray-500 max-w-md mt-8 leading-relaxed">
           Care instructions: handle with curiosity. Keep away from bad briefs and
           direct hype. Contents may settle during shipping.

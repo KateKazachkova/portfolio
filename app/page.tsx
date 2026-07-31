@@ -12,9 +12,8 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 const INTRO_SRC = "/suitcase/intro.webm";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
-const EDITION_VIDEO: Record<string, string> = {
-  office: "/dolls/video/office.webm",
-};
+// office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
+const EDITION_VIDEO: Record<string, string> = {};
 
 export default function Home() {
   const { hour, setHour, setNow } = useTime();

@@ -2,7 +2,7 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 
 export default function Footer() {
   return (
-    <footer className="mt-24 border-t-2" style={{ borderColor: "var(--border)" }}>
+    <footer className="mt-24 border-t-2" style={{ borderColor: "var(--border)", background: "var(--bg)" }}>
       <div className="max-w-6xl mx-auto px-6 py-10">
         {/* top row */}
         <div className="flex flex-wrap items-start justify-between gap-8 mb-10">

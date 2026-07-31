@@ -65,7 +65,7 @@ export default function Home() {
         {/* Trophy on the left shelf (top cubby above the drawers) */}
         <div
           className="group"
-          style={{ position: "absolute", left: "28%", top: "11.5%", width: "10%", zIndex: 2 }}
+          style={{ position: "absolute", left: "28%", top: "13.6%", width: "10%", zIndex: 2 }}
           title="Award – In recognition of “Redesigning the Redesign”"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,7 +81,7 @@ export default function Home() {
         {/* Left door — top shelf: TV box sets */}
         <div
           className="group"
-          style={{ position: "absolute", left: "10.5%", top: "15%", width: "13%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.5%", top: "12.6%", width: "13%", zIndex: 2 }}
           title="Box sets — Doctor Who · How I Met Your Mother"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -97,7 +97,7 @@ export default function Home() {
         {/* Left door — middle shelf: books */}
         <div
           className="group"
-          style={{ position: "absolute", left: "11%", top: "31.5%", width: "12%", zIndex: 2 }}
+          style={{ position: "absolute", left: "11.3%", top: "34.5%", width: "11.4%", zIndex: 2 }}
           title="The 10th Kingdom · Are You Afraid of the Dark?"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -113,7 +113,7 @@ export default function Home() {
         {/* Right door — bottom shelf: books */}
         <div
           className="group"
-          style={{ position: "absolute", left: "79%", top: "58%", width: "12%", zIndex: 2 }}
+          style={{ position: "absolute", left: "75.5%", top: "70%", width: "12%", zIndex: 2 }}
           title="Animal Farm · The Little Prince"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

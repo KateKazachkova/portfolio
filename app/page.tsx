@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
-import EveningNiche from "@/components/EveningNiche";
+import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour } from "@/lib/time";
 
@@ -164,10 +164,10 @@ export default function Home() {
         </div>
         */}
 
-        {/* Central niche — Evening plays the sit → read → tea video sequence
-            (clipped to the niche arch); other editions show the doll cutout. */}
-        {edition.key === "evening" ? (
-          <EveningNiche />
+        {/* Central niche — editions with a generated clip play their video
+            sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}
+        {hasNicheClip(edition.key) ? (
+          <NicheDoll edition={edition.key} />
         ) : (
           <div
             className="group"

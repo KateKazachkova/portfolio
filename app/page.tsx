@@ -78,6 +78,71 @@ export default function Home() {
           />
         </div>
 
+        {/* Left door — top shelf: TV box sets */}
+        <div
+          className="group"
+          style={{ position: "absolute", left: "10.5%", top: "15%", width: "13%", zIndex: 2 }}
+          title="Box sets — Doctor Who · How I Met Your Mother"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/tv2.png"
+            alt="Box sets: Doctor Who and How I Met Your Mother"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
+            draggable={false}
+          />
+        </div>
+
+        {/* Left door — middle shelf: books */}
+        <div
+          className="group"
+          style={{ position: "absolute", left: "11%", top: "31.5%", width: "12%", zIndex: 2 }}
+          title="The 10th Kingdom · Are You Afraid of the Dark?"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/tv show.png"
+            alt="Books: The 10th Kingdom and Are You Afraid of the Dark?"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
+            draggable={false}
+          />
+        </div>
+
+        {/* Right door — bottom shelf: books */}
+        <div
+          className="group"
+          style={{ position: "absolute", left: "79%", top: "58%", width: "12%", zIndex: 2 }}
+          title="Animal Farm · The Little Prince"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/books_.png"
+            alt="Books: Animal Farm and The Little Prince"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
+            draggable={false}
+          />
+        </div>
+
+        {/* Right-centre rail: the bicycle — needs a transparent cutout at
+            /items/bike_hang.png (position already dialled in). Enable when ready.
+        <div
+          className="group"
+          style={{ position: "absolute", left: "57%", top: "16.5%", width: "12.5%", zIndex: 2 }}
+          title="Field kit — the bicycle"
+        >
+          <img
+            src="/items/bike_hang.png"
+            alt="A bicycle hung on the rail"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" }}
+            draggable={false}
+          />
+        </div>
+        */}
+
         {/* Doll in the central niche */}
         <div
           className="group"

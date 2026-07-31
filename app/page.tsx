@@ -22,9 +22,6 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14" style={{ background: "transparent" }}>
 
-      {/* First-visit opening sequence (closed suitcase → key turn → reveal) */}
-      <IntroOverlay />
-
       {/* Eyebrow */}
       <div className="text-center">
         <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em" }} className="text-gray-400 uppercase mb-2">
@@ -185,6 +182,10 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {/* First-visit opening sequence — opens the case in place, doors
+            swing apart to reveal the doll in the niche underneath */}
+        <IntroOverlay />
       </div>
 
       {/* Caption */}

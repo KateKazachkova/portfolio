@@ -4,16 +4,21 @@ import { useCallback, useEffect, useState } from "react";
 
 /**
  * First-visit opening sequence (once per visitor, localStorage-gated).
- * Closed suitcase fades in → a brass key slides into the lock → turns 90°
- * with a click + glint → warm bloom → the whole overlay fades out, revealing
- * the live open-suitcase hero underneath. Skippable (click / any key).
+ *
+ * Renders INSIDE the hero suitcase container (absolute, inset 0), so the case
+ * opens exactly where it lives on the page. A warm-paper fill hides the live
+ * open suitcase; the closed case (close.png, split down its centre seam into
+ * two leather doors) fades in; a brass key slides into the lock and turns 90°
+ * with a click + glint; then the two doors swing open in 3D, the fill fades,
+ * and the live open suitcase + doll in the niche are revealed underneath.
+ * Skippable (click / any key), reduced-motion aware.
  */
 
 type Phase = "enter" | "key" | "turn" | "open" | "done";
 
-// Keyhole centre on /suitcase/close.png (template-measured).
-const KEY_X = "52.5%";
-const KEY_Y = "53.1%";
+// Keyhole centre on close.png sits on the seam (measured x≈52.5%, y≈53.1%).
+// The case is centred in the container, so the seam is at 50% horizontally.
+const KEY_Y = "53%";
 
 export default function IntroOverlay() {
   const [active, setActive] = useState(false);
@@ -42,18 +47,18 @@ export default function IntroOverlay() {
     }
 
     const timers = [
-      setTimeout(() => setPhase("key"), 800),
-      setTimeout(() => setPhase("turn"), 1650),
-      setTimeout(() => setPhase("open"), 2550),
-      setTimeout(() => setPhase("done"), 3150),
-      setTimeout(finish, 3800),
+      setTimeout(() => setPhase("key"), 750),
+      setTimeout(() => setPhase("turn"), 1600),
+      setTimeout(() => setPhase("open"), 2400),
+      setTimeout(() => setPhase("done"), 3250),
+      setTimeout(finish, 4000),
     ];
     return () => timers.forEach(clearTimeout);
   }, [finish]);
 
   const skip = useCallback(() => {
     setPhase("done");
-    const t = setTimeout(finish, 500);
+    const t = setTimeout(finish, 550);
     return () => clearTimeout(t);
   }, [finish]);
 
@@ -69,7 +74,7 @@ export default function IntroOverlay() {
   const fadingOut = phase === "done";
   const opening = phase === "open" || phase === "done";
 
-  // Key transform states (pivot is at the keyhole via transform-origin).
+  // Key transform (pivot at the keyhole on the seam via transform-origin).
   const keyHidden = phase === "enter";
   const turned = phase === "turn" || opening;
   const keyTransform = keyHidden
@@ -79,129 +84,134 @@ export default function IntroOverlay() {
     : "translate(0, -50%) rotate(0deg)";
   const keyOpacity = keyHidden ? 0 : opening ? 0 : 1;
 
+  // Doors swing open around their outer edges once we hit "open".
+  const leftDoorTf = opening
+    ? "perspective(1600px) rotateY(-118deg)"
+    : "perspective(1600px) rotateY(0deg)";
+  const rightDoorTf = opening
+    ? "perspective(1600px) rotateY(118deg)"
+    : "perspective(1600px) rotateY(0deg)";
+
   return (
     <div
-      className="intro-overlay"
+      className="intro-inplace"
       onClick={skip}
       role="button"
       aria-label="Skip intro"
       tabIndex={0}
       style={{ opacity: fadingOut ? 0 : 1 }}
     >
-      <div className="intro-spot" aria-hidden />
+      {/* Warm-paper fill hides the live open case until the doors part */}
+      <div
+        className="intro-fill"
+        aria-hidden
+        style={{ opacity: opening ? 0 : 1 }}
+      />
 
-      <div className="intro-stage">
-        <div className={`intro-shake${phase === "turn" ? " shaking" : ""}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/suitcase/close.png"
-            alt="Kate's collector suitcase, closed"
-            className="intro-case"
-            draggable={false}
-            style={{
-              transform: opening ? "scale(1.06)" : "scale(1)",
-              opacity: opening ? 0 : 1,
-              filter: opening
-                ? "brightness(1.25) drop-shadow(0 24px 40px rgba(0,0,0,0.32))"
-                : "drop-shadow(0 24px 40px rgba(0,0,0,0.32))",
-            }}
-          />
+      {/* The closed case = two leather doors that swing open */}
+      <div className={`intro-doors${phase === "turn" ? " shaking" : ""}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/suitcase/door_left.png"
+          alt="Kate's collector suitcase, closed"
+          className="intro-door intro-door-left"
+          draggable={false}
+          style={{ transform: leftDoorTf, opacity: fadingOut ? 0 : 1 }}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/suitcase/door_right.png"
+          alt=""
+          aria-hidden
+          className="intro-door intro-door-right"
+          draggable={false}
+          style={{ transform: rightDoorTf, opacity: fadingOut ? 0 : 1 }}
+        />
 
-          {/* Brass key — pivots around the keyhole */}
-          <div
-            className="intro-key"
-            aria-hidden
-            style={{ transform: keyTransform, opacity: keyOpacity }}
-          >
-            <svg viewBox="0 0 240 80" width="100%" height="100%">
-              <defs>
-                <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#f4e2a6" />
-                  <stop offset="0.35" stopColor="#d8b45e" />
-                  <stop offset="0.5" stopColor="#c9a24a" />
-                  <stop offset="0.75" stopColor="#9a7830" />
-                  <stop offset="1" stopColor="#7a5d24" />
-                </linearGradient>
-              </defs>
-              {/* shaft */}
-              <rect x="26" y="34" width="150" height="12" rx="6" fill="url(#brass)" />
-              {/* bit / blade teeth (left end goes into the lock) */}
-              <rect x="26" y="46" width="10" height="18" rx="2" fill="url(#brass)" />
-              <rect x="44" y="46" width="8" height="12" rx="2" fill="url(#brass)" />
-              {/* collar */}
-              <rect x="168" y="30" width="8" height="20" rx="3" fill="url(#brass)" />
-              {/* bow (round handle) */}
-              <circle cx="204" cy="40" r="30" fill="url(#brass)" />
-              <circle cx="204" cy="40" r="13" fill="none" stroke="#6b501f" strokeWidth="5" />
-              {/* highlight */}
-              <rect x="30" y="35" width="140" height="3" rx="1.5" fill="#fff3cf" opacity="0.55" />
-            </svg>
-          </div>
-
-          {/* Glint sweep across the lock during the turn */}
-          <div className={`intro-glint${phase === "turn" || opening ? " on" : ""}`} aria-hidden />
+        {/* Brass key — pivots around the keyhole on the seam */}
+        <div
+          className="intro-key"
+          aria-hidden
+          style={{ transform: keyTransform, opacity: keyOpacity }}
+        >
+          <svg viewBox="0 0 240 80" width="100%" height="100%">
+            <defs>
+              <linearGradient id="introBrass" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#f4e2a6" />
+                <stop offset="0.35" stopColor="#d8b45e" />
+                <stop offset="0.5" stopColor="#c9a24a" />
+                <stop offset="0.75" stopColor="#9a7830" />
+                <stop offset="1" stopColor="#7a5d24" />
+              </linearGradient>
+            </defs>
+            <rect x="26" y="34" width="150" height="12" rx="6" fill="url(#introBrass)" />
+            <rect x="26" y="46" width="10" height="18" rx="2" fill="url(#introBrass)" />
+            <rect x="44" y="46" width="8" height="12" rx="2" fill="url(#introBrass)" />
+            <rect x="168" y="30" width="8" height="20" rx="3" fill="url(#introBrass)" />
+            <circle cx="204" cy="40" r="30" fill="url(#introBrass)" />
+            <circle cx="204" cy="40" r="13" fill="none" stroke="#6b501f" strokeWidth="5" />
+            <rect x="30" y="35" width="140" height="3" rx="1.5" fill="#fff3cf" opacity="0.55" />
+          </svg>
         </div>
 
-        {/* Warm bloom on open */}
-        <div className={`intro-bloom${opening ? " on" : ""}`} aria-hidden />
+        {/* Glint on the lock during the turn */}
+        <div className={`intro-glint${phase === "turn" || opening ? " on" : ""}`} aria-hidden />
       </div>
 
-      <p className="intro-hint" aria-hidden>
-        Click to skip
-      </p>
-
       <style jsx>{`
-        .intro-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 9999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--bg);
-          transition: opacity 0.6s ease;
-          cursor: pointer;
-          overflow: hidden;
-        }
-        .intro-spot {
+        .intro-inplace {
           position: absolute;
           inset: 0;
-          background: radial-gradient(
-            60% 55% at 50% 46%,
-            rgba(216, 53, 42, 0.06),
-            rgba(0, 0, 0, 0) 70%
-          );
-          pointer-events: none;
+          z-index: 20;
+          transition: opacity 0.6s ease;
+          cursor: pointer;
         }
-        .intro-stage {
-          position: relative;
+        .intro-fill {
+          position: absolute;
+          inset: -6% -4%;
+          background: var(--bg);
+          transition: opacity 0.6s ease 0.15s;
+        }
+        .intro-doors {
+          position: absolute;
+          inset: 0;
           animation: caseIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+          transform-style: preserve-3d;
         }
-        .intro-shake {
-          position: relative;
-          display: block;
+        .intro-doors.shaking {
+          animation: caseIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both,
+            clickShake 0.34s ease-in-out;
         }
-        .intro-shake.shaking {
-          animation: clickShake 0.34s ease-in-out;
-        }
-        .intro-case {
-          display: block;
-          height: min(74vh, 480px);
+        .intro-door {
+          position: absolute;
+          top: 4%;
+          height: 92%;
           width: auto;
-          transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
-            opacity 0.55s ease, filter 0.55s ease;
-          transform-origin: center 46%;
+          filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.32));
+          backface-visibility: hidden;
+          transition: transform 0.85s cubic-bezier(0.5, 0, 0.2, 1),
+            opacity 0.5s ease;
+          will-change: transform;
+        }
+        .intro-door-left {
+          right: 50%;
+          transform-origin: left center;
+        }
+        .intro-door-right {
+          left: 50%;
+          transform-origin: right center;
         }
         .intro-key {
           position: absolute;
-          left: ${KEY_X};
+          left: 50%;
           top: ${KEY_Y};
-          width: min(20vh, 128px);
+          width: 15%;
           height: auto;
           transform-origin: 0% 50%;
           transition: transform 0.55s cubic-bezier(0.5, 0, 0.2, 1),
             opacity 0.4s ease;
-          filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+          filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+          z-index: 5;
           will-change: transform;
         }
         .intro-key svg {
@@ -209,10 +219,10 @@ export default function IntroOverlay() {
         }
         .intro-glint {
           position: absolute;
-          left: ${KEY_X};
+          left: 50%;
           top: ${KEY_Y};
-          width: 14%;
-          height: 8%;
+          width: 9%;
+          height: 6%;
           transform: translate(-50%, -50%);
           border-radius: 50%;
           background: radial-gradient(
@@ -222,50 +232,15 @@ export default function IntroOverlay() {
           );
           opacity: 0;
           transition: opacity 0.3s ease;
-          pointer-events: none;
+          z-index: 4;
         }
         .intro-glint.on {
           opacity: 1;
         }
-        .intro-bloom {
-          position: absolute;
-          left: 50%;
-          top: 46%;
-          width: 130%;
-          height: 130%;
-          transform: translate(-50%, -50%) scale(0.6);
-          border-radius: 50%;
-          background: radial-gradient(
-            circle,
-            rgba(255, 249, 235, 0.95),
-            rgba(255, 249, 235, 0) 60%
-          );
-          opacity: 0;
-          transition: opacity 0.45s ease, transform 0.6s ease;
-          pointer-events: none;
-        }
-        .intro-bloom.on {
-          opacity: 0.85;
-          transform: translate(-50%, -50%) scale(1);
-        }
-        .intro-hint {
-          position: absolute;
-          bottom: 5%;
-          left: 0;
-          right: 0;
-          text-align: center;
-          font-family: var(--font-mono), ui-monospace, monospace;
-          font-size: 10px;
-          letter-spacing: 0.25em;
-          text-transform: uppercase;
-          color: var(--muted);
-          opacity: 0.6;
-          pointer-events: none;
-        }
         @keyframes caseIn {
           from {
             opacity: 0;
-            transform: scale(0.9) translateY(10px);
+            transform: scale(0.92) translateY(8px);
           }
           to {
             opacity: 1;
@@ -291,10 +266,10 @@ export default function IntroOverlay() {
           }
         }
         @media (prefers-reduced-motion: reduce) {
-          .intro-stage,
-          .intro-shake.shaking,
-          .intro-case,
-          .intro-key {
+          .intro-doors,
+          .intro-door,
+          .intro-key,
+          .intro-fill {
             animation: none !important;
             transition: opacity 0.3s ease !important;
           }

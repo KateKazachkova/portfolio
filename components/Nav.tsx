@@ -47,6 +47,8 @@ export default function Nav() {
                   color: active ? "var(--fg)" : "var(--muted)",
                   borderBottom: active ? "2px solid var(--accent)" : "2px solid transparent",
                   paddingBottom: 2,
+                  paddingTop: 4, // balances border+padding below so the label centres on the button
+
                 }}
               >
                 {link.label}

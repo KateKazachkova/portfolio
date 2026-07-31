@@ -3,7 +3,7 @@
 import { useState } from "react";
 import EditionClock from "@/components/EditionClock";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
-import IntroOverlay from "@/components/IntroOverlay";
+// import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour } from "@/lib/time";
 
@@ -184,8 +184,9 @@ export default function Home() {
         )}
 
         {/* First-visit opening sequence — opens the case in place, doors
-            swing apart to reveal the doll in the niche underneath */}
-        <IntroOverlay />
+            swing apart to reveal the doll in the niche underneath.
+            HIDDEN for now per Kate — re-enable when the concept is reworked. */}
+        {/* <IntroOverlay /> */}
       </div>
 
       {/* Caption */}

@@ -36,6 +36,12 @@ type ClipSet = {
 };
 
 const CLIPS: Record<string, ClipSet> = {
+  morning: {
+    loop: "morning_loop.mp4",
+    accent: "morning_coffee.mp4",
+    poster: "morning_poster.jpg",
+    accentEveryMs: 120_000,
+  },
   evening: {
     intro: "evening_intro.mp4",
     loop: "evening_read.mp4",

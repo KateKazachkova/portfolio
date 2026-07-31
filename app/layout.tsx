@@ -25,11 +25,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Default the theme by local time — night (dark) from 19:00 to 06:00,
+  // day (light) otherwise — on top of the time-of-day dolls. A manual
+  // toggle is saved to localStorage and always wins over the time default.
   const themeScript = `
     (function () {
       try {
         var saved = localStorage.getItem('theme');
-        var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var h = new Date().getHours();
+        var byTime = (h >= 19 || h < 6) ? 'dark' : 'light';
+        var theme = saved || byTime;
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();

@@ -21,9 +21,9 @@ const POSTER = "/dolls/video/evening_niche_poster.png";
 // Placement of the niche crop inside the suitcase container (aspect 410/800).
 const NICHE = {
   position: "absolute",
-  left: "39.3%",
-  top: "19.6%",
-  width: "20.2%",
+  left: "40.05%",
+  top: "23.99%",
+  width: "19.05%",
   height: "auto",
   maxWidth: "none",
   display: "block",

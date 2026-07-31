@@ -94,6 +94,16 @@ export default function Home() {
           />
         </div>
 
+        {/* Brass gallery rail across the top shelf — sits in front of the box sets */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/top boarder.png"
+          alt=""
+          aria-hidden
+          style={{ position: "absolute", left: "8.7%", top: "21.5%", width: "16.5%", height: "auto", zIndex: 3 }}
+          draggable={false}
+        />
+
         {/* Left door — middle shelf: books */}
         <div
           className="group"

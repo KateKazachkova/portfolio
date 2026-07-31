@@ -42,6 +42,14 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "morning_poster.jpg",
     accentEveryMs: 120_000,
   },
+  office: {
+    loop: "office_loop.mp4",
+    poster: "office_poster.jpg",
+  },
+  street: {
+    loop: "street_loop.mp4",
+    poster: "street_poster.jpg",
+  },
   evening: {
     intro: "evening_intro.mp4",
     loop: "evening_read.mp4",

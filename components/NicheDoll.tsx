@@ -31,6 +31,7 @@ type ClipSet = {
   intro?: string;
   loop: string;
   accent?: string;
+  accents?: string[]; // several actions played in turn (e.g. eat → read → tea)
   poster: string;
   accentEveryMs?: number;
 };
@@ -67,6 +68,18 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "niche_poster.jpg",
     accentEveryMs: 120_000,
   },
+  weekend_brunch: {
+    loop: "wknd_brunch_loop.mp4",
+    accents: ["wknd_brunch_eat.mp4", "wknd_brunch_read.mp4", "wknd_brunch_tea.mp4"],
+    poster: "wknd_brunch_poster.jpg",
+    accentEveryMs: 60_000,
+  },
+  weekend_cleaning: {
+    loop: "wknd_clean_loop.mp4",
+    accent: "wknd_clean_accent.mp4",
+    poster: "wknd_clean_poster.jpg",
+    accentEveryMs: 90_000,
+  },
 };
 
 export function hasNicheClip(edition: string) {
@@ -80,27 +93,30 @@ type Phase = "intro" | "loop" | "accent";
 
 export default function NicheDoll({ edition }: { edition: string }) {
   const set = CLIPS[edition];
+  const accentList = set?.accents ?? (set?.accent ? [set.accent] : []);
   const [phase, setPhase] = useState<Phase>(
     set?.intro && !introSeen[edition] ? "intro" : "loop"
   );
+  const [accentIdx, setAccentIdx] = useState(0);
   const [failed, setFailed] = useState(false);
 
   const handleEnded = () => {
     if (phase === "intro") introSeen[edition] = true;
+    if (phase === "accent") setAccentIdx((i) => i + 1); // advance to next action
     if (phase !== "loop") setPhase("loop");
   };
 
   useEffect(() => {
-    if (phase !== "loop" || !set?.accent) return;
-    const id = window.setTimeout(() => setPhase("accent"), set.accentEveryMs ?? 120_000);
+    if (phase !== "loop" || accentList.length === 0) return;
+    const id = window.setTimeout(() => setPhase("accent"), set?.accentEveryMs ?? 120_000);
     return () => window.clearTimeout(id);
-  }, [phase, edition, set]);
+  }, [phase, edition, set, accentList.length]);
 
   if (!set) return null;
 
   const file =
     phase === "intro" && set.intro ? set.intro
-    : phase === "accent" && set.accent ? set.accent
+    : phase === "accent" && accentList.length ? accentList[accentIdx % accentList.length]
     : set.loop;
   const poster = V + set.poster;
 

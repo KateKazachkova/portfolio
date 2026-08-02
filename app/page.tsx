@@ -5,7 +5,7 @@ import EditionClock from "@/components/EditionClock";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
-import { EDITIONS, editionForHour } from "@/lib/time";
+import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
 
 const mono = "var(--font-mono), ui-monospace, monospace";
 
@@ -14,8 +14,11 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 const EDITION_VIDEO: Record<string, string> = {};
 
 export default function Home() {
-  const { hour, setHour, setNow } = useTime();
-  const edition = hour === null ? EDITIONS.office : editionForHour(hour);
+  const { hour, auto, setHour, setNow } = useTime();
+  const edition =
+    hour === null ? EDITIONS.office
+    : auto ? editionForDate(new Date())
+    : editionForHour(hour);
   const [videoFailed, setVideoFailed] = useState(false);
   const dollVideo = EDITION_VIDEO[edition.key];
 

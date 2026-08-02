@@ -72,13 +72,13 @@ const CLIPS: Record<string, ClipSet> = {
     loop: "wknd_brunch_loop.mp4",
     accents: ["wknd_brunch_eat.mp4", "wknd_brunch_read.mp4", "wknd_brunch_tea.mp4"],
     poster: "wknd_brunch_poster.jpg",
-    accentEveryMs: 60_000,
+    accentEveryMs: 5_000, // keep her busy — eat → read → tea in quick succession
   },
   weekend_cleaning: {
     loop: "wknd_clean_loop.mp4",
     accent: "wknd_clean_accent.mp4",
     poster: "wknd_clean_poster.jpg",
-    accentEveryMs: 90_000,
+    accentEveryMs: 10_000,
   },
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
@@ -15,10 +15,25 @@ const EDITION_VIDEO: Record<string, string> = {};
 
 export default function Home() {
   const { hour, auto, setHour, setNow } = useTime();
+  // Manual mode override — buttons force a specific edition (incl. the
+  // weekend ones, which otherwise only show on Saturday). Cleared by the
+  // clock / presets / Now.
+  const [forced, setForced] = useState<string | null>(null);
   const edition =
-    hour === null ? EDITIONS.office
+    forced ? EDITIONS[forced]
+    : hour === null ? EDITIONS.office
     : auto ? editionForDate(new Date())
     : editionForHour(hour);
+
+  const pickHour = (h: number) => { setForced(null); setHour(h); };
+  const pickNow = () => { setForced(null); setNow(); };
+
+  // Match the ambient mood while previewing a forced edition.
+  useEffect(() => {
+    if (!forced) return;
+    const mood = forced === "weekend_cleaning" ? "day" : "morning";
+    document.documentElement.setAttribute("data-daytime", mood);
+  }, [forced]);
   const [videoFailed, setVideoFailed] = useState(false);
   const dollVideo = EDITION_VIDEO[edition.key];
 
@@ -207,7 +222,35 @@ export default function Home() {
         <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase text-center mb-3">
           Set the time
         </p>
-        <EditionClock hour={hour ?? 12} onChange={setHour} onNow={setNow} />
+        <EditionClock hour={hour ?? 12} onChange={pickHour} onNow={pickNow} />
+
+        {/* Weekend modes — preview her days off directly */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+          <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mr-1">
+            Weekend
+          </span>
+          {[
+            { label: "Brunch", key: "weekend_brunch" },
+            { label: "Cleaning", key: "weekend_cleaning" },
+          ].map((m) => {
+            const active = forced === m.key;
+            return (
+              <button
+                key={m.key}
+                onClick={() => setForced(m.key)}
+                className="uppercase font-bold border transition-colors"
+                style={{
+                  fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", padding: "4px 9px",
+                  borderColor: "var(--border)",
+                  background: active ? "var(--border)" : "transparent",
+                  color: active ? "var(--bg)" : "var(--fg)",
+                }}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </main>
   );

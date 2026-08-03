@@ -76,9 +76,9 @@ const CLIPS: Record<string, ClipSet> = {
   },
   weekend_cleaning: {
     loop: "wknd_clean_loop.mp4",
-    accent: "wknd_clean_accent.mp4",
+    accents: ["wknd_clean_spray.mp4", "wknd_clean_wring.mp4"],
     poster: "wknd_clean_poster.jpg",
-    accentEveryMs: 10_000,
+    accentEveryMs: 7_000,
   },
 };
 

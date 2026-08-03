@@ -34,10 +34,13 @@ export function editionForHour(h: number): Edition {
 export function editionForDate(d: Date): Edition {
   const day = d.getDay(); // 0 Sun … 6 Sat
   const h = d.getHours();
-  if (day === 6) {
+  const weekend = day === 6 || day === 0;
+  if (weekend) {
     if (h < 8) return EDITIONS.night;
     if (h < 11) return EDITIONS.weekend_brunch;
     if (h < 13) return EDITIONS.weekend_cleaning;
+    // Sunday afternoon is meant for cycling (TODO); until that edition
+    // exists, both weekend days share the series marathon so she never works.
     if (h < 19) return EDITIONS.weekend_series;
   }
   return editionForHour(h);

@@ -15,8 +15,9 @@ export const EDITIONS: Record<string, Edition> = {
 
   // Weekend editions — she rests, she doesn't work. Shown on Saturday by real
   // local date (see editionForDate); the manual clock still cycles the 5 above.
-  weekend_brunch:   { key: "weekend_brunch",   label: "Weekend Edition", slogan: "Off the Clock", range: "Sat 08–11", items: ["Coffee", "Pancakes", "A good book"] },
-  weekend_cleaning: { key: "weekend_cleaning", label: "Cleaning Day",    slogan: "Spring Clean",  range: "Sat 11–13", items: ["Bucket", "Cloth", "Red kerchief"] },
+  weekend_brunch:   { key: "weekend_brunch",   label: "Weekend Edition", slogan: "Off the Clock",  range: "Sat 08–11", items: ["Coffee", "Pancakes", "A good book"] },
+  weekend_cleaning: { key: "weekend_cleaning", label: "Cleaning Day",    slogan: "Spring Clean",   range: "Sat 11–13", items: ["Bucket", "Cloth", "Red kerchief"] },
+  weekend_series:   { key: "weekend_series",   label: "Series Marathon", slogan: "One More Episode", range: "Sat 13–19", items: ["Laptop", "Popcorn", "Blanket"] },
 };
 
 export function editionForHour(h: number): Edition {
@@ -37,6 +38,7 @@ export function editionForDate(d: Date): Edition {
     if (h < 8) return EDITIONS.night;
     if (h < 11) return EDITIONS.weekend_brunch;
     if (h < 13) return EDITIONS.weekend_cleaning;
+    if (h < 19) return EDITIONS.weekend_series;
   }
   return editionForHour(h);
 }
@@ -55,6 +57,6 @@ export function daytimeForHour(h: number): Daytime {
 export function daytimeForDate(d: Date): Daytime {
   const e = editionForDate(d).key;
   if (e === "weekend_brunch") return "morning";
-  if (e === "weekend_cleaning") return "day";
+  if (e === "weekend_cleaning" || e === "weekend_series") return "day";
   return daytimeForHour(d.getHours());
 }

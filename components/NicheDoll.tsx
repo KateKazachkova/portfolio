@@ -80,6 +80,12 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "wknd_clean_poster.jpg",
     accentEveryMs: 7_000,
   },
+  weekend_series: {
+    loop: "wknd_series_loop.mp4",
+    accents: ["wknd_series_popcorn.mp4", "wknd_series_laugh.mp4", "wknd_series_cosy.mp4"],
+    poster: "wknd_series_poster.jpg",
+    accentEveryMs: 6_000,
+  },
 };
 
 export function hasNicheClip(edition: string) {

@@ -31,7 +31,7 @@ export default function Home() {
   // Match the ambient mood while previewing a forced edition.
   useEffect(() => {
     if (!forced) return;
-    const mood = forced === "weekend_cleaning" ? "day" : "morning";
+    const mood = (forced === "weekend_cleaning" || forced === "weekend_series") ? "day" : "morning";
     document.documentElement.setAttribute("data-daytime", mood);
   }, [forced]);
   const [videoFailed, setVideoFailed] = useState(false);
@@ -232,6 +232,7 @@ export default function Home() {
           {[
             { label: "Brunch", key: "weekend_brunch" },
             { label: "Cleaning", key: "weekend_cleaning" },
+            { label: "Series", key: "weekend_series" },
           ].map((m) => {
             const active = forced === m.key;
             return (

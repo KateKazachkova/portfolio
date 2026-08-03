@@ -37,6 +37,44 @@ export default function Home() {
   const [videoFailed, setVideoFailed] = useState(false);
   const dollVideo = EDITION_VIDEO[edition.key];
 
+  const clockPanel = (
+    <div>
+      <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase text-center mb-3">
+        Set the time
+      </p>
+      <EditionClock hour={hour ?? 12} onChange={pickHour} onNow={pickNow} />
+
+      {/* Weekend modes — preview her days off directly */}
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+        <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mr-1">
+          Weekend
+        </span>
+        {[
+          { label: "Brunch", key: "weekend_brunch" },
+          { label: "Cleaning", key: "weekend_cleaning" },
+          { label: "Series", key: "weekend_series" },
+        ].map((m) => {
+          const active = forced === m.key;
+          return (
+            <button
+              key={m.key}
+              onClick={() => setForced(m.key)}
+              className="uppercase font-bold border transition-colors"
+              style={{
+                fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", padding: "4px 9px",
+                borderColor: "var(--border)",
+                background: active ? "var(--border)" : "transparent",
+                color: active ? "var(--bg)" : "var(--fg)",
+              }}
+            >
+              {m.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14" style={{ background: "transparent" }}>
 
@@ -48,7 +86,9 @@ export default function Home() {
         <p className="text-sm text-gray-500 max-w-md mx-auto italic">A designer who turns chaos into systems.</p>
       </div>
 
-      {/* Suitcase */}
+      {/* Suitcase + clock. The box stays centred; on wide screens the clock
+          sits to its right (absolute, so the box itself never shifts). */}
+      <div className="relative w-full flex justify-center">
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
         {/* Contact shadow – sits right under the base */}
         <div
@@ -207,6 +247,15 @@ export default function Home() {
         {/* <IntroOverlay /> */}
       </div>
 
+        {/* Clock to the right of the box (wide screens only) */}
+        <div
+          className="hidden xl:block"
+          style={{ position: "absolute", top: "50%", left: "calc(50% + min(44vw, 430px) + 28px)", transform: "translateY(-50%)" }}
+        >
+          {clockPanel}
+        </div>
+      </div>
+
       {/* Caption */}
       <div className="text-center -mt-2">
         <p style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em" }} className="uppercase">
@@ -217,41 +266,9 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Clock */}
-      <div>
-        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase text-center mb-3">
-          Set the time
-        </p>
-        <EditionClock hour={hour ?? 12} onChange={pickHour} onNow={pickNow} />
-
-        {/* Weekend modes — preview her days off directly */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-          <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mr-1">
-            Weekend
-          </span>
-          {[
-            { label: "Brunch", key: "weekend_brunch" },
-            { label: "Cleaning", key: "weekend_cleaning" },
-            { label: "Series", key: "weekend_series" },
-          ].map((m) => {
-            const active = forced === m.key;
-            return (
-              <button
-                key={m.key}
-                onClick={() => setForced(m.key)}
-                className="uppercase font-bold border transition-colors"
-                style={{
-                  fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", padding: "4px 9px",
-                  borderColor: "var(--border)",
-                  background: active ? "var(--border)" : "transparent",
-                  color: active ? "var(--bg)" : "var(--fg)",
-                }}
-              >
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
+      {/* Clock below the box on smaller screens */}
+      <div className="xl:hidden">
+        {clockPanel}
       </div>
     </main>
   );

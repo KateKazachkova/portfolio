@@ -124,6 +124,22 @@ export default function Home() {
           />
         </div>
 
+        {/* Figma sticker on the top drawer → Figma community profile */}
+        <a
+          href="https://www.figma.com/@uxui_kazachkova"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Figma — @uxui_kazachkova"
+          title="Figma — @uxui_kazachkova"
+          className="group"
+          style={{ position: "absolute", left: "28.2%", top: "50.3%", width: "3.9%", height: "5.9%", zIndex: 4, borderRadius: 9 }}
+        >
+          <span
+            aria-hidden
+            className="block w-full h-full rounded-lg ring-0 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-2 group-hover:ring-[#A259FF]/70 group-hover:shadow-[0_6px_16px_rgba(162,89,255,0.45)]"
+          />
+        </a>
+
         {/* Left door — top shelf: TV box sets */}
         <div
           className="group"

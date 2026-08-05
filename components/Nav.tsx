@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 
 const LINKS = [
@@ -14,12 +15,23 @@ const LINKS = [
 export default function Nav() {
   const pathname = usePathname();
 
+  // Transparent at the top of the page; frosted-glass + colour once scrolled.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll(); // account for a page loaded already scrolled
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <header
-      className="sticky top-0 z-50"
+      className="sticky top-0 z-50 transition-all duration-300"
       style={{
-        background: "var(--bg)",
-        borderBottom: "2px solid var(--border)",
+        background: scrolled ? "color-mix(in srgb, var(--bg) 70%, transparent)" : "transparent",
+        backdropFilter: scrolled ? "blur(12px) saturate(140%)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(12px) saturate(140%)" : "none",
+        borderBottom: scrolled ? "2px solid var(--border)" : "2px solid transparent",
       }}
     >
       <nav className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">

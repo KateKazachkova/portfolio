@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
+import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
@@ -109,10 +110,12 @@ export default function Home() {
         <img src="/suitcase/open2.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" style={{ zIndex: 1 }} draggable={false} />
 
         {/* Trophy on the left shelf (top cubby above the drawers) */}
-        <div
+        <InkTip
+          label="The Award"
+          meta="“Redesigning the Redesign”"
+          place="bottom"
           className="group"
           style={{ position: "absolute", left: "28%", top: "13.6%", width: "10%", zIndex: 2 }}
-          title="Award – In recognition of “Redesigning the Redesign”"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -122,29 +125,38 @@ export default function Home() {
             style={{ filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.35))" }}
             draggable={false}
           />
-        </div>
+        </InkTip>
 
         {/* Figma sticker on the top drawer → Figma community profile */}
-        <a
-          href="https://www.figma.com/@uxui_kazachkova"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Figma — @uxui_kazachkova"
-          title="Figma — @uxui_kazachkova"
+        <InkTip
+          label="Figma"
+          meta="@uxui_kazachkova"
+          place="top"
           className="group"
-          style={{ position: "absolute", left: "28.2%", top: "50.3%", width: "3.9%", height: "5.9%", zIndex: 4, borderRadius: 9 }}
+          style={{ position: "absolute", left: "28.2%", top: "50.3%", width: "3.9%", height: "5.9%", zIndex: 4 }}
         >
-          <span
-            aria-hidden
-            className="block w-full h-full rounded-lg ring-0 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-2 group-hover:ring-[#A259FF]/70 group-hover:shadow-[0_6px_16px_rgba(162,89,255,0.45)]"
-          />
-        </a>
+          <a
+            href="https://www.figma.com/@uxui_kazachkova"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Figma — @uxui_kazachkova"
+            className="block w-full h-full"
+            style={{ borderRadius: 9 }}
+          >
+            <span
+              aria-hidden
+              className="block w-full h-full rounded-lg ring-0 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-2 group-hover:ring-[#A259FF]/70 group-hover:shadow-[0_6px_16px_rgba(162,89,255,0.45)]"
+            />
+          </a>
+        </InkTip>
 
         {/* Left door — top shelf: TV box sets */}
-        <div
+        <InkTip
+          label="Box Sets"
+          meta="Doctor Who · How I Met Your Mother"
+          place="bottom"
           className="group"
           style={{ position: "absolute", left: "10.5%", top: "13.0%", width: "13%", zIndex: 2 }}
-          title="Box sets — Doctor Who · How I Met Your Mother"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -154,7 +166,7 @@ export default function Home() {
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
             draggable={false}
           />
-        </div>
+        </InkTip>
 
         {/* Brass gallery rail across the top shelf — sits in front of the box sets */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -166,11 +178,13 @@ export default function Home() {
           draggable={false}
         />
 
-        {/* Left door — middle shelf: books */}
-        <div
+        {/* Left door — middle shelf: cassettes */}
+        <InkTip
+          label="Cassettes"
+          meta="The 10th Kingdom · Are You Afraid of the Dark?"
+          place="bottom"
           className="group"
           style={{ position: "absolute", left: "14.9%", top: "29.8%", width: "9.4%", zIndex: 2 }}
-          title="The 10th Kingdom · Are You Afraid of the Dark?"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -180,7 +194,7 @@ export default function Home() {
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
             draggable={false}
           />
-        </div>
+        </InkTip>
 
         {/* Brass gallery rail across the middle shelf — sits in front of the cassettes */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -193,10 +207,12 @@ export default function Home() {
         />
 
         {/* Right door — bottom shelf: books */}
-        <div
+        <InkTip
+          label="On the Shelf"
+          meta="Animal Farm · The Little Prince"
+          place="top"
           className="group"
           style={{ position: "absolute", left: "75.5%", top: "69%", width: "11.4%", zIndex: 2 }}
-          title="Animal Farm · The Little Prince"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -206,7 +222,7 @@ export default function Home() {
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
             draggable={false}
           />
-        </div>
+        </InkTip>
 
         {/* Right-centre rail: the bicycle — needs a transparent cutout at
             /items/bike_hang.png (position already dialled in). Enable when ready.

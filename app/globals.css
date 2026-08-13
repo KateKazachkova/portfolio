@@ -149,3 +149,118 @@ body::after {
 [data-theme="dark"] .border-gray-100 { border-color: #2f2822; }
 [data-theme="dark"] .border-gray-300 { border-color: #3d352d; }
 [data-theme="dark"] a.underline { color: inherit; }
+
+/* ── Marauder's-Map ink tooltips (components/InkTip.tsx) ──
+   Aged-parchment tag revealed on hover; the name "writes on" in old ink. */
+.inktip {
+  --tip-ink: #3a2c1a;              /* sepia writing ink */
+  --tip-soft: rgba(58, 44, 26, 0.5);
+  --tip-p1: #efe4c9;              /* aged tag paper (top) */
+  --tip-p2: #e5d7b6;              /* aged tag paper (bottom) */
+  --tip-meta: #8a785a;
+  position: absolute;
+  left: 50%;
+  z-index: 60;
+  width: max-content;
+  max-width: 230px;
+  pointer-events: none;           /* never steal hover from the item */
+  opacity: 0;
+  text-align: center;
+  transition: opacity 0.18s ease, transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-theme="dark"] .inktip {
+  --tip-ink: #e7d8bf;
+  --tip-soft: rgba(231, 216, 191, 0.36);
+  --tip-p1: #2c251c;
+  --tip-p2: #241e17;
+  --tip-meta: #b09b7d;
+}
+.inktip--top { bottom: 100%; transform: translate(-50%, 2px); }
+.inktip--bottom { top: 100%; transform: translate(-50%, -2px); }
+.inktip[data-open="true"] { opacity: 1; }
+.inktip--top[data-open="true"] { transform: translate(-50%, -12px); }
+.inktip--bottom[data-open="true"] { transform: translate(-50%, 12px); }
+
+.inktip__paper {
+  position: relative;
+  display: block;
+  padding: 9px 15px 11px;
+  color: var(--tip-ink);
+  background:
+    radial-gradient(120% 90% at 28% 18%, rgba(255, 251, 240, 0.96), rgba(255, 251, 240, 0) 60%),
+    linear-gradient(158deg, var(--tip-p1) 0%, var(--tip-p2) 100%);
+  border: 1px solid var(--tip-soft);
+  border-radius: 11px 9px 13px 8px / 9px 12px 8px 12px;  /* hand-cut edges */
+  box-shadow:
+    0 10px 22px rgba(40, 28, 12, 0.28),
+    0 2px 5px rgba(40, 28, 12, 0.2),
+    inset 0 0 22px rgba(120, 92, 48, 0.1);
+}
+[data-theme="dark"] .inktip__paper {
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5), inset 0 0 22px rgba(0, 0, 0, 0.25);
+}
+/* faint deckled inner stroke */
+.inktip__paper::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1px solid color-mix(in srgb, var(--tip-ink) 14%, transparent);
+  border-radius: 9px 12px 8px 11px / 12px 8px 12px 9px;
+  pointer-events: none;
+}
+/* parchment pointer toward the item */
+.inktip__paper::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(158deg, var(--tip-p1), var(--tip-p2));
+  border-right: 1px solid var(--tip-soft);
+  border-bottom: 1px solid var(--tip-soft);
+}
+.inktip--top .inktip__paper::after { bottom: -8px; transform: translateX(-50%) rotate(45deg); }
+.inktip--bottom .inktip__paper::after { top: -8px; transform: translateX(-50%) rotate(225deg); }
+
+/* footprints emblem — the Marauder's-Map signature, atop the name */
+.inktip__emblem { display: flex; gap: 5px; justify-content: center; margin-bottom: 3px; opacity: 0.5; }
+.inktip__emblem svg { width: 10px; height: 13px; fill: var(--tip-ink); }
+.inktip__emblem svg:last-child { transform: translateY(3px); }
+
+.inktip__name {
+  display: block;
+  font-family: var(--font-fell), Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.inktip__under { display: block; margin: 3px auto 0; width: 82%; height: 9px; overflow: visible; }
+.inktip__under path { fill: none; stroke: var(--tip-ink); stroke-width: 1.6; stroke-linecap: round; opacity: 0.8; }
+.inktip__meta {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tip-meta);
+  max-width: 210px;
+}
+
+/* ink-write reveal — only while open, and only if motion is welcome */
+@media (prefers-reduced-motion: no-preference) {
+  .inktip[data-open="true"] .inktip__name { animation: inktip-write 0.5s ease-out both; }
+  .inktip[data-open="true"] .inktip__under path {
+    stroke-dasharray: 120; stroke-dashoffset: 120;
+    animation: inktip-draw 0.55s ease-out 0.12s both;
+  }
+  .inktip[data-open="true"] .inktip__emblem { animation: inktip-fade 0.4s ease-out 0.1s both; }
+}
+@keyframes inktip-write {
+  0% { -webkit-clip-path: inset(0 100% 0 0); clip-path: inset(0 100% 0 0); filter: blur(1.6px); }
+  100% { -webkit-clip-path: inset(0 0 0 0); clip-path: inset(0 0 0 0); filter: blur(0); }
+}
+@keyframes inktip-draw { to { stroke-dashoffset: 0; } }
+@keyframes inktip-fade { from { opacity: 0; } to { opacity: 0.5; } }

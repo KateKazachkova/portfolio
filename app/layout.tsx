@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, IM_Fell_English } from "next/font/google";
+import { Geist, Geist_Mono, IM_Fell_English, Caveat } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -21,6 +21,12 @@ const fell = IM_Fell_English({
   style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-fell",
+});
+
+const chalk = Caveat({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-chalk",
 });
 
 export const metadata: Metadata = {
@@ -52,7 +58,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${fell.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fell.variable} ${chalk.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

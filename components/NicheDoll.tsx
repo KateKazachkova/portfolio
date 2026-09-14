@@ -68,6 +68,48 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "niche_poster.jpg",
     accentEveryMs: 120_000,
   },
+  // Workday shifts (Day edition split up). Deep work (10–13) keeps the `office` set.
+  work_standup: {
+    loop: "work_standup_loop.mp4",
+    accent: "work_standup_sip.mp4",
+    poster: "work_standup_poster.jpg",
+    accentEveryMs: 45_000,
+  },
+  mon_standup: {
+    loop: "mon_standup_loop.mp4",
+    accent: "mon_standup_yawn.mp4",
+    poster: "mon_standup_poster.jpg",
+    accentEveryMs: 40_000,
+  },
+  work_calls: {
+    loop: "work_calls_loop.mp4",
+    accent: "work_calls_point.mp4",
+    poster: "work_calls_poster.jpg",
+    accentEveryMs: 45_000,
+  },
+  fri_wine: {
+    loop: "fri_wine_loop.mp4",
+    accent: "fri_wine_sip.mp4",
+    poster: "fri_wine_poster.jpg",
+    accentEveryMs: 40_000,
+  },
+  fri_transition: {
+    intro: "fri_transition_intro.mp4",   // shuts the laptop, hoodie + raincoat on — plays once
+    loop: "fri_transition_loop.mp4",
+    poster: "fri_transition_poster.jpg",
+  },
+  work_lunch: {
+    loop: "work_lunch_loop.mp4",
+    accent: "work_lunch_eat.mp4",
+    poster: "work_lunch_poster.jpg",
+    accentEveryMs: 45_000,
+  },
+  work_wrapup: {
+    loop: "work_wrapup_loop.mp4",
+    accent: "work_wrapup_think.mp4",
+    poster: "work_wrapup_poster.jpg",
+    accentEveryMs: 45_000,
+  },
   weekend_brunch: {
     loop: "wknd_brunch_loop.mp4",
     accents: ["wknd_brunch_eat.mp4", "wknd_brunch_read.mp4", "wknd_brunch_tea.mp4"],

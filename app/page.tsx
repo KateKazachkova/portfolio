@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import EditionClock from "@/components/EditionClock";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
+import ChalkTodo from "@/components/ChalkTodo";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
@@ -32,7 +33,9 @@ export default function Home() {
   // Match the ambient mood while previewing a forced edition.
   useEffect(() => {
     if (!forced) return;
-    const mood = (forced === "weekend_cleaning" || forced === "weekend_series") ? "day" : "morning";
+    const mood = forced.startsWith("fri_") ? "evening"
+      : (forced === "weekend_cleaning" || forced === "weekend_series" || forced.startsWith("work_") || forced === "office" || forced === "mon_standup") ? "day"
+      : "morning";
     document.documentElement.setAttribute("data-daytime", mood);
   }, [forced]);
   const [videoFailed, setVideoFailed] = useState(false);
@@ -45,34 +48,50 @@ export default function Home() {
       </p>
       <EditionClock hour={hour ?? 12} onChange={pickHour} onNow={pickNow} />
 
-      {/* Weekend modes — preview her days off directly */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-        <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mr-1">
-          Weekend
-        </span>
-        {[
+      {/* Preview chips — force a shift / a day off without touching the clock */}
+      {[
+        { title: "Workday", chips: [
+          { label: "Standup", key: "work_standup" },
+          { label: "Deep work", key: "office" },
+          { label: "Lunch", key: "work_lunch" },
+          { label: "Calls", key: "work_calls" },
+          { label: "Wrap-up", key: "work_wrapup" },
+        ] },
+        { title: "Fri · Mon", chips: [
+          { label: "Wine call", key: "fri_wine" },
+          { label: "Closing", key: "fri_transition" },
+          { label: "Mon ×2", key: "mon_standup" },
+        ] },
+        { title: "Weekend", chips: [
           { label: "Brunch", key: "weekend_brunch" },
           { label: "Cleaning", key: "weekend_cleaning" },
           { label: "Series", key: "weekend_series" },
-        ].map((m) => {
-          const active = forced === m.key;
-          return (
-            <button
-              key={m.key}
-              onClick={() => setForced(m.key)}
-              className="uppercase font-bold border transition-colors"
-              style={{
-                fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", padding: "4px 9px",
-                borderColor: "var(--border)",
-                background: active ? "var(--border)" : "transparent",
-                color: active ? "var(--bg)" : "var(--fg)",
-              }}
-            >
-              {m.label}
-            </button>
-          );
-        })}
-      </div>
+        ] },
+      ].map((group) => (
+        <div key={group.title} className="flex flex-wrap items-center justify-center gap-2 mt-4" style={{ maxWidth: 260 }}>
+          <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mr-1 w-full text-center">
+            {group.title}
+          </span>
+          {group.chips.map((m) => {
+            const active = forced === m.key;
+            return (
+              <button
+                key={m.key}
+                onClick={() => setForced(m.key)}
+                className="uppercase font-bold border transition-colors"
+                style={{
+                  fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", padding: "4px 9px",
+                  borderColor: "var(--border)",
+                  background: active ? "var(--border)" : "transparent",
+                  color: active ? "var(--bg)" : "var(--fg)",
+                }}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 
@@ -240,6 +259,9 @@ export default function Home() {
           />
         </div>
         */}
+
+        {/* Chalk to-do list on the niche's back wall — crossed out as the workday goes */}
+        <ChalkTodo edition={edition.key} />
 
         {/* Central niche — editions with a generated clip play their video
             sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}

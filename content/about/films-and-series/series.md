@@ -156,3 +156,8 @@ Poster: posters/the-angry-beavers.jpg
 Year: 1999
 Why I like it:
 Poster: posters/the-10th-kingdom.jpg
+
+## Xena: Warrior Princess
+Year: 1995
+Why I like it:
+Poster: posters/xena.webp

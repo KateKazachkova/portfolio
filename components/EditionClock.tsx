@@ -32,8 +32,8 @@ export default function EditionClock({
   const angle = hour12 * 30;
   const rad = (angle - 90) * (Math.PI / 180);
   const R = 32;
-  const hx = 50 + R * Math.cos(rad);
-  const hy = 50 + R * Math.sin(rad);
+  const hx = +(50 + R * Math.cos(rad)).toFixed(3);
+  const hy = +(50 + R * Math.sin(rad)).toFixed(3);
 
   const setFromPointer = useCallback((clientX: number, clientY: number) => {
     const svg = svgRef.current;
@@ -77,10 +77,12 @@ export default function EditionClock({
           {/* minute ticks */}
           {Array.from({ length: 12 }).map((_, i) => {
             const a = (i * 30 - 90) * (Math.PI / 180);
+            // round so server and client render identical attribute strings (no hydration warnings)
+            const f = (v: number) => +v.toFixed(3);
             return (
               <line key={i}
-                x1={50 + 40 * Math.cos(a)} y1={50 + 40 * Math.sin(a)}
-                x2={50 + 45 * Math.cos(a)} y2={50 + 45 * Math.sin(a)}
+                x1={f(50 + 40 * Math.cos(a))} y1={f(50 + 40 * Math.sin(a))}
+                x2={f(50 + 45 * Math.cos(a))} y2={f(50 + 45 * Math.sin(a))}
                 stroke="var(--border)" strokeWidth={1.2} />
             );
           })}

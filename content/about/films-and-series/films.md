@@ -46,3 +46,8 @@ Poster: posters/constantine.webp
 Year: 2001
 Why I like it:
 Poster: posters/bridget-joness-diary.jpg
+
+## The Mummy
+Year: 1999
+Why I like it:
+Poster: posters/the-mummy.jpg

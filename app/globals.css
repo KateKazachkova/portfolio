@@ -4,36 +4,42 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  /* Light (day) — warm paper archive */
-  --bg: #e9e0cd;         /* warm paper */
-  --fg: #201d18;         /* soft black / graphite */
+  /* Light (day) — warm paper archive, printed in the KATE™ brand palette */
+  --bg: #e9e0cd;         /* warm paper — the dirty off-white, never #fff */
+  --fg: #2C263F;         /* Dark Purple — the main dark, instead of near-black */
   --panel: #f4ecdb;      /* card / document sheet */
   --inner: #ded4bf;      /* inner window / recessed */
-  --border: #2a251d;     /* soft black ink border */
+  --border: #2C263F;     /* Dark Purple ink border */
   --hairline: #c3b9a3;   /* thin archive divider */
-  --muted: #857c6c;      /* muted grey */
+  --muted: #776f8a;      /* muted, a touch of plum */
+  /* Brand palette */
+  --brand: #F8C662;      /* Saffron — logo, selected states, small labels */
+  --plum: #2C263F;       /* Dark Purple */
+  --violet: #595082;     /* Ultra Violet — episodic: cards, hover, project identities */
+  --green: #41644A;      /* Hunter Green — second big colour, whole sections */
+  --green-deep: #213722; /* Dark Green — background-only */
   /* Ink accents — use sparingly */
-  --accent: #f2df3f;     /* highlighter yellow */
-  --accent-red: #d8352a; /* deep red ink */
-  --accent-blue: #2f4a6b;/* archive blue */
-  --accent-green: #3d6b4c;/* inspection green */
+  --accent: var(--brand);
+  --accent-red: #d8352a; /* deep red ink (documentation stamps / numbering) */
+  --accent-blue: var(--violet);
+  --accent-green: var(--green);
   --night: 0;            /* doll darkening: 0 = none */
   --grain: 0.09;         /* paper grain strength */
 }
 
 [data-theme="dark"] {
-  /* Warm dark (night) */
-  --bg: #1a1613;
+  /* Night — Dark Purple room, not a black one */
+  --bg: #2C263F;
   --fg: #efe7d8;
-  --panel: #221d18;
-  --inner: #2a241e;
+  --panel: #352d4d;
+  --inner: #231d34;
   --border: #efe7d8;
-  --hairline: #3a332b;
-  --muted: #9a9086;
-  --accent: #f2df3f;
+  --hairline: #4a4163;
+  --muted: #a89fc2;
+  --accent: #F8C662;
   --accent-red: #e8443a;
-  --accent-blue: #6f93bd;
-  --accent-green: #6fa07f;
+  --accent-blue: #9b92c9;   /* Ultra Violet lifted for contrast on plum */
+  --accent-green: #7fae8c;  /* Hunter Green lifted */
   --night: 0.35;         /* darken the doll at night */
   --grain: 0.04;
 }
@@ -643,11 +649,11 @@ body::after {
 
 /* ── chalk to-do list on the niche wall ───────────────────────────────────── */
 .chalk { container-type: inline-size; pointer-events: none; }
-.chalk ul { list-style: none; margin: 0; padding: 42cqw 9cqw 0 12cqw; display: flex; flex-direction: column; gap: 2.2cqw; }
+.chalk ul { list-style: none; margin: 0; padding: 58cqw 8cqw 0 10cqw; display: flex; flex-direction: column; gap: 2.4cqw; }
 .chalk li {
   display: flex; align-items: baseline; gap: 4cqw;
   font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 500;
-  font-size: 8cqw; line-height: 1.05; letter-spacing: 0.01em;
+  font-size: 7.4cqw; line-height: 1.05; letter-spacing: 0.01em;
   color: rgba(255, 246, 225, 0.82);
   text-shadow: 0 0 1.2cqw rgba(255, 240, 210, 0.35), 0 0 0.3cqw rgba(255,255,255,0.5);
   transform: rotate(var(--tilt, 0deg));
@@ -661,7 +667,10 @@ body::after {
 }
 .chalk__text { position: relative; white-space: nowrap; }
 .chalk__strike { position: absolute; left: -3%; right: -3%; top: 42%; width: 106%; height: 22%; display: none; overflow: visible; }
-.chalk__strike path { fill: none; stroke: rgba(255, 246, 225, 0.85); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.chalk__strike path { fill: none; stroke: rgba(255, 246, 225, 0.85); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.chalk li:nth-child(3) .chalk__strike { top: 30%; height: 45%; }   /* the scribble needs room */
+.chalk__box[data-mark="1"] { font-size: 6cqw; }
+.chalk__box[data-mark="2"] { letter-spacing: -0.1em; }
 .chalk li[data-done="true"] { color: rgba(255, 246, 225, 0.5); }
 .chalk li[data-done="true"] .chalk__strike { display: block; }
 .chalk li[data-done="true"] .chalk__box { color: rgba(255, 246, 225, 0.9); }

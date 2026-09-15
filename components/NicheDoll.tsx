@@ -68,6 +68,34 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "niche_poster.jpg",
     accentEveryMs: 120_000,
   },
+  // Morning before work
+  morn_alarm: {
+    intro: "morn_alarm_wake.mp4",   // asleep → the phone goes off → she surfaces
+    loop: "morn_alarm_loop.mp4",
+    accent: "morn_alarm_snooze.mp4",
+    poster: "morn_alarm_poster.jpg",
+    accentEveryMs: 40_000,
+  },
+  mon_alarm: {
+    intro: "morn_alarm_wake.mp4",
+    loop: "morn_alarm_loop.mp4",
+    accent: "mon_alarm_snooze2.mp4",
+    poster: "morn_alarm_poster.jpg",
+    accentEveryMs: 35_000,
+  },
+  morn_ready: {
+    loop: "morn_ready_loop.mp4",
+    accent: "morn_ready_clock.mp4",
+    poster: "morn_ready_poster.jpg",
+    accentEveryMs: 30_000,
+  },
+  morn_doorstep: {
+    intro: "morn_dress.mp4",        // flannel on, laptop under the arm — plays once at 08:45
+    loop: "morn_doorstep_loop.mp4",
+    accent: "morn_doorstep_sip.mp4",
+    poster: "morn_doorstep_poster.jpg",
+    accentEveryMs: 40_000,
+  },
   // Workday shifts (Day edition split up). Deep work (10–13) keeps the `office` set.
   work_standup: {
     loop: "work_standup_loop.mp4",

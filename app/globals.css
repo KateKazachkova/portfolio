@@ -674,3 +674,6 @@ body::after {
 .chalk li[data-done="true"] { color: rgba(255, 246, 225, 0.5); }
 .chalk li[data-done="true"] .chalk__strike { display: block; }
 .chalk li[data-done="true"] .chalk__box { color: rgba(255, 246, 225, 0.9); }
+
+.chalk[data-morning="true"] ul { padding-top: 66cqw; }
+.chalk[data-morning="true"] li { font-size: 8.4cqw; font-weight: 700; transform: rotate(-2.5deg); }

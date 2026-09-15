@@ -36,13 +36,19 @@ const MARKS = ["×", "✓", "≈", "×"];
 // the niche rect inside the suitcase image (see NicheDoll)
 const RECT = { left: "40.62%", top: "11.43%", width: "18.16%" } as const;
 
+// before work the wall holds one line, in a different hand — crossed out once the coffee is in
+const MORNING_TASKS = ["coffee first"];
+const MORNING_DONE: Record<string, number> = { morn_alarm: 0, mon_alarm: 0, morning: 1, morn_ready: 1, morn_doorstep: 1 };
+
 export default function ChalkTodo({ edition }: { edition: string }) {
-  const done = DONE[edition];
+  const isMorning = edition in MORNING_DONE;
+  const tasks = isMorning ? MORNING_TASKS : TASKS;
+  const done = isMorning ? MORNING_DONE[edition] : DONE[edition];
   if (done === undefined) return null;
   return (
-    <div className="chalk" style={{ position: "absolute", ...RECT, zIndex: 4 }} aria-hidden="true">
+    <div className="chalk" data-morning={isMorning ? "true" : "false"} style={{ position: "absolute", ...RECT, zIndex: 4 }} aria-hidden="true">
       <ul>
-        {TASKS.map((t, i) => {
+        {tasks.map((t, i) => {
           const isDone = i < done;
           return (
             <li key={t} data-done={isDone ? "true" : "false"} style={{ "--tilt": `${(i % 2 ? 1 : -1) * (0.5 + i * 0.25)}deg` } as React.CSSProperties}>

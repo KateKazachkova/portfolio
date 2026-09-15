@@ -50,6 +50,13 @@ export default function Home() {
 
       {/* Preview chips — force a shift / a day off without touching the clock */}
       {[
+        { title: "Morning", chips: [
+          { label: "Alarm", key: "morn_alarm" },
+          { label: "Coffee", key: "morning" },
+          { label: "Ready", key: "morn_ready" },
+          { label: "Lacing up", key: "morn_doorstep" },
+          { label: "Mon alarm", key: "mon_alarm" },
+        ] },
         { title: "Workday", chips: [
           { label: "Standup", key: "work_standup" },
           { label: "Deep work", key: "office" },

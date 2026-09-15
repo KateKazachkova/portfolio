@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, IM_Fell_English, Caveat } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  IM_Fell_English,
+  Caveat,
+  Newsreader,
+  Archivo,
+  Courier_Prime,
+} from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -21,6 +29,29 @@ const fell = IM_Fell_English({
   style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-fell",
+});
+
+// Case-study voices. Newsreader reads as a printed document where Arial
+// cannot; Archivo carries a width axis, so headlines condense without a
+// second family; Courier Prime is a real typewriter letterform, used for
+// every label, numeral and margin note.
+const serif = Newsreader({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+});
+
+const display = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-display",
+});
+
+const typewriter = Courier_Prime({
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-typewriter",
 });
 
 const chalk = Caveat({
@@ -58,7 +89,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${fell.variable} ${chalk.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fell.variable} ${chalk.variable} ${serif.variable} ${display.variable} ${typewriter.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./case.css";
 
 /* Make Tailwind's dark: variant respond to [data-theme="dark"] */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -24,7 +25,7 @@
   --accent-blue: var(--violet);
   --accent-green: var(--green);
   --night: 0;            /* doll darkening: 0 = none */
-  --grain: 0.09;         /* paper grain strength */
+  --grain: 0.13;         /* paper texture strength */
 }
 
 [data-theme="dark"] {
@@ -41,7 +42,7 @@
   --accent-blue: #9b92c9;   /* Ultra Violet lifted for contrast on plum */
   --accent-green: #7fae8c;  /* Hunter Green lifted */
   --night: 0.35;         /* darken the doll at night */
-  --grain: 0.04;
+  --grain: 0.10;
 }
 
 @theme inline {
@@ -51,6 +52,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* The paper has to be painted on <html>, not only on <body>. A body
+   background with no html background propagates to the page canvas, which
+   leaves body's own stacking context transparent — and `overlay` against a
+   transparent backdrop is a no-op, so the grain silently does nothing. */
+html { background-color: var(--bg); }
+
 body {
   background-color: var(--bg);
   color: var(--fg);
@@ -59,7 +66,20 @@ body {
   position: relative;
 }
 
-/* Paper grain — a faint, fixed overlay so surfaces feel printed, not digital */
+/* ── Paper ──
+   A sheet has two textures: the fine tooth of the fibre, and the slow, uneven
+   cloudiness of how it was made. One layer alone reads as television static.
+
+   Both are greyscale with their alpha flattened to 1 — feTurbulence randomises
+   transparency as well as luminance, and that is what made the old single
+   layer dirty the page instead of texturing it. They ride on ONE pseudo-element
+   as two background layers, because body::after is already the time-of-day
+   ambient wash; the cloudiness carries its contrast squashed toward mid-grey
+   in the filter itself, so it stays the quieter of the two at one opacity.
+
+   `overlay` leaves mid-grey untouched, so the grain adds tooth without shifting
+   the paper colour or the text contrast. Dark theme screens instead, or the
+   grain would read as soot. Strength: --grain. */
 body::before {
   content: "";
   position: fixed;
@@ -67,7 +87,13 @@ body::before {
   z-index: 0;
   pointer-events: none;
   opacity: var(--grain);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.0' intercept='0.0'/%3E%3CfeFuncG type='linear' slope='1.0' intercept='0.0'/%3E%3CfeFuncB type='linear' slope='1.0' intercept='0.0'/%3E%3CfeFuncA type='table' tableValues='1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+                    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.013' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.55' intercept='0.22'/%3E%3CfeFuncG type='linear' slope='0.55' intercept='0.22'/%3E%3CfeFuncB type='linear' slope='0.55' intercept='0.22'/%3E%3CfeFuncA type='table' tableValues='1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+  background-size: 200px 200px, 600px 600px;
+  /* fine tooth over cloudiness — otherwise the opaque top layer hides the
+     bottom one and only one texture ever reaches the page */
+  background-blend-mode: overlay;
 }
 [data-theme="dark"] body::before { mix-blend-mode: screen; }
 

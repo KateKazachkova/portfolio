@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject } from "@/lib/notion";
+import { getCase } from "@/content/work";
 import NotionRender from "@/components/NotionRender";
+import CaseStudy from "@/components/case/CaseStudy";
 
 export const revalidate = 60;
 
@@ -9,6 +11,10 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const written = getCase(slug);
+  if (written) {
+    return { title: `${written.title} – Kate Kazachkova`, description: written.subtitle };
+  }
   const project = await getProject(slug).catch(() => null);
   if (!project) return { title: "Case Study – Kate Kazachkova" };
   return {
@@ -17,8 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function CaseStudy({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CaseStudyRoute({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  // A case written up as an annotated document wins; anything else still comes
+  // from Notion until it has been written.
+  const written = getCase(slug);
+  if (written) return <CaseStudy data={written} />;
+
   const project = await getProject(slug).catch(() => null);
   if (!project) notFound();
 

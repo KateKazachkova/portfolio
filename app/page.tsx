@@ -30,6 +30,13 @@ export default function Home() {
   const pickHour = (h: number) => { setForced(null); setHour(h); };
   const pickNow = () => { setForced(null); setNow(); };
 
+  // Home is a product shot: it gets the studio sweep. Every other route stays
+  // flat paper, so the box reads as packaging and the documents read as paper.
+  useEffect(() => {
+    document.documentElement.setAttribute("data-scene", "studio");
+    return () => document.documentElement.removeAttribute("data-scene");
+  }, []);
+
   // Match the ambient mood while previewing a forced edition.
   useEffect(() => {
     if (!forced) return;
@@ -117,23 +124,45 @@ export default function Home() {
           sits to its right (absolute, so the box itself never shifts). */}
       <div className="relative w-full flex justify-center">
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
-        {/* Contact shadow – sits right under the base */}
+        {/* Ambient pool — the soft darkening the floor picks up around the
+            case. Wider and far softer than the contact shadow, and it carries
+            none of the object's shape; that job belongs to the drop-shadow.
+            It lies along the floor rather than sitting under the base — a
+            floor only reads as a plane once something's shadow is on it.
+            Offset to match the plate's key light, which comes from upper left.
+            The case's contact line sits at 92.4% of the image height (measured
+            off the alpha channel of open2.png). */}
         <div
           aria-hidden
           style={{
             position: "absolute",
-            left: "50%",
-            bottom: "11%",
+            left: "52%",        /* pushed right, because the key light is upper-left */
+            bottom: "-1.5%",
             transform: "translateX(-50%)",
-            width: "88%",
-            height: "3.5%",
-            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.40), rgba(0,0,0,0) 72%)",
-            filter: "blur(5px)",
+            width: "112%",
+            height: "14%",
+            background: "radial-gradient(ellipse at center, rgba(44,38,63,0.34), rgba(44,38,63,0) 64%)",
+            filter: "blur(30px)",
             zIndex: 0,
           }}
         />
+        {/* The shadow proper is taken from the PNG's own alpha, so it has the
+            silhouette of the case — the open doors, the feet, the handle —
+            instead of the ellipse that used to sit under it and read as a
+            smudge. Two passes: a wide soft one for the cast, a tight dark one
+            for the contact. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/suitcase/open2.png" alt="Kate's collector suitcase" className="absolute inset-0 w-full h-full object-contain" style={{ zIndex: 1 }} draggable={false} />
+        <img
+          src="/suitcase/open2.png"
+          alt="Kate's collector suitcase"
+          className="absolute inset-0 w-full h-full object-contain"
+          style={{
+            zIndex: 1,
+            filter:
+              "drop-shadow(14px 18px 18px rgba(30,24,46,0.42)) drop-shadow(3px 4px 3px rgba(20,15,34,0.58))",
+          }}
+          draggable={false}
+        />
 
         {/* Trophy on the left shelf (top cubby above the drawers) */}
         <InkTip

@@ -100,6 +100,54 @@ body::before {
 /* Keep page content above the grain */
 body > * { position: relative; z-index: 1; }
 
+/* ── The studio sweep (home only, via data-scene on <html>) ──
+   Wall and floor are one colour; only the light tells them apart. On a light
+   ground there is no headroom to separate them by lightness, so they split by
+   temperature instead: the wall falls toward the plum, the floor picks up the
+   warm bounce a real floor would throw back. A narrow soft shadow sits on the
+   seam, which is what the join of a paper sweep actually looks like.
+
+   It rides on html::before — body::before is the paper grain and body::after
+   is the ambient wash, and the sweep has to sit under both. Document pages
+   never set the attribute, so they stay flat paper. */
+:root {
+  --scene-wall: #2C263F;   /* what the wall falls toward */
+  --scene-floor: #F8C662;  /* what the floor bounces back */
+}
+[data-theme="dark"] {
+  --scene-wall: #000;
+  --scene-floor: #9b92c9;
+}
+
+:root[data-scene="studio"] { --bg: #ece3d0; }  /* the plate darkens it on multiply */
+[data-theme="dark"][data-scene="studio"] { --bg: #2C263F; }
+:root[data-scene="studio"] body { background-color: transparent; }
+
+:root[data-scene="studio"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* A photographed paper sweep, not a simulated one. Gradients cannot produce
+     the things that actually read as "shot": fibre texture, light that falls
+     unevenly, a lens vignette, a horizon that is not perfectly straight, and
+     focus going soft toward the bottom edge. Every CSS attempt at this looked
+     plastic precisely because it was mathematically perfect.
+
+     The plate is near-white, so `multiply` paints it with whatever --bg the
+     scene is set to: the photograph supplies the light and the texture, the
+     token supplies the colour. That keeps the palette in one place and lets
+     the time-of-day editions retint the same plate. */
+  background-image: url("/scene/sweep.jpg");
+  background-size: cover;
+  background-position: 50% 16%;
+  mix-blend-mode: multiply;
+}
+/* Multiplying a light plate onto a dark room would crush it to black; in the
+   dark theme the plate only modulates what is already there. */
+[data-theme="dark"][data-scene="studio"]::before { mix-blend-mode: soft-light; opacity: 0.85; }
+
 /* ── Time-of-day ambient wash (set via data-daytime on <html>) ── */
 :root { --ambient: transparent; }
 :root[data-daytime="morning"] { --ambient: radial-gradient(130% 90% at 78% -12%, rgba(255,204,128,0.34), rgba(255,204,128,0) 55%); }

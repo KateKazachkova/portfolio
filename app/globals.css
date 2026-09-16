@@ -775,7 +775,7 @@ body::after {
 .chalk { container-type: inline-size; pointer-events: none; }
 
 
-.chalk ul { list-style: none; margin: 0; padding: 64cqw 6cqw 0 7cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
+.chalk ul { list-style: none; margin: 0; padding: 64cqw 2cqw 0 11cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
 .chalk li {
   display: flex; align-items: baseline; gap: 2.6cqw;
   font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 500;

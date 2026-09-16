@@ -2,19 +2,32 @@ import { getProjects } from "@/lib/notion";
 
 export const revalidate = 60;
 
+type Project = Awaited<ReturnType<typeof getProjects>>[number];
+
 export default async function ProjectsPage() {
-  const projects = await getProjects();
+  // null means the fetch failed; [] means nothing is published yet. Without
+  // the catch, a Notion outage or an expired token took the whole route down
+  // with a 500 — while the case-study route next door already degrades to a
+  // 404 rather than throwing.
+  const projects = await getProjects().catch((error) => {
+    console.error("Notion projects error:", error);
+    return null;
+  });
 
   return (
     <main className="min-h-screen px-8 py-24 max-w-5xl mx-auto">
       <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Work</p>
       <h1 className="text-4xl font-bold text-gray-900 mb-12">Projects & Case Studies</h1>
 
-      {projects.length === 0 ? (
+      {projects === null ? (
+        <p className="text-gray-400 text-lg">
+          The project list isn&rsquo;t loading just now. Please try again shortly.
+        </p>
+      ) : projects.length === 0 ? (
         <p className="text-gray-400 text-lg">Projects coming soon.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project: any) => (
+          {projects.map((project: Project) => (
             <a
               key={project.id}
               href={`/work/${project.slug}`}

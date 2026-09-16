@@ -121,32 +121,47 @@ body > * { position: relative; z-index: 1; }
 
 :root[data-scene="studio"] { --bg: #ece3d0; }  /* the plate darkens it on multiply */
 [data-theme="dark"][data-scene="studio"] { --bg: #2C263F; }
-:root[data-scene="studio"] body { background-color: transparent; }
+/* The plate blends against its nearest painted backdrop, and `body > *` gives
+   <main> a stacking context — so the colour has to be painted on <main>, not
+   on <body>, or the blend has nothing to work against and the raw plate shows
+   through. Same trap as the paper grain and the canvas background. */
+:root[data-scene="studio"] main { background-color: var(--bg); }
 
-:root[data-scene="studio"]::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* A photographed paper sweep, not a simulated one. Gradients cannot produce
-     the things that actually read as "shot": fibre texture, light that falls
-     unevenly, a lens vignette, a horizon that is not perfectly straight, and
-     focus going soft toward the bottom edge. Every CSS attempt at this looked
-     plastic precisely because it was mathematically perfect.
+/* The sweep is tied to the case, not to the window: it is a child of the
+   suitcase's own box, so it scrolls away with it and the horizon lands on the
+   same fraction of the case at every viewport size rather than only on the one
+   it was tuned at. See .studio-plate in app/page.tsx.
 
-     The plate is near-white, so `multiply` paints it with whatever --bg the
-     scene is set to: the photograph supplies the light and the texture, the
-     token supplies the colour. That keeps the palette in one place and lets
-     the time-of-day editions retint the same plate. */
+   Geometry: the case occupies 7.8%-92.4% of its box (measured off the alpha of
+   open2.png), so its base is at 92.4% and it is 84.6% tall. The horizon wanted
+   at a third of the case height above the base = 92.4 - 28.2 = 64.2% of the
+   box. The plate's own horizon sits at 54% of the image, so with the element
+   220% tall it has to start at 64.2 - 0.54*220 = -54.6%. Stretched rather than
+   covered, so that 54% stays exact instead of moving with the crop. */
+.studio-plate {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -54.6%;
+  height: 220%;
+  width: max(100vw, 240%);
   background-image: url("/scene/sweep.jpg");
-  background-size: cover;
-  background-position: 50% 16%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  /* The plate is finite, so its edges would otherwise cut a hard line across
+     the page. The top fade is long on purpose: <main> starts below the 58px
+     header, so in that strip the plate has no backdrop to blend with and the
+     colour is flat. A long ramp turns that unavoidable step into a gradient
+     nobody reads as an edge. */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 90%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 90%, transparent 100%);
+  /* Near-white plate: the photograph gives light and texture, --bg gives the
+     colour. Dark theme would crush to black on multiply. */
   mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
 }
-/* Multiplying a light plate onto a dark room would crush it to black; in the
-   dark theme the plate only modulates what is already there. */
-[data-theme="dark"][data-scene="studio"]::before { mix-blend-mode: soft-light; opacity: 0.85; }
+[data-theme="dark"] .studio-plate { mix-blend-mode: soft-light; opacity: 0.85; }
 
 /* ── Time-of-day ambient wash (set via data-daytime on <html>) ── */
 :root { --ambient: transparent; }

@@ -15,6 +15,33 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
 const EDITION_VIDEO: Record<string, string> = {};
 
+/** One layer of the floor shadow, placed in the suitcase box's own percentage
+ *  space so it stays pinned to the case at any size. `stop` is where the
+ *  gradient reaches zero — lower values hold the shadow dense before it falls
+ *  off, which is what gives a contact shadow an edge. */
+function Shadow({ cx, bottom, w, h, rgb, a, blur, stop }: {
+  cx: number; bottom: number; w: number; h: number;
+  rgb: string; a: number; blur: number; stop: number;
+}) {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        left: `${cx}%`,
+        bottom: `${bottom}%`,
+        transform: "translateX(-50%)",
+        width: `${w}%`,
+        height: `${h}%`,
+        background: `radial-gradient(ellipse at center, rgba(${rgb},${a}), rgba(${rgb},0) ${stop}%)`,
+        filter: `blur(${blur}px)`,
+        zIndex: 0,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
 export default function Home() {
   const { hour, auto, setHour, setNow } = useTime();
   // Manual mode override — buttons force a specific edition (incl. the
@@ -110,7 +137,13 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14" style={{ background: "transparent" }}>
+    <main
+      className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14"
+      // Painted, not transparent: <main> is the plate's nearest stacking
+      // context, so it is what the sweep blends onto. Transparent here and the
+      // blend has no backdrop, which shows the raw near-white plate instead.
+      style={{ background: "var(--bg)" }}
+    >
 
       {/* Eyebrow */}
       <div className="text-center">
@@ -124,33 +157,45 @@ export default function Home() {
           sits to its right (absolute, so the box itself never shifts). */}
       <div className="relative w-full flex justify-center">
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
-        {/* Ambient pool — the soft darkening the floor picks up around the
-            case. Wider and far softer than the contact shadow, and it carries
-            none of the object's shape; that job belongs to the drop-shadow.
-            It lies along the floor rather than sitting under the base — a
-            floor only reads as a plane once something's shadow is on it.
-            Offset to match the plate's key light, which comes from upper left.
-            The case's contact line sits at 92.4% of the image height (measured
-            off the alpha channel of open2.png). */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "52%",        /* pushed right, because the key light is upper-left */
-            bottom: "-1.5%",
-            transform: "translateX(-50%)",
-            width: "112%",
-            height: "14%",
-            background: "radial-gradient(ellipse at center, rgba(44,38,63,0.34), rgba(44,38,63,0) 64%)",
-            filter: "blur(30px)",
-            zIndex: 0,
-          }}
-        />
-        {/* The shadow proper is taken from the PNG's own alpha, so it has the
-            silhouette of the case — the open doors, the feet, the handle —
-            instead of the ellipse that used to sit under it and read as a
-            smudge. Two passes: a wide soft one for the cast, a tight dark one
-            for the contact. */}
+        {/* The studio sweep, anchored to the case so it travels with it. */}
+        <div className="studio-plate" aria-hidden />
+
+        {/* ── The shadow, in four layers ──────────────────────────────────
+            The case does not sit flat on the floor: it stands on the feet at
+            the outer bottom corners of the two doors. Measured off open2.png's
+            alpha channel, the bottom profile is an arc, not a line — the door
+            feet reach 92.9% of the image height (left 8.7-12.3%, right
+            85.5-91.7% across), while the trunk's base runs flat at 88.1% from
+            26% to 73%. The doors are simply nearer the camera; everything is
+            on one floor.
+
+            So the shadow follows two rules from the physics rather than being
+            one blob. Penumbra grows with distance from the contact point and
+            with the angular size of the light, so a true point of contact is
+            dark and sharp while anything lifted away is pale and soft. And a
+            recess is dark whatever the key light does, because ambient light
+            cannot reach into it.
+
+            Layers, hardest to softest. The key light on the backdrop plate
+            comes from the upper left, so every layer leans down and right. */}
+
+        {/* 1. The two feet. Real contact, nearest the camera: tightest blur,
+               darkest value, and the only layer with a visible edge. */}
+        <Shadow cx={11.6} bottom={6.3} w={10} h={1.9} rgb="26,20,40" a={0.62} blur={4} stop={62} />
+        <Shadow cx={90.4} bottom={5.9} w={15} h={2.3} rgb="26,20,40" a={0.62} blur={4} stop={62} />
+
+        {/* 2. The trunk's base — a long edge further back, so a wider penumbra
+               and less of it. */}
+        <Shadow cx={50} bottom={10.4} w={52} h={3.0} rgb="44,38,63" a={0.34} blur={11} stop={70} />
+
+        {/* 3. Ambient occlusion under the whole lifted mass, plus the cast that
+               carries onto the floor past the right-hand door. */}
+        <Shadow cx={54} bottom={1.0} w={124} h={13} rgb="44,38,63" a={0.22} blur={34} stop={64} />
+
+        {/* 4. The silhouette, taken from the PNG's own alpha so it carries the
+               real shape of the doors and feet: a tight pass that hugs the
+               object, and a long soft one that throws the cast out to the
+               right, where the door had no shadow at all before. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/suitcase/open2.png"
@@ -159,7 +204,7 @@ export default function Home() {
           style={{
             zIndex: 1,
             filter:
-              "drop-shadow(14px 18px 18px rgba(30,24,46,0.42)) drop-shadow(3px 4px 3px rgba(20,15,34,0.58))",
+              "drop-shadow(5px 4px 3px rgba(20,15,34,0.55)) drop-shadow(26px 18px 24px rgba(30,24,46,0.26))",
           }}
           draggable={false}
         />

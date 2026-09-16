@@ -77,18 +77,23 @@ export function editionForDate(d: Date): Edition {
 export type Daytime = "morning" | "day" | "evening" | "night";
 
 // Ambient mood for the whole site – groups the editions into 4 moods.
-export function daytimeForHour(h: number): Daytime {
-  const e = editionForHour(h).key;
-  if (e === "morning" || e.startsWith("morn_") || e === "mon_alarm") return "morning";
-  if (e === "office" || e.startsWith("work_") || e === "mon_standup") return "day";
-  if (e === "fri_wine" || e === "fri_transition") return "evening";
-  if (e === "street" || e === "evening") return "evening";
+//
+// Keyed off the edition rather than the hour, because an edition can also be
+// forced from the schedule on the home page, where there is no hour to read.
+// One map for all three ways in — the clock, the real calendar, a forced
+// preview — so they cannot drift apart and leave the page coloured for an
+// edition it is no longer showing.
+export function daytimeForEdition(key: string): Daytime {
+  if (key === "morning" || key.startsWith("morn_") || key === "mon_alarm" || key === "weekend_brunch") return "morning";
+  if (key === "office" || key.startsWith("work_") || key === "mon_standup" || key === "weekend_cleaning" || key === "weekend_series") return "day";
+  if (key === "street" || key === "evening" || key.startsWith("fri_")) return "evening";
   return "night";
 }
 
+export function daytimeForHour(h: number): Daytime {
+  return daytimeForEdition(editionForHour(h).key);
+}
+
 export function daytimeForDate(d: Date): Daytime {
-  const e = editionForDate(d).key;
-  if (e === "weekend_brunch") return "morning";
-  if (e === "weekend_cleaning" || e === "weekend_series") return "day";
-  return daytimeForHour(d.getHours());
+  return daytimeForEdition(editionForDate(d).key);
 }

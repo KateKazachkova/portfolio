@@ -7,7 +7,7 @@ import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import ChalkTodo from "@/components/ChalkTodo";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
-import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
+import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 
 const mono = "var(--font-mono), ui-monospace, monospace";
 
@@ -55,7 +55,7 @@ function Shadow({ cx, bottom, w, h, rgb, a, blur, stop }: {
 }
 
 export default function Home() {
-  const { hour, auto, setHour, setNow } = useTime();
+  const { hour, auto, setHour, setNow, applyAmbient } = useTime();
   // Manual mode override — buttons force a specific edition (incl. the
   // weekend ones, which otherwise only show on Saturday). Cleared by the
   // clock / presets / Now.
@@ -76,14 +76,18 @@ export default function Home() {
     return () => document.documentElement.removeAttribute("data-scene");
   }, []);
 
-  // Match the ambient mood while previewing a forced edition.
+  // Match the ambient mood while previewing a forced edition, and hand the
+  // page back to the clock the moment the force is dropped or you leave.
+  //
+  // It used to only paint the forced mood and return early otherwise, which
+  // left the page coloured for an edition it was no longer showing: "Now" and
+  // the presets clear the force without necessarily changing the hour, so the
+  // provider's own effect had no reason to fire and repaint.
   useEffect(() => {
-    if (!forced) return;
-    const mood = forced.startsWith("fri_") ? "evening"
-      : (forced === "weekend_cleaning" || forced === "weekend_series" || forced.startsWith("work_") || forced === "office" || forced === "mon_standup") ? "day"
-      : "morning";
-    document.documentElement.setAttribute("data-daytime", mood);
-  }, [forced]);
+    if (forced) document.documentElement.setAttribute("data-daytime", daytimeForEdition(forced));
+    else applyAmbient();
+    return applyAmbient;
+  }, [forced, applyAmbient]);
   const [videoFailed, setVideoFailed] = useState(false);
   const dollVideo = EDITION_VIDEO[edition.key];
 

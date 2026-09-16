@@ -10,9 +10,12 @@ type TimeCtx = {
   auto: boolean;
   setHour: (h: number) => void;
   setNow: () => void;
+  // Repaint the site-wide ambient from the clock. Handed out so a page that
+  // overrides it for a preview can give it back — see app/page.tsx.
+  applyAmbient: () => void;
 };
 
-const Ctx = createContext<TimeCtx>({ hour: null, auto: true, setHour: () => {}, setNow: () => {} });
+const Ctx = createContext<TimeCtx>({ hour: null, auto: true, setHour: () => {}, setNow: () => {}, applyAmbient: () => {} });
 
 export function useTime() {
   return useContext(Ctx);
@@ -26,14 +29,20 @@ export default function TimeProvider({ children }: { children: React.ReactNode }
 
   // Drive the site-wide ambient. In auto mode use the full local date so the
   // weekend moods apply; once the clock is dragged, go by the chosen hour.
-  useEffect(() => {
+  //
+  // A function rather than only an effect body: the effect fires on a change
+  // of hour or auto, and the home page needs to re-run exactly this when it
+  // drops a forced edition — at which point neither of those has changed.
+  const applyAmbient = useCallback(() => {
     if (hour === null) return;
     const mood = auto ? daytimeForDate(new Date()) : daytimeForHour(hour);
     document.documentElement.setAttribute("data-daytime", mood);
   }, [hour, auto]);
 
+  useEffect(() => { applyAmbient(); }, [applyAmbient]);
+
   const setHour = useCallback((h: number) => { setAuto(false); setHourState(h); }, []);
   const setNow = useCallback(() => { setAuto(true); setHourState(new Date().getHours()); }, []);
 
-  return <Ctx.Provider value={{ hour, auto, setHour, setNow }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ hour, auto, setHour, setNow, applyAmbient }}>{children}</Ctx.Provider>;
 }

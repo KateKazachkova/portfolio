@@ -15,6 +15,18 @@ export const metadata = {
 
 const mono = "var(--font-mono), ui-monospace, monospace";
 
+/** The report's other sheets. Same stock as the card at the top, but square
+ *  and unpunched: they are pages of the report, not tags tied to it, and a
+ *  page of tilted punched cards would be a pile rather than a document. The
+ *  shadow is a fifth of the card's — paper resting on paper, not held above
+ *  it. Hairline instead of the 2px ink border, or the page reads as drawn
+ *  boxes on a background rather than sheets lying on a desk. */
+const paper: React.CSSProperties = {
+  background: "var(--panel)",
+  border: "1px solid var(--hairline)",
+  boxShadow: "0 8px 16px rgba(30,24,16,0.09)",
+};
+
 export default function QualityCheck() {
   // One card per project, carrying its full inspection record (was section 05).
   const projectCards = PROJECT_ORDER
@@ -27,9 +39,27 @@ export default function QualityCheck() {
 
   return (
     <main className="min-h-screen">
-      {/* ── 1. HERO ── */}
+      {/* ── 1. HERO ──
+          The report itself, as the piece of paper it would be: panel stock,
+          a clipped corner and a real punched hole — cut with a mask, so the
+          page shows through it rather than a painted circle pretending to —
+          hung a third of a degree off square. Same tag the 404 hands you,
+          at certificate size: one degree on a 480px tag reads as charm, on a
+          1024px sheet it reads as a mistake, so the tilt comes down with the
+          width while the paper stays the same. */}
       <section className="px-8 pt-16 pb-20 max-w-5xl mx-auto">
-        <div className="border-2 p-8 md:p-12 relative" style={{ borderColor: "var(--border)" }}>
+        <div style={{ filter: "drop-shadow(0 16px 26px rgba(30,24,16,0.20))" }}>
+        <div
+          className="p-8 md:p-12 relative"
+          style={{
+            background: "var(--panel)",
+            border: "1px solid var(--hairline)",
+            transform: "rotate(-0.35deg)",
+            clipPath: "polygon(0 34px, 34px 0, 100% 0, 100% 100%, 0 100%)",
+            WebkitMaskImage: "radial-gradient(circle 9px at 38px 44px, transparent 0 9px, #000 9.8px)",
+            maskImage: "radial-gradient(circle 9px at 38px 44px, transparent 0 9px, #000 9.8px)",
+          }}
+        >
           {/* The verdict, as an impression rather than a drawn box — the tilt
               and the broken frame are in the stamp itself. */}
           <span
@@ -40,7 +70,8 @@ export default function QualityCheck() {
             PASS
           </span>
 
-          <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em" }} className="text-gray-400 uppercase mb-6">
+          {/* clears the punched hole, the way a printed line on a real tag does */}
+          <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em", marginLeft: 34 }} className="text-gray-400 uppercase mb-6">
             Independent Product Inspection
           </p>
           <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-6" style={{ color: "var(--fg)" }}>
@@ -88,6 +119,7 @@ export default function QualityCheck() {
             View Verified Work →
           </a>
         </div>
+        </div>
       </section>
 
       {/* ── 2. WHAT WAS VERIFIED ── */}
@@ -98,7 +130,7 @@ export default function QualityCheck() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {QUALITIES.map((q) => (
-            <div key={q.key} className="border-2 p-6" style={{ borderColor: "var(--border)" }}>
+            <div key={q.key} className="p-6" style={paper}>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-bold uppercase" style={{ color: "var(--fg)" }}>{q.label}</h3>
                 <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em", color: "var(--accent-red)" }} className="border px-2 py-0.5 uppercase" >
@@ -119,9 +151,9 @@ export default function QualityCheck() {
         </p>
         <div className="space-y-6">
           {projectCards.map(({ name, project: p, records }) => (
-            <div key={name} className="border-2 grid grid-cols-1 md:grid-cols-[200px_1fr]" style={{ borderColor: "var(--border)" }}>
+            <div key={name} className="grid grid-cols-1 md:grid-cols-[200px_1fr]" style={paper}>
               {/* specimen frame */}
-              <div className="flex flex-col items-center justify-center p-6 border-b-2 md:border-b-0 md:border-r-2" style={{ borderColor: "var(--border)", background: "var(--inner)" }}>
+              <div className="flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r" style={{ borderColor: "var(--hairline)", background: "var(--inner)" }}>
                 {p?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={p.image} alt={name} className="w-full aspect-square object-cover mb-3" />
@@ -179,9 +211,14 @@ export default function QualityCheck() {
         <p className="text-gray-500 max-w-2xl mb-10 leading-relaxed">
           Selected organisations that independently reviewed and recognised the work.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-px" style={{ background: "var(--border)", border: "1px solid var(--border)" }}>
+        {/* Ruled, not gapped. The old grid drew its lines by letting a coloured
+            background show through 1px gaps, which also painted the empty slot
+            at the end of the last row as a solid block — a table with one cell
+            filled in for no reason. The rules now belong to the cells, so a
+            short last row is simply blank paper. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3" style={paper}>
           {ORGANISATIONS.map((o) => (
-            <div key={o.name} className="p-5 flex flex-col gap-2" style={{ background: "var(--bg)" }}>
+            <div key={o.name} className="p-5 flex flex-col gap-2" style={{ background: "var(--panel)", boxShadow: "inset -1px -1px 0 var(--hairline)" }}>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-sm" style={{ color: "var(--fg)" }}>{o.name}</span>
                 <span style={{ fontFamily: mono, fontSize: 9, letterSpacing: "0.12em", color: "var(--accent-red)" }} className="uppercase">✓</span>

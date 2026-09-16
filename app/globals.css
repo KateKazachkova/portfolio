@@ -896,9 +896,15 @@ body::after {
    the third and fourth frames a hand-drawn run would have. */
 @keyframes err-squash {
   0%, 26%   { transform: scale(1, 1); }
-  30%       { transform: scale(1.05, 0.93); }
-  36%, 54%  { transform: scale(0.985, 1.025); }
-  62%       { transform: scale(1.06, 0.92); }
+  30%       { transform: scale(1.05, 0.93); }   /* compress to push off */
+  34%       { transform: scale(0.97, 1.04); }   /* the instant she leaves */
+  /* and then nothing. The stretch used to be held from 36% to 54% — the whole
+     airborne phase — which is not squash and stretch, it is a taller doll: she
+     reads as elongated for a fifth of the loop rather than snapping through a
+     transition. Stretch belongs to the moments of change, so the arc itself
+     now flies at 1:1 and the deformation lives only either side of it. */
+  42%, 54%  { transform: scale(1, 1); }
+  62%       { transform: scale(1.06, 0.92); }   /* take the landing in the knees */
   70%, 100% { transform: scale(1, 1); }
 }
 

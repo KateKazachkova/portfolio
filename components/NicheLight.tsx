@@ -22,8 +22,8 @@
  *  bad morning. Everything else is left lit. */
 const DIM: Record<string, number> = {
   night: 1,
-  morn_alarm: 0.55,
-  mon_alarm: 0.55,
+  morn_alarm: 0.38,
+  mon_alarm: 0.38,
 };
 
 // The niche's rect inside the suitcase image, and the clip aspect that gives
@@ -51,8 +51,12 @@ export default function NicheLight({ edition }: { edition: string }) {
           "radial-gradient(ellipse 24% 4.5% at 48.7% 6.2%, rgba(26,14,7,0.88), rgba(26,14,7,0) 72%)",
           // the cone it throws down the back wall
           "radial-gradient(ellipse 52% 40% at 49% 3%, rgba(26,15,8,0.55), rgba(26,15,8,0) 74%)",
-          // and a thin wash over the rest, heaviest at the top
-          "linear-gradient(to bottom, rgba(22,13,7,0.34), rgba(22,13,7,0.12) 58%, rgba(22,13,7,0.05))",
+          // and the room itself. Killing the bulb and its cone alone left the
+          // alcove around her as bright as it is at noon — a lamp switched off
+          // in a lit room. With nothing burning above her the whole recess has
+          // to fall to what little light reaches in from the page, so this
+          // carries most of the weight and barely lifts towards the floor.
+          "linear-gradient(to bottom, rgba(20,12,7,0.56), rgba(20,12,7,0.47) 55%, rgba(20,12,7,0.42))",
         ].join(", "),
       }}
     />

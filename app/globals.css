@@ -840,3 +840,79 @@ body::after {
 
 .chalk[data-morning="true"] ul { padding-top: 66cqw; }
 .chalk[data-morning="true"] li { font-size: 8.4cqw; font-weight: 700; transform: rotate(-2.5deg); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   404 — the Error Edition runs the dino game (app/not-found.tsx)
+
+   The cactus scrolls in from the right and she hops it. No video: in the
+   original Chrome game the sprite does NOT animate mid-jump — it holds one
+   pose through the whole arc — so a still cutout on a translateY curve is not
+   an approximation of that game, it is the same trick. Which also means it
+   survives Safari, needs no alpha video, no poster fallback and no bytes.
+
+   Timing: the track carries the cactus from 112% to -28% between 18% and 100%
+   of the cycle, crossing her at 58% (measured on the page, not calculated —
+   the cactus is offset inside its own track). She leaves the ground BEFORE
+   that, peaking at 54%, the way you jump an obstacle rather than react to it;
+   the arc is therefore tall enough that she is still clear of the plant on the
+   way down. Up on an ease-out, down on an ease-in, the way gravity reads.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* One 18s loop shared by three tracks at 0s / -6s / -12s, so a cactus arrives
+   every 6 seconds — the same beat as the jump. Each one crosses the sweep in
+   about 5s, then waits offstage behind the boulder until its turn comes round. */
+@keyframes err-run {
+  0%, 1%     { transform: translateX(130%); }
+  28.8%,100% { transform: translateX(-30%); }
+}
+@keyframes err-jump {
+  0%, 30% { transform: translateY(0);     animation-timing-function: cubic-bezier(.15,.75,.4,1); }
+  45%     { transform: translateY(-36%);  animation-timing-function: cubic-bezier(.55,0,.85,.4); }
+  60%,100%{ transform: translateY(0); }
+}
+/* the contact shadow belongs to the floor, not to her — so it stays put, and
+   only shrinks and fades while she is off the ground */
+@keyframes err-liftoff {
+  0%, 30% { opacity: 1;   transform: scale(1); }
+  45%     { opacity: .3;  transform: scale(.7); }
+  60%,100%{ opacity: 1;   transform: scale(1); }
+}
+
+/* Two sprites, swapped hard rather than cross-faded — a game sprite cuts, it
+   does not dissolve. The 1% ramps are there only to stop a sub-pixel flicker.
+   Standing and airborne are aligned on her HEAD, so the swap moves her legs
+   and nothing else. */
+@keyframes err-pose-stand {
+  0%, 31%   { opacity: 1; }
+  32%, 56%  { opacity: 0; }
+  57%, 100% { opacity: 1; }
+}
+@keyframes err-pose-air {
+  0%, 31%   { opacity: 0; }
+  32%, 56%  { opacity: 1; }
+  57%, 100% { opacity: 0; }
+}
+/* Squash and stretch: she compresses to push off, lengthens in the air and
+   takes the landing in the knees. This is the part no photograph can give —
+   the third and fourth frames a hand-drawn run would have. */
+@keyframes err-squash {
+  0%, 26%   { transform: scale(1, 1); }
+  30%       { transform: scale(1.05, 0.93); }
+  36%, 54%  { transform: scale(0.985, 1.025); }
+  62%       { transform: scale(1.06, 0.92); }
+  70%, 100% { transform: scale(1, 1); }
+}
+
+.err-track  { animation: err-run 18s linear infinite; }
+.err-squash { animation: err-squash 6s infinite; transform-origin: 50% 100%; }
+.err-pose-stand { animation: err-pose-stand 6s infinite; }
+.err-pose-air   { animation: err-pose-air 6s infinite; }
+.err-doll   { animation: err-jump 6s infinite; }
+.err-ground { animation: err-liftoff 6s infinite; transform-origin: 50% 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* park the cactus where it stood in the original photograph */
+  .err-track  { animation: none; transform: translateX(62%); }
+  .err-doll, .err-squash, .err-ground { animation: none; }
+  .err-pose-stand { animation: none; opacity: 1; }
+  .err-pose-air   { animation: none; opacity: 0; }
+}

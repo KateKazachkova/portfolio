@@ -15,6 +15,18 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
 const EDITION_VIDEO: Record<string, string> = {};
 
+/** The start of an edition's range, for the schedule column. Ranges are
+ *  written loosely in lib/time.ts ("07:30–08:15", "10–13", "Mon 09–10"), so
+ *  normalise: keep any day prefix, take the opening time, pad a bare hour.
+ *  Nothing is invented here — every time on screen comes from EDITIONS. */
+function startOfRange(range: string): string {
+  const m = range.match(/^([A-Za-z]{3}\s+)?(.+)$/);
+  const day = m?.[1]?.trim();
+  const from = (m?.[2] ?? range).split(/[–-]/)[0].trim();
+  const time = /^\d{1,2}$/.test(from) ? `${from.padStart(2, "0")}:00` : from;
+  return day ? `${day} ${time}` : time;
+}
+
 /** One layer of the floor shadow, placed in the suitcase box's own percentage
  *  space so it stays pinned to the case at any size. `stop` is where the
  *  gradient reaches zero — lower values hold the shadow dense before it falls
@@ -82,57 +94,79 @@ export default function Home() {
       </p>
       <EditionClock hour={hour ?? 12} onChange={pickHour} onNow={pickNow} />
 
-      {/* Preview chips — force a shift / a day off without touching the clock */}
-      {[
-        { title: "Morning", chips: [
-          { label: "Alarm", key: "morn_alarm" },
-          { label: "Coffee", key: "morning" },
-          { label: "Ready", key: "morn_ready" },
-          { label: "Lacing up", key: "morn_doorstep" },
-          { label: "Mon alarm", key: "mon_alarm" },
-        ] },
-        { title: "Workday", chips: [
-          { label: "Standup", key: "work_standup" },
-          { label: "Deep work", key: "office" },
-          { label: "Lunch", key: "work_lunch" },
-          { label: "Calls", key: "work_calls" },
-          { label: "Wrap-up", key: "work_wrapup" },
-        ] },
-        { title: "Fri · Mon", chips: [
-          { label: "Wine call", key: "fri_wine" },
-          { label: "Closing", key: "fri_transition" },
-          { label: "Mon ×2", key: "mon_standup" },
-        ] },
-        { title: "Weekend", chips: [
-          { label: "Brunch", key: "weekend_brunch" },
-          { label: "Cleaning", key: "weekend_cleaning" },
-          { label: "Series", key: "weekend_series" },
-        ] },
-      ].map((group) => (
-        <div key={group.title} className="flex flex-wrap items-center justify-center gap-2 mt-4" style={{ maxWidth: 260 }}>
-          <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mr-1 w-full text-center">
-            {group.title}
-          </span>
-          {group.chips.map((m) => {
-            const active = forced === m.key;
-            return (
-              <button
-                key={m.key}
-                onClick={() => setForced(m.key)}
-                className="uppercase font-bold border transition-colors"
-                style={{
-                  fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", padding: "4px 9px",
-                  borderColor: "var(--border)",
-                  background: active ? "var(--border)" : "transparent",
-                  color: active ? "var(--bg)" : "var(--fg)",
-                }}
-              >
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
-      ))}
+      {/* The schedule. These were loose chips; as a timetable they say what
+          they actually are — the hours of a day you can jump the doll to —
+          and the times come straight from each edition's own range. */}
+      <p
+        style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }}
+        className="text-gray-400 uppercase text-center mt-8 mb-2"
+      >
+        Schedule
+      </p>
+      <div style={{ maxWidth: 260, margin: "0 auto", borderTop: "1px solid var(--hairline)" }}>
+        {[
+          { title: "Morning", chips: [
+            { label: "Alarm", key: "morn_alarm" },
+            { label: "Coffee", key: "morning" },
+            { label: "Ready", key: "morn_ready" },
+            { label: "Lacing Up", key: "morn_doorstep" },
+            { label: "Mon Alarm", key: "mon_alarm" },
+          ] },
+          { title: "Workday", chips: [
+            { label: "Standup", key: "work_standup" },
+            { label: "Deep Work", key: "office" },
+            { label: "Lunch", key: "work_lunch" },
+            { label: "Calls", key: "work_calls" },
+            { label: "Wrap-Up", key: "work_wrapup" },
+          ] },
+          { title: "Fri · Mon", chips: [
+            { label: "Wine Call", key: "fri_wine" },
+            { label: "Closing", key: "fri_transition" },
+            { label: "Mon ×2", key: "mon_standup" },
+          ] },
+          { title: "Weekend", chips: [
+            { label: "Brunch", key: "weekend_brunch" },
+            { label: "Cleaning", key: "weekend_cleaning" },
+            { label: "Series", key: "weekend_series" },
+          ] },
+        ].map((group) => (
+          <div key={group.title}>
+            <p
+              style={{ fontFamily: mono, fontSize: 9.5, letterSpacing: "0.18em" }}
+              className="text-gray-400 uppercase mt-3 mb-1"
+            >
+              {group.title}
+            </p>
+            {group.chips.map((m) => {
+              const active = forced === m.key;
+              return (
+                <button
+                  key={m.key}
+                  onClick={() => setForced(m.key)}
+                  className="w-full uppercase transition-colors text-left"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "68px 1fr",
+                    alignItems: "baseline",
+                    gap: 8,
+                    fontFamily: mono,
+                    fontSize: 10,
+                    letterSpacing: "0.1em",
+                    padding: "3px 6px",
+                    background: active ? "var(--border)" : "transparent",
+                    color: active ? "var(--bg)" : "var(--fg)",
+                  }}
+                >
+                  <span style={{ color: active ? "var(--bg)" : "var(--muted)" }}>
+                    {startOfRange(EDITIONS[m.key].range)}
+                  </span>
+                  <span className="font-bold">{m.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 

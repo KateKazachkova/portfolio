@@ -18,14 +18,25 @@ function parseList(filename: string): WatchItem[] {
     return [];
   }
 
+  // Drop HTML comments whole, before anything is read line by line. Each of
+  // these files opens with a commented-out template — a `## Title` with a year,
+  // a why and a poster — and skipping only the lines that *start* with `<!--`
+  // let the three lines inside it through as a real entry. It has been passing
+  // unnoticed because the template's heading is the literal word "Title" and
+  // the filter at the bottom drops that one string; rename it to anything else
+  // and the list grows a phantom film pointing at posters/filename.jpg.
+  // The second pass takes an unclosed comment to the end of the file, which is
+  // what a Markdown renderer does with it too.
+  const body = raw.replace(/<!--[\s\S]*?-->/g, "").replace(/<!--[\s\S]*$/, "");
+
   const items: WatchItem[] = [];
   let current: WatchItem | null = null;
 
-  for (const line of raw.split("\n")) {
+  for (const line of body.split("\n")) {
     const trimmed = line.trim();
 
-    // Skip HTML comments and the top-level heading
-    if (trimmed.startsWith("<!--") || trimmed.startsWith("#") && !trimmed.startsWith("##")) continue;
+    // Skip the top-level heading
+    if (trimmed.startsWith("#") && !trimmed.startsWith("##")) continue;
 
     if (trimmed.startsWith("## ")) {
       if (current) items.push(current);
@@ -42,7 +53,9 @@ function parseList(filename: string): WatchItem[] {
   }
   if (current) items.push(current);
 
-  // Drop empty template placeholders
+  // Anything left without a title is not an entry. The "title" check is what
+  // used to hide the comment bug above; it stays as a cheap guard for a
+  // template pasted outside a comment.
   const filtered = items.filter((i) => i.title && i.title.toLowerCase() !== "title");
 
   // Newest first; entries without a year sink to the bottom (alphabetical among themselves)

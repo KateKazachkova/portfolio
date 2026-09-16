@@ -5,6 +5,7 @@ import EditionClock from "@/components/EditionClock";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import ChalkTodo from "@/components/ChalkTodo";
+import NicheLight from "@/components/NicheLight";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
@@ -424,6 +425,10 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {/* The lamp in the arch, turned down while she sleeps. Over the clip,
+            because the light is painted into it. */}
+        <NicheLight edition={edition.key} />
 
         {/* First-visit opening sequence — opens the case in place, doors
             swing apart to reveal the doll in the niche underneath.

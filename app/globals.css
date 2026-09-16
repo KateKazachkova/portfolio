@@ -771,11 +771,13 @@ body::after {
 
 /* ── chalk to-do list on the niche wall ───────────────────────────────────── */
 .chalk { container-type: inline-size; pointer-events: none; }
-.chalk ul { list-style: none; margin: 0; padding: 58cqw 8cqw 0 10cqw; display: flex; flex-direction: column; gap: 2.4cqw; }
+
+
+.chalk ul { list-style: none; margin: 0; padding: 30cqw 6cqw 0 7cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
 .chalk li {
-  display: flex; align-items: baseline; gap: 4cqw;
+  display: flex; align-items: baseline; gap: 2.6cqw;
   font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 500;
-  font-size: 7.4cqw; line-height: 1.05; letter-spacing: 0.01em;
+  font-size: 6.4cqw; line-height: 1.05; letter-spacing: 0.01em;
   color: rgba(255, 246, 225, 0.82);
   text-shadow: 0 0 1.2cqw rgba(255, 240, 210, 0.35), 0 0 0.3cqw rgba(255,255,255,0.5);
   transform: rotate(var(--tilt, 0deg));
@@ -787,10 +789,12 @@ body::after {
   font-size: 7cqw; line-height: 5cqw; text-align: center; font-weight: 700;
   transform: translateY(0.6cqw) rotate(-2deg);
 }
+.chalk__time { flex: 0 0 auto; letter-spacing: 0.02em; opacity: 0.8; }
 .chalk__text { position: relative; white-space: nowrap; }
 .chalk__strike { position: absolute; left: -3%; right: -3%; top: 42%; width: 106%; height: 22%; display: none; overflow: visible; }
 .chalk__strike path { fill: none; stroke: rgba(255, 246, 225, 0.85); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .chalk li:nth-child(3) .chalk__strike { top: 30%; height: 45%; }   /* the scribble needs room */
+
 .chalk__box[data-mark="1"] { font-size: 6cqw; }
 .chalk__box[data-mark="2"] { letter-spacing: -0.1em; }
 .chalk li[data-done="true"] { color: rgba(255, 246, 225, 0.5); }

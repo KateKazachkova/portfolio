@@ -385,7 +385,8 @@ export default function Home() {
         </div>
         */}
 
-        {/* Chalk to-do list on the niche's back wall — crossed out as the workday goes */}
+        {/* The day chalked on the niche's back wall — schedule and to-do in one
+            list, struck through as the hours go by */}
         <ChalkTodo edition={edition.key} />
 
         {/* Central niche — editions with a generated clip play their video

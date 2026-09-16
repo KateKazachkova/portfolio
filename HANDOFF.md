@@ -10,7 +10,7 @@ Concept: "designer as a collectible product" — a **vintage red suitcase** (ope
 - Next.js + TypeScript + Tailwind v4. Repo: `github.com/KateKazachkova/portfolio`.
 - Hosting **Vercel**, auto-deploy on push. Domain via gen.xyz.
 - **Prod** `uxuikazachkova.xyz` = branch `main`. **Staging** `staging.uxuikazachkova.xyz` = branch **`staging`** (Vercel Preview).
-- **Workflow: always work on `staging`.** Before every push: `npm run build` (must compile), then commit + `git push origin staging`. Kate reviews on the staging URL (local dev server can't run in this env — EPERM).
+- **Workflow: always work on `staging`.** Before every push: `npm run build` (must compile), then commit + `git push origin staging`. Kate reviews on the staging URL. **`npx next dev -p 3100` works fine from the shell** — the old EPERM note was about the preview launcher, not the shell, so use a dev server with hot reload while iterating and keep staging for review.
 - CMS: **Notion** (integration `portfolio-site`), client **v2**. Env vars in `.env.local` AND Vercel: `NOTION_TOKEN`, `NOTION_PROJECTS_DB`, `NOTION_CERTIFICATES_DB`, `NOTION_AWARDS_DB`, plus `STRAVA_*` (client id/secret/refresh/athlete) and `MAPBOX_TOKEN` (not set yet).
 
 ## Information architecture

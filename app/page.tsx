@@ -392,7 +392,7 @@ export default function Home() {
         {/* Central niche — editions with a generated clip play their video
             sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}
         {hasNicheClip(edition.key) ? (
-          <NicheDoll edition={edition.key} />
+          <NicheDoll key={edition.key} edition={edition.key} />
         ) : (
           <div
             className="group"

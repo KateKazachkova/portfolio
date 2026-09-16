@@ -592,13 +592,31 @@ body::after {
 .cd-shelf { position: relative; display: flex; align-items: flex-start; gap: 0; }
 .cd-rack-wrap { flex: 0 0 100%; min-width: 0; transition: flex-basis 0.48s cubic-bezier(.2,.7,.2,1); }
 .cd-dock {
-  flex: 0 0 0%; min-width: 0; overflow: visible;
-  opacity: 0; transform: translateX(48px); pointer-events: none;
-  transition: flex-basis 0.48s cubic-bezier(.2,.7,.2,1), opacity 0.3s ease 0.1s, transform 0.48s cubic-bezier(.2,.7,.2,1);
+  /* Clipped on the x axis, not visible. Collapsed the dock is a zero-width
+     flex item, but the player and its spec card cannot shrink below their
+     min-content width, so they paint ~150px past the page and hand the whole
+     document a horizontal scrollbar on anything under ~1200px. `clip` rather
+     than `hidden` because `hidden` would make this a scroll container and the
+     sticky .cd-dock-inner below would stop sticking. Docked, nothing paints
+     outside the dock's own box, so nothing is cut. */
+  flex: 0 0 0%; min-width: 0; overflow-x: clip;
+  /* Stretched to the full height of the shelf, against the shelf's
+     flex-start. Left to itself the dock is exactly as tall as the player
+     inside it, and a sticky child with no room in its containing block never
+     sticks — the player scrolled away with the rack. Stretched, the player
+     has the whole length of the rack to stay pinned over. */
+  align-self: stretch;
+  opacity: 0; pointer-events: none;
+  transition: flex-basis 0.48s cubic-bezier(.2,.7,.2,1), opacity 0.3s ease 0.1s;
 }
 .cd-shelf[data-docked="true"] .cd-rack-wrap { flex-basis: 56%; padding-right: 36px; }
-.cd-shelf[data-docked="true"] .cd-dock { flex-basis: 44%; opacity: 1; transform: none; pointer-events: auto; }
-.cd-dock-inner { position: sticky; top: 72px; }
+.cd-shelf[data-docked="true"] .cd-dock { flex-basis: 44%; opacity: 1; pointer-events: auto; }
+/* The arrival slide rides the inner layer, not the dock itself. On the dock it
+   pushed the whole (nearly zero-width) box 48px past the right edge of the
+   page for the length of the transition, which flashed a horizontal scrollbar
+   on every insert and eject. Inside, the same 48px is clipped by the dock. */
+.cd-dock-inner { position: sticky; top: 72px; transform: translateX(48px); transition: transform 0.48s cubic-bezier(.2,.7,.2,1); }
+.cd-shelf[data-docked="true"] .cd-dock-inner { transform: none; }
 @media (max-width: 767px) {
   .cd-shelf { flex-direction: column; }
   .cd-shelf[data-docked="true"] .cd-rack-wrap { flex-basis: auto; padding-right: 0; }
@@ -703,7 +721,7 @@ body::after {
 .pd-card { margin-top: 14px; border: 2px solid var(--border); background: var(--panel); }
 
 @media (prefers-reduced-motion: reduce) {
-  .cd-rack-wrap, .cd-dock, .cd-fly, .pd-lid, .pd-closed, .pd-base, .pd-plane, .pd-shadow { transition: none !important; }
+  .cd-rack-wrap, .cd-dock, .cd-dock-inner, .cd-fly, .pd-lid, .pd-closed, .pd-base, .pd-plane, .pd-shadow { transition: none !important; }
   .pd-screen * { animation: none !important; }
 }
 

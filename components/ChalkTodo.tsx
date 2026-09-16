@@ -16,22 +16,29 @@ import { EDITIONS } from "@/lib/time";
  * window of five lines around the current hour rather than the whole day.
  */
 
-/** The weekday in order. The wording is hers where the old to-do had it, and
- *  the edition's own slogan otherwise — nothing invented for the wall. */
-const DAY: { key: string; text: string }[] = [
-  { key: "morn_alarm",    text: "loading… please wait" },
-  { key: "morning",       text: "coffee first" },
-  { key: "morn_ready",    text: "running late" },
-  { key: "morn_doorstep", text: "lacing up" },
-  { key: "work_standup",  text: "survive standup" },
-  { key: "office",        text: "deep work" },
-  { key: "work_lunch",    text: "lunch. actually eat" },
-  { key: "work_calls",    text: "call №100500 (unasked)" },
-  { key: "work_wrapup",   text: "fix the grid. again" },
-  { key: "street",        text: "urban explorer" },
-  { key: "evening",       text: "one more page" },
-  { key: "night",         text: "archive mode" },
+/** The weekday in order, in three runs — before work, work, and after it. A
+ *  chalk rule is drawn wherever the run changes, because the morning and the
+ *  workday are not the same kind of list.
+ *
+ *  The wording is hers where the old to-do had it, and the edition's own
+ *  slogan otherwise — nothing invented for the wall. */
+const DAY: { key: string; text: string; run: "morning" | "work" | "after" }[] = [
+  { key: "morn_alarm",    text: "loading… please wait",    run: "morning" },
+  { key: "morning",       text: "coffee first",            run: "morning" },
+  { key: "morn_ready",    text: "running late",            run: "morning" },
+  { key: "morn_doorstep", text: "lacing up",               run: "morning" },
+  { key: "work_standup",  text: "survive standup",         run: "work" },
+  { key: "office",        text: "deep work",               run: "work" },
+  { key: "work_lunch",    text: "lunch. actually eat",     run: "work" },
+  { key: "work_calls",    text: "call №100500 (unasked)",  run: "work" },
+  { key: "work_wrapup",   text: "fix the grid. again",     run: "work" },
+  { key: "street",        text: "urban explorer",          run: "after" },
+  { key: "evening",       text: "one more page",           run: "after" },
+  { key: "night",         text: "archive mode",            run: "after" },
 ];
+
+/* The rule itself is drawn in CSS (.chalk li[data-rule]) so it can span the
+   list's width rather than a line box. */
 
 /** Editions that sit outside the weekday run — they stand on their own line. */
 const ASIDE: Record<string, string> = {
@@ -76,7 +83,7 @@ export default function ChalkTodo({ edition }: { edition: string }) {
     if (!text || !EDITIONS[edition]) return null;
     return (
       <Wall
-        rows={[{ key: edition, time: startOfRange(EDITIONS[edition].range), text, done: false }]}
+        rows={[{ key: edition, time: startOfRange(EDITIONS[edition].range), text, done: false, rule: false }]}
       />
     );
   }
@@ -88,17 +95,21 @@ export default function ChalkTodo({ edition }: { edition: string }) {
     time: startOfRange(EDITIONS[d.key].range),
     text: d.text,
     done: start + i < now,
+    // A rule sits above any line that opens a new run — never above the first
+    // line on the wall, where it would read as an underline for nothing.
+    rule: i > 0 && DAY[start + i - 1].run !== d.run,
   }));
 
   return <Wall rows={rows} />;
 }
 
-function Wall({ rows }: { rows: { key: string; time: string; text: string; done: boolean }[] }) {
+function Wall({ rows }: { rows: { key: string; time: string; text: string; done: boolean; rule: boolean }[] }) {
   return (
     <div className="chalk" style={{ position: "absolute", ...RECT, zIndex: 4 }} aria-hidden="true">
       <ul>
         {rows.map((r, i) => (
           <li
+            data-rule={r.rule ? "true" : "false"}
             key={r.key}
             data-done={r.done ? "true" : "false"}
             style={{ "--tilt": `${(i % 2 ? 1 : -1) * (0.4 + i * 0.2)}deg` } as React.CSSProperties}

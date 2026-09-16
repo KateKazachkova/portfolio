@@ -29,14 +29,16 @@
 }
 
 [data-theme="dark"] {
-  /* Night — Dark Purple room, not a black one */
-  --bg: #2C263F;
+  /* Night — an unlit warm room, not a violet one. The case is red: a plum
+     ground fought it and lifted the whole page off black. Everything here is
+     a warm near-neutral so the red stays the only colour in the frame. */
+  --bg: #171412;
   --fg: #efe7d8;
-  --panel: #352d4d;
-  --inner: #231d34;
+  --panel: #211d19;
+  --inner: #110f0d;
   --border: #efe7d8;
-  --hairline: #4a4163;
-  --muted: #a89fc2;
+  --hairline: #352e28;
+  --muted: #9a8e82;
   --accent: #F8C662;
   --accent-red: #e8443a;
   --accent-blue: #9b92c9;   /* Ultra Violet lifted for contrast on plum */
@@ -116,11 +118,11 @@ body > * { position: relative; z-index: 1; }
 }
 [data-theme="dark"] {
   --scene-wall: #000;
-  --scene-floor: #9b92c9;
+  --scene-floor: #F8C662;  /* a warm bounce; the violet one tinted the night */
 }
 
 :root[data-scene="studio"] { --bg: #ece3d0; }  /* the plate darkens it on multiply */
-[data-theme="dark"][data-scene="studio"] { --bg: #2C263F; }
+[data-theme="dark"][data-scene="studio"] { --bg: #171412; }
 /* The plate blends against its nearest painted backdrop, and `body > *` gives
    <main> a stacking context — so the colour has to be painted on <main>, not
    on <body>, or the blend has nothing to work against and the raw plate shows
@@ -773,7 +775,7 @@ body::after {
 .chalk { container-type: inline-size; pointer-events: none; }
 
 
-.chalk ul { list-style: none; margin: 0; padding: 30cqw 6cqw 0 7cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
+.chalk ul { list-style: none; margin: 0; padding: 64cqw 6cqw 0 7cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
 .chalk li {
   display: flex; align-items: baseline; gap: 2.6cqw;
   font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 500;
@@ -794,6 +796,23 @@ body::after {
 .chalk__strike { position: absolute; left: -3%; right: -3%; top: 42%; width: 106%; height: 22%; display: none; overflow: visible; }
 .chalk__strike path { fill: none; stroke: rgba(255, 246, 225, 0.85); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .chalk li:nth-child(3) .chalk__strike { top: 30%; height: 45%; }   /* the scribble needs room */
+
+/* The rule between two runs of the day — before work, work, after it. Drawn
+   with the same wavering hand as the strikes, and given its own breathing
+   space so the wall reads as two lists rather than one long one. */
+.chalk li[data-rule="true"] { margin-top: 4.5cqw; position: relative; }
+.chalk li[data-rule="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 6cqw; top: -2.6cqw; height: 2cqw;
+  background-color: rgba(255, 246, 225, 0.6);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M1,5 C18,2 34,7 52,4 C70,1 84,6 99,3' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M1,5 C18,2 34,7 52,4 C70,1 84,6 99,3' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
 
 .chalk__box[data-mark="1"] { font-size: 6cqw; }
 .chalk__box[data-mark="2"] { letter-spacing: -0.1em; }

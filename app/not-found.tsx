@@ -22,9 +22,15 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 /** The Error Edition — the only doll on the site you cannot ask for. Every
  *  other edition is on a clock; this one exists solely because something
  *  broke, which makes it the rarest unit in the collection and the only one
- *  wearing a costume. 900px tall WebP, ~55 KB; the 3.6 MB cutout it came from
- *  sits beside the others in /dolls/cut. */
-const DOLL = { w: 351, h: 900 };
+ *  wearing a costume. 900px tall WebP; the full-size cutout it came from sits
+ *  beside the others in /dolls/cut.
+ *
+ *  The canvas is wider than she is on purpose. Both poses were cut to her
+ *  standing silhouette, which meant the airborne one — tail swung out one way,
+ *  the sign the other — ran off both edges and lost the end of its tail. Both
+ *  sheets are now padded by the same amount on each side, so she stays centred
+ *  and the two still register on the head; the extra width is empty. */
+const DOLL = { w: 520, h: 900 };
 /** Two frames of her, aligned on the head so only the legs change when they
  *  swap: standing, and airborne with the knees drawn up. The landing crouch
  *  the model refused to draw is done in CSS instead, as squash on impact. */
@@ -61,9 +67,9 @@ const ROCKS = [
 
 /** Her floor, measured off the cutout's own alpha rather than guessed. The
  *  frame has TWO things standing on the ground at different depths — the
- *  slippers touch down at 99% of the image height (x 33.6-73.4%), the cactus
- *  further back at 93.5% (x 78-90%) — and the generated frame carries no
- *  shadow at all, so without these both of them float.
+ *  slippers touch down at 99% of the image height (x 38.0-65.8% since the
+ *  canvas was widened for the tail), the cactus further back at 93.5% — and
+ *  the generated frame carries no shadow at all, so without these both float.
  *
  *  Percentages are of the IMAGE, not of the column, which is why the shadows
  *  live in a wrapper that matches the image exactly. The key light is the home
@@ -72,9 +78,12 @@ const FLOOR = [
   // Three layers, all under her feet and nowhere else — a pool around the
   // whole doll reads as fog, not as contact. Softest and palest first, then
   // tighter and darker, so the shadow has a dense core with a real edge.
-  { cx: 52, bottom: -0.7, w: 58, h: 4.4, rgb: "44,38,63", a: 0.16, blur: 15, stop: 66 },
-  { cx: 52, bottom: 0.0,  w: 42, h: 2.9, rgb: "32,26,46", a: 0.30, blur: 7,  stop: 64 },
-  { cx: 52, bottom: 0.4,  w: 28, h: 1.8, rgb: "26,20,40", a: 0.55, blur: 3,  stop: 62 },
+  // cx and w are re-mapped by 877/1301 — the box is wider than it was, so the
+  // same shadow in the same place is a smaller share of it. Vertical values
+  // are untouched: the canvas only grew sideways.
+  { cx: 51.3, bottom: -0.7, w: 39.1, h: 4.4, rgb: "44,38,63", a: 0.16, blur: 15, stop: 66 },
+  { cx: 51.3, bottom: 0.0,  w: 28.3, h: 2.9, rgb: "32,26,46", a: 0.30, blur: 7,  stop: 64 },
+  { cx: 51.3, bottom: 0.4,  w: 18.9, h: 1.8, rgb: "26,20,40", a: 0.55, blur: 3,  stop: 62 },
 ];
 
 /** One layer of the floor shadow, in its parent's percentage space. Penumbra

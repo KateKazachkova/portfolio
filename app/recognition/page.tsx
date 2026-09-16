@@ -30,15 +30,15 @@ export default function QualityCheck() {
       {/* ── 1. HERO ── */}
       <section className="px-8 pt-16 pb-20 max-w-5xl mx-auto">
         <div className="border-2 p-8 md:p-12 relative" style={{ borderColor: "var(--border)" }}>
-          {/* stamp */}
-          <div
-            className="absolute top-6 right-6 border-2 px-3 py-1 rotate-6"
-            style={{ borderColor: "var(--accent-red)", color: "var(--accent-red)" }}
+          {/* The verdict, as an impression rather than a drawn box — the tilt
+              and the broken frame are in the stamp itself. */}
+          <span
+            className="ink-stamp ink-stamp--pass absolute top-6 right-6"
+            role="img"
+            aria-label="Pass"
           >
-            <span style={{ fontFamily: mono, fontSize: 11, fontWeight: 700, letterSpacing: "0.15em" }}>
-              PASS
-            </span>
-          </div>
+            PASS
+          </span>
 
           <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em" }} className="text-gray-400 uppercase mb-6">
             Independent Product Inspection

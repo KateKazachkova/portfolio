@@ -193,9 +193,13 @@ export default function Home() {
         <Shadow cx={54} bottom={1.0} w={124} h={13} rgb="44,38,63" a={0.22} blur={34} stop={64} />
 
         {/* 4. The silhouette, taken from the PNG's own alpha so it carries the
-               real shape of the doors and feet: a tight pass that hugs the
-               object, and a long soft one that throws the cast out to the
-               right, where the door had no shadow at all before. */}
+               real shape of the doors and feet. Kept tight on purpose: a
+               drop-shadow offsets the whole outline uniformly, so a long one
+               hangs a dark band in mid-air beside the doors, where there is
+               nothing for a shadow to fall on. Anything above the floor would
+               be cast onto the wall — far behind, and therefore large, faint
+               and displaced, not a halo hugging the edge. The rightward cast
+               is carried by the floor layers instead. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/suitcase/open2.png"
@@ -204,7 +208,7 @@ export default function Home() {
           style={{
             zIndex: 1,
             filter:
-              "drop-shadow(5px 4px 3px rgba(20,15,34,0.55)) drop-shadow(26px 18px 24px rgba(30,24,46,0.26))",
+              "drop-shadow(5px 4px 3px rgba(20,15,34,0.55))",
           }}
           draggable={false}
         />

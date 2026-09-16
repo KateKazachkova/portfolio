@@ -196,6 +196,39 @@ body::after {
   display: inline-block;
 }
 
+/* A real stamp, not a drawn one.
+   The impression is a photograph of rubber on paper — broken frame, patchy
+   ink, speckle, the tilt already in it — carried as an alpha mask rather than
+   a picture, so the ink colour stays the token and follows the theme. The
+   vector .stamp above is still what the award chips use; this is only the
+   footer's inspection mark. */
+.ink-stamp {
+  display: inline-block;
+  width: 124px;
+  aspect-ratio: 900 / 367;
+  background-color: var(--accent-red);
+  -webkit-mask-image: url("/stamps/inspected.png");
+  mask-image: url("/stamps/inspected.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  /* The word stays in the accessibility tree; only its glyphs go. */
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+}
+
+/* Same impression treatment, the inspection verdict on /recognition. */
+.ink-stamp--pass {
+  width: 86px;
+  aspect-ratio: 700 / 365;
+  -webkit-mask-image: url("/stamps/pass.png");
+  mask-image: url("/stamps/pass.png");
+}
+
 /* Masking-tape strip */
 .tape {
   position: relative;

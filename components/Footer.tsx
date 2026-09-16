@@ -14,7 +14,7 @@ export default function Footer() {
               Product Designer Doll™ · Model №001
             </div>
           </div>
-          <span className="stamp" style={{ fontSize: 11 }}>Inspected</span>
+          <span className="ink-stamp" role="img" aria-label="Inspected">Inspected</span>
         </div>
 
         {/* spec small print */}

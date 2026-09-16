@@ -138,11 +138,17 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 py-14"
+      className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 pb-14"
       // Painted, not transparent: <main> is the plate's nearest stacking
       // context, so it is what the sweep blends onto. Transparent here and the
       // blend has no backdrop, which shows the raw near-white plate instead.
-      style={{ background: "var(--bg)" }}
+      //
+      // It also starts behind the sticky 56px header rather than below it. The
+      // header is transparent until you scroll, and the studio has to run under
+      // it — otherwise that strip is flat --bg while everything below it is the
+      // plate, and the join reads as a band across the top of the page. The
+      // padding puts the content back where it was.
+      style={{ background: "var(--bg)", marginTop: -56, paddingTop: 56 + 56 }}
     >
 
       {/* Eyebrow */}
@@ -192,24 +198,24 @@ export default function Home() {
                carries onto the floor past the right-hand door. */}
         <Shadow cx={54} bottom={1.0} w={124} h={13} rgb="44,38,63" a={0.22} blur={34} stop={64} />
 
-        {/* 4. The silhouette, taken from the PNG's own alpha so it carries the
-               real shape of the doors and feet. Kept tight on purpose: a
-               drop-shadow offsets the whole outline uniformly, so a long one
-               hangs a dark band in mid-air beside the doors, where there is
-               nothing for a shadow to fall on. Anything above the floor would
-               be cast onto the wall — far behind, and therefore large, faint
-               and displaced, not a halo hugging the edge. The rightward cast
-               is carried by the floor layers instead. */}
+        {/* No drop-shadow on the case itself. A drop-shadow offsets the whole
+            outline uniformly, so it traces the sides and the top as well as
+            the base — a thin dark edging that hangs in the air beside the
+            doors, where there is nothing for a shadow to fall on. Anything
+            above the floor would be cast onto the wall, which is far behind:
+            large, faint and displaced, not a line hugging the edge.
+
+            A mirrored, flattened copy of the silhouette laid on the floor was
+            tried instead. It read as a smudge rather than a shape — the case
+            is wide, near-symmetrical and mostly solid, so compressing it adds
+            no information the ellipses do not already carry. The four floor
+            layers ground it on their own. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/suitcase/open2.png"
           alt="Kate's collector suitcase"
           className="absolute inset-0 w-full h-full object-contain"
-          style={{
-            zIndex: 1,
-            filter:
-              "drop-shadow(5px 4px 3px rgba(20,15,34,0.55))",
-          }}
+          style={{ zIndex: 1 }}
           draggable={false}
         />
 

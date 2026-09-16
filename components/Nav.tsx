@@ -27,7 +27,14 @@ export default function Nav() {
   return (
     <header
       className="sticky top-0 z-50 transition-all duration-300"
+      // Set inline, not by class: globals.css has an unlayered `body > *`
+      // rule pinning every direct child of <body> to position:relative and
+      // z-index:1, and unlayered CSS beats Tailwind's layered utilities — so
+      // `sticky top-0 z-50` above has never actually applied. Inline wins.
       style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 60,
         background: scrolled ? "color-mix(in srgb, var(--bg) 70%, transparent)" : "transparent",
         backdropFilter: scrolled ? "blur(12px) saturate(140%)" : "none",
         WebkitBackdropFilter: scrolled ? "blur(12px) saturate(140%)" : "none",

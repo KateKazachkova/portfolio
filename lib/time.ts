@@ -11,8 +11,7 @@ export const EDITIONS: Record<string, Edition> = {
   // The rest of the morning, before work
   morn_alarm:    { key: "morn_alarm",    label: "Morning Edition", slogan: "Loading… Please Wait", range: "07:00–07:30", items: ["Blanket", "Phone", "Snooze"] },
   mon_alarm:     { key: "mon_alarm",     label: "Morning Edition", slogan: "Monday. Loading…",     range: "Mon 07:00–07:30", items: ["Blanket", "Phone", "Snooze ×2"] },
-  morn_ready:    { key: "morn_ready",    label: "Morning Edition", slogan: "Running Late",         range: "08:15–08:45", items: ["Hairbrush", "Mirror", "The other sock"] },
-  morn_doorstep: { key: "morn_doorstep", label: "Morning Edition", slogan: "Lacing Up",            range: "08:45–09:00", items: ["Converse", "Tote", "Laptop"] },
+  morn_ready:    { key: "morn_ready",    label: "Morning Edition", slogan: "Running Late",         range: "08:15–09:00", items: ["Hairbrush", "Mirror", "The other sock"] },
   office:  { key: "office",  label: "Day Edition",     slogan: "Deep Work",          range: "10–13", items: ["Laptop", "Figma", "Undo ×5"] },
 
   // Workday shifts — the Day edition split into what a designer's day actually
@@ -38,7 +37,7 @@ export const EDITIONS: Record<string, Edition> = {
 
 export function editionForHour(h: number, m = 0): Edition {
   if (h === 7) return m < 30 ? EDITIONS.morn_alarm : EDITIONS.morning;
-  if (h === 8) return m < 15 ? EDITIONS.morning : m < 45 ? EDITIONS.morn_ready : EDITIONS.morn_doorstep;
+  if (h === 8) return m < 15 ? EDITIONS.morning : EDITIONS.morn_ready;
   if (h >= 9 && h < 10) return EDITIONS.work_standup;
   if (h >= 10 && h < 13) return EDITIONS.office;       // deep work
   if (h >= 13 && h < 14) return EDITIONS.work_lunch;

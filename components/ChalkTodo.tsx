@@ -26,7 +26,6 @@ const DAY: { key: string; text: string; run: "morning" | "work" | "after" }[] = 
   { key: "morn_alarm",    text: "loading… please wait",    run: "morning" },
   { key: "morning",       text: "coffee first",            run: "morning" },
   { key: "morn_ready",    text: "running late",            run: "morning" },
-  { key: "morn_doorstep", text: "lacing up",               run: "morning" },
   { key: "work_standup",  text: "survive standup",         run: "work" },
   { key: "office",        text: "deep work",               run: "work" },
   { key: "work_lunch",    text: "lunch. actually eat",     run: "work" },

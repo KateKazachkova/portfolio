@@ -159,7 +159,6 @@ export default function Home() {
             { label: "Alarm", key: "morn_alarm" },
             { label: "Coffee", key: "morning" },
             { label: "Ready", key: "morn_ready" },
-            { label: "Lacing Up", key: "morn_doorstep" },
             { label: "Mon Alarm", key: "mon_alarm" },
           ] },
           { title: "Workday", chips: [

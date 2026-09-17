@@ -298,11 +298,10 @@ function RecordsTable({ records }: { records: AwardRecord[] }) {
             >
               {r.year ?? "–"}
             </td>
-            {/* One entry, one link on the name. Three entries under one row —
-                the "3x Silver" ones — get the name plain and a numbered link
-                per page after it, because each of those is its own page on the
-                jury's site and sending all three to the first would be a small
-                lie. */}
+            {/* One entry, one link on the name. A row that still stands for
+                several entries keeps the name plain and takes a numbered link
+                per page instead — sending them all to the first would be a
+                small lie about what was won. */}
             <td className="text-sm font-semibold align-baseline py-2 pr-4 md:w-[32%] max-md:block max-md:py-0" style={{ color: "var(--fg)" }}>
               {r.externalUrls.length === 1 ? (
                 <a href={r.externalUrls[0]} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>

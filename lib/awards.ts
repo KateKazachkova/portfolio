@@ -162,9 +162,8 @@ export type AwardRecord = {
   year: number | null;
   recognition: string;
   category: string | null;
-  /** The organisers' own winner pages. A list, not one link: the rows that read
-   *  "3x Silver" are three separate entries on the jury's site and each has its
-   *  own page — collapsing them to one would quietly drop two of them. */
+  /** The organisers' own winner pages. A list rather than one link, so a row
+   *  that stands for more than one entry can carry a page for each of them. */
   externalUrls: string[];
   featured: boolean;
 };
@@ -183,8 +182,12 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "french-u15", awardName: "French Design Awards", organisation: "French Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Silver", category: null, externalUrls: [], featured: false },
 
   // ── BulkSource ──
-  { id: "london-bulksource", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "3× Silver", category: null, externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3927", "https://thelondondesignawards.com/winner-info.php?id=3928", "https://thelondondesignawards.com/winner-info.php?id=3929"], featured: false },
-  { id: "nyx-bulksource", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "3× Silver", category: null, externalUrls: ["https://nyxawards.com/winner-info.php?id=7416", "https://nyxawards.com/winner-info.php?id=7419", "https://nyxawards.com/winner-info.php?id=7420"], featured: false },
+  { id: "london-bulksource-1", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design — Business", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3927"], featured: false },
+  { id: "london-bulksource-2", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design — Services & Utilities", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3928"], featured: false },
+  { id: "london-bulksource-3", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design — Best UI / Experience", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3929"], featured: false },
+  { id: "nyx-bulksource-1", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website — Best User Experience", externalUrls: ["https://nyxawards.com/winner-info.php?id=7416"], featured: false },
+  { id: "nyx-bulksource-2", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website — Professional Services", externalUrls: ["https://nyxawards.com/winner-info.php?id=7419"], featured: false },
+  { id: "nyx-bulksource-3", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website — Web App", externalUrls: ["https://nyxawards.com/winner-info.php?id=7420"], featured: false },
   { id: "indigo-bulksource-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Silver", category: "Digital Tools & Utilities", externalUrls: ["https://www.indigoaward.com/winners/8738"], featured: false },
   { id: "indigo-bulksource-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Silver", category: "Interactive Design", externalUrls: ["https://www.indigoaward.com/winners/8738"], featured: false },
   { id: "indigo-bulksource-3", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrls: ["https://www.indigoaward.com/winners/8738"], featured: false },
@@ -199,8 +202,12 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "muse-waypro", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "WayPro", year: 2025, recognition: "Silver", category: null, externalUrls: ["https://museaward.com/winner-info.php?id=233848"], featured: false },
 
   // ── OnsiSoft ──
-  { id: "nyx-onsisoft", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", category: null, externalUrls: ["https://nyxawards.com/winner-info.php?id=7593", "https://nyxawards.com/winner-info.php?id=7596", "https://nyxawards.com/winner-info.php?id=7606"], featured: false },
-  { id: "muse-onsisoft", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "3× Silver", category: null, externalUrls: ["https://museaward.com/winner-info.php?id=232916", "https://museaward.com/winner-info.php?id=232917", "https://museaward.com/winner-info.php?id=233846"], featured: false },
+  { id: "nyx-onsisoft-1", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Best User Experience", externalUrls: ["https://nyxawards.com/winner-info.php?id=7593"], featured: false },
+  { id: "nyx-onsisoft-2", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Redesign", externalUrls: ["https://nyxawards.com/winner-info.php?id=7596"], featured: false },
+  { id: "nyx-onsisoft-3", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Business to Business", externalUrls: ["https://nyxawards.com/winner-info.php?id=7606"], featured: false },
+  { id: "muse-onsisoft-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Best User Experience", externalUrls: ["https://museaward.com/winner-info.php?id=233846"], featured: false },
+  { id: "muse-onsisoft-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — SaaS", externalUrls: ["https://museaward.com/winner-info.php?id=232916"], featured: false },
+  { id: "muse-onsisoft-3", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Website Redesign", externalUrls: ["https://museaward.com/winner-info.php?id=232917"], featured: false },
   { id: "indigo-onsisoft-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Digital Tools & Utilities", externalUrls: ["https://www.indigoaward.com/winners/9545"], featured: false },
   { id: "indigo-onsisoft-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrls: ["https://www.indigoaward.com/winners/9545"], featured: false },
 

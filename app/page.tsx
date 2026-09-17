@@ -10,8 +10,7 @@ import NicheLight from "@/components/NicheLight";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
-
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.

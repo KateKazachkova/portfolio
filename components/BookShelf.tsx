@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { WatchItem } from "@/lib/content";
+import { mono } from "@/components/ui/type";
 
-const mono = "var(--font-mono), ui-monospace, monospace";
 // Cloth-cover ink colours, cycled per spine
 const SPINES = ["var(--accent-red)", "var(--accent-blue)", "var(--accent-green)", "var(--fg)"];
 // Slight height variation for a real shelf

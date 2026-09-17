@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { WatchItem } from "@/lib/content";
+import { mono } from "@/components/ui/type";
 
-const mono = "var(--font-mono), ui-monospace, monospace";
 // Retro cassette side-codes, cycled per spine
 const CODES = ["VHS", "T-120", "HG", "E-180", "HQ", "SP"];
 

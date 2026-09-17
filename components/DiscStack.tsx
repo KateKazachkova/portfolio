@@ -6,8 +6,7 @@ import DiscBody from "@/components/DiscBody";
 import PlayerDock from "@/components/PlayerDock";
 import { STICKER_TARGETS, LID_TOP } from "@/lib/playerFrame";
 import { homography, applyH, quadToMatrix3d } from "@/lib/homography";
-
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Timings (ms) — the choreography of putting a disc in.

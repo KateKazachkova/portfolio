@@ -4,10 +4,9 @@ import { getProject } from "@/lib/notion";
 import { getCase } from "@/content/work";
 import NotionRender from "@/components/NotionRender";
 import CaseStudy from "@/components/case/CaseStudy";
+import { mono } from "@/components/ui/type";
 
 export const revalidate = 60;
-
-const mono = "var(--font-mono), ui-monospace, monospace";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

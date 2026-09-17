@@ -1,4 +1,5 @@
 import React from "react";
+import { mono } from "@/components/ui/type";
 
 /**
  * Minimal Notion block → JSX renderer for case-study bodies.
@@ -6,8 +7,6 @@ import React from "react";
  * Supports: paragraph, heading 1–3, bulleted/numbered lists, to-do, quote,
  * callout, divider, image (with caption), code, and one level of nesting.
  */
-
-const mono = "var(--font-mono), ui-monospace, monospace";
 
 type RT = {
   plain_text: string;

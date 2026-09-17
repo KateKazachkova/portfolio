@@ -6,10 +6,9 @@ import BookShelf from "@/components/BookShelf";
 import { getRideStats, getLongestRides } from "@/lib/strava";
 import { polylineToSvgPath } from "@/lib/polyline";
 import { buildStaticMapUrl } from "@/lib/staticmap";
+import { mono } from "@/components/ui/type";
 
 export const revalidate = 3600;
-
-const mono = "var(--font-mono), ui-monospace, monospace";
 
 const SPECS: [string, string][] = [
   ["MODEL", "KATE™"],

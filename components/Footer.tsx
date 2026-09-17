@@ -1,4 +1,4 @@
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
 
 export default function Footer() {
   return (

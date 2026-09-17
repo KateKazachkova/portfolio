@@ -1,6 +1,9 @@
 import Link from "next/link";
 import AwardStamps from "@/components/AwardStamps";
 import { DocTable, DocRow, DocCell } from "@/components/ui/DocTable";
+import { Sheet } from "@/components/ui/Sheet";
+import { InkButton } from "@/components/ui/InkButton";
+import { mono } from "@/components/ui/type";
 import {
   QUALITIES,
   VERIFIED_PROJECTS,
@@ -13,20 +16,6 @@ import {
 export const metadata = {
   title: "Quality Check – Kate Kazachkova",
   description: "Independent product inspection: 30+ international awards recognising the work.",
-};
-
-const mono = "var(--font-mono), ui-monospace, monospace";
-
-/** The report's other sheets. Same stock as the card at the top, but square
- *  and unpunched: they are pages of the report, not tags tied to it, and a
- *  page of tilted punched cards would be a pile rather than a document. The
- *  shadow is a fifth of the card's — paper resting on paper, not held above
- *  it. Hairline instead of the 2px ink border, or the page reads as drawn
- *  boxes on a background rather than sheets lying on a desk. */
-const paper: React.CSSProperties = {
-  background: "var(--panel)",
-  border: "1px solid var(--hairline)",
-  boxShadow: "0 8px 16px rgba(30,24,16,0.09)",
 };
 
 export default function QualityCheck() {
@@ -128,13 +117,7 @@ export default function QualityCheck() {
             ))}
           </div>
 
-          <a
-            href="#verified-projects"
-            className="inline-block uppercase font-bold transition-colors hover:opacity-80"
-            style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.1em", padding: "10px 18px", background: "var(--border)", color: "var(--bg)" }}
-          >
-            View Verified Work →
-          </a>
+          <InkButton href="#verified-projects">View Verified Work →</InkButton>
         </div>
         </div>
       </section>
@@ -147,7 +130,7 @@ export default function QualityCheck() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {QUALITIES.map((q) => (
-            <div key={q.key} className="p-6" style={paper}>
+            <Sheet key={q.key} raised className="p-6">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-bold uppercase" style={{ color: "var(--fg)" }}>{q.label}</h3>
                 <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em", color: "var(--accent-red)" }} className="border px-2 py-0.5 uppercase" >
@@ -155,7 +138,7 @@ export default function QualityCheck() {
                 </span>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed">{q.description}</p>
-            </div>
+            </Sheet>
           ))}
         </div>
       </section>
@@ -168,7 +151,7 @@ export default function QualityCheck() {
         </p>
         <div className="space-y-6">
           {projectCards.map(({ name, project: p, records }) => (
-            <div key={name} className="grid grid-cols-1 md:grid-cols-[200px_1fr]" style={paper}>
+            <Sheet key={name} raised className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
               {/* specimen frame */}
               <div className="flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r" style={{ borderColor: "var(--hairline)", background: "var(--inner)" }}>
                 {p?.image ? (
@@ -217,7 +200,7 @@ export default function QualityCheck() {
                   </div>
                 )}
               </div>
-            </div>
+            </Sheet>
           ))}
         </div>
       </section>
@@ -241,7 +224,7 @@ export default function QualityCheck() {
             at the end of the last row as a solid block — a table with one cell
             filled in for no reason. The rules now belong to the cells, so a
             short last row is simply blank paper. */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3" style={paper}>
+        <Sheet raised className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {ORGANISATIONS.map((o) => (
             <div key={o.name} className="p-5 flex flex-col gap-2" style={{ background: "var(--panel)", boxShadow: "inset -1px -1px 0 var(--hairline)" }}>
               <div className="flex items-center justify-between">
@@ -256,7 +239,7 @@ export default function QualityCheck() {
               )}
             </div>
           ))}
-        </div>
+        </Sheet>
       </section>
 
       {/* ── CLOSING STAMP ── */}

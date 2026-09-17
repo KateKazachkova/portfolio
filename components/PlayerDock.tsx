@@ -4,8 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import type { WatchItem } from "@/lib/content";
 import { quadToMatrix3d } from "@/lib/homography";
 import { FRAME, LID_TOP, BASE_TOP, SCREEN, HINGE, LID_STICKERS, BASE_STICKERS, CONTROLS, ENGRAVING, type Quad, type Sticker } from "@/lib/playerFrame";
-
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
 
 /**
  * KATE™ PD-001 — the portable player the discs go into.

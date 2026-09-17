@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
+import { InkButton } from "@/components/ui/InkButton";
 
 /**
  * 404 — the Error Edition.
@@ -375,16 +375,7 @@ export default function NotFound() {
           {/* The ways out live off the tag: they are what you do, not what the
               tag says about the item. */}
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link
-              href="/"
-              className="uppercase font-bold transition-opacity hover:opacity-80"
-              style={{
-                fontFamily: mono, fontSize: 11, letterSpacing: "0.12em",
-                padding: "10px 16px", background: "var(--border)", color: "var(--bg)",
-              }}
-            >
-              ← Back to collection
-            </Link>
+            <InkButton href="/">← Back to collection</InkButton>
             <Link
               href="/work"
               className="uppercase font-bold transition-colors"

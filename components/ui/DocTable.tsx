@@ -19,8 +19,7 @@
  */
 
 import type { ReactNode } from "react";
-
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
 
 export function DocTable({
   caption,

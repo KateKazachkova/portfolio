@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-
-const mono = "var(--font-mono), ui-monospace, monospace";
+import { mono } from "@/components/ui/type";
 
 const PRESETS: { label: string; hour: number }[] = [
   { label: "Morning", hour: 8 },

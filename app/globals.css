@@ -840,16 +840,7 @@ body::after {
 .chalk { container-type: inline-size; pointer-events: none; }
 
 
-/* The list hangs from the BOTTOM of the wall, not the top. Chalked from the
-   top it ran straight across her face at every standing edition, and a list
-   that has to be read over a pair of eyes is not a list. Anchored low it sits
-   behind her legs and the drawer, and a long day grows upward into the space
-   she does not fill rather than into the space she does. */
-.chalk ul {
-  list-style: none; margin: 0; padding: 0 2cqw 0 11cqw;
-  position: absolute; left: 0; right: 0; bottom: 12cqw;
-  display: flex; flex-direction: column; gap: 1.8cqw;
-}
+.chalk ul { list-style: none; margin: 0; padding: 64cqw 2cqw 0 11cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
 .chalk li {
   display: flex; align-items: baseline; gap: 2.6cqw;
   font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 500;
@@ -894,7 +885,7 @@ body::after {
 .chalk li[data-done="true"] .chalk__strike { display: block; }
 .chalk li[data-done="true"] .chalk__box { color: rgba(255, 246, 225, 0.9); }
 
-.chalk[data-morning="true"] ul { bottom: 14cqw; }
+.chalk[data-morning="true"] ul { padding-top: 66cqw; }
 .chalk[data-morning="true"] li { font-size: 8.4cqw; font-weight: 700; transform: rotate(-2.5deg); }
 
 /* ═══════════════════════════════════════════════════════════════════════════

@@ -61,11 +61,7 @@ const STRIKES = [
 const MARKS = ["×", "✓", "≈", "×"];
 
 // the niche rect inside the suitcase image (see NicheDoll)
-// The niche's rect inside the suitcase image, and the clip aspect that gives it
-// its height — both from NicheDoll, which drops its video on the same box. The
-// height matters: the list hangs from the bottom of the wall, and without it
-// the wall has none to hang from.
-const RECT = { left: "40.62%", top: "11.43%", width: "18.16%", aspectRatio: "648 / 1664" } as const;
+const RECT = { left: "40.62%", top: "11.43%", width: "18.16%" } as const;
 
 /** The opening time of a range. lib/time.ts writes them loosely
  *  ("07:30–08:15", "10–13", "Mon 09–10"), so drop any day prefix and pad a

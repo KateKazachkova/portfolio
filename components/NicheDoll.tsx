@@ -133,7 +133,10 @@ const CLIPS: Record<string, ClipSet> = {
   },
   weekend_brunch: {
     loop: "wknd_brunch_loop.mp4",
-    accents: ["wknd_brunch_eat.mp4", "wknd_brunch_read.mp4", "wknd_brunch_tea.mp4"],
+    // No eat clip: its generation drifts — over its eight seconds the camera
+    // creeps in until the teapot is cut off by the left of the niche and her
+    // knees run out of the bottom. Read and tea hold their frame.
+    accents: ["wknd_brunch_read.mp4", "wknd_brunch_tea.mp4"],
     poster: "wknd_brunch_poster.jpg",
     accentEveryMs: 5_000, // keep her busy — eat → read → tea in quick succession
   },

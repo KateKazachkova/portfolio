@@ -40,6 +40,12 @@ export default function QualityCheck() {
 
   return (
     <main className="min-h-screen">
+      {/* The card's stamps are above the fold and are masks, so nothing reveals
+          them to the preload scanner — they were arriving half a second after
+          the type they sit on. React hoists these into <head>. */}
+      {["muse", "cssda", "lda", "davey", "nyx", "indigo"].map((k) => (
+        <link key={k} rel="preload" as="image" href={`/stamps/awards/${k}.webp`} />
+      ))}
       {/* ── 1. HERO ──
           The report itself, as the piece of paper it would be: panel stock,
           a clipped corner and a real punched hole — cut with a mask, so the

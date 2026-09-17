@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AwardStamps from "@/components/AwardStamps";
 import {
   QUALITIES,
   VERIFIED_PROJECTS,
@@ -211,6 +212,14 @@ export default function QualityCheck() {
         <p className="text-gray-500 max-w-2xl mb-10 leading-relaxed">
           Selected organisations that independently reviewed and recognised the work.
         </p>
+
+        {/* Their own marks, pressed onto the sheet. A parcel that has passed
+            through eleven hands carries eleven stamps, and none of them line
+            up — that is the whole point of the pile. The list under it stays:
+            ink tells you who was here, the list tells you what they are. */}
+        <div className="mb-12">
+          <AwardStamps />
+        </div>
         {/* Ruled, not gapped. The old grid drew its lines by letting a coloured
             background show through 1px gaps, which also painted the empty slot
             at the end of the last row as a solid block — a table with one cell

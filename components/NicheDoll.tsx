@@ -162,6 +162,14 @@ export function hasNicheClip(edition: string) {
   return edition in CLIPS;
 }
 
+/** The first frame of an edition's loop. The curtain sequence warms this up
+ *  while it is closing, so the niche has something to show the moment it
+ *  parts instead of a frame of nothing while the clip is still fetching. */
+export function nichePoster(edition: string) {
+  const set = CLIPS[edition];
+  return set ? V + set.poster : `/dolls/cut/${edition}.png`;
+}
+
 // intro-seen per edition, persists across edition toggles within a page session.
 const introSeen: Record<string, boolean> = {};
 

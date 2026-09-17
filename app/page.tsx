@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import EditionClock from "@/components/EditionClock";
 import InkTip from "@/components/InkTip";
-import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
+import NicheDoll, { hasNicheClip, nichePoster } from "@/components/NicheDoll";
+import NicheCurtain, { CURTAIN_CLOSE_MS, CURTAIN_HOLD_MS } from "@/components/NicheCurtain";
 import ChalkTodo from "@/components/ChalkTodo";
 import NicheLight from "@/components/NicheLight";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
@@ -90,7 +91,51 @@ export default function Home() {
     return applyAmbient;
   }, [forced, applyAmbient]);
   const [videoFailed, setVideoFailed] = useState(false);
-  const dollVideo = EDITION_VIDEO[edition.key];
+
+  // ── The curtain call ──
+  // The niche shows `shown`, not `edition`: it lags the chosen edition by the
+  // length of the curtain's close, so one doll is never seen turning into the
+  // next. Everything inside the niche runs on it — the clip, the chalk on the
+  // back wall, the lamp — while the caption under the case changes at once, so
+  // a click still answers immediately.
+  const [shown, setShown] = useState(edition.key);
+  const [curtainClosed, setCurtainClosed] = useState(false);
+  // The last edition the sequence was started for. A ref, not the state: the
+  // effect must fire once per change of edition and not again when `shown`
+  // catches up, or its cleanup would cancel its own re-opening.
+  const staged = useRef(edition.key);
+
+  useEffect(() => {
+    if (staged.current === edition.key) return;
+    staged.current = edition.key;
+    const next = edition.key;
+
+    // Anyone who has asked for less motion gets the swap, not the theatre.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const plain = window.setTimeout(() => setShown(next), 0);
+      return () => window.clearTimeout(plain);
+    }
+
+    // Start the next poster loading now, behind the fabric, so the niche has a
+    // frame to show the moment the curtain parts.
+    new Image().src = nichePoster(next);
+
+    // Three beats on one clock, the first of them immediate. Scheduling the
+    // close rather than setting it here keeps the whole sequence in timers —
+    // which is also what lets a second click cancel it cleanly.
+    const draw = window.setTimeout(() => setCurtainClosed(true), 0);
+    const swap = window.setTimeout(() => setShown(next), CURTAIN_CLOSE_MS);
+    const part = window.setTimeout(() => setCurtainClosed(false), CURTAIN_CLOSE_MS + CURTAIN_HOLD_MS);
+    // Clicking through the schedule faster than a second drops the pending
+    // beats and restarts: the curtain simply stays shut a little longer.
+    return () => {
+      window.clearTimeout(draw);
+      window.clearTimeout(swap);
+      window.clearTimeout(part);
+    };
+  }, [edition.key]);
+
+  const dollVideo = EDITION_VIDEO[shown];
 
   const clockPanel = (
     <div>
@@ -394,12 +439,12 @@ export default function Home() {
 
         {/* The day chalked on the niche's back wall — schedule and to-do in one
             list, struck through as the hours go by */}
-        <ChalkTodo edition={edition.key} />
+        <ChalkTodo edition={shown} />
 
         {/* Central niche — editions with a generated clip play their video
             sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}
-        {hasNicheClip(edition.key) ? (
-          <NicheDoll key={edition.key} edition={edition.key} />
+        {hasNicheClip(shown) ? (
+          <NicheDoll key={shown} edition={shown} />
         ) : (
           <div
             className="group"
@@ -411,15 +456,15 @@ export default function Home() {
                 src={dollVideo}
                 autoPlay muted loop playsInline
                 onError={() => setVideoFailed(true)}
-                poster={`/dolls/cut/${edition.key}.png`}
+                poster={`/dolls/cut/${shown}.png`}
                 className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
                 style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`/dolls/cut/${edition.key}.png`}
-                alt={edition.label}
+                src={`/dolls/cut/${shown}.png`}
+                alt={EDITIONS[shown].label}
                 className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
                 style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
                 draggable={false}
@@ -428,9 +473,13 @@ export default function Home() {
           </div>
         )}
 
+        {/* The curtain, over the clip and the chalk but under the lamp — the
+            light in the arch falls on the fabric too. */}
+        <NicheCurtain closed={curtainClosed} />
+
         {/* The lamp in the arch, turned down while she sleeps. Over the clip,
             because the light is painted into it. */}
-        <NicheLight edition={edition.key} />
+        <NicheLight edition={shown} />
 
         {/* First-visit opening sequence — opens the case in place, doors
             swing apart to reveal the doll in the niche underneath.

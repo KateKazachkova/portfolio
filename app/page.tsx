@@ -202,7 +202,9 @@ export default function Home() {
           sits to its right (absolute, so the box itself never shifts). */}
       <div className="relative w-full flex justify-center">
       <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
-        {/* The studio sweep, anchored to the case so it travels with it. */}
+        {/* The studio sweep, anchored to the case so it travels with it, and
+            the flat floor that carries its last tone down past the plate. */}
+        <div className="studio-floor" aria-hidden />
         <div className="studio-plate" aria-hidden />
 
         {/* ── The shadow, in four layers ──────────────────────────────────

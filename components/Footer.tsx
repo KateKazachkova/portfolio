@@ -2,9 +2,11 @@ const mono = "var(--font-mono), ui-monospace, monospace";
 
 export default function Footer() {
   return (
-    // No rule and no colour of its own: on home the studio floor runs straight
-    // through the footer, so a border and a second tone cut the page in two.
-    <footer className="mt-10" style={{ background: "transparent" }}>
+    // No rule of its own: on home the studio floor runs straight through the
+    // footer, so a border and a second tone cut the page in two. The gap above
+    // is padding, not margin — a margin would leave a strip the footer cannot
+    // paint, and on home that strip reads as a line across the floor.
+    <footer className="pt-10">
       <div className="max-w-6xl mx-auto px-6 py-10">
         {/* top row */}
         <div className="flex flex-wrap items-start justify-between gap-8 mb-10">

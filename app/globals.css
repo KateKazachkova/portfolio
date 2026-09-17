@@ -121,20 +121,28 @@ body > * { position: relative; z-index: 1; }
   --scene-floor: #F8C662;  /* a warm bounce; the violet one tinted the night */
 }
 
-:root[data-scene="studio"] { --bg: #ece3d0; --scene-ground: #ab997d; }
-[data-theme="dark"][data-scene="studio"] { --bg: #171412; --scene-ground: #262119; }
+:root[data-scene="studio"] { --bg: #ece3d0; --scene-ground: #c5b496; }
+[data-theme="dark"][data-scene="studio"] { --bg: #171412; --scene-ground: #322b22; }
 
-/* The floor does not stop where the plate does. The plate is finite and tied
-   to the case, so below it the page used to fall back to flat --bg — a pale
-   band across the gap and the whole footer, with the sweep's tan ending in a
-   visible step. The page itself carries the floor the rest of the way: paper
-   at the top, the sweep's own bottom tone (--scene-ground) from where the
-   plate fades out down to the last pixel, so the footer sits on the floor. */
-:root[data-scene="studio"] body {
-  background-image: linear-gradient(180deg,
-    var(--bg) 0%, var(--bg) 50%,
-    var(--scene-ground) 80%, var(--scene-ground) 100%);
-}
+/* The scene is deliberately wider and taller than the window — the sweep plate
+   is 240% of the case, one shadow layer is 124%, and the floor under the plate
+   runs on for screens — and all of that overhang was scrollable: the page
+   dragged sideways to bare floor. <main> is exactly the window's width and the
+   height of everything above the footer, so cutting there loses nothing that
+   was meant to be seen. `clip`, not `hidden`, so the page stays a page instead
+   of becoming a scroller. */
+:root[data-scene="studio"] main { overflow: clip; }
+
+/* Under the page, the floor. <main> is opaque paper with the sweep painted on
+   it; everything past its last pixel is the footer, and that used to land on
+   flat paper — a second colour under a rule. The floor tone runs on instead,
+   so the footer sits on the floor rather than beside it. */
+:root[data-scene="studio"] body,
+:root[data-scene="studio"] footer { background-color: var(--scene-ground); }
+/* The footer is painted too, not just left transparent over <body>: the paper
+   grain sits UNDER the page's own children, so a transparent footer showed the
+   ground with grain on it while the floor inside <main> had none — the same
+   colour, split by a visible seam at main's last pixel. */
 
 /* The sweep is tied to the case, not to the window: it is a child of the
    suitcase's own box, so it scrolls away with it and the horizon lands on the
@@ -147,6 +155,24 @@ body > * { position: relative; z-index: 1; }
    box. The plate's own horizon sits at 54% of the image, so with the element
    220% tall it has to start at 64.2 - 0.54*220 = -54.6%. Stretched rather than
    covered, so that 54% stays exact instead of moving with the crop. */
+/* The floor past the plate's last row. The plate is finite — it is pinned to
+   the case so the horizon lands right at every size — so below it the paper
+   showed through as a pale band, and the band moved with the viewport. This is
+   anchored in the same box, starting inside the plate's own fade-out, so the
+   sweep always dissolves into the floor at the same point whatever the size.
+   It runs far past the page on purpose; main clips it. Before the plate in the
+   DOM, so the plate paints over it. */
+.studio-floor {
+  position: absolute;
+  left: -100vw;
+  right: -100vw;
+  top: 88%;
+  height: 400vh;
+  background: var(--scene-ground);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .studio-plate {
   position: absolute;
   left: 50%;
@@ -161,9 +187,17 @@ body > * { position: relative; z-index: 1; }
      the page. The top fade is long on purpose: <main> starts below the 58px
      header, so in that strip the plate has no backdrop to blend with and the
      colour is flat. A long ramp turns that unavoidable step into a gradient
-     nobody reads as an edge. */
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 90%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 90%, transparent 100%);
+     nobody reads as an edge.
+
+     The bottom ramp is where the photographed floor hands over to the flat one
+     below (.studio-floor). It has to finish early — by ~119% of the case's box
+     — because that is the shortest <main> any layout produces: wide screens put
+     the clock beside the case instead of under it, and anything still fading
+     when main ends gets cut mid-tone and shows as a step above the footer. It
+     starts just past the case's base at 92.4%, so the floor the case actually
+     stands on is still the photograph. */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 68%, transparent 79%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 68%, transparent 79%);
   /* Near-white plate: the photograph gives light and texture, --bg gives the
      colour. Dark theme would crush to black on multiply.
 

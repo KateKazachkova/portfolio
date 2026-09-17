@@ -272,10 +272,33 @@ function RecordsTable({ records }: { records: AwardRecord[] }) {
           style={{ borderColor: "var(--hairline)" }}
         >
           <span style={{ fontFamily: mono, fontSize: 12 }} className="text-gray-400">{r.year ?? "–"}</span>
+          {/* One entry, one link on the name. Three entries under one row —
+              the "3x Silver" ones — get the name plain and a numbered link per
+              page after it, because each of those is its own page on the jury's
+              site and sending all three to the first would be a small lie. */}
           <span className="text-sm font-semibold" style={{ color: "var(--fg)" }}>
-            {r.externalUrl ? (
-              <a href={r.externalUrl} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
-            ) : r.awardName}
+            {r.externalUrls.length === 1 ? (
+              <a href={r.externalUrls[0]} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
+            ) : (
+              r.awardName
+            )}
+            {r.externalUrls.length > 1 && (
+              <span className="ml-1.5 whitespace-nowrap">
+                {r.externalUrls.map((u, i) => (
+                  <a
+                    key={u}
+                    href={u}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:no-underline ml-1"
+                    style={{ fontFamily: mono, fontSize: 10, color: "var(--accent-red)" }}
+                    aria-label={`${r.awardName} — entry ${i + 1} of ${r.externalUrls.length} on the organisers' site`}
+                  >
+                    {i + 1}
+                  </a>
+                ))}
+              </span>
+            )}
           </span>
           <span className="text-sm text-gray-500">{r.category ?? ""}</span>
           <span className="text-sm md:text-right" style={{ color: "var(--fg)" }}>{r.recognition}</span>

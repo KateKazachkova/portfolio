@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AwardStamps from "@/components/AwardStamps";
+import { DocTable, DocRow, DocCell } from "@/components/ui/DocTable";
 import {
   QUALITIES,
   VERIFIED_PROJECTS,
@@ -269,77 +270,47 @@ export default function QualityCheck() {
 }
 
 function RecordsTable({ records }: { records: AwardRecord[] }) {
-  /* A real table, because this is one: four columns of the same kind of fact,
-     repeated per row. As a grid of divs it looked right and read as a run-on
-     list — a screen reader got "2026, MUSE Creative Awards, Website — Strange
-     & Unusual, Gold" with nothing to say which was which, and the numbered
-     entry links were loose digits with no column to belong to.
-
-     The header is there but hidden: the design never showed one and does not
-     need one — the columns are self-evident by eye — while a reader that
-     cannot see them now gets the name of each. Below md every part goes back
-     to `block`, which is what gives the stacked rows the grid used to. */
   return (
-    <table
-      className="w-full border-t mb-4 max-md:block"
-      style={{ borderColor: "var(--border)", borderCollapse: "collapse" }}
+    <DocTable
+      caption="Inspection record: each award, the year it was given, the category it was entered in, and the recognition it received."
+      columns={["Year", "Award", "Category", "Recognition"]}
     >
-      <caption className="sr-only">
-        Inspection record: each award, the year it was given, the category it was entered in, and the recognition it received.
-      </caption>
-      <thead className="sr-only">
-        <tr>
-          <th scope="col">Year</th>
-          <th scope="col">Award</th>
-          <th scope="col">Category</th>
-          <th scope="col">Recognition</th>
-        </tr>
-      </thead>
-      <tbody className="max-md:block">
-        {records.map((r) => (
-          <tr key={r.id} className="border-b max-md:block" style={{ borderColor: "var(--hairline)" }}>
-            <td
-              style={{ fontFamily: mono, fontSize: 12 }}
-              className="text-gray-400 align-baseline py-2 pr-4 md:w-[46px] max-md:block max-md:pb-0"
-            >
-              {r.year ?? "–"}
-            </td>
-            {/* One entry, one link on the name. A row that still stands for
-                several entries keeps the name plain and takes a numbered link
-                per page instead — sending them all to the first would be a
-                small lie about what was won. */}
-            <td className="text-sm font-semibold align-baseline py-2 pr-4 md:w-[32%] max-md:block max-md:py-0" style={{ color: "var(--fg)" }}>
-              {r.externalUrls.length === 1 ? (
-                <a href={r.externalUrls[0]} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
-              ) : (
-                r.awardName
-              )}
-              {r.externalUrls.length > 1 && (
-                <span className="ml-1.5 whitespace-nowrap">
-                  {r.externalUrls.map((u, i) => (
-                    <a
-                      key={u}
-                      href={u}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline hover:no-underline ml-1"
-                      style={{ fontFamily: mono, fontSize: 10, color: "var(--accent-red)" }}
-                      aria-label={`${r.awardName} — entry ${i + 1} of ${r.externalUrls.length} on the organisers' site`}
-                    >
-                      {i + 1}
-                    </a>
-                  ))}
-                </span>
-              )}
-            </td>
-            <td className="text-sm text-gray-500 align-baseline py-2 pr-4 max-md:block max-md:py-0">{r.category ?? ""}</td>
-            <td className="text-sm align-baseline py-2 text-right whitespace-nowrap max-md:block max-md:text-left max-md:pt-0" style={{ color: "var(--fg)" }}>
-              {r.recognition}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      {records.map((r) => (
+        <DocRow key={r.id}>
+          <DocCell kind="ref" className="md:w-[46px]">{r.year ?? "–"}</DocCell>
+          {/* One entry, one link on the name. A row that still stands for
+              several entries keeps the name plain and takes a numbered link per
+              page instead — sending them all to the first would be a small lie
+              about what was won. */}
+          <DocCell kind="key" className="md:w-[32%]">
+            {r.externalUrls.length === 1 ? (
+              <a href={r.externalUrls[0]} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
+            ) : (
+              r.awardName
+            )}
+            {r.externalUrls.length > 1 && (
+              <span className="ml-1.5 whitespace-nowrap">
+                {r.externalUrls.map((u, i) => (
+                  <a
+                    key={u}
+                    href={u}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:no-underline ml-1"
+                    style={{ fontFamily: mono, fontSize: 10, color: "var(--accent-red)" }}
+                    aria-label={`${r.awardName} — entry ${i + 1} of ${r.externalUrls.length} on the organisers' site`}
+                  >
+                    {i + 1}
+                  </a>
+                ))}
+              </span>
+            )}
+          </DocCell>
+          <DocCell kind="muted">{r.category ?? ""}</DocCell>
+          <DocCell kind="value">{r.recognition}</DocCell>
+        </DocRow>
+      ))}
+    </DocTable>
   );
 }
 

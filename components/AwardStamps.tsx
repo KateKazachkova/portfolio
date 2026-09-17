@@ -47,17 +47,19 @@ const STAMPS: Stamp[] = [
 ];
 
 /** The same marks again, thrown across the report's own sheet beside the PASS.
- *  Fewer and fainter: here they are something the paper has been through, not
- *  the subject of the page, and the type has to stay readable under them. They
- *  lean off the right edge on purpose — the card clips them, which is what a
- *  stamp pressed half over the edge of a sheet does. */
+ *  Fewer, because the card is a sheet and not a wall — but pressed at full
+ *  strength. A stamp does not go faint where it crosses the type: whoever held
+ *  it was not looking at the layout, and that is the whole reason a stamped
+ *  document reads as handled rather than designed. They lean off the right edge
+ *  on purpose — the card clips them, which is what a stamp pressed half over
+ *  the edge of a sheet does. */
 const ON_CARD: Stamp[] = [
-  { key: "muse",   label: "MUSE Creative Awards",     ratio: 3.026, left: 2,  top: 12, width: 62, rotate: -8,  ink: "plum", opacity: 0.3 },
-  { key: "cssda",  label: "CSS Design Awards",        ratio: 1.0,   left: 60, top: 2,  width: 30, rotate: 15,  ink: "red",  opacity: 0.32 },
-  { key: "lda",    label: "London Design Awards",     ratio: 3.129, left: 26, top: 30, width: 66, rotate: 7,   ink: "red",  opacity: 0.24 },
-  { key: "davey",  label: "Davey Awards",             ratio: 2.911, left: 8,  top: 52, width: 62, rotate: 4,   ink: "plum", opacity: 0.27 },
-  { key: "nyx",    label: "NYX Awards",               ratio: 2.644, left: 44, top: 64, width: 56, rotate: -11, ink: "red",  opacity: 0.28 },
-  { key: "indigo", label: "Indigo Design Award",      ratio: 4.0,   left: 18, top: 84, width: 60, rotate: -5,  ink: "plum", opacity: 0.26 },
+  { key: "muse",   label: "MUSE Creative Awards",     ratio: 3.026, left: 2,  top: 12, width: 62, rotate: -8,  ink: "plum", opacity: 0.8 },
+  { key: "cssda",  label: "CSS Design Awards",        ratio: 1.0,   left: 60, top: 2,  width: 30, rotate: 15,  ink: "red",  opacity: 0.86 },
+  { key: "lda",    label: "London Design Awards",     ratio: 3.129, left: 26, top: 30, width: 66, rotate: 7,   ink: "red",  opacity: 0.74 },
+  { key: "davey",  label: "Davey Awards",             ratio: 2.911, left: 8,  top: 52, width: 62, rotate: 4,   ink: "plum", opacity: 0.82 },
+  { key: "nyx",    label: "NYX Awards",               ratio: 2.644, left: 44, top: 64, width: 56, rotate: -11, ink: "red",  opacity: 0.8 },
+  { key: "indigo", label: "Indigo Design Award",      ratio: 4.0,   left: 18, top: 84, width: 60, rotate: -5,  ink: "plum", opacity: 0.74 },
 ];
 
 /** The block is sized by proportion rather than a fixed height, so nothing is

@@ -61,6 +61,15 @@ export default function QualityCheck() {
             maskImage: "radial-gradient(circle 9px at 38px 44px, transparent 0 9px, #000 9.8px)",
           }}
         >
+          {/* What the sheet has been through, beside the verdict. Faint, and
+              leaning off the right edge where the card's own clip cuts them —
+              a stamp pressed half over the edge of a sheet does exactly that.
+              Above the type rather than behind it: a stamp lands on a printed
+              page, not under it. */}
+          <div className="absolute pointer-events-none" style={{ top: "9%", right: "-2%", width: "42%", height: "58%" }}>
+            <AwardStamps variant="card" />
+          </div>
+
           {/* The verdict, as an impression rather than a drawn box — the tilt
               and the broken frame are in the stamp itself. */}
           <span

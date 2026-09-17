@@ -121,13 +121,20 @@ body > * { position: relative; z-index: 1; }
   --scene-floor: #F8C662;  /* a warm bounce; the violet one tinted the night */
 }
 
-:root[data-scene="studio"] { --bg: #ece3d0; }  /* the plate darkens it on multiply */
-[data-theme="dark"][data-scene="studio"] { --bg: #171412; }
-/* The plate blends against its nearest painted backdrop, and `body > *` gives
-   <main> a stacking context — so the colour has to be painted on <main>, not
-   on <body>, or the blend has nothing to work against and the raw plate shows
-   through. Same trap as the paper grain and the canvas background. */
-:root[data-scene="studio"] main { background-color: var(--bg); }
+:root[data-scene="studio"] { --bg: #ece3d0; --scene-ground: #ab997d; }
+[data-theme="dark"][data-scene="studio"] { --bg: #171412; --scene-ground: #262119; }
+
+/* The floor does not stop where the plate does. The plate is finite and tied
+   to the case, so below it the page used to fall back to flat --bg — a pale
+   band across the gap and the whole footer, with the sweep's tan ending in a
+   visible step. The page itself carries the floor the rest of the way: paper
+   at the top, the sweep's own bottom tone (--scene-ground) from where the
+   plate fades out down to the last pixel, so the footer sits on the floor. */
+:root[data-scene="studio"] body {
+  background-image: linear-gradient(180deg,
+    var(--bg) 0%, var(--bg) 50%,
+    var(--scene-ground) 80%, var(--scene-ground) 100%);
+}
 
 /* The sweep is tied to the case, not to the window: it is a child of the
    suitcase's own box, so it scrolls away with it and the horizon lands on the
@@ -158,12 +165,18 @@ body > * { position: relative; z-index: 1; }
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 90%, transparent 100%);
   mask-image: linear-gradient(180deg, transparent 0%, #000 13%, #000 90%, transparent 100%);
   /* Near-white plate: the photograph gives light and texture, --bg gives the
-     colour. Dark theme would crush to black on multiply. */
-  mix-blend-mode: multiply;
+     colour. Dark theme would crush to black on multiply.
+
+     The blend is internal — image against the plate's own background-color —
+     rather than against whatever happens to be painted behind it. Blending
+     outwards meant the plate only looked right where <main> was painted, and
+     showed as raw near-white paper everywhere it overhung. */
+  background-color: var(--bg);
+  background-blend-mode: multiply;
   pointer-events: none;
   z-index: 0;
 }
-[data-theme="dark"] .studio-plate { mix-blend-mode: soft-light; opacity: 0.85; }
+[data-theme="dark"] .studio-plate { background-blend-mode: soft-light; opacity: 0.85; }
 
 /* ── Time-of-day ambient wash (set via data-daytime on <html>) ── */
 :root { --ambient: transparent; }

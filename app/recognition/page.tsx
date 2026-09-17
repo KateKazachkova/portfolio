@@ -3,6 +3,7 @@ import AwardStamps from "@/components/AwardStamps";
 import { DocTable, DocRow, DocCell } from "@/components/ui/DocTable";
 import { Sheet } from "@/components/ui/Sheet";
 import { InkButton } from "@/components/ui/InkButton";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { mono } from "@/components/ui/type";
 import {
   QUALITIES,
@@ -297,11 +298,3 @@ function RecordsTable({ records }: { records: AwardRecord[] }) {
   );
 }
 
-function SectionHeading({ n, title }: { n: string; title: string }) {
-  return (
-    <div className="flex items-baseline gap-4 mb-3">
-      <span style={{ fontFamily: mono, fontSize: 20, fontWeight: 700, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
-      <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>{title}</h2>
-    </div>
-  );
-}

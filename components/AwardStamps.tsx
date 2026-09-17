@@ -33,6 +33,14 @@ type Stamp = {
   opacity: number;
 };
 
+
+/** Each mask's own proportion, so anything showing these outside the pile — the
+ *  parts list, say — can give them their real shape instead of a fixed box. */
+export const STAMP_RATIOS: Record<string, number> = {
+  muse: 3.026, cssda: 1.0, lda: 3.129, cssw: 1.285, davey: 2.911,
+  nyx: 2.644, indigo: 4.0, nectar: 1.667, nypda: 1.966, dn: 3.286,
+};
+
 const STAMPS: Stamp[] = [
   { key: "muse",   label: "MUSE Creative Awards",    ratio: 3.026, left: 2,  top: 3,  width: 31, rotate: -6,  ink: "plum", opacity: 0.78 },
   { key: "cssda",  label: "CSS Design Awards",       ratio: 1.0,   left: 29, top: -2, width: 16, rotate: 13,  ink: "red",  opacity: 0.84 },

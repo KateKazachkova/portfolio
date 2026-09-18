@@ -148,7 +148,7 @@ const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean }
   { left: 14.0, top: 17.3, width: 5.1, home: true },
   { left: 84.8, top: 58.0, width: 5.1 },
   { left: 47.5, top: 1.0, width: 4.4 },
-  { left: 15.0, top: 72.5, width: 5.1 },
+  { left: 15.0, top: 75.5, width: 5.1 },
 ];
 
 /** The model police box. Pointing at it lights a blue glow and the box pulses

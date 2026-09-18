@@ -179,7 +179,12 @@ body > * { position: relative; z-index: 1; }
   transform: translateX(-50%);
   top: -54.6%;
   height: 220%;
-  width: max(100vw, 240%);
+  /* Always wider than the window. 240% of the case used to beat 100vw on every
+     screen, but the case grew by a third and at ~2560 the two crossed over:
+     100vw won, the plate landed exactly viewport-wide, and its hard vertical
+     edges sat on the screen edges. 110vw keeps 5% of overhang on each side at
+     any width, so those edges are never in the frame. */
+  width: max(110vw, 240%);
   background-image: url("/scene/sweep.jpg");
   background-size: 100% 100%;
   background-repeat: no-repeat;

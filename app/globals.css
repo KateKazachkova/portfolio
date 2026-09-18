@@ -976,3 +976,18 @@ body::after {
   .err-pose-stand { animation: none; opacity: 1; }
   .err-pose-air   { animation: none; opacity: 0; }
 }
+
+/* TARDIS: hover charges a blue glow and the box pulses in and out of
+   transparency, then it dematerialises in place (fade to nothing) and
+   settles back. The dissolve/return are inline transitions; this is the
+   pulse — opacity and glow together. */
+@keyframes tardis-charge {
+  0%   { opacity: 1;    filter: brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38)); }
+  25%  { opacity: 0.5;  filter: brightness(1.4)  drop-shadow(0 0 14px rgba(140,200,255,0.95)); }
+  50%  { opacity: 0.95; filter: brightness(1.2)  drop-shadow(0 0 10px rgba(120,190,255,0.85)); }
+  75%  { opacity: 0.45; filter: brightness(1.45) drop-shadow(0 0 16px rgba(140,200,255,0.95)); }
+  100% { opacity: 0.8;  filter: brightness(1.25) drop-shadow(0 0 12px rgba(130,190,255,0.9)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes tardis-charge { 0%,100% { opacity: 1; filter: brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38)); } }
+}

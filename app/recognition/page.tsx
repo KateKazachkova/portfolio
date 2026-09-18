@@ -1,7 +1,6 @@
-import { Fragment } from "react";
 import Link from "next/link";
 import AwardStamps from "@/components/AwardStamps";
-import { DocTable, DocRow, DocCell } from "@/components/ui/DocTable";
+import { RecordsTable } from "@/components/recognition/RecordsTable";
 import { Sheet } from "@/components/ui/Sheet";
 import { InkButton } from "@/components/ui/InkButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -12,7 +11,6 @@ import {
   ORGANISATIONS,
   AWARD_RECORDS,
   PROJECT_ORDER,
-  type AwardRecord,
 } from "@/lib/awards";
 
 export const metadata = {
@@ -254,78 +252,4 @@ export default function QualityCheck() {
   );
 }
 
-function RecordsTable({ records }: { records: AwardRecord[] }) {
-  // The record reads as a dated ledger: newest year first, each year its own
-  // banded section. The year is stated once, on the divider that opens the
-  // section, so the rows below it stop repeating it. Undated entries fall to
-  // the end under their own heading.
-  const years = [...new Set(records.map((r) => r.year))].sort(
-    (a, b) => (b ?? 0) - (a ?? 0),
-  );
-
-  return (
-    <DocTable
-      caption="Inspection record, grouped by year: each award, the category it was entered in, and the recognition it received."
-      columns={["Year", "Award", "Category", "Recognition"]}
-    >
-      {years.map((y) => (
-        <Fragment key={y ?? "undated"}>
-          <tr className="max-md:block">
-            <th
-              scope="colgroup"
-              colSpan={4}
-              className="text-left uppercase pt-5 pb-1.5 border-t-2 max-md:block"
-              style={{
-                borderColor: "var(--border)",
-                fontFamily: mono,
-                fontSize: 11,
-                letterSpacing: "0.18em",
-                color: "var(--faint)",
-              }}
-            >
-              {y ?? "Undated"}
-            </th>
-          </tr>
-          {records
-            .filter((r) => r.year === y)
-            .map((r) => (
-              <DocRow key={r.id}>
-                <DocCell kind="ref" className="md:w-[46px]" />
-                {/* One entry, one link on the name. A row that still stands for
-                    several entries keeps the name plain and takes a numbered
-                    link per page instead — sending them all to the first would
-                    be a small lie about what was won. */}
-                <DocCell kind="key" className="md:w-[32%]">
-                  {r.externalUrls.length === 1 ? (
-                    <a href={r.externalUrls[0]} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.awardName}</a>
-                  ) : (
-                    r.awardName
-                  )}
-                  {r.externalUrls.length > 1 && (
-                    <span className="ml-1.5 whitespace-nowrap">
-                      {r.externalUrls.map((u, i) => (
-                        <a
-                          key={u}
-                          href={u}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline hover:no-underline ml-1"
-                          style={{ fontFamily: mono, fontSize: 10, color: "var(--accent-red)" }}
-                          aria-label={`${r.awardName} — entry ${i + 1} of ${r.externalUrls.length} on the organisers' site`}
-                        >
-                          {i + 1}
-                        </a>
-                      ))}
-                    </span>
-                  )}
-                </DocCell>
-                <DocCell kind="muted">{r.category ?? ""}</DocCell>
-                <DocCell kind="value">{r.recognition}</DocCell>
-              </DocRow>
-            ))}
-        </Fragment>
-      ))}
-    </DocTable>
-  );
-}
 

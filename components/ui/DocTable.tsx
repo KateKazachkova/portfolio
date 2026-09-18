@@ -56,9 +56,29 @@ export function DocHeadCell({ children }: { children: ReactNode }) {
   return <th scope="col">{children}</th>;
 }
 
-export function DocRow({ children, className = "" }: { children: ReactNode; className?: string }) {
+export function DocRow({
+  children,
+  className = "",
+  onMouseEnter,
+  onMouseLeave,
+  onMouseMove,
+}: {
+  children: ReactNode;
+  className?: string;
+  /** Optional — the certificate hover preview drives these from a client
+   *  wrapper; a plain record leaves them off and the row stays inert. */
+  onMouseEnter?: React.MouseEventHandler<HTMLTableRowElement>;
+  onMouseLeave?: React.MouseEventHandler<HTMLTableRowElement>;
+  onMouseMove?: React.MouseEventHandler<HTMLTableRowElement>;
+}) {
   return (
-    <tr className={`border-b max-md:block ${className}`} style={{ borderColor: "var(--hairline)" }}>
+    <tr
+      className={`border-b max-md:block ${className}`}
+      style={{ borderColor: "var(--hairline)" }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onMouseMove={onMouseMove}
+    >
       {children}
     </tr>
   );
@@ -85,7 +105,9 @@ export function DocCell({
    *  cells are `block` and a set width would squeeze the text into a column of
    *  single words. Pass `md:w-[46px]` and such. */
   className?: string;
-  children: ReactNode;
+  /** Optional — a spacer cell (the year now lives on the group header, so the
+   *  ref column renders empty) passes none. */
+  children?: ReactNode;
 }) {
   const c = CELL[kind];
   return (

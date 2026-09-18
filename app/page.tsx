@@ -542,7 +542,6 @@ export default function Home() {
             href="/recognition"
             aria-label="Recognition — the award for Redesigning the Redesign"
             className="block absolute inset-0"
-            style={{ overflow: "hidden" }}
           >
             {/* Shot to match the case, and seated on the shelf rather than
                 floating in front of it.
@@ -617,9 +616,6 @@ export default function Home() {
                 width: "100%",
                 height: "100%",
                 objectFit: "fill",
-                // Nudged left to sit under the resting still: the clip's cubby
-                // crop lands the turning figure a touch right of trophy.png.
-                transform: "translateX(-1%)",
                 opacity: awardAwake && awardRolling ? 1 : 0,
                 transition: "opacity 120ms linear",
                 pointerEvents: "none",

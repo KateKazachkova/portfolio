@@ -244,7 +244,7 @@ export default function Home() {
       {/* Suitcase + clock. The box stays centred; on wide screens the clock
           sits to its right (absolute, so the box itself never shifts). */}
       <div className="relative w-full flex justify-center">
-      <div style={{ position: "relative", width: "min(88vw, 860px)", aspectRatio: "1536 / 1024" }}>
+      <div style={{ position: "relative", width: "min(88vw, 1118px)", aspectRatio: "1536 / 1024" }}>
         {/* The studio sweep, anchored to the case so it travels with it, and
             the flat floor that carries its last tone down past the plate. */}
         <div className="studio-floor" aria-hidden />
@@ -487,8 +487,8 @@ export default function Home() {
 
         {/* Clock to the right of the box (wide screens only) */}
         <div
-          className="hidden xl:block"
-          style={{ position: "absolute", top: "50%", left: "calc(50% + min(44vw, 430px) + 28px)", transform: "translateY(-50%)" }}
+          className="hidden min-[1700px]:block"
+          style={{ position: "absolute", top: "50%", left: "calc(50% + min(44vw, 559px) + 28px)", transform: "translateY(-50%)" }}
         >
           {clockPanel}
         </div>
@@ -505,7 +505,7 @@ export default function Home() {
       </div>
 
       {/* Clock below the box on smaller screens */}
-      <div className="xl:hidden">
+      <div className="min-[1700px]:hidden">
         {clockPanel}
       </div>
     </main>

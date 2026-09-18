@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import EditionClock from "@/components/EditionClock";
 import InkTip from "@/components/InkTip";
-import NicheDoll, { hasNicheClip, nichePoster } from "@/components/NicheDoll";
-import NicheCurtain, { CURTAIN_CLOSE_MS, CURTAIN_HOLD_MS } from "@/components/NicheCurtain";
+import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import ChalkTodo from "@/components/ChalkTodo";
 import NicheLight from "@/components/NicheLight";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
@@ -147,7 +146,7 @@ function outfitOf(edition: string): string | null {
 const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; behind?: boolean }[] = [
   { left: 14.0, top: 17.3, width: 5.1, home: true },
   { left: 84.8, top: 58.0, width: 5.1 },
-  { left: 47.5, top: 1.0, width: 4.4, behind: true },
+  { left: 57.5, top: 1.0, width: 4.4, behind: true },
   { left: 15.0, top: 76.5, width: 5.1 },
 ];
 
@@ -305,47 +304,16 @@ export default function Home() {
     }
   }, [awardAwake]);
 
-  // ── The curtain call ──
-  // The niche shows `shown`, not `edition`: it lags the chosen edition by the
-  // length of the curtain's close, so one doll is never seen turning into the
-  // next. Everything inside the niche runs on it — the clip, the chalk on the
-  // back wall, the lamp — while the caption under the case changes at once, so
-  // a click still answers immediately.
+  // The niche shows `shown`, which follows the chosen edition immediately — the
+  // clip, the chalk on the back wall and the lamp all run on it. Kept as its own
+  // state so the niche and the caption under the case still update from one place.
   const [shown, setShown] = useState(edition.key);
-  const [curtainClosed, setCurtainClosed] = useState(false);
-  // The last edition the sequence was started for. A ref, not the state: the
-  // effect must fire once per change of edition and not again when `shown`
-  // catches up, or its cleanup would cancel its own re-opening.
   const staged = useRef(edition.key);
 
   useEffect(() => {
     if (staged.current === edition.key) return;
     staged.current = edition.key;
-    const next = edition.key;
-
-    // Anyone who has asked for less motion gets the swap, not the theatre.
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const plain = window.setTimeout(() => setShown(next), 0);
-      return () => window.clearTimeout(plain);
-    }
-
-    // Start the next poster loading now, behind the fabric, so the niche has a
-    // frame to show the moment the curtain parts.
-    new Image().src = nichePoster(next);
-
-    // Three beats on one clock, the first of them immediate. Scheduling the
-    // close rather than setting it here keeps the whole sequence in timers —
-    // which is also what lets a second click cancel it cleanly.
-    const draw = window.setTimeout(() => setCurtainClosed(true), 0);
-    const swap = window.setTimeout(() => setShown(next), CURTAIN_CLOSE_MS);
-    const part = window.setTimeout(() => setCurtainClosed(false), CURTAIN_CLOSE_MS + CURTAIN_HOLD_MS);
-    // Clicking through the schedule faster than a second drops the pending
-    // beats and restarts: the curtain simply stays shut a little longer.
-    return () => {
-      window.clearTimeout(draw);
-      window.clearTimeout(swap);
-      window.clearTimeout(part);
-    };
+    setShown(edition.key);
   }, [edition.key]);
 
   const dollVideo = EDITION_VIDEO[shown];
@@ -678,10 +646,8 @@ export default function Home() {
         {/* ── The wardrobe ──────────────────────────────────────────────
             The empty plate first, then one hanger per outfit. The plate covers
             the baked-in clothes; the hangers are what the doll actually wears,
-            so each one vanishes while she has it on. The swap waits for the
-            curtain: the niche runs on `shown`, not on the chosen edition, so
-            the rail changes behind a closed curtain rather than in plain
-            sight. */}
+            so each one vanishes while she has it on. The rail runs on `shown`,
+            so it changes together with the doll in the niche. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/items/wardrobe/empty.png"
@@ -932,10 +898,6 @@ export default function Home() {
             )}
           </div>
         )}
-
-        {/* The curtain, over the clip and the chalk but under the lamp — the
-            light in the arch falls on the fabric too. */}
-        <NicheCurtain closed={curtainClosed} />
 
         {/* The lamp in the arch, turned down while she sleeps. Over the clip,
             because the light is painted into it. */}

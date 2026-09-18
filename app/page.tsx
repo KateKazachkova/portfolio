@@ -505,7 +505,7 @@ export default function Home() {
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <video
               ref={awardClip}
-              src="/items/award_turn_v2.mp4"
+              src="/items/award_turn_v3.mp4"
               muted
               loop
               playsInline

@@ -444,6 +444,7 @@ export default function Home() {
             href="/recognition"
             aria-label="Recognition — the award for Redesigning the Redesign"
             className="block absolute inset-0"
+            style={{ overflow: "hidden" }}
           >
             {/* Shot to match the case, and seated on the shelf rather than
                 floating in front of it.
@@ -518,6 +519,9 @@ export default function Home() {
                 width: "100%",
                 height: "100%",
                 objectFit: "fill",
+                // Nudged left to sit under the resting still: the clip's cubby
+                // crop lands the turning figure a touch right of trophy.png.
+                transform: "translateX(-2%)",
                 opacity: awardAwake && awardRolling ? 1 : 0,
                 transition: "opacity 120ms linear",
                 pointerEvents: "none",
@@ -700,11 +704,11 @@ export default function Home() {
           const worn = outfitOf(shown) === o.key;
           const strip = { l: 76.3 + i * 2.3, w: 2.3, t: 14.5, h: 22.0 };
           return (
-            <InkTip
+            <div
               key={o.key}
-              label={o.label}
-              meta={o.meta}
-              place="bottom"
+              aria-hidden
+              onMouseEnter={() => setPulled(o.key)}
+              onMouseLeave={() => setPulled((prev) => (prev === o.key ? null : prev))}
               style={{
                 position: "absolute",
                 left: `${strip.l}%`,
@@ -714,12 +718,7 @@ export default function Home() {
                 zIndex: 4,
                 pointerEvents: worn ? "none" : "auto",
               }}
-              onHoverChange={(open) =>
-                setPulled(open ? o.key : (prev) => (prev === o.key ? null : prev))
-              }
-            >
-              <span />
-            </InkTip>
+            />
           );
         })}
 

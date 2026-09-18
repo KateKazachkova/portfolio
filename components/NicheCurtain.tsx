@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * The curtain across the niche, drawn while one doll is swapped for another.
@@ -57,14 +57,23 @@ export default function NicheCurtain({ closed }: { closed: boolean }) {
    */
   const closeFilm = useRef<HTMLVideoElement>(null);
   const openFilm = useRef<HTMLVideoElement>(null);
-  /** Nothing has been played yet, so there is no last frame to hold: both
-   *  elements must stay out of the way rather than show frame zero of the
-   *  opening clip, which is a closed curtain. */
-  const started = useRef(false);
+  /** Nothing has been played yet, so there is no last frame to hold — and an
+   *  unplayed <video> paints its FIRST frame, which for the opening clip is a
+   *  shut curtain. Until the first close, then, both elements stay invisible;
+   *  this is state rather than a ref precisely because the render has to know.
+   */
+  const [armed, setArmed] = useState(false);
+  /** The same fact as `armed`, kept where the effect can read it without
+   *  taking it as a dependency — otherwise arming would re-run the effect and
+   *  restart the close a frame after it began. */
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    if (!started.current && !closed) return;
-    started.current = true;
+    if (!hasRun.current && !closed) return;
+    if (!hasRun.current) {
+      hasRun.current = true;
+      setArmed(true);
+    }
 
     const play = closed ? closeFilm.current : openFilm.current;
     const stop = closed ? openFilm.current : closeFilm.current;
@@ -91,6 +100,22 @@ export default function NicheCurtain({ closed }: { closed: boolean }) {
       // A change of direction mid-run aborts this play(); that rejection is the
       // normal way out, not an error.
       .catch(() => {});
+
+    // Once the parting has had its time, take the film off screen entirely.
+    // Holding the open clip's last frame is only safe while it really is the
+    // last frame: a tab that was hidden, or a decoder that never got going,
+    // leaves the element sitting on frame one, which is a SHUT curtain across
+    // the niche. So the resting state is "no film at all" rather than "the
+    // film, parked" — `ended` handles the normal case and the timer covers the
+    // playback that never happened.
+    if (closed) return;
+    const clear = () => setArmed(false);
+    play.addEventListener("ended", clear, { once: true });
+    const failsafe = window.setTimeout(clear, CURTAIN_OPEN_MS + 250);
+    return () => {
+      play.removeEventListener("ended", clear);
+      window.clearTimeout(failsafe);
+    };
   }, [closed]);
 
   const film = (kind: "close" | "open"): React.CSSProperties => ({
@@ -103,7 +128,7 @@ export default function NicheCurtain({ closed }: { closed: boolean }) {
     // Only the clip that is running — or the one holding its last frame — is on
     // screen. No fade: the two share the same frame at the hand-over, so a
     // crossfade would only show them both at half strength.
-    opacity: (kind === "close") === closed ? 1 : 0,
+    opacity: armed && (kind === "close") === closed ? 1 : 0,
   });
 
   return (

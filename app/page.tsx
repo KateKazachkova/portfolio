@@ -144,11 +144,11 @@ function outfitOf(edition: string): string | null {
  *  the top-left shelf (home, which alone has the shelf lip laid over its base)
  *  and, each time it is charged, jumps to the next — the wardrobe by the folded
  *  throws, the case lid, the foot of the left door — and round again. */
-const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean }[] = [
+const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; behind?: boolean }[] = [
   { left: 14.0, top: 17.3, width: 5.1, home: true },
   { left: 84.8, top: 58.0, width: 5.1 },
-  { left: 47.5, top: 1.0, width: 4.4 },
-  { left: 15.0, top: 75.5, width: 5.1 },
+  { left: 47.5, top: 1.0, width: 4.4, behind: true },
+  { left: 15.0, top: 76.5, width: 5.1 },
 ];
 
 /** The model police box. Pointing at it lights a blue glow and the box pulses
@@ -186,7 +186,7 @@ function TardisModel() {
 
   return (
     <>
-      <div style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, width: `${s.width}%`, zIndex: 2 }}>
+      <div style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, width: `${s.width}%`, zIndex: s.behind ? 0 : 2 }}>
         <div className="relative w-full">
           {/* The blue glow behind the box, brightening as it charges and
               lingering a beat after it has gone. Screen blend adds light only. */}

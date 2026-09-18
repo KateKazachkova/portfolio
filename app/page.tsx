@@ -92,6 +92,30 @@ function CaseInlay({ l, t, w, h }: { l: number; t: number; w: number; h: number 
   );
 }
 
+/** The same case-over-its-own-pixels inlay, but placed directly in the suitcase
+ *  box's percentages (a sibling of the niche clip, not nested in a cubby). Used
+ *  to lay the niche's true left/right frame back over the clip, whose generated
+ *  woodwork drifts a few pixels from the case and leaves a seam at the edges. */
+function BoxInlay({ l, t, w, h, z = 4 }: { l: number; t: number; w: number; h: number; z?: number }) {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        left: `${l}%`,
+        top: `${t}%`,
+        width: `${w}%`,
+        height: `${h}%`,
+        backgroundImage: "url(/suitcase/open2.webp)",
+        backgroundSize: `${10000 / w}% ${10000 / h}%`,
+        backgroundPosition: `${(l / (100 - w)) * 100}% ${(t / (100 - h)) * 100}%`,
+        zIndex: z,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
 /** The wardrobe, rebuilt as layers so the clothes can leave it.
  *
  *  `open2.webp` has the garments baked in, so an empty plate was generated from
@@ -165,7 +189,11 @@ function TardisModel() {
     setPhase("charging");
     push(() => setPhase("gone"), 1200);
     push(() => {
-      setSpot((i) => (i + 1) % TARDIS_SPOTS.length);
+      setSpot((i) => {
+        let n = i;
+        while (n === i) n = Math.floor(Math.random() * TARDIS_SPOTS.length);
+        return n;
+      });
       setPhase("returning");
     }, 2100);
     push(() => setPhase("idle"), 2900);
@@ -210,13 +238,28 @@ function TardisModel() {
           <img
             src="/items/tardis.png"
             alt="A model police box"
-            onMouseEnter={trigger}
             className="block w-full h-auto relative"
             style={{ ...imgStyle, zIndex: 1 }}
             draggable={false}
           />
         </div>
       </div>
+      {/* Hover catcher — a transparent hit area over the box, always on top
+          (zIndex 5) so the charge fires even at the spots where the box itself
+          sits behind the case and cannot receive the pointer. Matches the
+          model's footprint via its aspect ratio. */}
+      <div
+        aria-hidden
+        onMouseEnter={trigger}
+        style={{
+          position: "absolute",
+          left: `${s.left}%`,
+          top: `${s.top}%`,
+          width: `${s.width}%`,
+          aspectRatio: "0.664",
+          zIndex: 5,
+        }}
+      />
     </>
   );
 }
@@ -901,6 +944,17 @@ export default function Home() {
               />
             )}
           </div>
+        )}
+
+        {/* The niche's true left/right frame, laid back over the clip. The
+            generated woodwork drifts a few pixels from the case, so its edge
+            doubles the real frame — these strips of the case's own pixels sit
+            on top and hide the seam. Only over a clip; the cutout needs none. */}
+        {hasNicheClip(shown) && (
+          <>
+            <BoxInlay l={40.619} t={11.43} w={1.4} h={69.948} />
+            <BoxInlay l={57.379} t={11.43} w={1.4} h={69.948} />
+          </>
         )}
 
         {/* The lamp in the arch, turned down while she sleeps. Over the clip,

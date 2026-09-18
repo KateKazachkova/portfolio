@@ -200,6 +200,9 @@ function TardisModel() {
               transition: "opacity 0.5s ease",
               mixBlendMode: "screen",
               pointerEvents: "none",
+              // On the shelf the glow must not spill into the compartment
+              // below — clip it at the box's base so no light bleeds through.
+              clipPath: s.home ? "inset(0 0 23% 0)" : undefined,
               zIndex: 0,
             }}
           />
@@ -214,25 +217,6 @@ function TardisModel() {
           />
         </div>
       </div>
-      {/* Home spot only: the shelf's wooden front lip, cut from the case's own
-          pixels a layer above the box so its base tucks behind the shelf. */}
-      {s.home && (
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "13.2%",
-            top: "27.2%",
-            width: "6.9%",
-            height: "1.8%",
-            backgroundImage: "url(/suitcase/open2.webp)",
-            backgroundSize: `${10000 / 6.9}% ${10000 / 1.8}%`,
-            backgroundPosition: `${(13.2 / (100 - 6.9)) * 100}% ${(27.2 / (100 - 1.8)) * 100}%`,
-            zIndex: 3,
-            pointerEvents: "none",
-          }}
-        />
-      )}
     </>
   );
 }
@@ -805,9 +789,29 @@ export default function Home() {
           </a>
         </InkTip>
 
+        {/* The top-left shelf's wooden front lip, cut across the whole shelf
+            from the case's own pixels and kept a layer above whatever stands on
+            it (zIndex 3), so every item's base tucks behind the shelf. Its own
+            element now — not tied to the TARDIS — since other things sit here. */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "10.2%",
+            top: "27.2%",
+            width: "14.0%",
+            height: "1.9%",
+            backgroundImage: "url(/suitcase/open2.webp)",
+            backgroundSize: `${10000 / 14.0}% ${10000 / 1.9}%`,
+            backgroundPosition: `${(10.2 / (100 - 14.0)) * 100}% ${(27.2 / (100 - 1.9)) * 100}%`,
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
+
         {/* The TARDIS — starts on the left door's top shelf and jumps between
-            spots on each charge. Placement, glow and the shelf lip all live in
-            the component (see TARDIS_SPOTS). */}
+            spots on each charge. Placement and glow live in the component
+            (see TARDIS_SPOTS); the shelf lip above is its own element. */}
         <TardisModel />
 
         {/* Left door — middle shelf: cassettes */}

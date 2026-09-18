@@ -521,7 +521,7 @@ export default function Home() {
                 objectFit: "fill",
                 // Nudged left to sit under the resting still: the clip's cubby
                 // crop lands the turning figure a touch right of trophy.png.
-                transform: "translateX(-2%)",
+                transform: "translateX(-1%)",
                 opacity: awardAwake && awardRolling ? 1 : 0,
                 transition: "opacity 120ms linear",
                 pointerEvents: "none",

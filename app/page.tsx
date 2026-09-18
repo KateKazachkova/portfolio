@@ -147,12 +147,20 @@ function outfitOf(edition: string): string | null {
 function TardisModel() {
   const [phase, setPhase] = useState<"idle" | "charging" | "gone" | "returning">("idle");
   const timers = useRef<number[]>([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const glow = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    // React does not always reflect the `muted` prop to the attribute, and an
+    // unmuted autoplay is blocked; pin it so the charge can play on hover.
+    if (glow.current) glow.current.muted = true;
+    return () => timers.current.forEach(clearTimeout);
+  }, []);
 
   function trigger() {
     if (phase !== "idle") return;
     const push = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
     setPhase("charging");
+    const v = glow.current;
+    if (v) { v.currentTime = 0; v.play().catch(() => {}); }
     push(() => setPhase("gone"), 1000);
     push(() => setPhase("returning"), 2150);
     push(() => setPhase("idle"), 3050);
@@ -177,22 +185,33 @@ function TardisModel() {
               transition: "opacity 0.9s ease-out, filter 0.9s ease-out, transform 0.9s ease-out",
             }
           : { opacity: 1, filter: base };
-  const glowOpacity = phase === "charging" ? 0.85 : phase === "gone" ? 0.5 : 0;
+  const glowOpacity = phase === "charging" ? 1 : phase === "gone" ? 0.9 : phase === "returning" ? 0.3 : 0;
 
   return (
     <div className="relative w-full">
-      <div
+      {/* The charge itself — an abstract shaft of energy generated for this,
+          laid over the box with `screen` so its black falls away and only the
+          light adds. It plays from the top of every hover. */}
+      <video
+        ref={glow}
         aria-hidden
+        muted
+        playsInline
+        preload="auto"
+        src="/tardis/glow.mp4"
         style={{
           position: "absolute",
-          inset: "-45% -65%",
-          background:
-            "radial-gradient(ellipse at 50% 52%, rgba(140,200,255,0.95), rgba(90,150,255,0.35) 45%, rgba(90,150,255,0) 72%)",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "230%",
+          height: "230%",
+          objectFit: "contain",
           opacity: glowOpacity,
-          transition: "opacity 0.6s ease",
+          transition: "opacity 0.45s ease",
           mixBlendMode: "screen",
           pointerEvents: "none",
-          zIndex: 0,
+          zIndex: 2,
         }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -545,7 +564,7 @@ export default function Home() {
                 the dark wood it stands in. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/items/trophy_3q.png"
+              src="/items/trophy.png"
               alt=""
               style={{
                 position: "absolute",
@@ -821,15 +840,9 @@ export default function Home() {
             the model headroom under the shelf above — which at its aspect of
             1.5065 makes it 5.1% wide. It sits behind the brass gallery rail
             below, as anything standing on that shelf does. */}
-        <InkTip
-          label="The TARDIS"
-          meta="Bigger on the inside"
-          place="bottom"
-          className="group"
-          style={{ position: "absolute", left: "14%", top: "17.3%", width: "5.1%", zIndex: 2 }}
-        >
+        <div style={{ position: "absolute", left: "14%", top: "17.3%", width: "5.1%", zIndex: 2 }}>
           <TardisModel />
-        </InkTip>
+        </div>
         {/* The shelf's brass rail and front lip, cut from the case's own pixels
             and laid back over the model so the base tucks behind them — the box
             stands on the shelf rather than floating in front of the rail. Kept a

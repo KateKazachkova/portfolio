@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The niche lamp, turned down while she sleeps.
+ * The case lights, turned down while she sleeps.
  *
  * The recessed spotlight at the top of the arch is painted into the suitcase
  * and into every clip, so it cannot be switched off — it is burning over the
@@ -35,13 +35,45 @@ export default function NicheLight({ edition }: { edition: string }) {
   const dim = DIM[edition] ?? 0;
 
   return (
+    <>
+    {/* The rest of the case. The lamp in the arch is the only light the trunk
+        has; switching it off and leaving the shelves, the rail and the coats
+        as bright as noon read as a lamp turned off in a lit room — she slept
+        in a dark recess inside a case that was still open for business.
+        Masked with the suitcase's own alpha rather than laid down as a
+        rectangle: the studio sweep behind it is far wider than this box, so a
+        rectangle would cut a visible dark edge across the floor. Lighter than
+        the niche gets, because the doors face the room while the recess only
+        ever had the bulb. */}
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 5,
+        pointerEvents: "none",
+        mixBlendMode: "multiply",
+        opacity: dim * 0.72,
+        transition: "opacity 0.9s ease",
+        background: "linear-gradient(to bottom, rgba(20,12,7,0.62), rgba(20,12,7,0.52) 60%, rgba(20,12,7,0.48))",
+        WebkitMaskImage: 'url("/suitcase/open2.webp")',
+        maskImage: 'url("/suitcase/open2.webp")',
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+      }}
+    />
+
     <div
       aria-hidden
       style={{
         position: "absolute",
         ...RECT,
         aspectRatio: CLIP_ASPECT,
-        zIndex: 5, // over the clip and over the chalk on the back wall
+        zIndex: 6, // over the clip, the chalk, and the case-wide layer above
         pointerEvents: "none",
         mixBlendMode: "multiply",
         opacity: dim,
@@ -60,5 +92,6 @@ export default function NicheLight({ edition }: { edition: string }) {
         ].join(", "),
       }}
     />
+    </>
   );
 }

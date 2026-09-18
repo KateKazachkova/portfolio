@@ -296,7 +296,7 @@ export default function Home() {
             layers ground it on their own. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/suitcase/open2.png"
+          src="/suitcase/open2.webp"
           alt="Kate's collector suitcase"
           className="absolute inset-0 w-full h-full object-contain"
           style={{ zIndex: 1 }}

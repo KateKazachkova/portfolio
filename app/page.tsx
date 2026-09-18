@@ -309,14 +309,51 @@ export default function Home() {
           meta="“Redesigning the Redesign”"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "28%", top: "13.6%", width: "10%", zIndex: 2 }}
+          style={{ position: "absolute", left: "28.95%", top: "17.11%", width: "8.5%", zIndex: 2 }}
         >
+          {/* Shot to match the case, and seated on the shelf rather than
+              floating in front of it.
+
+              The camera: the cubby's floor sits at 35.6% of the box, well above
+              the plate's horizon, so we look UP at anything standing on it —
+              which is why the case shows the undersides of its shelves. The
+              first trophy was photographed from above (the top of its plinth
+              was an open ellipse) and read as pasted on. It was re-shot from
+              below: the base mouldings now curve upward, the plinth's top face
+              is hidden, and the plaque tips slightly back. A CSS rotateX was
+              tried first and rejected — a 2D warp only foreshortens the image,
+              it cannot open those ellipses, so it read as the figure shrinking
+              rather than the plinth turning.
+
+              The occlusion: shooting from below leaves the underside of the
+              base showing as a downward bulge, and an object standing on a
+              shelf can never show that — the shelf's front lip cuts across it,
+              hiding more of the base the further back the object stands. So the
+              PNG is cropped near the base's widest row, 1354px down to 1286 —
+              a touch past the bottom ring's side tangents — so what is left
+              ends in a straight line, and that line is the lip.
+
+              The placement: the cubby runs 27.7-38.7% across, and its floor
+              reads at 35.2% at the back wall, 35.6% at the lit front lip. The
+              cut base sits just above the lip at 35.33% — two pixels clear of
+              it at the box's full 1118px, which reads as standing a little
+              further back — and is 8.5% of the box wide; height is
+              8.5 x 1.5 x 1.42889 = 18.22%, so the top lands at 17.11%. Centred
+              on the cubby at 33.2%.
+
+              The light: ambient light cannot reach into a recess, hence the
+              brightness and saturation taken off and the warm cast, matching
+              the dark wood it stands in — and further back means less of all
+              three. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/items/trophy.png"
             alt="Award: Redesigning the Redesign"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.35))" }}
+            style={{
+              filter:
+                "brightness(0.84) saturate(0.90) sepia(0.08) drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 7px 10px rgba(0,0,0,0.32))",
+            }}
             draggable={false}
           />
         </InkTip>

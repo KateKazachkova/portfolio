@@ -140,78 +140,51 @@ function outfitOf(edition: string): string | null {
   return null;
 }
 
-/** The model police box on the top-left shelf. Pointing at it charges a blue
- *  glow, then it dematerialises on the spot — fading, blurring and lifting a
- *  little — before it settles back where it stood. (The jump to other places
- *  and the sound come next; this is the effect in place.) */
+/** The model police box on the top-left shelf. Pointing at it lights a blue
+ *  glow and the box pulses in and out of transparency, then it fades away to
+ *  nothing on the spot before it settles back where it stood. (The jump to
+ *  other places and the sound come next; this is the effect in place.) */
 function TardisModel() {
   const [phase, setPhase] = useState<"idle" | "charging" | "gone" | "returning">("idle");
   const timers = useRef<number[]>([]);
-  const glow = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    // React does not always reflect the `muted` prop to the attribute, and an
-    // unmuted autoplay is blocked; pin it so the charge can play on hover.
-    if (glow.current) glow.current.muted = true;
-    return () => timers.current.forEach(clearTimeout);
-  }, []);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   function trigger() {
     if (phase !== "idle") return;
     const push = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
     setPhase("charging");
-    const v = glow.current;
-    if (v) { v.currentTime = 0; v.play().catch(() => {}); }
-    push(() => setPhase("gone"), 1000);
-    push(() => setPhase("returning"), 2150);
-    push(() => setPhase("idle"), 3050);
+    push(() => setPhase("gone"), 1200);
+    push(() => setPhase("returning"), 2100);
+    push(() => setPhase("idle"), 2900);
   }
 
   const base = "brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38))";
   const imgStyle: React.CSSProperties =
     phase === "charging"
-      ? { animation: "tardis-charge 1s ease-in-out forwards" }
+      ? { animation: "tardis-charge 1.2s ease-in-out forwards" }
       : phase === "gone"
-        ? {
-            opacity: 0,
-            transform: "scale(1.06)",
-            filter: "blur(7px) brightness(1.4) drop-shadow(0 0 18px rgba(120,190,255,0.9))",
-            transition: "opacity 1.15s ease-in, filter 1.15s ease-in, transform 1.15s ease-in",
-          }
+        ? { opacity: 0, filter: "brightness(1.3) drop-shadow(0 0 14px rgba(130,190,255,0.9))", transition: "opacity 0.9s ease-in, filter 0.9s ease-in" }
         : phase === "returning"
-          ? {
-              opacity: 1,
-              transform: "none",
-              filter: base,
-              transition: "opacity 0.9s ease-out, filter 0.9s ease-out, transform 0.9s ease-out",
-            }
+          ? { opacity: 1, filter: base, transition: "opacity 0.8s ease-out, filter 0.8s ease-out" }
           : { opacity: 1, filter: base };
-  const glowOpacity = phase === "charging" ? 1 : phase === "gone" ? 0.9 : phase === "returning" ? 0.3 : 0;
+  const glowOpacity = phase === "charging" ? 0.9 : phase === "gone" ? 0.6 : 0;
 
   return (
     <div className="relative w-full">
-      {/* The charge itself — an abstract shaft of energy generated for this,
-          laid over the box with `screen` so its black falls away and only the
-          light adds. It plays from the top of every hover. */}
-      <video
-        ref={glow}
+      {/* The blue glow behind the box, brightening as it charges and lingering
+          a beat after it has gone. Screen blend so it only adds light. */}
+      <div
         aria-hidden
-        muted
-        playsInline
-        preload="auto"
-        src="/tardis/glow.mp4"
         style={{
           position: "absolute",
-          left: "50%",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "230%",
-          height: "230%",
-          objectFit: "contain",
+          inset: "-50% -70%",
+          background:
+            "radial-gradient(ellipse at 50% 52%, rgba(150,205,255,0.95), rgba(95,155,255,0.4) 42%, rgba(95,155,255,0) 70%)",
           opacity: glowOpacity,
-          transition: "opacity 0.45s ease",
+          transition: "opacity 0.5s ease",
           mixBlendMode: "screen",
           pointerEvents: "none",
-          zIndex: 2,
+          zIndex: 0,
         }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -592,7 +565,7 @@ export default function Home() {
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <video
               ref={awardClip}
-              src="/items/award_turn_v2.mp4"
+              src="/items/award_turn_v3.mp4"
               muted
               loop
               playsInline
@@ -843,21 +816,21 @@ export default function Home() {
         <div style={{ position: "absolute", left: "14%", top: "17.3%", width: "5.1%", zIndex: 2 }}>
           <TardisModel />
         </div>
-        {/* The shelf's brass rail and front lip, cut from the case's own pixels
-            and laid back over the model so the base tucks behind them — the box
-            stands on the shelf rather than floating in front of the rail. Kept a
-            layer above the TARDIS (zIndex 3 > 2). */}
+        {/* Just the shelf's front lip — the wooden edge the box stands on —
+            cut from the case's own pixels and laid back a layer above the
+            TARDIS (zIndex 3 > 2), so its base tucks behind the shelf. No brass
+            rail: the band stops below it. */}
         <div
           aria-hidden
           style={{
             position: "absolute",
             left: "13.2%",
-            top: "24.6%",
+            top: "27.2%",
             width: "6.9%",
-            height: "5%",
+            height: "1.8%",
             backgroundImage: "url(/suitcase/open2.webp)",
-            backgroundSize: `${10000 / 6.9}% ${10000 / 5}%`,
-            backgroundPosition: `${(13.2 / (100 - 6.9)) * 100}% ${(24.6 / (100 - 5)) * 100}%`,
+            backgroundSize: `${10000 / 6.9}% ${10000 / 1.8}%`,
+            backgroundPosition: `${(13.2 / (100 - 6.9)) * 100}% ${(27.2 / (100 - 1.8)) * 100}%`,
             zIndex: 3,
             pointerEvents: "none",
           }}

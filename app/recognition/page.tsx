@@ -151,7 +151,12 @@ export default function QualityCheck() {
         </p>
         <div className="space-y-6">
           {projectCards.map(({ name, project: p, records }) => (
-            <Sheet key={name} raised className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
+            <Sheet
+              key={name}
+              raised
+              className="grid grid-cols-1 md:grid-cols-[200px_1fr]"
+              style={name === "Ukrainska 15" ? { border: "none" } : undefined}
+            >
               {/* specimen frame */}
               <div className="flex flex-col items-center justify-center p-6 border-b md:border-b-0 md:border-r" style={{ borderColor: "var(--hairline)", background: "var(--inner)" }}>
                 {p?.image ? (

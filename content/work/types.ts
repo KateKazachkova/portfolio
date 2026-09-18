@@ -60,6 +60,15 @@ export type PileItem = {
   caption: Para;
 };
 
+/** A numbered plate — a full-width figure that breaks out of the measure. */
+export type PlateItem = {
+  src: string;
+  /** The plate number, e.g. "PL. 01". */
+  pl: string;
+  alt: string;
+  caption: Para;
+};
+
 export type Section =
   | { kind: "prose"; n: string; label: string; heading: string; rule?: boolean;
       body: Para[]; notes?: MarginNote[]; hand?: HandNote }
@@ -69,6 +78,8 @@ export type Section =
       body: Para[]; rows: SpecRow[]; notes?: MarginNote[]; hand?: HandNote }
   | { kind: "pile"; title: string; count: string; help: string;
       items: PileItem[]; notes?: MarginNote[] }
+  | { kind: "plates"; label?: string; heading?: string;
+      items: PlateItem[]; notes?: MarginNote[] }
   | { kind: "marker"; ghost: string; lines: Span[][] };
 
 export type CaseStudy = {

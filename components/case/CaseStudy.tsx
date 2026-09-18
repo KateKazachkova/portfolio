@@ -123,6 +123,31 @@ function Block({ section }: { section: Section }) {
         </div>
       );
 
+    case "plates":
+      return (
+        <section className="row">
+          <div className="rail">
+            {section.label && <div className="label">{section.label}</div>}
+            <Notes notes={section.notes} />
+          </div>
+          <div className="body bleed">
+            {section.heading && <h2>{section.heading}</h2>}
+            <div className="plates">
+              {section.items.map((p, i) => (
+                <figure key={i}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="plate" src={p.src} alt={p.alt} loading="lazy" />
+                  <figcaption>
+                    <span className="pl">{p.pl}</span>
+                    <span><Spans spans={p.caption} /></span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+
     case "marker":
       return (
         <div className="spread">

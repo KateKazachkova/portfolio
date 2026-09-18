@@ -97,6 +97,10 @@
 .case figcaption .pl { color:var(--ink-red); white-space:nowrap }
 /* a plate that breaks out of the measure into the annotation field */
 .case .row > .bleed { grid-column:2 / 4 }
+/* a gallery of numbered plates */
+.case .plates { display:flex; flex-direction:column; gap:36px; margin-top:26px }
+.case .plates figure { margin:0 }
+.case .plates .plate { background:var(--inner) }
 /* annotated plate: image + absolutely-placed handwriting */
 .case .annot { position:relative }
 .case .annot .hand { position:absolute; max-width:210px; text-shadow:0 0 6px var(--bg),0 0 6px var(--bg),0 0 12px var(--bg),0 0 2px var(--bg) }

@@ -70,10 +70,11 @@ export default function NicheCurtain({ closed }: { closed: boolean }) {
 
   useEffect(() => {
     if (!hasRun.current && !closed) return;
-    if (!hasRun.current) {
-      hasRun.current = true;
-      setArmed(true);
-    }
+    hasRun.current = true;
+    // Every close arms it, not just the first: the parting disarms it again,
+    // so a curtain that was only ever armed once would be invisible from the
+    // second beat onwards.
+    if (closed) setArmed(true);
 
     const play = closed ? closeFilm.current : openFilm.current;
     const stop = closed ? openFilm.current : closeFilm.current;

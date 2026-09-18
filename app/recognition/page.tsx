@@ -78,7 +78,7 @@ export default function QualityCheck() {
           </span>
 
           {/* clears the punched hole, the way a printed line on a real tag does */}
-          <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em", marginLeft: 34 }} className="text-gray-400 uppercase mb-6">
+          <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em", marginLeft: 34 }} className="text-[color:var(--faint)] uppercase mb-6">
             Independent Product Inspection
           </p>
           <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-6" style={{ color: "var(--fg)" }}>
@@ -89,7 +89,7 @@ export default function QualityCheck() {
             <br />
             This one was tested by independent juries.
           </p>
-          <p className="text-gray-500 leading-relaxed max-w-2xl mb-10">
+          <p className="text-[color:var(--muted)] leading-relaxed max-w-2xl mb-10">
             Since 2020 the work has been entered into 11 international competitions –
             earning 6 Gold, 20 Silver and 4 Bronze awards, plus web distinctions
             including Site of the Day and judges&apos; Special Kudos.
@@ -98,7 +98,7 @@ export default function QualityCheck() {
           {/* big stat */}
           <div className="flex items-end gap-5 mb-10">
             <span className="font-black leading-none" style={{ fontSize: 72, color: "var(--fg)" }}>30+</span>
-            <span className="uppercase text-xs font-bold tracking-widest text-gray-400 pb-2 leading-relaxed">
+            <span className="uppercase text-xs font-bold tracking-widest text-[color:var(--faint)] pb-2 leading-relaxed">
               International awards<br />and distinctions
             </span>
           </div>
@@ -112,7 +112,7 @@ export default function QualityCheck() {
               ["INSPECTION", "JURY REVIEW"],
             ].map(([k, v]) => (
               <div key={k}>
-                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-1">{k}</div>
+                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-[color:var(--faint)] uppercase mb-1">{k}</div>
                 <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 700 }} className="uppercase" >{v}</div>
               </div>
             ))}
@@ -126,7 +126,7 @@ export default function QualityCheck() {
       {/* ── 2. WHAT WAS VERIFIED ── */}
       <section className="px-8 py-16 max-w-5xl mx-auto">
         <SectionHeading n="02" title="What Was Verified" />
-        <p className="text-gray-500 max-w-2xl mb-10 leading-relaxed">
+        <p className="text-[color:var(--muted)] max-w-2xl mb-10 leading-relaxed">
           Different juries, categories and projects. The same qualities kept appearing in the reports.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -138,7 +138,7 @@ export default function QualityCheck() {
                   Verified
                 </span>
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed">{q.description}</p>
+              <p className="text-sm text-[color:var(--muted)] leading-relaxed">{q.description}</p>
             </Sheet>
           ))}
         </div>
@@ -147,7 +147,7 @@ export default function QualityCheck() {
       {/* ── 3. VERIFIED PROJECTS ── */}
       <section id="verified-projects" className="px-8 py-16 max-w-5xl mx-auto scroll-mt-20">
         <SectionHeading n="03" title="Verified Projects" />
-        <p className="text-gray-500 max-w-2xl mb-10 leading-relaxed">
+        <p className="text-[color:var(--muted)] max-w-2xl mb-10 leading-relaxed">
           Awards matter more when they point back to the work. Each specimen carries its full inspection record.
         </p>
         <div className="space-y-6">
@@ -163,7 +163,7 @@ export default function QualityCheck() {
                     {name}
                   </div>
                 )}
-                <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase">{p?.specimen ?? "Archive"}</span>
+                <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-[color:var(--faint)] uppercase">{p?.specimen ?? "Archive"}</span>
               </div>
 
               {/* details */}
@@ -174,12 +174,12 @@ export default function QualityCheck() {
                     ✓ Passed
                   </span>
                 </div>
-                {p?.description && <p className="text-sm text-gray-500 leading-relaxed mb-4">{p.description}</p>}
+                {p?.description && <p className="text-sm text-[color:var(--muted)] leading-relaxed mb-4">{p.description}</p>}
 
                 <div className="flex flex-wrap gap-4 mb-4" style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.1em" }}>
-                  <span className="text-gray-400 uppercase">RECOGNITION: <span style={{ color: "var(--fg)" }}>{p?.recognitionCount ?? records.length}×</span></span>
+                  <span className="text-[color:var(--faint)] uppercase">RECOGNITION: <span style={{ color: "var(--fg)" }}>{p?.recognitionCount ?? records.length}×</span></span>
                   {p?.recognisedFor?.length ? (
-                    <span className="text-gray-400 uppercase">FOR: <span style={{ color: "var(--fg)" }}>{p.recognisedFor.join(" / ")}</span></span>
+                    <span className="text-[color:var(--faint)] uppercase">FOR: <span style={{ color: "var(--fg)" }}>{p.recognisedFor.join(" / ")}</span></span>
                   ) : null}
                 </div>
 
@@ -194,7 +194,7 @@ export default function QualityCheck() {
                       </Link>
                     )}
                     {p?.externalUrl && (
-                      <a href={p.externalUrl} target="_blank" rel="noopener noreferrer" className="uppercase font-bold underline hover:no-underline text-gray-400" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
+                      <a href={p.externalUrl} target="_blank" rel="noopener noreferrer" className="uppercase font-bold underline hover:no-underline text-[color:var(--faint)]" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
                         Live ↗
                       </a>
                     )}
@@ -209,7 +209,7 @@ export default function QualityCheck() {
       {/* ── 4. INDEPENDENT JURIES ── */}
       <section className="px-8 py-16 max-w-5xl mx-auto">
         <SectionHeading n="04" title="Independent Juries" />
-        <p className="text-gray-500 max-w-2xl mb-10 leading-relaxed">
+        <p className="text-[color:var(--muted)] max-w-2xl mb-10 leading-relaxed">
           Selected organisations that independently reviewed and recognised the work.
         </p>
 
@@ -232,9 +232,9 @@ export default function QualityCheck() {
                 <span className="font-bold text-sm" style={{ color: "var(--fg)" }}>{o.name}</span>
                 <span style={{ fontFamily: mono, fontSize: 9, letterSpacing: "0.12em", color: "var(--accent-red)" }} className="uppercase">✓</span>
               </div>
-              <span className="text-xs text-gray-400">{o.type}</span>
+              <span className="text-xs text-[color:var(--faint)]">{o.type}</span>
               {o.externalUrl && (
-                <a href={o.externalUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline hover:no-underline text-gray-400 mt-auto">
+                <a href={o.externalUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline hover:no-underline text-[color:var(--faint)] mt-auto">
                   Visit ↗
                 </a>
               )}
@@ -245,7 +245,7 @@ export default function QualityCheck() {
 
       {/* ── CLOSING STAMP ── */}
       <section className="px-8 pb-28 max-w-5xl mx-auto">
-        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.1em" }} className="text-gray-300 uppercase">
+        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.1em" }} className="text-[color:var(--faint)] uppercase">
           END OF REPORT · KATE™ · MODEL №001 · This inspection covers design recognition only. Measurable product results are documented in the case studies.
         </p>
       </section>

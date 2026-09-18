@@ -13,6 +13,7 @@
   --border: #2C263F;     /* Dark Purple ink border */
   --hairline: #c3b9a3;   /* thin archive divider */
   --muted: #776f8a;      /* muted, a touch of plum */
+  --faint: #a59ca5;    /* tertiary text — meta labels, timestamps */
   /* Brand palette */
   --brand: #F8C662;      /* Saffron — logo, selected states, small labels */
   --plum: #2C263F;       /* Dark Purple */
@@ -39,6 +40,7 @@
   --border: #efe7d8;
   --hairline: #352e28;
   --muted: #9a8e82;
+  --faint: #665d55;
   --accent: #F8C662;
   --accent-red: #e8443a;
   --accent-blue: #9b92c9;   /* Ultra Violet lifted for contrast on plum */

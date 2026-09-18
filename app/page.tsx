@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import EditionClock from "@/components/EditionClock";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import ChalkTodo from "@/components/ChalkTodo";
 import NicheLight from "@/components/NicheLight";
+import PocketWatch from "@/components/PocketWatch";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
@@ -277,7 +277,6 @@ export default function Home() {
     : editionForHour(hour);
 
   const pickHour = (h: number) => { setForced(null); setHour(h); };
-  const pickNow = () => { setForced(null); setNow(); };
 
   // Home is a product shot: it gets the studio sweep. Every other route stays
   // flat paper, so the box reads as packaging and the documents read as paper.
@@ -347,14 +346,9 @@ export default function Home() {
 
   const clockPanel = (
     <div>
-      <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase text-center mb-3">
-        Set the time
-      </p>
-      <EditionClock hour={hour ?? 12} onChange={pickHour} onNow={pickNow} />
-
-      {/* The schedule. These were loose chips; as a timetable they say what
-          they actually are — the hours of a day you can jump the doll to —
-          and the times come straight from each edition's own range. */}
+      {/* The clock itself is now the pocket watch in the case, so this panel
+          keeps only the schedule — a timetable of the hours you can jump the
+          doll to, the times taken straight from each edition's own range. */}
       <p
         style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }}
         className="text-gray-400 uppercase text-center mt-8 mb-2"
@@ -857,6 +851,12 @@ export default function Home() {
             (see TARDIS_SPOTS); the shelf lip above is its own element. */}
         <TardisModel />
 
+        {/* The gold pocket watch, hung in the left door's curtain cutout — it
+            both tells and (by dragging the hands) sets the scene's hour. */}
+        <div style={{ position: "absolute", left: "11%", top: "44.45%", width: "10%", zIndex: 4 }}>
+          <PocketWatch hour={hour ?? 12} onChange={pickHour} />
+        </div>
+
         {/* Left door — middle shelf: cassettes */}
         <InkTip
           label="Cassettes"
@@ -893,22 +893,23 @@ export default function Home() {
           />
         </InkTip>
 
-        {/* Right-centre rail: the bicycle — needs a transparent cutout at
-            /items/bike_hang.png (position already dialled in). Enable when ready.
-        <div
+        {/* Right compartment, above the poster: the bicycle hung on the wall. */}
+        <InkTip
+          label="Field kit"
+          meta="The gravel bike"
+          place="bottom"
           className="group"
-          style={{ position: "absolute", left: "57%", top: "16.5%", width: "12.5%", zIndex: 2 }}
-          title="Field kit — the bicycle"
+          style={{ position: "absolute", left: "57.1%", top: "19.5%", width: "15%", transform: "rotate(2deg)", transformOrigin: "top center", zIndex: 4 }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/items/bike_hang.png"
-            alt="A bicycle hung on the rail"
+            alt="A miniature gravel bike hung by its front wheel in the niche"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" }}
             draggable={false}
           />
-        </div>
-        */}
+        </InkTip>
 
         {/* The day chalked on the niche's back wall — schedule and to-do in one
             list, struck through as the hours go by */}
@@ -967,9 +968,10 @@ export default function Home() {
         {/* <IntroOverlay /> */}
       </div>
 
-        {/* Clock to the right of the box (wide screens only) */}
+        {/* Clock + schedule to the right of the box. Shown at every width for
+            now — it overruns the layout on narrower screens on purpose, until
+            the placement is settled. */}
         <div
-          className="hidden min-[1700px]:block"
           style={{ position: "absolute", top: "50%", left: "calc(50% + min(44vw, 559px) + 28px)", transform: "translateY(-50%)" }}
         >
           {clockPanel}
@@ -986,10 +988,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Clock below the box on smaller screens */}
-      <div className="min-[1700px]:hidden">
-        {clockPanel}
-      </div>
     </main>
   );
 }

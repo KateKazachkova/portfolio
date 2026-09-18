@@ -17,6 +17,7 @@ export default function InkTip({
   place = "top",
   className,
   style,
+  onHoverChange,
   children,
 }: {
   label: string;
@@ -24,9 +25,12 @@ export default function InkTip({
   place?: "top" | "bottom";
   className?: string;
   style?: CSSProperties;
+  /** Told when the tag opens and closes, for items that also wake up on hover. */
+  onHoverChange?: (open: boolean) => void;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const set = (v: boolean) => { setOpen(v); onHoverChange?.(v); };
 
   // Lift the whole item above its neighbours (rails z3, etc.) while the tag
   // shows, so the parchment always reads on top. Inline z-index would win over
@@ -37,10 +41,10 @@ export default function InkTip({
     <div
       className={className}
       style={wrapperStyle}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
-      onBlur={() => setOpen(false)}
+      onMouseEnter={() => set(true)}
+      onMouseLeave={() => set(false)}
+      onFocus={() => set(true)}
+      onBlur={() => set(false)}
     >
       {children}
 

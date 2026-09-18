@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import EditionClock from "@/components/EditionClock";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip, nichePoster } from "@/components/NicheDoll";
@@ -90,6 +91,35 @@ export default function Home() {
     return applyAmbient;
   }, [forced, applyAmbient]);
   const [videoFailed, setVideoFailed] = useState(false);
+
+  // The award takes her turn when you point at her. The clip was generated
+  // straight into this cubby from the very frame the page already shows, so it
+  // is opaque and drops onto the case 1:1 — no alpha, no mask — and its first
+  // frame IS the still, which is what makes the swap invisible. The still goes
+  // transparent underneath rather than staying behind the clip: hovering lifts
+  // the InkTip wrapper to z60 to float its label, which would otherwise put the
+  // motionless statue back on top of the video.
+  const [awardAwake, setAwardAwake] = useState(false);
+  // Whether the clip is actually painting yet. The file is not preloaded — it
+  // costs a third of a megabyte and most visitors never point at the shelf — so
+  // on the first hover there is a moment with no frame to show. The still stays
+  // up until `playing` fires, otherwise the cubby would flash empty.
+  const [awardRolling, setAwardRolling] = useState(false);
+  const awardClip = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = awardClip.current;
+    if (!v) return;
+    if (awardAwake && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      v.currentTime = 0;
+      // A hover that ends before the file is ready aborts this play(), which
+      // rejects; that is the normal way out, not an error worth reporting.
+      void v.play().catch(() => {});
+    } else {
+      v.pause();
+      v.currentTime = 0;
+      setAwardRolling(false);
+    }
+  }, [awardAwake]);
 
   // ── The curtain call ──
   // The niche shows `shown`, not `edition`: it lags the chosen edition by the
@@ -303,59 +333,107 @@ export default function Home() {
           draggable={false}
         />
 
-        {/* Trophy on the left shelf (top cubby above the drawers) */}
+        {/* The award, in the top-left cubby — and the way in to Recognition.
+            The hoverable box is the CUBBY, not the statue's own outline: it is
+            the cubby the clip replaces, so one box carries the label, the
+            motion and the link, and there is nothing to keep in sync. Its
+            numbers are the crop the clip was cut from, 27.214% to 38.900%
+            across and 11.182% to 37.500% down of the case box, which is why the
+            video lands back on its own woodwork exactly. */}
         <InkTip
           label="The Award"
           meta="“Redesigning the Redesign”"
           place="bottom"
-          className="group"
-          style={{ position: "absolute", left: "28.95%", top: "17.11%", width: "8.5%", zIndex: 2 }}
+          style={{
+            position: "absolute",
+            left: "27.214%",
+            top: "11.182%",
+            width: "11.686%",
+            height: "26.318%",
+            zIndex: 2,
+          }}
+          onHoverChange={setAwardAwake}
         >
-          {/* Shot to match the case, and seated on the shelf rather than
-              floating in front of it.
+          <Link
+            href="/recognition"
+            aria-label="Recognition — the award for Redesigning the Redesign"
+            className="block absolute inset-0"
+          >
+            {/* Shot to match the case, and seated on the shelf rather than
+                floating in front of it.
 
-              The camera: the cubby's floor sits at 35.6% of the box, well above
-              the plate's horizon, so we look UP at anything standing on it —
-              which is why the case shows the undersides of its shelves. The
-              first trophy was photographed from above (the top of its plinth
-              was an open ellipse) and read as pasted on. It was re-shot from
-              below: the base mouldings now curve upward, the plinth's top face
-              is hidden, and the plaque tips slightly back. A CSS rotateX was
-              tried first and rejected — a 2D warp only foreshortens the image,
-              it cannot open those ellipses, so it read as the figure shrinking
-              rather than the plinth turning.
+                The camera: the cubby's floor sits at 35.6% of the case box,
+                well above the plate's horizon, so we look UP at anything
+                standing on it — which is why the case shows the undersides of
+                its shelves. The first trophy was photographed from above (the
+                top of its plinth was an open ellipse) and read as pasted on. It
+                was re-shot from below: the base mouldings curve upward, the
+                plinth's top face is hidden, the plaque tips slightly back. A
+                CSS rotateX was tried first and rejected — a 2D warp only
+                foreshortens the image, it cannot open those ellipses, so it
+                read as the figure shrinking rather than the plinth turning.
 
-              The occlusion: shooting from below leaves the underside of the
-              base showing as a downward bulge, and an object standing on a
-              shelf can never show that — the shelf's front lip cuts across it,
-              hiding more of the base the further back the object stands. So the
-              PNG is cropped near the base's widest row, 1354px down to 1286 —
-              a touch past the bottom ring's side tangents — so what is left
-              ends in a straight line, and that line is the lip.
+                The occlusion: shooting from below leaves the underside of the
+                base showing as a downward bulge, and an object standing on a
+                shelf can never show that — the shelf's front lip cuts across
+                it. So the PNG is cropped near the base's widest row, 1354px
+                down to 1286 — a touch past the bottom ring's side tangents — so
+                what is left ends in a straight line, and that line is the lip.
 
-              The placement: the cubby runs 27.7-38.7% across, and its floor
-              reads at 35.2% at the back wall, 35.6% at the lit front lip. The
-              cut base sits just above the lip at 35.33% — two pixels clear of
-              it at the box's full 1118px, which reads as standing a little
-              further back — and is 8.5% of the box wide; height is
-              8.5 x 1.5 x 1.42889 = 18.22%, so the top lands at 17.11%. Centred
-              on the cubby at 33.2%.
+                The placement is given inside the cubby box rather than the case
+                box: 14.86% across and 22.52% down of it, 72.74% of its width,
+                which is the same statue at the same size as before, now
+                measured against its own shelf.
 
-              The light: ambient light cannot reach into a recess, hence the
-              brightness and saturation taken off and the warm cast, matching
-              the dark wood it stands in — and further back means less of all
-              three. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/items/trophy.png"
-            alt="Award: Redesigning the Redesign"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{
-              filter:
-                "brightness(0.84) saturate(0.90) sepia(0.08) drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 7px 10px rgba(0,0,0,0.32))",
-            }}
-            draggable={false}
-          />
+                The light: ambient light cannot reach into a recess, hence the
+                brightness and saturation taken off and the warm cast, matching
+                the dark wood it stands in. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/items/trophy.png"
+              alt=""
+              style={{
+                position: "absolute",
+                left: "14.86%",
+                top: "22.52%",
+                width: "72.74%",
+                height: "auto",
+                filter:
+                  "brightness(0.84) saturate(0.90) sepia(0.08) drop-shadow(0 2px 3px rgba(0,0,0,0.55)) drop-shadow(0 7px 10px rgba(0,0,0,0.32))",
+                opacity: awardAwake && awardRolling ? 0 : 1,
+                transition: "opacity 120ms linear",
+              }}
+              draggable={false}
+            />
+
+            {/* Her clip fills the box it was cut from, so every edge of the
+                woodwork lands on itself. `fill`, not `cover` — the element
+                already carries the crop's aspect, and a cover crop would shave
+                a little off and break the alignment it is here to keep. It
+                never takes the pointer: the link around it is the target, and
+                the clip must not shadow its own hover. */}
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <video
+              ref={awardClip}
+              src="/items/award_turn.mp4"
+              muted
+              loop
+              playsInline
+              preload="none"
+              aria-hidden
+              onPlaying={() => setAwardRolling(true)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "fill",
+                opacity: awardAwake && awardRolling ? 1 : 0,
+                transition: "opacity 120ms linear",
+                pointerEvents: "none",
+              }}
+            />
+          </Link>
         </InkTip>
 
         {/* Figma sticker on the top drawer → Figma community profile */}

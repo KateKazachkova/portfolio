@@ -952,8 +952,8 @@ export default function Home() {
             on top and hide the seam. Only over a clip; the cutout needs none. */}
         {hasNicheClip(shown) && (
           <>
-            <BoxInlay l={40.619} t={11.43} w={1.4} h={69.948} />
-            <BoxInlay l={57.379} t={11.43} w={1.4} h={69.948} />
+            <BoxInlay l={40.619} t={11.43} w={0.7} h={69.948} />
+            <BoxInlay l={58.079} t={11.43} w={0.7} h={69.948} />
           </>
         )}
 

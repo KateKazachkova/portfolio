@@ -1,136 +1,111 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 /**
  * The curtain across the niche, drawn while one doll is swapped for another.
  *
  * The editions used to cut: click a different hour and the old clip vanished
  * mid-frame while the new one was still fetching its first byte. A theatre
- * closes first. Two halves run in from the sides of the niche, hold shut long
- * enough for the swap to happen behind them, and part again — so what the page
- * shows is a curtain call rather than a jump cut.
+ * closes first. The curtain runs in, holds shut long enough for the swap to
+ * happen behind it, and parts again — so what the page shows is a curtain call
+ * rather than a jump cut.
  *
- * It is pinned to the same rect as the doll and the lamp (NicheDoll's NICHE,
+ * It is FILM, not CSS. The first version slid two SVG panels of cloth across
+ * the niche and undulated their leading edges; it moved, but two rectangles
+ * travelling in a straight line is what it still looked like, because a curtain
+ * is mostly what the cloth does *between* the two ends of that journey — the
+ * hem lagging, the folds compressing, the whole panel rebounding when it lands.
+ * So the panels were shot instead: generated against a flat green, keyed to
+ * alpha with ffmpeg (colorkey + despill) and shipped as VP9-alpha WebM, which
+ * is why the doll still shows through the moment they part.
+ *
+ * Pinned to the same rect as the doll and the lamp (NicheDoll's NICHE,
  * NicheLight's RECT): the niche's own box inside the suitcase photograph, with
  * the clip's aspect giving it its height. That keeps it on the niche 1:1 at any
- * viewport size, exactly as the clips are.
+ * viewport size, exactly as the doll's clips are.
  *
  * Red because the case is already lined in it — the seat of the niche and the
- * left compartment are the same velvet — so the curtain reads as part of the
- * object rather than as an overlay dropped on top of it.
- *
- * The cloth is a photograph (30KB, generated for this), the shape and the light
- * on it are vector. Drawing the folds by hand got the silhouette right but
- * never the pile: velvet is a surface that scatters light, and gradients can
- * only ever hand back a polish. The photograph carries the material; the SVG
- * around it carries the undulating leading edge, the gathered heading, the lamp
- * in the arch and the shadow across the overlap — all the parts that have to
- * respond to the niche rather than sit still inside a texture.
+ * left compartment are the same velvet, and the cloth was generated from a
+ * photograph of that lining — so the curtain reads as part of the object rather
+ * than as an overlay dropped on top of it.
  */
 
 const RECT = { left: "40.62%", top: "11.43%", width: "18.16%" } as const;
 const CLIP_ASPECT = "648 / 1664";
 
 /** The three beats, in ms. Exported because page.tsx runs the swap against
- *  them: the doll changes on CLOSE, and the curtain parts a HOLD later. */
-export const CURTAIN_CLOSE_MS = 350;
-export const CURTAIN_HOLD_MS = 300;
-export const CURTAIN_OPEN_MS = 420;
+ *  them: the doll changes on CLOSE, and the curtain parts a HOLD later.
+ *  CLOSE and OPEN are the clips' own lengths — 30 frames at 30fps, the run
+ *  from wide open to fully shut — so the page's timing and the cloth's cannot
+ *  drift apart. The first cut of these clips stopped at frame 74 of the take,
+ *  where the panels had not met yet; it now runs to 88, which is where the
+ *  niche is actually covered. */
+export const CURTAIN_CLOSE_MS = 1000;
+export const CURTAIN_HOLD_MS = 350;
+export const CURTAIN_OPEN_MS = 1000;
 
-/** Each half is wider than half the niche, so the two overlap down the middle
- *  instead of meeting on a hairline — which is what lets the leading edge wave
- *  without opening a gap onto the doll behind. */
-const HALF_WIDTH = 60;
-/** How far a half sits off-stage. Past 100% so nothing peeks at the edge. */
-const OFFSTAGE = 100.5;
-
-/** The drawing's own space. Stretched to the half's box (preserveAspectRatio
- *  "none"), so these numbers are proportions, not pixels. The cloth was cut to
- *  the same proportion, so nothing is squeezed on the way in. */
-const W = 100;
-const H = 500;
-
-/** The cloth. Cut at 420x1456 — the half's own aspect — so it lands unsqueezed,
- *  and at about six folds across, because the whole bolt pressed into a 94px
- *  half would read as pinstripe rather than drape. */
-const CLOTH = "/curtain/velvet-half.webp";
-
-/** The leading edge — the one that meets the other half — undulates. The
- *  amplitude stays well inside the overlap, so closed is closed. */
-const SILHOUETTE = [
-  `M0,0 L${W - 6},0`,
-  `C${W - 1},${H * 0.12} ${W - 9},${H * 0.22} ${W - 4},${H * 0.34}`,
-  `C${W},${H * 0.46} ${W - 8},${H * 0.58} ${W - 3},${H * 0.7}`,
-  `C${W + 1},${H * 0.82} ${W - 7},${H * 0.9} ${W - 2},${H}`,
-  `L0,${H} Z`,
-].join(" ");
-
-function Half({ side }: { side: "left" | "right" }) {
-  const id = (name: string) => `curtain-${side}-${name}`;
-  return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      // The right half is the same cloth seen from the other side.
-      style={{ width: "100%", height: "100%", display: "block", transform: side === "right" ? "scaleX(-1)" : undefined }}
-      aria-hidden
-    >
-      <defs>
-        {/* The lamp in the arch, sitting on the top of the drape. */}
-        <radialGradient id={id("lamp")} cx="0.5" cy="0.04" r="0.85">
-          <stop offset="0" stopColor="#ffe3c2" stopOpacity="0.26" />
-          <stop offset="0.55" stopColor="#ffe3c2" stopOpacity="0.05" />
-          <stop offset="1" stopColor="#ffe3c2" stopOpacity="0" />
-        </radialGradient>
-        {/* The hem, which the lamp never reaches. */}
-        <linearGradient id={id("weight")} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0.55" stopColor="#1a0503" stopOpacity="0" />
-          <stop offset="1" stopColor="#1a0503" stopOpacity="0.45" />
-        </linearGradient>
-        {/* The shadow the near half throws where the two overlap. */}
-        <linearGradient id={id("seam")} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0.55" stopColor="#1a0503" stopOpacity="0" />
-          <stop offset="1" stopColor="#1a0503" stopOpacity="0.55" />
-        </linearGradient>
-        <clipPath id={id("cloth-shape")}>
-          <path d={SILHOUETTE} />
-        </clipPath>
-      </defs>
-
-      <g clipPath={`url(#${id("cloth-shape")})`}>
-        <image href={CLOTH} x="0" y="0" width={W} height={H} preserveAspectRatio="none" />
-        <rect width={W} height={H} fill={`url(#${id("lamp")})`} />
-        <rect width={W} height={H} fill={`url(#${id("weight")})`} />
-        {/* The heading, where the cloth is gathered onto its track. */}
-        <rect width={W} height={H * 0.035} fill="#000" opacity="0.3" />
-        {/* Only the far half takes the overlap shadow — it is the near half's
-            edge casting it. On both, it put two dark stripes down the middle of
-            a curtain that has one overlap. */}
-        {side === "left" && <rect width={W} height={H} fill={`url(#${id("seam")})`} />}
-      </g>
-    </svg>
-  );
-}
-
-function slide(side: "left" | "right", closed: boolean): React.CSSProperties {
-  const sign = side === "left" ? -1 : 1;
-  return {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    [side]: 0,
-    width: `${HALF_WIDTH}%`,
-    // The right half laps over the left, so the overlap has a near side.
-    zIndex: side === "right" ? 1 : 0,
-    transform: `translateX(${closed ? 0 : sign * OFFSTAGE}%)`,
-    // Closing is quick and lands soft; parting is slower, because a reveal
-    // reads better slow than a cover does.
-    transition: `transform ${closed ? CURTAIN_CLOSE_MS : CURTAIN_OPEN_MS}ms ${
-      closed ? "cubic-bezier(0.2, 0.8, 0.25, 1)" : "cubic-bezier(0.4, 0, 0.25, 1)"
-    }`,
-  };
-}
+const CLOSE = "/curtain/curtain_close.webm";
+const OPEN = "/curtain/curtain_open.webm";
 
 export default function NicheCurtain({ closed }: { closed: boolean }) {
+  /** Both clips are their own element rather than one element with its `src`
+   *  swapped. Assigning `src` resets the media and the play() that followed it
+   *  was being aborted by the load every time, so the curtain sat on frame one
+   *  and never ran. Two elements also mean the cloth is already decoded when
+   *  the beat arrives, which is what the close needs: it has no time to buffer.
+   */
+  const closeFilm = useRef<HTMLVideoElement>(null);
+  const openFilm = useRef<HTMLVideoElement>(null);
+  /** Nothing has been played yet, so there is no last frame to hold: both
+   *  elements must stay out of the way rather than show frame zero of the
+   *  opening clip, which is a closed curtain. */
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (!started.current && !closed) return;
+    started.current = true;
+
+    const play = closed ? closeFilm.current : openFilm.current;
+    const stop = closed ? openFilm.current : closeFilm.current;
+    if (!play) return;
+
+    stop?.pause();
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // No theatre: sit on the end of whichever clip was asked for, which is a
+      // closed curtain or an empty niche.
+      const park = () => { play.currentTime = play.duration || 0; };
+      if (play.readyState >= 1) park();
+      else play.addEventListener("loadedmetadata", park, { once: true });
+      return;
+    }
+    // Rewind AFTER the play has been granted, not before: seeking a media
+    // element that is still settling cancels the play() that follows it, which
+    // is what left the curtain sitting on its first frame.
+    void play
+      .play()
+      .then(() => {
+        play.currentTime = 0;
+      })
+      // A change of direction mid-run aborts this play(); that rejection is the
+      // normal way out, not an error.
+      .catch(() => {});
+  }, [closed]);
+
+  const film = (kind: "close" | "open"): React.CSSProperties => ({
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "fill",
+    display: "block",
+    // Only the clip that is running — or the one holding its last frame — is on
+    // screen. No fade: the two share the same frame at the hand-over, so a
+    // crossfade would only show them both at half strength.
+    opacity: (kind === "close") === closed ? 1 : 0,
+  });
+
   return (
     <div
       aria-hidden
@@ -145,12 +120,13 @@ export default function NicheCurtain({ closed }: { closed: boolean }) {
         pointerEvents: "none",
       }}
     >
-      <div style={slide("left", closed)}>
-        <Half side="left" />
-      </div>
-      <div style={slide("right", closed)}>
-        <Half side="right" />
-      </div>
+      {/* The last frame stays on screen: at the end of the close that is the
+          shut curtain the hold needs, and at the end of the open it is a fully
+          transparent frame, so the niche is simply clear again. */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video ref={closeFilm} src={CLOSE} muted playsInline preload="auto" style={film("close")} />
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video ref={openFilm} src={OPEN} muted playsInline preload="auto" style={film("open")} />
     </div>
   );
 }

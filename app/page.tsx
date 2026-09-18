@@ -56,6 +56,90 @@ function Shadow({ cx, bottom, w, h, rgb, a, blur, stop }: {
   );
 }
 
+/** The award's cubby, in the suitcase box's own percentages. The clip was cut
+ *  from exactly this rectangle, so it goes back at exactly these numbers. */
+const AWARD_CUBBY = { l: 27.214, t: 11.182, w: 11.686, h: 26.318 };
+
+/** A strip of the case's own pixels, re-drawn on top of the clip.
+ *
+ *  A generated clip can never register with the case to the pixel — the model
+ *  redraws the woodwork it was given, and a frame or two of drift shows up
+ *  exactly where the clip's edge meets the real case. Rather than chase that,
+ *  these strips lay the case back over its own borders: the background is
+ *  open2 scaled to the whole suitcase box and offset so each strip shows the
+ *  very pixels it covers, which is why it cannot disagree with what is beneath
+ *  it. `l/t/w/h` are the strip's rectangle in the SUITCASE BOX's percentages;
+ *  the element is positioned inside the cubby, hence the conversion.
+ *
+ *  The background-position maths: with the image scaled to the whole box, the
+ *  percentage CSS wants is l / (100 - w), because a percentage position aligns
+ *  that point of the image with the same point of the element. */
+function CaseInlay({ l, t, w, h }: { l: number; t: number; w: number; h: number }) {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: "absolute",
+        left: `${((l - AWARD_CUBBY.l) / AWARD_CUBBY.w) * 100}%`,
+        top: `${((t - AWARD_CUBBY.t) / AWARD_CUBBY.h) * 100}%`,
+        width: `${(w / AWARD_CUBBY.w) * 100}%`,
+        height: `${(h / AWARD_CUBBY.h) * 100}%`,
+        backgroundImage: "url(/suitcase/open2.webp)",
+        backgroundSize: `${10000 / w}% ${10000 / h}%`,
+        backgroundPosition: `${(l / (100 - w)) * 100}% ${(t / (100 - h)) * 100}%`,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+/** The wardrobe, rebuilt as layers so the clothes can leave it.
+ *
+ *  `open2.webp` has the garments baked in, so an empty plate was generated from
+ *  the case's own pixels — the rail straightened to the angle Kate drew, the
+ *  folded blankets taken off the shelf — and it is laid back over exactly the
+ *  rectangle it was cut from. Everything else here hangs on top of it.
+ *
+ *  All numbers are percentages of the SUITCASE BOX. The rail is a measured
+ *  line, not a guess: fitted to the brass in the plate (183 samples), it passes
+ *  through (76.50, 16.62) and climbs to the right at -0.0631 %y per %x, because
+ *  the right-hand side of the wardrobe is nearer the camera. */
+const WARDROBE = { l: 74.0, t: 9.8, w: 15.625, h: 71.387 };
+const RAIL = { x: 76.5, y: 16.62, k: -0.0631 };
+const railY = (x: number) => RAIL.y + (x - RAIL.x) * RAIL.k;
+
+/** One outfit on one hanger. `cx` is where its hook sits along the rail, `hook`
+ *  how far down its own PNG the bar crosses the hook — 30% of the way down it,
+ *  inside the curve of the crook, not through the straight stem below, which is
+ *  what makes a hanger look hung rather than hovering. Each is worn by one or more
+ *  editions of the doll: while she is wearing it, it is gone from the rail. */
+/** A garment on a hanger is nearly as wide as the wardrobe itself, and on a
+ *  full rail they overlap almost completely — each one shows a sliver and the
+ *  outer two run behind the side walls. So they are drawn at their real width
+ *  inside a box clipped to the wardrobe opening, rather than shrunk to fit. */
+const HANGER_W = 16.1;
+const RAIL_BOX = { l: 75.6, t: 13.0, w: 13.7, h: 38.5 };
+const OUTFITS = [
+  { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 78.2,  aspect: 1.5071, hook: 0.0442, tilt: -2.4 },
+  { key: "morning", src: "morning", label: "First Coffee", meta: "Cardigan · Pyjamas", cx: 80.5, aspect: 1.5071, hook: 0.0565, tilt: 1.6 },
+  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 82.8, aspect: 1.7602, hook: 0.0363, tilt: -1.1 },
+  { key: "street",  src: "street",  label: "Urban Explorer", meta: "Raincoat · Hoodie", cx: 85.1, aspect: 1.5,    hook: 0.0422, tilt: 2.3 },
+  { key: "evening", src: "evening", label: "One More Page", meta: "Cardigan · Tee",  cx: 87.4,  aspect: 1.5143, hook: 0.0400, tilt: -1.8 },
+] as const;
+
+/** Which outfit an edition is wearing. The shifts of the working day share the
+ *  flannel; the morning ones share the cardigan and pyjamas; Saturday's series
+ *  marathon borrows the evening cardigan. Anything not listed — the cleaning
+ *  dungarees — has no hanger in this wardrobe. */
+function outfitOf(edition: string): string | null {
+  if (edition === "office" || edition.startsWith("work_") || edition === "mon_standup" || edition === "fri_wine") return "day";
+  if (edition.startsWith("morn") || edition === "morning" || edition === "mon_alarm" || edition === "weekend_brunch") return "morning";
+  if (edition === "night") return "night";
+  if (edition === "street" || edition.startsWith("fri_transition")) return "street";
+  if (edition === "evening" || edition === "weekend_series") return "evening";
+  return null;
+}
+
 export default function Home() {
   const { hour, auto, setHour, setNow, applyAmbient } = useTime();
   // Manual mode override — buttons force a specific edition (incl. the
@@ -105,6 +189,8 @@ export default function Home() {
   // on the first hover there is a moment with no frame to show. The still stays
   // up until `playing` fires, otherwise the cubby would flash empty.
   const [awardRolling, setAwardRolling] = useState(false);
+  // Which hanger is being lifted off the rail, if any.
+  const [pulled, setPulled] = useState<string | null>(null);
   const awardClip = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = awardClip.current;
@@ -381,9 +467,10 @@ export default function Home() {
                 what is left ends in a straight line, and that line is the lip.
 
                 The placement is given inside the cubby box rather than the case
-                box: 14.86% across and 22.52% down of it, 72.74% of its width,
-                which is the same statue at the same size as before, now
-                measured against its own shelf.
+                box: 14.86% across and 22.00% down of it, 72.74% of its width.
+                That puts the base at 35.18% of the case box, just above the
+                shelf's front lip, so the bottom ring reads as tucked behind the
+                wood rather than resting on top of it.
 
                 The light: ambient light cannot reach into a recess, hence the
                 brightness and saturation taken off and the warm cast, matching
@@ -395,7 +482,7 @@ export default function Home() {
               style={{
                 position: "absolute",
                 left: "14.86%",
-                top: "22.52%",
+                top: "22.00%",
                 width: "72.74%",
                 height: "auto",
                 filter:
@@ -412,10 +499,13 @@ export default function Home() {
                 a little off and break the alignment it is here to keep. It
                 never takes the pointer: the link around it is the target, and
                 the clip must not shadow its own hover. */}
+            {/* The filename carries a version: the first clip was shot before
+                the statue was raised, so a browser holding it in cache would
+                keep playing a take that sits three pixels low. */}
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <video
               ref={awardClip}
-              src="/items/award_turn.mp4"
+              src="/items/award_turn_v2.mp4"
               muted
               loop
               playsInline
@@ -433,8 +523,205 @@ export default function Home() {
                 pointerEvents: "none",
               }}
             />
+
+            {/* The clip's own borders, covered by the case itself: the top of
+                the cubby, both side walls and the shelf lip. Each strip sits
+                clear of the statue — the still ends at 35.19% and the lip strip
+                starts at 35.5% — so they only ever hide woodwork. */}
+            <CaseInlay l={27.214} t={11.182} w={11.686} h={1.2} />
+            <CaseInlay l={27.214} t={35.5} w={11.686} h={2.0} />
+            <CaseInlay l={27.214} t={11.182} w={1.0} h={26.318} />
+            <CaseInlay l={37.9} t={11.182} w={1.0} h={26.318} />
           </Link>
         </InkTip>
+
+        {/* Both brass guard rails on the left door's shelves, painted out —
+            Kate asked for them gone. Each patch is made of the case's own wall:
+            the clean wood directly above the rail, mirrored down and ramped
+            into the tone just below it, laid over the rail with a feathered
+            edge, so open2 itself is left alone. The posts' feet stand on the
+            shelf band, which is uniform along its length, so they are wiped by
+            replacing each pixel there with the median of a wide run of its own
+            row — narrow things vanish, the band's tone survives. The shelves'
+            front edges stay. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/door_rail_patch_top.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "9.25%",
+            top: "23.95%",
+            width: "14.3%",
+            height: "4.8%",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+          draggable={false}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/door_rail_patch.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "9.25%",
+            top: "39.25%",
+            width: "14.3%",
+            height: "4.3%",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+          draggable={false}
+        />
+
+        {/* ── The wardrobe ──────────────────────────────────────────────
+            The empty plate first, then one hanger per outfit. The plate covers
+            the baked-in clothes; the hangers are what the doll actually wears,
+            so each one vanishes while she has it on. The swap waits for the
+            curtain: the niche runs on `shown`, not on the chosen edition, so
+            the rail changes behind a closed curtain rather than in plain
+            sight. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/wardrobe/empty.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: `${WARDROBE.l}%`,
+            top: `${WARDROBE.t}%`,
+            width: `${WARDROBE.w}%`,
+            height: `${WARDROBE.h}%`,
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+          draggable={false}
+        />
+
+        {/* The folded throws, back on the shelf they were taken off. The shelf's
+            front edge is not level — it drops 0.2583 %y per %x as the wardrobe
+            comes towards the camera — so the stack is seated on the line under
+            its own centre: at 82.45% across, that edge is at 67.31% down, which
+            is where its bottom goes. It runs the full width of the shelf and a
+            little past it, the way a folded fleece actually sits. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/wardrobe/blanket.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "75.5%",
+            top: "53.46%",
+            width: "13.9%",
+            height: "auto",
+            maxWidth: "none",
+            filter: "brightness(0.9) saturate(0.95)",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+          draggable={false}
+        />
+
+        {/* The clothes themselves, clipped to the wardrobe opening so the
+            outer hangers run behind the side walls exactly as they do in the
+            photograph. Nothing here takes the pointer — the hit strips below
+            do that, because five overlapping sleeves would otherwise steal each
+            other's hover. */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: `${RAIL_BOX.l}%`,
+            top: `${RAIL_BOX.t}%`,
+            width: `${RAIL_BOX.w}%`,
+            height: `${RAIL_BOX.h}%`,
+            // The bottom is open so a long hem runs past the opening, and the
+            // LEFT side is let out by 2.2% of the case — 16.1% of this box — so
+            // the first sleeve breaks the line of the wardrobe's wall instead
+            // of being sliced off flush against it. Only the left: the right
+            // wall is the outer edge of the case, and cloth hanging past that
+            // floats over the backdrop with nothing behind it. Bounded rather
+            // than free — past about three percent the flannel starts hanging
+            // over the middle compartment, which reads as a mistake.
+            clipPath: "inset(0 0 -200% -16.1%)",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        >
+          {OUTFITS.map((o) => {
+            // A percentage of the box's width is 1.5x as much of its height,
+            // the box being 3:2 — so this is the hanger's own height in the
+            // suitcase box's terms, and `hook` says how far down its PNG the
+            // crook of the hook sits, which is what lands on the rail.
+            const h = HANGER_W * o.aspect * 1.5;
+            const top = railY(o.cx) - o.hook * h;
+            const worn = outfitOf(shown) === o.key;
+            return (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={o.key}
+                src={`/items/wardrobe/${o.src}.png`}
+                alt=""
+                style={{
+                  position: "absolute",
+                  left: `${((o.cx - HANGER_W / 2 - RAIL_BOX.l) / RAIL_BOX.w) * 100}%`,
+                  top: `${((top - RAIL_BOX.t) / RAIL_BOX.h) * 100}%`,
+                  width: `${(HANGER_W / RAIL_BOX.w) * 100}%`,
+                  height: "auto",
+                  // Tailwind's preflight caps images at max-width:100%, which
+                  // would shrink the garment to the width of its container.
+                  maxWidth: "none",
+                  // Hung by hand, not by a shop assistant: each hanger sits a
+                  // degree or two off true, turning about the point where its
+                  // hook rests on the bar rather than about its own middle.
+                  transform: pulled === o.key
+                    ? `translate(-4%, -1.5%) scale(1.04) rotate(${o.tilt * 0.4}deg)`
+                    : `rotate(${o.tilt}deg)`,
+                  transformOrigin: `50% ${o.hook * 100}%`,
+                  opacity: worn ? 0 : 1,
+                  filter: pulled === o.key
+                    ? "brightness(1) drop-shadow(0 4px 9px rgba(0,0,0,0.45))"
+                    : "brightness(0.9) saturate(0.95)",
+                  transition: "transform 220ms cubic-bezier(.2,.7,.3,1), opacity 320ms linear, filter 220ms linear",
+                }}
+                draggable={false}
+              />
+            );
+          })}
+        </div>
+
+        {/* One narrow hit strip per outfit, touching its neighbours without
+            overlapping them, so the rail can be read left to right. */}
+        {OUTFITS.map((o, i) => {
+          const worn = outfitOf(shown) === o.key;
+          const strip = { l: 76.3 + i * 2.3, w: 2.3, t: 14.5, h: 22.0 };
+          return (
+            <InkTip
+              key={o.key}
+              label={o.label}
+              meta={o.meta}
+              place="bottom"
+              style={{
+                position: "absolute",
+                left: `${strip.l}%`,
+                top: `${strip.t}%`,
+                width: `${strip.w}%`,
+                height: `${strip.h}%`,
+                zIndex: 4,
+                pointerEvents: worn ? "none" : "auto",
+              }}
+              onHoverChange={(open) =>
+                setPulled(open ? o.key : (prev) => (prev === o.key ? null : prev))
+              }
+            >
+              <span />
+            </InkTip>
+          );
+        })}
 
         {/* Figma sticker on the top drawer → Figma community profile */}
         <InkTip
@@ -459,33 +746,29 @@ export default function Home() {
           </a>
         </InkTip>
 
-        {/* Left door — top shelf: TV box sets */}
+        {/* Left door — top shelf: the TARDIS. The box sets that stood here
+            (items/tv2.png) came off at Kate's request. Sized to the compartment
+            rather than by eye: the shelf's surface reads at 27.3% of the case
+            box and its ceiling at about 14.5%, so 11.5% of the box high leaves
+            the model headroom under the shelf above — which at its aspect of
+            1.5065 makes it 5.1% wide. It sits behind the brass gallery rail
+            below, as anything standing on that shelf does. */}
         <InkTip
-          label="Box Sets"
-          meta="Doctor Who · How I Met Your Mother"
+          label="The TARDIS"
+          meta="Bigger on the inside"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "10.5%", top: "13.0%", width: "13%", zIndex: 2 }}
+          style={{ position: "absolute", left: "14%", top: "15.78%", width: "5.1%", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/tv2.png"
-            alt="Box sets: Doctor Who and How I Met Your Mother"
+            src="/items/tardis.png"
+            alt="A model police box"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
+            style={{ filter: "brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38))" }}
             draggable={false}
           />
         </InkTip>
-
-        {/* Brass gallery rail across the top shelf — sits in front of the box sets */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/items/top boarder.png"
-          alt=""
-          aria-hidden
-          style={{ position: "absolute", left: "11%", top: "24.5%", width: "12.4%", height: "auto", zIndex: 3 }}
-          draggable={false}
-        />
 
         {/* Left door — middle shelf: cassettes */}
         <InkTip
@@ -504,16 +787,6 @@ export default function Home() {
             draggable={false}
           />
         </InkTip>
-
-        {/* Brass gallery rail across the middle shelf — sits in front of the cassettes */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/items/top boarder.png"
-          alt=""
-          aria-hidden
-          style={{ position: "absolute", left: "11%", top: "46.5%", width: "12.4%", height: "auto", zIndex: 3 }}
-          draggable={false}
-        />
 
         {/* Right door — bottom shelf: books */}
         <InkTip

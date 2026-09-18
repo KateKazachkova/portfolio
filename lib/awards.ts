@@ -166,6 +166,10 @@ export type AwardRecord = {
    *  that stands for more than one entry can carry a page for each of them. */
   externalUrls: string[];
   featured: boolean;
+  /** Path to a scan of the certificate the organisers issued, if one has been
+   *  digitised. Shown as a hover preview on the desktop record. Most entries
+   *  have none yet — leave it off rather than guessing a filename. */
+  certificate?: string;
 };
 
 // Display order for grouping records by project.
@@ -173,8 +177,8 @@ export const PROJECT_ORDER = ["Ukrainska 15", "BulkSource", "WayPro", "OnsiSoft"
 
 export const AWARD_RECORDS: AwardRecord[] = [
   // ── Ukrainska 15 ──
-  { id: "muse-u15-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website — Strange & Unusual", externalUrls: ["https://museaward.com/winner-info.php?id=237485"], featured: true },
-  { id: "muse-u15-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website — Causes / Awareness", externalUrls: ["https://museaward.com/winner-info.php?id=237486"], featured: true },
+  { id: "muse-u15-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website — Strange & Unusual", externalUrls: ["https://museaward.com/winner-info.php?id=237485"], featured: true, certificate: "/artefacts/ukrainska-15/cert-muse-u15-strange-unusual-web.jpg" },
+  { id: "muse-u15-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website — Causes / Awareness", externalUrls: ["https://museaward.com/winner-info.php?id=237486"], featured: true, certificate: "/artefacts/ukrainska-15/cert-muse-u15-causes-awareness-web.jpg" },
   { id: "cssda-u15", awardName: "CSS Design Awards", organisation: "CSS Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Best UI · Best UX · Best Innovation · Special Kudos", category: null, externalUrls: ["https://www.cssdesignawards.com/sites/ukrainska-15/49016"], featured: true },
   { id: "csswinner-u15", awardName: "CSS Winner", organisation: "CSS Winner", project: "Ukrainska 15", year: 2026, recognition: "Star", category: null, externalUrls: ["https://www.csswinner.com/details/ukrainska-15/19123"], featured: true },
   { id: "cssnectar-u15", awardName: "CSS Nectar", organisation: "CSS Nectar", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", category: null, externalUrls: ["https://cssnectar.com/css-gallery-inspiration/ukrainska-15/"], featured: false },

@@ -13,6 +13,7 @@
   --border: #2C263F;     /* Dark Purple ink border */
   --hairline: #c3b9a3;   /* thin archive divider */
   --muted: #776f8a;      /* muted, a touch of plum */
+  --faint: #a59ca5;    /* tertiary text — meta labels, timestamps */
   /* Brand palette */
   --brand: #F8C662;      /* Saffron — logo, selected states, small labels */
   --plum: #2C263F;       /* Dark Purple */
@@ -39,6 +40,7 @@
   --border: #efe7d8;
   --hairline: #352e28;
   --muted: #9a8e82;
+  --faint: #665d55;
   --accent: #F8C662;
   --accent-red: #e8443a;
   --accent-blue: #9b92c9;   /* Ultra Violet lifted for contrast on plum */
@@ -319,13 +321,13 @@ body::after {
 .crop-marks::before { top: -5px; left: -5px; border-width: 1px 0 0 1px; }
 .crop-marks::after { bottom: -5px; right: -5px; border-width: 0 1px 1px 0; }
 
-/* Centralised dark overrides for the Tailwind grays used across pages */
-[data-theme="dark"] .text-gray-900 { color: #f0ebe0; }
-[data-theme="dark"] .text-gray-700 { color: #d8d0c6; }
-[data-theme="dark"] .text-gray-600 { color: #c7bfb4; }
-[data-theme="dark"] .text-gray-500 { color: #a89f94; }
-[data-theme="dark"] .text-gray-400 { color: #8a827a; }
-[data-theme="dark"] .text-gray-300 { color: #6b645c; }
+/* Text colour hierarchy — BulkSource logic: primary / secondary / disabled.
+   The six Tailwind greys used across pages collapse onto three themed
+   tokens, so light and dark track --fg / --muted / --faint automatically.
+   Unlayered, so they beat Tailwind's own utilities. */
+.text-gray-900, .text-gray-700 { color: var(--fg); }
+.text-gray-600, .text-gray-500 { color: var(--muted); }
+.text-gray-400, .text-gray-300 { color: var(--faint); }
 [data-theme="dark"] .bg-gray-100 { background-color: #221d18; }
 [data-theme="dark"] .bg-gray-50 { background-color: #201b16; }
 [data-theme="dark"] .border-gray-100 { border-color: #2f2822; }

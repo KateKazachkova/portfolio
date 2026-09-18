@@ -976,3 +976,15 @@ body::after {
   .err-pose-stand { animation: none; opacity: 1; }
   .err-pose-air   { animation: none; opacity: 0; }
 }
+
+/* TARDIS: hover charges a blue glow, then it dematerialises in place.
+   The dissolve and return are inline transitions on the element; this is
+   just the charge pulse. */
+@keyframes tardis-charge {
+  0%   { filter: brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38)); }
+  55%  { filter: brightness(1.35) drop-shadow(0 0 12px rgba(150,200,255,0.95)) drop-shadow(0 0 26px rgba(90,160,255,0.75)); }
+  100% { filter: brightness(1.18) drop-shadow(0 0 9px rgba(130,190,255,0.9)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes tardis-charge { 0%,100% { filter: brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38)); } }
+}

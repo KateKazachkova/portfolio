@@ -93,7 +93,7 @@ export function RecordsTable({ records }: { records: AwardRecord[] }) {
                 return (
                   <DocRow
                     key={r.id}
-                    className={hoverable ? "cursor-zoom-in" : ""}
+                    style={hoverable ? { cursor: "zoom-in" } : undefined}
                     onMouseEnter={
                       hoverable
                         ? (e) => {
@@ -135,11 +135,10 @@ export function RecordsTable({ records }: { records: AwardRecord[] }) {
                           ))}
                         </span>
                       )}
-                      {r.certificate && (
+                      {canHover && r.certificate && (
                         <span
                           aria-hidden
-                          className="ml-2 align-middle max-md:hidden"
-                          style={{ fontFamily: mono, fontSize: 9, letterSpacing: "0.1em", color: "var(--faint)" }}
+                          style={{ fontFamily: mono, fontSize: 9, letterSpacing: "0.1em", color: "var(--faint)", marginLeft: 8, verticalAlign: "middle" }}
                         >
                           ◱ CERT
                         </span>
@@ -158,8 +157,10 @@ export function RecordsTable({ records }: { records: AwardRecord[] }) {
         preview &&
         createPortal(
           <div
-            className="pointer-events-none fixed z-50"
             style={{
+              position: "fixed",
+              zIndex: 50,
+              pointerEvents: "none",
               left: preview.x,
               top: preview.y,
               width: CARD_W,
@@ -172,12 +173,11 @@ export function RecordsTable({ records }: { records: AwardRecord[] }) {
             <img
               src={preview.record.certificate}
               alt={`Certificate — ${preview.record.awardName}, ${preview.record.category ?? preview.record.recognition}`}
-              width={CARD_W - 16}
-              className="block w-full h-auto"
+              style={{ display: "block", width: "100%", height: "auto" }}
             />
             <div
-              className="uppercase pt-2 pb-0.5"
-              style={{ fontFamily: mono, fontSize: 9, letterSpacing: "0.14em", color: "var(--faint)" }}
+              className="uppercase"
+              style={{ fontFamily: mono, fontSize: 9, letterSpacing: "0.14em", color: "var(--faint)", paddingTop: 8, paddingBottom: 2 }}
             >
               Certificate · {preview.record.category ?? preview.record.recognition}
             </div>

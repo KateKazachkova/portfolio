@@ -59,12 +59,14 @@ export function DocHeadCell({ children }: { children: ReactNode }) {
 export function DocRow({
   children,
   className = "",
+  style,
   onMouseEnter,
   onMouseLeave,
   onMouseMove,
 }: {
   children: ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   /** Optional — the certificate hover preview drives these from a client
    *  wrapper; a plain record leaves them off and the row stays inert. */
   onMouseEnter?: React.MouseEventHandler<HTMLTableRowElement>;
@@ -74,7 +76,7 @@ export function DocRow({
   return (
     <tr
       className={`border-b max-md:block ${className}`}
-      style={{ borderColor: "var(--hairline)" }}
+      style={{ borderColor: "var(--hairline)", ...style }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onMouseMove={onMouseMove}

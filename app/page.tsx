@@ -140,12 +140,23 @@ function outfitOf(edition: string): string | null {
   return null;
 }
 
-/** The model police box on the top-left shelf. Pointing at it lights a blue
- *  glow and the box pulses in and out of transparency, then it fades away to
- *  nothing on the spot before it settles back where it stood. (The jump to
- *  other places and the sound come next; this is the effect in place.) */
+/** Where the box can be, in the suitcase box's own percentages. It starts on
+ *  the top-left shelf (home, which alone has the shelf lip laid over its base)
+ *  and, each time it is charged, jumps to the next — the wardrobe by the folded
+ *  throws, the case lid, the foot of the left door — and round again. */
+const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean }[] = [
+  { left: 14.0, top: 17.3, width: 5.1, home: true },
+  { left: 88.6, top: 60.0, width: 3.6 },
+  { left: 47.5, top: 6.0, width: 4.4 },
+  { left: 15.0, top: 70.0, width: 5.0 },
+];
+
+/** The model police box. Pointing at it lights a blue glow and the box pulses
+ *  in and out of transparency, then it fades away to nothing and rematerialises
+ *  at the next spot on the list — round and round. (Sound comes later.) */
 function TardisModel() {
   const [phase, setPhase] = useState<"idle" | "charging" | "gone" | "returning">("idle");
+  const [spot, setSpot] = useState(0);
   const timers = useRef<number[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
@@ -154,10 +165,14 @@ function TardisModel() {
     const push = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
     setPhase("charging");
     push(() => setPhase("gone"), 1200);
-    push(() => setPhase("returning"), 2100);
+    push(() => {
+      setSpot((i) => (i + 1) % TARDIS_SPOTS.length);
+      setPhase("returning");
+    }, 2100);
     push(() => setPhase("idle"), 2900);
   }
 
+  const s = TARDIS_SPOTS[spot];
   const base = "brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38))";
   const imgStyle: React.CSSProperties =
     phase === "charging"
@@ -170,33 +185,56 @@ function TardisModel() {
   const glowOpacity = phase === "charging" ? 0.9 : phase === "gone" ? 0.6 : 0;
 
   return (
-    <div className="relative w-full">
-      {/* The blue glow behind the box, brightening as it charges and lingering
-          a beat after it has gone. Screen blend so it only adds light. */}
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          inset: "-50% -70%",
-          background:
-            "radial-gradient(ellipse at 50% 52%, rgba(150,205,255,0.95), rgba(95,155,255,0.4) 42%, rgba(95,155,255,0) 70%)",
-          opacity: glowOpacity,
-          transition: "opacity 0.5s ease",
-          mixBlendMode: "screen",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/items/tardis.png"
-        alt="A model police box"
-        onMouseEnter={trigger}
-        className="block w-full h-auto relative"
-        style={{ ...imgStyle, zIndex: 1 }}
-        draggable={false}
-      />
-    </div>
+    <>
+      <div style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, width: `${s.width}%`, zIndex: 2 }}>
+        <div className="relative w-full">
+          {/* The blue glow behind the box, brightening as it charges and
+              lingering a beat after it has gone. Screen blend adds light only. */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: "-50% -70%",
+              background:
+                "radial-gradient(ellipse at 50% 52%, rgba(150,205,255,0.95), rgba(95,155,255,0.4) 42%, rgba(95,155,255,0) 70%)",
+              opacity: glowOpacity,
+              transition: "opacity 0.5s ease",
+              mixBlendMode: "screen",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/tardis.png"
+            alt="A model police box"
+            onMouseEnter={trigger}
+            className="block w-full h-auto relative"
+            style={{ ...imgStyle, zIndex: 1 }}
+            draggable={false}
+          />
+        </div>
+      </div>
+      {/* Home spot only: the shelf's wooden front lip, cut from the case's own
+          pixels a layer above the box so its base tucks behind the shelf. */}
+      {s.home && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "13.2%",
+            top: "27.2%",
+            width: "6.9%",
+            height: "1.8%",
+            backgroundImage: "url(/suitcase/open2.webp)",
+            backgroundSize: `${10000 / 6.9}% ${10000 / 1.8}%`,
+            backgroundPosition: `${(13.2 / (100 - 6.9)) * 100}% ${(27.2 / (100 - 1.8)) * 100}%`,
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -806,35 +844,10 @@ export default function Home() {
           </a>
         </InkTip>
 
-        {/* Left door — top shelf: the TARDIS. The box sets that stood here
-            (items/tv2.png) came off at Kate's request. Sized to the compartment
-            rather than by eye: the shelf's surface reads at 27.3% of the case
-            box and its ceiling at about 14.5%, so 11.5% of the box high leaves
-            the model headroom under the shelf above — which at its aspect of
-            1.5065 makes it 5.1% wide. It sits behind the brass gallery rail
-            below, as anything standing on that shelf does. */}
-        <div style={{ position: "absolute", left: "14%", top: "17.3%", width: "5.1%", zIndex: 2 }}>
-          <TardisModel />
-        </div>
-        {/* Just the shelf's front lip — the wooden edge the box stands on —
-            cut from the case's own pixels and laid back a layer above the
-            TARDIS (zIndex 3 > 2), so its base tucks behind the shelf. No brass
-            rail: the band stops below it. */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "13.2%",
-            top: "27.2%",
-            width: "6.9%",
-            height: "1.8%",
-            backgroundImage: "url(/suitcase/open2.webp)",
-            backgroundSize: `${10000 / 6.9}% ${10000 / 1.8}%`,
-            backgroundPosition: `${(13.2 / (100 - 6.9)) * 100}% ${(27.2 / (100 - 1.8)) * 100}%`,
-            zIndex: 3,
-            pointerEvents: "none",
-          }}
-        />
+        {/* The TARDIS — starts on the left door's top shelf and jumps between
+            spots on each charge. Placement, glow and the shelf lip all live in
+            the component (see TARDIS_SPOTS). */}
+        <TardisModel />
 
         {/* Left door — middle shelf: cassettes */}
         <InkTip

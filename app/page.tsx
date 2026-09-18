@@ -568,7 +568,7 @@ export default function Home() {
               alt=""
               style={{
                 position: "absolute",
-                left: "14.86%",
+                left: "14.96%",
                 top: "22.00%",
                 width: "72.74%",
                 height: "auto",

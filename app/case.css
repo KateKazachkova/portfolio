@@ -27,11 +27,13 @@
 }
 
 /* ─────────────────────────── grid scaffolding ─────────────────────────── */
-.case .sheet { max-width:calc(var(--rail) + var(--gut) + var(--col) + var(--gut) + var(--side)); margin:0 auto; padding:0 40px 0 40px; }
+.case .sheet { max-width:calc(var(--rail) + var(--gut) + var(--col) + var(--gut) + var(--side)); margin:0 auto; padding:0 40px 0 40px; border:0; background:transparent; }
 .case .row { display:grid; grid-template-columns: var(--rail) var(--col) 1fr; column-gap:var(--gut); align-items:start; }
 .case .row > .rail { grid-column:1 }
 .case .row > .body { grid-column:2 }
 .case .row > .side { grid-column:3 }
+/* body that spans the measure + the annotation field (title, fields, lead, outcome) */
+.case .row > .wide { grid-column:2 / 4 }
 .case .body > *:first-child { margin-top:0 }
 /* ─────────────────────────── typographic voices ───────────────────────── */
 .case .label { font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
@@ -110,10 +112,19 @@
 .case .spread .ghost2 { position:absolute; inset:56px 0 56px 0; column-count:3; column-gap:34px; font-size:13px; line-height:1.45; opacity:.16; user-select:none; pointer-events:none; overflow:hidden }
 .case .marker { position:relative; font-family:var(--hand); font-weight:700; font-size:66px; line-height:.98; color:var(--ink-red); max-width:900px; letter-spacing:.005em }
 .case .marker s { text-decoration-thickness:3px }
-/* award stamps */
-.case .award-stamps { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px }
-.case .stamp:nth-child(3n) { transform:rotate(-1.2deg) }
-.case .stamp:nth-child(4n) { transform:rotate(.8deg) }
+/* award stamps — the juries' marks, pressed from their own badges. Full-colour
+   assets keep their own colour (a gold award is a gold seal); juries with no
+   colour badge are re-inked impressions; a jury with no asset is typeset. */
+.case .award-stamps { display:flex; flex-wrap:wrap; align-items:center; gap:16px 22px; margin-top:26px }
+.case .seal { height:66px; width:auto; max-width:152px; object-fit:contain; display:block }
+.case .seal--mask { height:52px; width:auto; background-color:var(--ink-red); opacity:.9;
+  -webkit-mask-size:contain; mask-size:contain; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center; }
+/* the tilt of a stamp pressed by hand */
+.case .award-stamps > *:nth-child(3n) { transform:rotate(-2.4deg) }
+.case .award-stamps > *:nth-child(4n) { transform:rotate(1.6deg) }
+.case .award-stamps > *:nth-child(5n) { transform:rotate(-1deg) }
+.case .award-stamps > *:nth-child(7n) { transform:rotate(2.2deg) }
+@media (max-width:900px) { .case .seal { height:56px } .case .seal--mask { height:46px } }
 /* TK — anything not yet confirmed by Kate, visibly flagged, never invented */
 .case .tk { font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; background:repeating-linear-gradient(45deg,var(--inner),var(--inner) 6px,#d5c9ae 6px,#d5c9ae 12px); border:1px dashed var(--violet); color:var(--violet); padding:1px 7px; white-space:nowrap }
 /* technical spec list */
@@ -168,8 +179,11 @@
   .case .sheet { padding:0 22px }
   .case .row > .bleed { grid-column:1 }
   .case .row { grid-template-columns:1fr }
-  .case .row > .rail, .case .row > .body, .case .row > .side { grid-column:1 }
+  .case .row > .rail, .case .row > .body, .case .row > .side, .case .row > .wide { grid-column:1 }
   .case .row > .rail { margin-bottom:18px }
+  /* the annotation field drops the desktop offset and reads as a handwritten aside */
+  .case .side .hand { margin-top:0 !important; font-size:20px }
+  .case .row > .side:empty { display:none }
   .case .bleed { grid-column:1 }
   .case h1 { font-size:42px }
   .case .lead { font-size:27px }

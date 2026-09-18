@@ -157,7 +157,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             <div className="label" style={{ marginTop: 12 }}>Case study</div>
             <div className="label" style={{ marginTop: 4 }}>{data.years}</div>
           </div>
-          <div className="body" style={{ gridColumn: "2 / 4" }}>
+          <div className="body wide">
             <h1>{data.title}</h1>
             <p className="result"><Spans spans={data.result} /></p>
             <p className="subtitle">{data.subtitle}</p>
@@ -166,7 +166,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
 
         <div className="row">
           <div className="rail" />
-          <div className="body" style={{ gridColumn: "2 / 4" }}>
+          <div className="body wide">
             <div className="fields">
               {data.fields.map((f) => (
                 <div key={f.key}>
@@ -192,7 +192,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             <div className="note"><strong>The short version</strong> — read this, then stop if you like.</div>
             <div className="note note--quiet">Everything below is the same argument, at length and with evidence.</div>
           </div>
-          <div className="body" style={{ gridColumn: "2 / 4" }}>
+          <div className="body wide">
             <div className="ghost" aria-hidden="true">{data.lead.ghost}</div>
             <p className="lead">
               {data.lead.red} <span className="q">{data.lead.ink}</span>
@@ -202,7 +202,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
 
         <div className="row">
           <div className="rail"><div className="label label--ink" style={{ paddingTop: 24 }}>Outcome</div></div>
-          <div className="body outcome" style={{ gridColumn: "2 / 4" }}>
+          <div className="body outcome wide">
             <div className="grid">
               {data.outcome.stats.map((s) => (
                 <div className="stat" key={s.caption}>
@@ -212,7 +212,26 @@ export default function CaseStudyPage({ data }: { data: Case }) {
               ))}
             </div>
             <div className="award-stamps">
-              {data.outcome.stamps.map((s, i) => <span className="stamp" key={`${s}-${i}`}>{s}</span>)}
+              {data.outcome.stamps.map((s, i) => {
+                if ("seal" in s)
+                  // eslint-disable-next-line @next/next/no-img-element
+                  return <img key={i} className="seal" src={`/stamps/awards/${s.seal}.png`} alt={s.label} style={{ aspectRatio: s.ratio }} />;
+                if ("mask" in s)
+                  return (
+                    <span
+                      key={i}
+                      className="seal seal--mask"
+                      role="img"
+                      aria-label={s.label}
+                      style={{
+                        aspectRatio: s.ratio,
+                        WebkitMaskImage: `url(/stamps/awards/${s.mask}.webp)`,
+                        maskImage: `url(/stamps/awards/${s.mask}.webp)`,
+                      }}
+                    />
+                  );
+                return <span className="stamp" key={i}>{s.text}</span>;
+              })}
             </div>
           </div>
         </div>

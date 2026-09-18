@@ -38,6 +38,20 @@ export type Decision = {
 
 export type SpecRow = { key: string; value: Para };
 
+/**
+ * A jury's mark in the outcome strip.
+ *  - `seal`: a full-colour asset pressed as-is, in the award's own colour
+ *    (a gold award is a gold seal). `/stamps/awards/<seal>.png`.
+ *  - `mask`: an alpha impression re-inked in one colour, for a jury with no
+ *    colour badge of its own. `/stamps/awards/<mask>.webp`.
+ *  - `text`: a typeset rubber-stamp, for a jury with no asset at all.
+ * `ratio` is width ÷ height, so the strip reserves the right box.
+ */
+export type AwardStamp =
+  | { seal: string; label: string; ratio: number }
+  | { mask: string; label: string; ratio: number }
+  | { text: string };
+
 export type PileItem = {
   src: string;
   /** Describes the decision or the content, never "screenshot". */
@@ -69,7 +83,7 @@ export type CaseStudy = {
   lead: { ghost: string; red: string; ink: string };
   outcome: {
     stats: { n: string; sup?: string; caption: string }[];
-    stamps: string[];
+    stamps: AwardStamp[];
   };
   sections: Section[];
   next?: { label: string; href: string };

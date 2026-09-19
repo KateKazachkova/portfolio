@@ -40,6 +40,7 @@ type ClipSet = {
   accents?: string[]; // several actions played in turn (e.g. eat → read → tea)
   poster: string;
   accentEveryMs?: number;
+  still?: boolean; // show the poster only — clips not re-shot yet
 };
 
 const CLIPS: Record<string, ClipSet> = {
@@ -135,9 +136,9 @@ const CLIPS: Record<string, ClipSet> = {
   },
   weekend_brunch: {
     loop: "wknd_brunch_loop.mp4",
-    accents: ["wknd_brunch_eat.mp4", "wknd_brunch_read.mp4", "wknd_brunch_tea.mp4"],
-    poster: "wknd_brunch_poster.jpg",
-    accentEveryMs: 5_000, // keep her busy — eat → read → tea in quick succession
+    accents: ["wknd_brunch_eat.mp4", "wknd_brunch_sip.mp4", "wknd_brunch_wake.mp4"],
+    poster: "wknd_brunch_poster_v4.jpg",
+    accentEveryMs: 5_000, // keep her busy — eat → sip → wake in quick succession
   },
   weekend_cleaning: {
     loop: "wknd_clean_loop.mp4",
@@ -203,7 +204,7 @@ export default function NicheDoll({ edition }: { edition: string }) {
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={poster} alt={`${edition} edition — in the niche`} style={{ ...NICHE, zIndex: 2 }} draggable={false} />
-      {!failed && (
+      {!set.still && !failed && (
         <video
           key={file}
           src={V + file}

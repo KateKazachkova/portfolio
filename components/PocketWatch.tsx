@@ -65,6 +65,7 @@ export default function PocketWatch({
       <img
         src="/items/pocketwatch.png"
         alt="A gold pocket watch"
+        className="pocketwatch-img"
         style={{ display: "block", width: "100%", height: "auto" }}
         draggable={false}
       />

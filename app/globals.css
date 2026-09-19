@@ -850,8 +850,8 @@ body::after {
 .chalk ul { list-style: none; margin: 0; padding: 64cqw 2cqw 0 11cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
 .chalk li {
   display: flex; align-items: baseline; gap: 2.6cqw;
-  font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 500;
-  font-size: 6.4cqw; line-height: 1.05; letter-spacing: 0.01em;
+  font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 400;
+  font-size: 7.8cqw; line-height: 1.08; letter-spacing: 0.01em;
   color: rgba(255, 246, 225, 0.82);
   text-shadow: 0 0 1.2cqw rgba(255, 240, 210, 0.35), 0 0 0.3cqw rgba(255,255,255,0.5);
   transform: rotate(var(--tilt, 0deg));
@@ -990,4 +990,15 @@ body::after {
 }
 @media (prefers-reduced-motion: reduce) {
   @keyframes tardis-charge { 0%,100% { opacity: 1; filter: brightness(0.94) drop-shadow(0 5px 6px rgba(0,0,0,0.38)); } }
+}
+
+/* The pocket watch still is bright yellow gold on a stark white enamel dial —
+   both out of the paper/saffron palette. Pull the metal towards warm brass and
+   let the dial sit at document cream instead of #fff. Tuned on the still, not
+   on the SVG hands drawn over it (they keep their ink colour). */
+.pocketwatch-img {
+  filter: sepia(0.32) saturate(0.78) hue-rotate(-7deg) brightness(0.95) contrast(1.06);
+}
+[data-theme="dark"] .pocketwatch-img {
+  filter: sepia(0.34) saturate(0.74) hue-rotate(-7deg) brightness(0.82) contrast(1.04);
 }

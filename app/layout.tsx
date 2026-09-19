@@ -3,11 +3,11 @@ import {
   Geist,
   Geist_Mono,
   IM_Fell_English,
-  Caveat,
   Newsreader,
   Archivo,
   Courier_Prime,
 } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -54,10 +54,12 @@ const typewriter = Courier_Prime({
   variable: "--font-typewriter",
 });
 
-const chalk = Caveat({
-  subsets: ["latin"],
-  weight: ["500", "700"],
+// Kate's own handwriting, drawn from her notes — replaces Caveat everywhere
+// the site writes by hand (chalk to-do, case-study margin notes).
+const chalk = localFont({
+  src: "./fonts/Kate-Regular.otf",
   variable: "--font-chalk",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

@@ -58,7 +58,7 @@
 .case .note--ink { color:var(--fg); border-color:var(--fg) }
 .case .note--quiet { color:var(--muted); border-color:var(--hairline); font-size:11.5px }
 /* handwriting */
-.case .hand { font-family:var(--hand); font-size:22px; line-height:1.15; color:var(--ink-red); }
+.case .hand { font-family:var(--hand); font-size:26px; line-height:1.2; letter-spacing:-.1em; color:var(--ink-red); }
 .case .hand--ink { color:var(--fg) }
 /* ─────────────────────────── masthead ─────────────────────────── */
 .case .mast { padding-top:44px }
@@ -114,7 +114,7 @@
 /* the marker spread (ref 2) */
 .case .spread { margin:104px 0 0; padding:56px 0; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); position:relative }
 .case .spread .ghost2 { position:absolute; inset:56px 0 56px 0; column-count:3; column-gap:34px; font-size:13px; line-height:1.45; opacity:.16; user-select:none; pointer-events:none; overflow:hidden }
-.case .marker { position:relative; font-family:var(--hand); font-weight:700; font-size:66px; line-height:.98; color:var(--ink-red); max-width:900px; letter-spacing:.005em }
+.case .marker { position:relative; font-family:var(--hand); font-weight:400; font-size:84px; line-height:1.02; color:var(--ink-red); max-width:900px; letter-spacing:-.1em }
 .case .marker s { text-decoration-thickness:3px }
 /* award stamps — the juries' marks, pressed from their own badges. Full-colour
    assets keep their own colour (a gold award is a gold seal); juries with no
@@ -177,7 +177,7 @@
 @media (max-width:1180px) {
   .case { --rail:170px; --col:520px; --side:220px }
   .case h1 { font-size:62px }
-  .case .marker { font-size:50px }
+  .case .marker { font-size:62px }
 }
 @media (max-width:900px) {
   .case .sheet { padding:0 22px }
@@ -186,12 +186,12 @@
   .case .row > .rail, .case .row > .body, .case .row > .side, .case .row > .wide { grid-column:1 }
   .case .row > .rail { margin-bottom:18px }
   /* the annotation field drops the desktop offset and reads as a handwritten aside */
-  .case .side .hand { margin-top:0 !important; font-size:20px }
+  .case .side .hand { margin-top:0 !important; font-size:23px }
   .case .row > .side:empty { display:none }
   .case .bleed { grid-column:1 }
   .case h1 { font-size:42px }
   .case .lead { font-size:27px }
-  .case .marker { font-size:34px }
+  .case .marker { font-size:42px }
   .case .fields { grid-template-columns:1fr 1fr }
   .case .fields > div { border-bottom:1px solid var(--hairline) }
   .case .outcome .grid { grid-template-columns:1fr 1fr; gap:22px }

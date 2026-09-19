@@ -61,9 +61,12 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "street_poster.jpg",
     accentEveryMs: 120_000,
   },
-  // night now renders as a transparent cutout over the real niche (see
-  // /dolls/cut/night.png), with a subtle CSS "breathing" — so the niche and its
-  // frame come from the real case (exact, no seam) and the doll size is free.
+  night: {
+    loop: "night_loop.mp4",
+    accent: "night_accent.mp4",
+    poster: "night_poster.jpg",
+    accentEveryMs: 120_000,
+  },
   evening: {
     intro: "evening_intro.mp4",
     loop: "evening_read.mp4",

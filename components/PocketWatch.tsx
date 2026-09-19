@@ -60,7 +60,16 @@ export default function PocketWatch({
   );
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
+    // Tilted 12° away from the viewer, so the watch sits back in the case
+    // instead of facing the screen flat. The hands ride the same transform.
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        transform: "perspective(900px) rotateX(12deg)",
+        transformOrigin: "center top",
+      }}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/items/pocketwatch.png"

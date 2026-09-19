@@ -103,8 +103,8 @@ function CaseInlay({ l, t, w, h }: { l: number; t: number; w: number; h: number 
  *  line, not a guess: fitted to the brass in the plate (183 samples), it passes
  *  through (76.50, 16.62) and climbs to the right at -0.0631 %y per %x, because
  *  the right-hand side of the wardrobe is nearer the camera. */
-const WARDROBE = { l: 74.0, t: 9.8, w: 15.625, h: 71.387 };
-const RAIL = { x: 76.5, y: 16.62, k: -0.0631 };
+const WARDROBE = { l: 73.38, t: 9.8, w: 15.625, h: 71.387 };
+const RAIL = { x: 75.88, y: 16.62, k: -0.0631 };
 const railY = (x: number) => RAIL.y + (x - RAIL.x) * RAIL.k;
 
 /** One outfit on one hanger. `cx` is where its hook sits along the rail, `hook`
@@ -121,11 +121,11 @@ const RAIL_BOX = { l: 75.6, t: 13.0, w: 13.7, h: 38.5 };
 const OUTFITS = [
   // Onesie behind, nudged right so its wide body is not clipped at the opening;
   // the day outfit sits one layer above it.
-  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 81.0, aspect: 1.7602, hook: 0.0363, tilt: -1.1 },
-  { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 82.8,  aspect: 1.5071, hook: 0.0442, tilt: -2.4 },
-  { key: "morning", src: "morning", label: "First Coffee", meta: "Cardigan · Pyjamas", cx: 80.5, aspect: 1.5071, hook: 0.0565, tilt: 1.6 },
-  { key: "street",  src: "street",  label: "Urban Explorer", meta: "Raincoat · Hoodie", cx: 85.1, aspect: 1.5,    hook: 0.0422, tilt: 2.3 },
-  { key: "evening", src: "evening", label: "One More Page", meta: "Cardigan · Tee",  cx: 87.4,  aspect: 1.5143, hook: 0.0400, tilt: -1.8 },
+  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 80.38, aspect: 1.7602, hook: 0.0363, tilt: -1.1 },
+  { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 82.18,  aspect: 1.5071, hook: 0.0442, tilt: -2.4 },
+  { key: "morning", src: "morning", label: "First Coffee", meta: "Cardigan · Pyjamas", cx: 79.88, aspect: 1.5071, hook: 0.0565, tilt: 1.6 },
+  { key: "street",  src: "street",  label: "Urban Explorer", meta: "Raincoat · Hoodie", cx: 84.48, aspect: 1.5,    hook: 0.0422, tilt: 2.3 },
+  { key: "evening", src: "evening", label: "One More Page", meta: "Cardigan · Tee",  cx: 86.78,  aspect: 1.5143, hook: 0.0400, tilt: -1.8 },
 ] as const;
 
 /** Which outfit an edition is wearing. The shifts of the working day share the
@@ -145,10 +145,12 @@ function outfitOf(edition: string): string | null {
  *  the top-left shelf (home, which alone has the shelf lip laid over its base)
  *  and, each time it is charged, jumps to the next — the wardrobe by the folded
  *  throws, the case lid, the foot of the left door — and round again. */
-const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; behind?: boolean }[] = [
+const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; behind?: boolean; z?: number }[] = [
   { left: 14.0, top: 17.3, width: 5.1, home: true },
-  { left: 84.8, top: 58.0, width: 5.1 },
-  { left: 57.5, top: 1.0, width: 4.4, behind: true },
+  // Beside the folded throws: the stack is drawn at zIndex 4, so the box needs
+  // to sit above it or it lands behind the fleece.
+  { left: 84.18, top: 58.0, width: 5.1, z: 5 },
+  { left: 56.88, top: 1.0, width: 4.4, behind: true },
   { left: 15.0, top: 76.5, width: 5.1 },
 ];
 
@@ -191,7 +193,7 @@ function TardisModel() {
 
   return (
     <>
-      <div style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, width: `${s.width}%`, zIndex: s.behind ? 0 : 2 }}>
+      <div style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, width: `${s.width}%`, zIndex: s.behind ? 0 : (s.z ?? 2) }}>
         <div className="relative w-full">
           {/* The blue glow behind the box, brightening as it charges and
               lingering a beat after it has gone. Screen blend adds light only. */}
@@ -338,7 +340,6 @@ export default function Home() {
           { title: "Morning", chips: [
             { label: "Alarm", key: "morn_alarm" },
             { label: "Coffee", key: "morning" },
-            { label: "Ready", key: "morn_ready" },
             { label: "Mon Alarm", key: "mon_alarm" },
           ] },
           { title: "Workday", chips: [
@@ -677,7 +678,7 @@ export default function Home() {
           aria-hidden
           style={{
             position: "absolute",
-            left: "75.5%",
+            left: "74.88%",
             top: "53.46%",
             width: "13.9%",
             height: "auto",
@@ -826,6 +827,25 @@ export default function Home() {
           }}
         />
 
+        {/* Box sets on the left door's top shelf, next to the TARDIS — the
+            series she actually rewatches, cased from the poster art. */}
+        <InkTip
+          label="Rewatch pile"
+          meta="Box sets"
+          place="bottom"
+          className="group"
+          style={{ position: "absolute", left: "12.64%", top: "21.84%", width: "13.6%", zIndex: 2 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/dvds.png"
+            alt="A row of DVD box sets: Bones, Doctor Who, The X-Files, Supernatural"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
+            draggable={false}
+          />
+        </InkTip>
+
         {/* The TARDIS — starts on the left door's top shelf and jumps between
             spots on each charge. Placement and glow live in the component
             (see TARDIS_SPOTS); the shelf lip above is its own element. */}
@@ -861,7 +881,7 @@ export default function Home() {
           meta="Animal Farm · The Little Prince"
           place="top"
           className="group"
-          style={{ position: "absolute", left: "75.5%", top: "69%", width: "11.4%", zIndex: 2 }}
+          style={{ position: "absolute", left: "74.88%", top: "69%", width: "11.4%", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -879,14 +899,16 @@ export default function Home() {
           meta="The gravel bike"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "57.1%", top: "19.5%", width: "15%", transform: "rotate(2deg)", transformOrigin: "top center", zIndex: 4 }}
+          style={{ position: "absolute", left: "56.48%", top: "19.5%", width: "15%", transform: "rotate(2deg)", transformOrigin: "top center", zIndex: 4 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/items/bike_hang.png"
             alt="A miniature gravel bike hung by its front wheel in the niche"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" }}
+            // The generated frame came back a pale mint sage, too cold next to
+            // the wood; graded down to the palette's Hunter Green.
+            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4)) hue-rotate(14deg) saturate(1.5) brightness(0.62) contrast(1.05)" }}
             draggable={false}
           />
         </InkTip>
@@ -897,7 +919,7 @@ export default function Home() {
           meta="The Converse"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "55.55%", top: "72.5%", width: "10%", zIndex: 5 }}
+          style={{ position: "absolute", left: "58.73%", top: "71.36%", width: "8%", zIndex: 5 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

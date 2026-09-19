@@ -37,7 +37,7 @@ export const EDITIONS: Record<string, Edition> = {
 
 export function editionForHour(h: number, m = 0): Edition {
   if (h === 7) return m < 30 ? EDITIONS.morn_alarm : EDITIONS.morning;
-  if (h === 8) return m < 15 ? EDITIONS.morning : EDITIONS.morn_ready;
+  if (h === 8) return EDITIONS.morning;
   if (h >= 9 && h < 10) return EDITIONS.work_standup;
   if (h >= 10 && h < 13) return EDITIONS.office;       // deep work
   if (h >= 13 && h < 14) return EDITIONS.work_lunch;

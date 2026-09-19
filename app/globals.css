@@ -847,11 +847,11 @@ body::after {
 .chalk { container-type: inline-size; pointer-events: none; }
 
 
-.chalk ul { list-style: none; margin: 0; padding: 64cqw 2cqw 0 11cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
+.chalk ul { list-style: none; margin: 0; padding: 64cqw 1cqw 0 5cqw; display: flex; flex-direction: column; gap: 1.8cqw; }
 .chalk li {
-  display: flex; align-items: baseline; gap: 2.6cqw;
+  display: flex; align-items: baseline; gap: 1.8cqw;
   font-family: var(--font-chalk), "Comic Sans MS", cursive; font-weight: 400;
-  font-size: 9cqw; line-height: 1.08; letter-spacing: -0.1em;
+  font-size: 10.5cqw; line-height: 1.08; letter-spacing: -0.1em;
   color: rgba(255, 246, 225, 0.82);
   text-shadow: 0 0 1.2cqw rgba(255, 240, 210, 0.35), 0 0 0.3cqw rgba(255,255,255,0.5);
   transform: rotate(var(--tilt, 0deg));

@@ -92,30 +92,6 @@ function CaseInlay({ l, t, w, h }: { l: number; t: number; w: number; h: number 
   );
 }
 
-/** The same case-over-its-own-pixels inlay, but placed directly in the suitcase
- *  box's percentages (a sibling of the niche clip, not nested in a cubby). Used
- *  to lay the niche's true left/right frame back over the clip, whose generated
- *  woodwork drifts a few pixels from the case and leaves a seam at the edges. */
-function BoxInlay({ l, t, w, h, z = 4 }: { l: number; t: number; w: number; h: number; z?: number }) {
-  return (
-    <div
-      aria-hidden
-      style={{
-        position: "absolute",
-        left: `${l}%`,
-        top: `${t}%`,
-        width: `${w}%`,
-        height: `${h}%`,
-        backgroundImage: "url(/suitcase/open2.webp)",
-        backgroundSize: `${10000 / w}% ${10000 / h}%`,
-        backgroundPosition: `${(l / (100 - w)) * 100}% ${(t / (100 - h)) * 100}%`,
-        zIndex: z,
-        pointerEvents: "none",
-      }}
-    />
-  );
-}
-
 /** The wardrobe, rebuilt as layers so the clothes can leave it.
  *
  *  `open2.webp` has the garments baked in, so an empty plate was generated from
@@ -885,7 +861,7 @@ export default function Home() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/books_.png"
+            src="/items/books_stack.png"
             alt="Books: Animal Farm and The Little Prince"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
@@ -947,16 +923,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* The niche's true left/right frame, laid back over the clip. The
-            generated woodwork drifts a few pixels from the case, so its edge
-            doubles the real frame — these strips of the case's own pixels sit
-            on top and hide the seam. Only over a clip; the cutout needs none. */}
-        {hasNicheClip(shown) && (
-          <>
-            <BoxInlay l={40.619} t={11.43} w={0.7} h={69.948} />
-            <BoxInlay l={58.079} t={11.43} w={0.7} h={69.948} />
-          </>
-        )}
 
         {/* The lamp in the arch, turned down while she sleeps. Over the clip,
             because the light is painted into it. */}

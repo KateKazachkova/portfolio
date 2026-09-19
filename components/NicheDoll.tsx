@@ -25,6 +25,12 @@ const NICHE = {
   height: "auto",
   maxWidth: "none",
   display: "block",
+  // The case was re-exported a little wider after the clips were baked, so the
+  // clip's own woodwork frame overran the real niche on the right by ~0.7% of
+  // the box. Squeeze the clip horizontally back onto the real frame (its left
+  // edge already lines up, so anchor there); vertical registration is untouched.
+  transform: "scaleX(0.9614)",
+  transformOrigin: "left top",
 } as const;
 
 type ClipSet = {
@@ -55,12 +61,9 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "street_poster.jpg",
     accentEveryMs: 120_000,
   },
-  night: {
-    loop: "night_loop.mp4",
-    accent: "night_accent.mp4",
-    poster: "night_poster.jpg",
-    accentEveryMs: 120_000,
-  },
+  // night now renders as a transparent cutout over the real niche (see
+  // /dolls/cut/night.png), with a subtle CSS "breathing" — so the niche and its
+  // frame come from the real case (exact, no seam) and the doll size is free.
   evening: {
     intro: "evening_intro.mp4",
     loop: "evening_read.mp4",
@@ -83,12 +86,8 @@ const CLIPS: Record<string, ClipSet> = {
     poster: "morn_alarm_poster.jpg",
     accentEveryMs: 35_000,
   },
-  morn_ready: {
-    loop: "morn_ready_loop.mp4",
-    accent: "morn_ready_clock.mp4",
-    poster: "morn_ready_poster.jpg",
-    accentEveryMs: 30_000,
-  },
+  // morn_ready hidden for now — its clip's frame doesn't register (seam on the
+  // right); falls back to the static cutout until it's regenerated.
   // Workday shifts (Day edition split up). Deep work (10–13) keeps the `office` set.
   work_standup: {
     loop: "work_standup_loop.mp4",

@@ -119,12 +119,12 @@ const railY = (x: number) => RAIL.y + (x - RAIL.x) * RAIL.k;
 const HANGER_W = 18.515;
 const RAIL_BOX = { l: 75.6, t: 13.0, w: 13.7, h: 38.5 };
 const OUTFITS = [
+  // The onesie hangs first so it sits behind the other clothes on the rail.
+  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 82.8, aspect: 1.7602, hook: 0.0363, tilt: -1.1 },
   { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 78.2,  aspect: 1.5071, hook: 0.0442, tilt: -2.4 },
   { key: "morning", src: "morning", label: "First Coffee", meta: "Cardigan · Pyjamas", cx: 80.5, aspect: 1.5071, hook: 0.0565, tilt: 1.6 },
   { key: "street",  src: "street",  label: "Urban Explorer", meta: "Raincoat · Hoodie", cx: 85.1, aspect: 1.5,    hook: 0.0422, tilt: 2.3 },
   { key: "evening", src: "evening", label: "One More Page", meta: "Cardigan · Tee",  cx: 87.4,  aspect: 1.5143, hook: 0.0400, tilt: -1.8 },
-  // The onesie hangs last so it sits in front of the others on the rail.
-  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 82.8, aspect: 1.7602, hook: 0.0363, tilt: -1.1 },
 ] as const;
 
 /** Which outfit an edition is wearing. The shifts of the working day share the

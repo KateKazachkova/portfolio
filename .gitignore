@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# heavy doll source art — stays on disk, deployments serve the WebP copies in dolls/cut/web
+/public/dolls/v2/
+/public/dolls/*.png
+/public/dolls/cut/*.png

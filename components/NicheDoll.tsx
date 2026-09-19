@@ -163,7 +163,7 @@ export function hasNicheClip(edition: string) {
  *  parts instead of a frame of nothing while the clip is still fetching. */
 export function nichePoster(edition: string) {
   const set = CLIPS[edition];
-  return set ? V + set.poster : `/dolls/cut/${edition}.png`;
+  return set ? V + set.poster : `/dolls/cut/web/${edition}.webp`;
 }
 
 // intro-seen per edition, persists across edition toggles within a page session.

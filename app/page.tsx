@@ -928,14 +928,14 @@ export default function Home() {
                 src={dollVideo}
                 autoPlay muted loop playsInline
                 onError={() => setVideoFailed(true)}
-                poster={`/dolls/cut/${shown}.png`}
+                poster={`/dolls/cut/web/${shown}.webp`}
                 className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
                 style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`/dolls/cut/${shown}.png`}
+                src={`/dolls/cut/web/${shown}.webp`}
                 alt={EDITIONS[shown].label}
                 className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
                 style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}

@@ -57,7 +57,7 @@ const typewriter = Courier_Prime({
 // Kate's own handwriting, drawn from her notes — replaces Caveat everywhere
 // the site writes by hand (chalk to-do, case-study margin notes).
 const chalk = localFont({
-  src: "./fonts/Kate-Regular.otf",
+  src: "./fonts/Kate2-Regular.otf",
   variable: "--font-chalk",
   display: "swap",
 });

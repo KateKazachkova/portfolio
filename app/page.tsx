@@ -891,6 +891,24 @@ export default function Home() {
           />
         </InkTip>
 
+        {/* Under the hung bike: the Converse she rides in, left on the floor. */}
+        <InkTip
+          label="Field kit"
+          meta="The Converse"
+          place="bottom"
+          className="group"
+          style={{ position: "absolute", left: "57.6%", top: "67.5%", width: "10%", zIndex: 5 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/shoes.png"
+            alt="A pair of black canvas high-top sneakers standing on the compartment floor"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" }}
+            draggable={false}
+          />
+        </InkTip>
+
         {/* The day chalked on the niche's back wall — schedule and to-do in one
             list, struck through as the hours go by */}
         <ChalkTodo edition={shown} />

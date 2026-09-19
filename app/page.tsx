@@ -897,7 +897,7 @@ export default function Home() {
           meta="The Converse"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "57.32%", top: "68.2%", width: "10%", zIndex: 5 }}
+          style={{ position: "absolute", left: "54.6%", top: "72.5%", width: "10%", zIndex: 5 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

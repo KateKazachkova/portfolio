@@ -116,7 +116,7 @@ const railY = (x: number) => RAIL.y + (x - RAIL.x) * RAIL.k;
  *  full rail they overlap almost completely — each one shows a sliver and the
  *  outer two run behind the side walls. So they are drawn at their real width
  *  inside a box clipped to the wardrobe opening, rather than shrunk to fit. */
-const HANGER_W = 16.1;
+const HANGER_W = 18.515;
 const RAIL_BOX = { l: 75.6, t: 13.0, w: 13.7, h: 38.5 };
 const OUTFITS = [
   { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 78.2,  aspect: 1.5071, hook: 0.0442, tilt: -2.4 },

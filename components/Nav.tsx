@@ -18,6 +18,9 @@ const CV_HREF =
 
 export default function Nav() {
   const pathname = usePathname();
+  // Home carries its navigation in the hero's left column, so the bar stays
+  // off that page entirely — nothing across the top of the case.
+  const onHome = pathname === "/";
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   // Transparent at the top of the page; frosted-glass + colour once scrolled.
@@ -58,6 +61,8 @@ export default function Nav() {
   // The bar is transparent until you scroll, but the panel hangs below it over
   // the page, so it always paints its own ground.
   const barPainted = scrolled || open;
+
+  if (onHome) return null;
 
   return (
     <header

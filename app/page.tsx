@@ -7,6 +7,17 @@ import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import ChalkTodo from "@/components/ChalkTodo";
 import NicheLight from "@/components/NicheLight";
 import PocketWatch from "@/components/PocketWatch";
+
+/** The site's navigation, which on Home lives in the hero's left column
+ *  instead of a bar across the top. */
+const NAV_LINKS = [
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/recognition", label: "Recognition" },
+  { href: "/contact", label: "Contact" },
+];
+const CV_HREF =
+  "https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
@@ -325,6 +336,58 @@ export default function Home() {
 
   const dollVideo = EDITION_VIDEO[shown];
 
+  /** The left column of the hero — the catalogue page's own title block.
+   *  Type only: name, role, what she does, where to go, and the one thing
+   *  worth clicking. No rules, no panels, nothing that reads as a sidebar. */
+  const heroLeft = (
+    <div>
+      <p className="font-black uppercase tracking-tight leading-none" style={{ color: "var(--fg)", fontSize: 40 }}>
+        Kate<sup style={{ fontSize: "0.34em", verticalAlign: "top", position: "relative", top: "0.35em" }}>™</sup>
+      </p>
+      <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.22em" }} className="text-gray-400 uppercase mt-3">
+        Product Designer &amp; Design Lead
+      </p>
+      <p className="text-[15px] leading-relaxed text-gray-500 mt-6" style={{ maxWidth: "22ch" }}>
+        I work on complicated products and make them less complicated.
+      </p>
+
+      <nav className="mt-14 flex flex-col items-start gap-3">
+        {NAV_LINKS.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.18em" }}
+            className="uppercase hover:opacity-60 transition-opacity"
+          >
+            {l.label}
+          </Link>
+        ))}
+        <a
+          href={CV_HREF}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.18em" }}
+          className="uppercase text-gray-400 hover:opacity-60 transition-opacity mt-3"
+        >
+          CV ↗
+        </a>
+      </nav>
+
+      <div className="mt-16">
+        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.2em" }} className="text-gray-400 uppercase">
+          Have a project?
+        </p>
+        <Link
+          href="/contact"
+          className="inline-block font-black uppercase tracking-tight mt-2 hover:opacity-70 transition-opacity"
+          style={{ color: "var(--accent-red)", fontSize: 22 }}
+        >
+          Let&apos;s talk →
+        </Link>
+      </div>
+    </div>
+  );
+
   const clockPanel = (
     <div>
       {/* The clock itself is now the pocket watch in the case, so this panel
@@ -416,17 +479,9 @@ export default function Home() {
       style={{ background: "var(--bg)", marginTop: -56, paddingTop: 56 + 56 }}
     >
 
-      {/* Eyebrow */}
-      <div className="text-center">
-        <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em" }} className="text-gray-400 uppercase mb-2">
-          KATE™ · Collector Edition
-        </p>
-        <p className="text-sm text-gray-500 max-w-md mx-auto italic">A designer who turns chaos into systems.</p>
-      </div>
-
       {/* Suitcase + clock. The box stays centred; on wide screens the clock
           sits to its right (absolute, so the box itself never shifts). */}
-      <div className="relative w-full flex justify-center">
+      <div className="relative w-full flex flex-wrap justify-center">
       {/* The whole scene — case, clothes, bike, discs, niche — is laid out in
           percentages of this one box, so moving or scaling it moves everything
           together. Nudge it with --case-x / --case-y / --case-scale in
@@ -945,6 +1000,13 @@ export default function Home() {
             HIDDEN for now per Kate — re-enable when the concept is reworked. */}
         {/* <IntroOverlay /> */}
       </div>
+
+        {/* The title block to the left of the box, the schedule to its right:
+            the case itself stays centred and untouched between them. Both are
+            absolute, so neither can push it off centre. */}
+        <div className="basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-1/2 min-[1440px]:left-6 min-[1440px]:-translate-y-1/2 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(300px,calc(50vw-min(44vw,559px)-48px))]">
+          {heroLeft}
+        </div>
 
         {/* Clock + schedule to the right of the box. Shown at every width for
             now — it overruns the layout on narrower screens on purpose, until

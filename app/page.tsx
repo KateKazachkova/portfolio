@@ -601,69 +601,11 @@ export default function Home() {
           </Link>
         </InkTip>
 
-        {/* Both brass guard rails on the left door's shelves, painted out —
-            Kate asked for them gone. Each patch is made of the case's own wall:
-            the clean wood directly above the rail, mirrored down and ramped
-            into the tone just below it, laid over the rail with a feathered
-            edge, so open2 itself is left alone. The posts' feet stand on the
-            shelf band, which is uniform along its length, so they are wiped by
-            replacing each pixel there with the median of a wide run of its own
-            row — narrow things vanish, the band's tone survives. The shelves'
-            front edges stay. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/items/right-rail-patch-top.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "9.25%",
-            top: "23.95%",
-            width: "14.3%",
-            height: "4.8%",
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-          draggable={false}
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/items/right-rail-patch.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: "9.25%",
-            top: "39.25%",
-            width: "14.3%",
-            height: "4.3%",
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-          draggable={false}
-        />
-
         {/* ── The wardrobe ──────────────────────────────────────────────
-            The empty plate first, then one hanger per outfit. The plate covers
-            the baked-in clothes; the hangers are what the doll actually wears,
-            so each one vanishes while she has it on. The rail runs on `shown`,
-            so it changes together with the doll in the niche. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/items/wardrobe/right-rail-empty.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: "absolute",
-            left: `${WARDROBE.l}%`,
-            top: `${WARDROBE.t}%`,
-            width: `${WARDROBE.w}%`,
-            height: `${WARDROBE.h}%`,
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-          draggable={false}
-        />
+            One hanger per outfit: the case now ships with an empty wardrobe,
+            so there is no plate to cover baked-in clothes. The hangers are what
+            the doll actually wears, so each one vanishes while she has it on.
+            The rail runs on `shown`, so it changes together with the doll. */}
 
         {/* The folded throws, back on the shelf they were taken off. The shelf's
             front edge is not level — it drops 0.2583 %y per %x as the wardrobe

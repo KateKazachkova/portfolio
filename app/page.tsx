@@ -862,16 +862,15 @@ export default function Home() {
           meta="The gravel bike"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "56.48%", top: "19.5%", width: "15%", transform: "rotate(2deg)", transformOrigin: "top center", zIndex: 4 }}
+          style={{ position: "absolute", left: "56.48%", top: "19.5%", width: "17.25%", transform: "rotate(2deg)", transformOrigin: "top center", zIndex: 4 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/mid-bike.png"
+            src="/items/mid-bike.webp"
             alt="A miniature gravel bike hung by its front wheel in the niche"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            // The generated frame came back a pale mint sage, too cold next to
-            // the wood; graded down to the palette's Hunter Green.
-            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4)) hue-rotate(14deg) saturate(1.5) brightness(0.62) contrast(1.05)" }}
+            // Colour is baked into the file now, so only the shadow is left.
+            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" }}
             draggable={false}
           />
         </InkTip>

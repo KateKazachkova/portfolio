@@ -149,7 +149,7 @@ function outfitOf(edition: string): string | null {
  *  and, each time it is charged, jumps to the next — the wardrobe by the folded
  *  throws, the case lid, the foot of the left door — and round again. */
 const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; behind?: boolean; z?: number }[] = [
-  { left: 14.0, top: 17.3, width: 5.1, home: true },
+  { left: 14.9, top: 17.3, width: 5.1, home: true },
   // Beside the folded throws: the stack is drawn at zIndex 4, so the box needs
   // to sit above it or it lands behind the fleece.
   { left: 84.18, top: 58.0, width: 5.1, z: 5 },
@@ -792,19 +792,40 @@ export default function Home() {
           draggable={false}
         />
 
-        {/* Box sets on the left door's top shelf, next to the TARDIS — the
-            series she actually rewatches, cased from the poster art. */}
+        {/* The left door's top shelf: books where the box sets used to stand,
+            in two stacks with the TARDIS between them. Both are set by their
+            BASE, not their top — the shelf board is at 28.3% and the spines
+            are different heights, so a shared `top` would leave one of them
+            floating. Their bottoms run a little past the board, under the
+            shelf lip above them (zIndex 3). */}
         <InkTip
-          label="Rewatch pile"
-          meta="Box sets"
+          label="Read this year"
+          meta="Sapiens · IT · Animal Farm"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "10.42%", top: "20.83%", width: "13.6%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.25%", top: "14.45%", width: "5.5%", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/left-1-dvds.webp"
-            alt="A row of DVD box sets: Bones, Doctor Who, The X-Files, Supernatural"
+            src="/items/left-1-books-a.webp"
+            alt="Books standing on a shelf: Sapiens, IT and Animal Farm"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
+            draggable={false}
+          />
+        </InkTip>
+
+        <InkTip
+          label="Read at twelve"
+          meta="W.I.T.C.H. 1–3 · The Little Prince"
+          place="bottom"
+          className="group"
+          style={{ position: "absolute", left: "18.9%", top: "14.9%", width: "5%", zIndex: 2 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/left-1-books-b.webp"
+            alt="Books standing on a shelf: W.I.T.C.H. volumes one to three and The Little Prince"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
             draggable={false}

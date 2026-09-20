@@ -749,24 +749,45 @@ export default function Home() {
           </a>
         </InkTip>
 
-        {/* The top-left shelf's wooden front lip, cut across the whole shelf
-            from the case's own pixels and kept a layer above whatever stands on
-            it (zIndex 3), so every item's base tucks behind the shelf. Its own
-            element now — not tied to the TARDIS — since other things sit here. */}
-        <div
+        {/* The top-left shelf's wooden front lip — Kate's own cut of the case,
+            template-matched back onto it (corr 0.93) so it lands where it came
+            from. It rides above whatever stands on the shelf (zIndex 3), so
+            every item's base tucks behind the shelf. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/left-1-shelf-lip1.png"
+          alt=""
           aria-hidden
           style={{
             position: "absolute",
-            left: "10.2%",
-            top: "27.2%",
-            width: "14.0%",
-            height: "1.9%",
-            backgroundImage: "url(/suitcase/open2.webp)",
-            backgroundSize: `${10000 / 14.0}% ${10000 / 1.9}%`,
-            backgroundPosition: `${(10.2 / (100 - 14.0)) * 100}% ${(27.2 / (100 - 1.9)) * 100}%`,
+            left: "10.254%",
+            top: "26.953%",
+            width: "14.29%",
+            height: "auto",
+            maxWidth: "none",
             zIndex: 3,
             pointerEvents: "none",
           }}
+          draggable={false}
+        />
+
+        {/* The middle shelf's front lip, same cut, same treatment. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/left-2-shelf-lip1.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "10.221%",
+            top: "42.529%",
+            width: "14.323%",
+            height: "auto",
+            maxWidth: "none",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+          draggable={false}
         />
 
         {/* Box sets on the left door's top shelf, next to the TARDIS — the

@@ -1008,14 +1008,16 @@ export default function Home() {
           {heroLeft}
         </div>
 
-        {/* Clock + schedule to the right of the box. Shown at every width for
-            now — it overruns the layout on narrower screens on purpose, until
-            the placement is settled. */}
-        <div
-          style={{ position: "absolute", top: "50%", left: "calc(50% + min(44vw, 559px) + 28px)", transform: "translateY(-50%)" }}
-        >
-          {clockPanel}
-        </div>
+        {/* Clock + schedule to the right of the box. HIDDEN for now per Kate —
+            the hero is being settled with the case and the title block alone.
+            The panel itself is untouched; drop the false to bring it back. */}
+        {false && (
+          <div
+            style={{ position: "absolute", top: "50%", left: "calc(50% + min(44vw, 559px) + 28px)", transform: "translateY(-50%)" }}
+          >
+            {clockPanel}
+          </div>
+        )}
       </div>
 
       {/* Caption */}

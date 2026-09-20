@@ -427,7 +427,11 @@ export default function Home() {
       {/* Suitcase + clock. The box stays centred; on wide screens the clock
           sits to its right (absolute, so the box itself never shifts). */}
       <div className="relative w-full flex justify-center">
-      <div style={{ position: "relative", width: "min(88vw, 1118px)", aspectRatio: "1536 / 1024" }}>
+      {/* The whole scene — case, clothes, bike, discs, niche — is laid out in
+          percentages of this one box, so moving or scaling it moves everything
+          together. Nudge it with --case-x / --case-y / --case-scale in
+          globals.css rather than touching any item. */}
+      <div className="case-stage">
         {/* The studio sweep, anchored to the case so it travels with it, and
             the flat floor that carries its last tone down past the plate. */}
         <div className="studio-floor" aria-hidden />

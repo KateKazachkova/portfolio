@@ -1,7 +1,13 @@
 const TOKEN_URL = "https://www.strava.com/oauth/token";
 const API = "https://www.strava.com/api/v3";
 
+// One token per render pass, and one refresh per half hour across renders:
+// the old no-store call meant every page view spent a round trip on OAuth
+// before it could ask for a single ride.
+let tokenCache: { value: string; until: number } | null = null;
+
 async function getAccessToken(): Promise<string | null> {
+  if (tokenCache && tokenCache.until > Date.now()) return tokenCache.value;
   const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
   if (!STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_REFRESH_TOKEN) return null;
 
@@ -15,11 +21,13 @@ async function getAccessToken(): Promise<string | null> {
         refresh_token: STRAVA_REFRESH_TOKEN,
         grant_type: "refresh_token",
       }),
-      cache: "no-store",
+      next: { revalidate: 1800 },
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return data.access_token ?? null;
+    const token = data.access_token ?? null;
+    if (token) tokenCache = { value: token, until: Date.now() + 30 * 60 * 1000 };
+    return token;
   } catch {
     return null;
   }
@@ -72,8 +80,9 @@ export async function getLongestRides(limit = 3): Promise<StravaActivity[]> {
 
   const rides: any[] = [];
   try {
-    // Page through history (up to 5×200 = 1000 activities)
-    for (let page = 1; page <= 5; page++) {
+    // Two pages is 400 activities — enough to hold the longest rides, and it
+    // costs two round trips instead of five.
+    for (let page = 1; page <= 2; page++) {
       const res = await fetch(`${API}/athlete/activities?per_page=200&page=${page}`, {
         headers: { Authorization: `Bearer ${token}` },
         next: { revalidate: 3600 },

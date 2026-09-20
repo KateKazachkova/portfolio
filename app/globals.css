@@ -1002,3 +1002,18 @@ body::after {
 [data-theme="dark"] .pocketwatch-img {
   filter: sepia(0.34) saturate(0.74) hue-rotate(-7deg) brightness(0.82) contrast(1.04);
 }
+
+/* ── The suitcase stage ───────────────────────────────────────────────────
+   One box holds the case and everything standing in it. Every item inside is
+   positioned as a percentage of this box, so these three variables move or
+   resize the entire scene without disturbing a single shelf. */
+.case-stage {
+  position: relative;
+  width: min(88vw, 1118px);
+  aspect-ratio: 1536 / 1024;
+  --case-x: 0px;
+  --case-y: 0px;
+  --case-scale: 1;
+  transform: translate(var(--case-x), var(--case-y)) scale(var(--case-scale));
+  transform-origin: center top;
+}

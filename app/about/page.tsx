@@ -1,12 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { getFilms, getSeries, getBooks } from "@/lib/content";
 import FilmStack from "@/components/FilmStack";
 import DiscStack from "@/components/DiscStack";
 import BookShelf from "@/components/BookShelf";
-import { getRideStats, getLongestRides } from "@/lib/strava";
-import { polylineToSvgPath } from "@/lib/polyline";
-import { buildStaticMapUrl } from "@/lib/staticmap";
 import { mono } from "@/components/ui/type";
+import Cycling, { CyclingSkeleton } from "@/components/Cycling";
 
 export const revalidate = 3600;
 
@@ -131,8 +130,7 @@ export default async function About() {
   const films = getFilms();
   const series = getSeries();
   const books = getBooks();
-  const [stats, activities] = await Promise.all([getRideStats(), getLongestRides(3)]);
-
+  
   return (
     <main className="min-h-screen px-8 py-16 max-w-5xl mx-auto">
       {/* ── Manual cover ── */}
@@ -263,66 +261,11 @@ export default async function About() {
         </div>
       </Part>
 
-      {/* 06 – Cycling */}
-      {stats && (
-        <Part n="06" title="Cycling – Field Telemetry">
-          <div className="flex justify-end mb-4">
-            <a href="https://www.strava.com/athletes/52565503" target="_blank" rel="noopener noreferrer"
-              className="uppercase font-bold underline hover:no-underline text-gray-400" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
-              Strava ↗
-            </a>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            {[
-              { label: "Distance", value: `${stats.distanceKm.toLocaleString()} km` },
-              { label: "Rides", value: stats.rides.toLocaleString() },
-              { label: "Time", value: `${stats.timeHours.toLocaleString()} h` },
-              { label: "Elevation", value: `${stats.elevationM.toLocaleString()} m` },
-            ].map((s) => (
-              <div key={s.label} className="border-2 p-4" style={{ borderColor: "var(--border)" }}>
-                <div className="text-2xl font-black" style={{ color: "var(--fg)" }}>{s.value}</div>
-                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }} className="text-gray-400 uppercase mt-1">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {activities.length > 0 && (
-            <div>
-              <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">Longest rides</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {activities.map((a) => {
-                  const mapUrl = a.polyline ? buildStaticMapUrl(a.polyline) : null;
-                  const path = a.polyline ? polylineToSvgPath(a.polyline) : null;
-                  return (
-                    <a key={a.id} href={`https://www.strava.com/activities/${a.id}`} target="_blank" rel="noopener noreferrer"
-                      className="group block border-2 overflow-hidden hover:opacity-90 transition-opacity" style={{ borderColor: "var(--border)" }}>
-                      <div className="aspect-square flex items-center justify-center" style={{ background: "var(--inner)" }}>
-                        {mapUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={mapUrl} alt={`Route of ${a.name}`} className="w-full h-full object-cover" />
-                        ) : path ? (
-                          <svg viewBox="0 0 100 100" className="w-full h-full">
-                            <path d={path} fill="none" stroke="var(--accent-red)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-                          </svg>
-                        ) : (
-                          <span className="text-xs text-gray-400">No route</span>
-                        )}
-                      </div>
-                      <div className="p-3 border-t-2" style={{ borderColor: "var(--border)" }}>
-                        <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{a.name}</p>
-                        <p style={{ fontFamily: mono, fontSize: 11 }} className="text-gray-500 mt-1">{a.distanceKm} km · {a.movingMin} min</p>
-                        <p style={{ fontFamily: mono, fontSize: 10 }} className="text-gray-400 mt-0.5">
-                          {a.date ? new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""}
-                        </p>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </Part>
-      )}
+      {/* 06 – Cycling. Its own component behind Suspense: Strava costs a few
+          round trips, and the manual should not wait on a bike ride. */}
+      <Suspense fallback={<CyclingSkeleton />}>
+        <Cycling />
+      </Suspense>
 
       {/* 07 – Travels */}
       <Part n="07" title="Travels">

@@ -7,18 +7,7 @@ import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import NicheLight from "@/components/NicheLight";
 import KateTalk from "@/components/KateTalk";
 import PocketWatch from "@/components/PocketWatch";
-import ThemeToggle from "@/components/ThemeToggle";
-
-/** The site's navigation, which on Home lives in the hero's left column
- *  instead of a bar across the top. */
-const NAV_LINKS = [
-  { href: "/work", label: "Work" },
-  { href: "/about", label: "About" },
-  { href: "/recognition", label: "Recognition" },
-  { href: "/contact", label: "Contact" },
-];
-const CV_HREF =
-  "https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf";
+import HeroAside from "@/components/HeroAside";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
@@ -337,48 +326,6 @@ export default function Home() {
   }, [edition.key]);
 
   const dollVideo = EDITION_VIDEO[shown];
-
-  /** The left column of the hero — the catalogue page's own title block.
-   *  Type only: name, role, what she does, where to go, and the one thing
-   *  worth clicking. No rules, no panels, nothing that reads as a sidebar. */
-  const heroLeft = (
-    <div>
-      <p
-        className="font-black uppercase tracking-tight leading-none"
-        style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}
-      >
-        KATE<span style={{ color: "var(--accent-red)" }}>™</span>
-      </p>
-      <h2 className="t-title mt-[124px]">
-        Product Designer &amp; Design Lead
-      </h2>
-      <p className="t-body mt-4">
-        I work on complicated products and make them less complicated.
-      </p>
-
-      <nav className="mt-14 flex flex-col items-start gap-3">
-        {NAV_LINKS.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="t-label hover:opacity-60 transition-opacity"
-          >
-            {l.label}
-          </Link>
-        ))}
-        <a
-          href={CV_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="t-label text-gray-400 hover:opacity-60 transition-opacity mt-3"
-        >
-          CV ↗
-        </a>
-        <ThemeToggle />
-      </nav>
-
-    </div>
-  );
 
   const clockPanel = (
     <div>
@@ -873,7 +820,7 @@ export default function Home() {
             rail, in front of the coats — it both tells and (by dragging the
             hands) sets the scene's hour. The chain's bow sits just above the
             brass bar (railY(79) = 16.42%), so it reads as hung, not floating. */}
-        <div style={{ position: "absolute", left: "81.6%", top: "11.2%", width: "10%", zIndex: 4 }}>
+        <div style={{ position: "absolute", left: "84.75%", top: "6.6%", width: "10%", zIndex: 4 }}>
           <PocketWatch hour={hour ?? 12} onChange={pickHour} />
         </div>
 
@@ -881,7 +828,7 @@ export default function Home() {
             the watch — the schedule that used to live in a panel beside the
             case, now an object in it. Tapping a line jumps the doll to that
             edition, which is what the old chips did. */}
-        <div style={{ position: "absolute", left: "73.8%", top: "31%", width: "18%", zIndex: 5 }}>
+        <div style={{ position: "absolute", left: "87.5%", top: "36%", width: "13.65%", zIndex: 5 }}>
           <DaySticky hour={hour} active={forced} onPick={setForced} />
         </div>
 
@@ -1017,7 +964,7 @@ export default function Home() {
             absolute, so neither can push it off centre. */}
         <div style={{ borderColor: "var(--hairline)" }}
           className="basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:border-r min-[1440px]:pr-6 min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-0 min-[1440px]:left-6 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
-          {heroLeft}
+          <HeroAside />
         </div>
 
         {/* Clock + schedule to the right of the box. HIDDEN for now per Kate —

@@ -5,16 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { mono } from "@/components/ui/type";
+import { NAV_LINKS as LINKS, CV_HREF } from "@/lib/nav";
 
-const LINKS = [
-  { href: "/work", label: "Work" },
-  { href: "/about", label: "About" },
-  { href: "/recognition", label: "Recognition" },
-  { href: "/contact", label: "Contact" },
-];
-
-const CV_HREF =
-  "https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf";
 
 export default function Nav() {
   const pathname = usePathname();

@@ -117,27 +117,28 @@ const railY = (x: number) => RAIL.y + (x - RAIL.x) * RAIL.k;
  *  outer two run behind the side walls. So they are drawn at their real width
  *  inside a box clipped to the wardrobe opening, rather than shrunk to fit. */
 const HANGER_W = 18.515;
-const RAIL_BOX = { l: 75.6, t: 13.0, w: 13.7, h: 38.5 };
+const RAIL_BOX = { l: 73.79, t: 13.0, w: 13.7, h: 38.5 };
 const OUTFITS = [
   // Onesie behind, nudged right so its wide body is not clipped at the opening;
   // the day outfit sits one layer above it.
-  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 80.38, aspect: 1.7602, hook: 0.0363, tilt: -1.1 },
-  { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 82.18,  aspect: 1.5071, hook: 0.0442, tilt: -2.4 },
-  { key: "morning", src: "morning", label: "First Coffee", meta: "Cardigan · Pyjamas", cx: 79.88, aspect: 1.5071, hook: 0.0565, tilt: 1.6 },
-  { key: "street",  src: "street",  label: "Urban Explorer", meta: "Raincoat · Hoodie", cx: 84.48, aspect: 1.5,    hook: 0.0422, tilt: 2.3 },
-  { key: "evening", src: "evening", label: "One More Page", meta: "Cardigan · Tee",  cx: 86.78,  aspect: 1.5143, hook: 0.0400, tilt: -1.8 },
+  { key: "morning", src: "morning", label: "First Coffee", meta: "Cardigan · Pyjamas", cx: 77.84, aspect: 1.5071, hook: 0.0565, tilt: 1.6, dy: -0.33 },
+  { key: "night",   src: "night",   label: "Lights Out",  meta: "The onesie",        cx: 79.74, aspect: 1.7602, hook: 0.0363, tilt: -1.1, dy: -0.5 },
+  { key: "day",     src: "day",     label: "Deep Work",   meta: "Flannel · Jeans",   cx: 81.64,  aspect: 1.5071, hook: 0.0442, tilt: -2.4, dy: -0.5 },
+  { key: "street",  src: "street",  label: "Urban Explorer", meta: "Raincoat · Hoodie", cx: 84.74, aspect: 1.5,    hook: 0.0422, tilt: 2.3, dy: -0.67 },
+  { key: "evening", src: "evening", label: "One More Page", meta: "Cardigan · Tee",  cx: 86.54,  aspect: 1.5143, hook: 0.0400, tilt: -1.8, dy: -0.17 },
 ] as const;
 
 /** Which outfit an edition is wearing. The shifts of the working day share the
- *  flannel; the morning ones share the cardigan and pyjamas; Saturday's series
- *  marathon borrows the evening cardigan. Anything not listed — the cleaning
+ *  flannel; the morning ones share the cardigan and pyjamas, and so does
+ *  Saturday's series marathon. Anything not listed — the cleaning
  *  dungarees — has no hanger in this wardrobe. */
 function outfitOf(edition: string): string | null {
   if (edition === "office" || edition.startsWith("work_") || edition === "mon_standup" || edition === "fri_wine") return "day";
   if (edition.startsWith("morn") || edition === "morning" || edition === "mon_alarm" || edition === "weekend_brunch") return "morning";
   if (edition === "night") return "night";
   if (edition === "street" || edition.startsWith("fri_transition")) return "street";
-  if (edition === "evening" || edition === "weekend_series") return "evening";
+  if (edition === "evening") return "evening";
+  if (edition === "weekend_series") return "morning";
   return null;
 }
 
@@ -655,7 +656,7 @@ export default function Home() {
             // floats over the backdrop with nothing behind it. Bounded rather
             // than free — past about three percent the flannel starts hanging
             // over the middle compartment, which reads as a mistake.
-            clipPath: "inset(0 0 -200% -16.1%)",
+            clipPath: "inset(0 -8% -200% -30%)",
             zIndex: 3,
             pointerEvents: "none",
           }}
@@ -666,7 +667,8 @@ export default function Home() {
             // suitcase box's terms, and `hook` says how far down its PNG the
             // crook of the hook sits, which is what lands on the rail.
             const h = HANGER_W * o.aspect * 1.5;
-            const top = railY(o.cx) - o.hook * h;
+            // +0.35% of the case: the crooks were sitting a hair above the bar.
+            const top = railY(o.cx) - o.hook * h + 0.35 + o.dy;
             const worn = outfitOf(shown) === o.key;
             return (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -862,7 +864,7 @@ export default function Home() {
           meta="The gravel bike"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "56.48%", top: "18.67%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4 }}
+          style={{ position: "absolute", left: "56.48%", top: "17.16%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

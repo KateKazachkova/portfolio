@@ -797,7 +797,7 @@ export default function Home() {
           meta="Box sets"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "10.42%", top: "21.67%", width: "13.6%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.42%", top: "20.83%", width: "13.6%", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

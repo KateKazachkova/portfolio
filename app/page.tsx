@@ -862,7 +862,7 @@ export default function Home() {
           meta="The gravel bike"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "56.48%", top: "19.5%", width: "17.25%", transform: "rotate(2deg)", transformOrigin: "top center", zIndex: 4 }}
+          style={{ position: "absolute", left: "56.48%", top: "18.67%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -881,7 +881,7 @@ export default function Home() {
           meta="The Converse"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "58.73%", top: "71.36%", width: "8%", zIndex: 5 }}
+          style={{ position: "absolute", left: "62.83%", top: "72.52%", width: "8%", zIndex: 5 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

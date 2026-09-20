@@ -77,13 +77,13 @@ export default function QualityCheck() {
           </span>
 
           {/* clears the punched hole, the way a printed line on a real tag does */}
-          <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em", marginLeft: 34 }} className="text-[color:var(--faint)] uppercase mb-6">
+          <p className="t-label text-[color:var(--faint)] mb-6" style={{ marginLeft: 34 }}>
             Independent Product Inspection
           </p>
-          <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-6" style={{ color: "var(--fg)" }}>
+          <h1 className="t-display mb-6">
             Quality Check
           </h1>
-          <p className="text-xl md:text-2xl font-semibold leading-snug max-w-2xl mb-4" style={{ color: "var(--fg)" }}>
+          <p className="t-lead max-w-2xl mb-4">
             Every product claims to be good.
             <br />
             This one was tested by independent juries.
@@ -173,7 +173,7 @@ export default function QualityCheck() {
               {/* details */}
               <div className="p-6">
                 <div className="flex items-start justify-between gap-4 mb-2">
-                  <h3 className="text-2xl font-black uppercase" style={{ color: "var(--fg)" }}>{name}</h3>
+                  <h3 className="t-title">{name}</h3>
                   <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.1em", color: "var(--accent-red)" }} className="border-2 px-2 py-1 uppercase whitespace-nowrap" >
                     ✓ Passed
                   </span>

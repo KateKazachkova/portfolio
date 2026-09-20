@@ -51,7 +51,7 @@ export default async function ProjectsPage() {
   return (
     <main className="min-h-screen px-8 py-24 max-w-5xl mx-auto">
       <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Work</p>
-      <h1 className="text-4xl font-bold text-gray-900 mb-12">Projects & Case Studies</h1>
+      <h1 className="t-display mb-12">Projects & Case Studies</h1>
 
       {cards.length === 0 ? (
         notion === null ? (
@@ -86,7 +86,7 @@ export default async function ProjectsPage() {
                     </span>
                   ))}
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">{project.title}</h2>
+                <h2 className="t-lead mb-2">{project.title}</h2>
                 <p className="text-gray-500 text-sm leading-relaxed">{project.description}</p>
               </div>
             </a>

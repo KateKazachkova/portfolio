@@ -1017,3 +1017,70 @@ body::after {
   transform: translate(var(--case-x), var(--case-y)) scale(var(--case-scale));
   transform-origin: center top;
 }
+
+/* ── Type scale ───────────────────────────────────────────────────────────
+   One ladder for the whole site. Until now every page set its own numbers —
+   the home column inline, /about in Tailwind steps, the case studies in their
+   own stylesheet — so the same level of text came out three different sizes.
+
+   display  the page's own name, once per page
+   title    section heads
+   lead     the opening sentence under a head
+   body     running text
+   label    mono, uppercase, tracked: eyebrows, nav, spec keys, meta
+
+   Case studies keep case.css: that is a document of its own, set larger and
+   tighter on purpose, and it reads against the page rather than with it. */
+:root {
+  --t-display: 60px;
+  --t-title: 30px;
+  --t-lead: 20px;
+  --t-body: 16px;
+  --t-label: 12px;
+}
+@media (max-width: 768px) {
+  :root {
+    --t-display: 44px;
+    --t-title: 24px;
+    --t-lead: 17px;
+  }
+}
+
+.t-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 88, "wght" 800;
+  font-size: var(--t-display);
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+.t-title {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 90, "wght" 700;
+  font-size: var(--t-title);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+.t-lead {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 88, "wght" 600;
+  font-size: var(--t-lead);
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.t-body {
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: var(--muted);
+}
+.t-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: var(--t-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.3;
+}

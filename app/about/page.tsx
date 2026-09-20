@@ -135,13 +135,13 @@ export default async function About() {
     <main className="min-h-screen px-8 py-16 max-w-5xl mx-auto">
       {/* ── Manual cover ── */}
       <div className="border-2 p-8 md:p-12 mb-20" style={{ borderColor: "var(--border)" }}>
-        <p style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.25em" }} className="text-gray-400 uppercase mb-6">
+        <p className="t-label text-gray-400 mb-6">
           Assembly Manual · PD-001
         </p>
-        <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tight mb-3" style={{ color: "var(--fg)" }}>
+        <h1 className="t-display mb-3">
           Kate Kazachkova
         </h1>
-        <p className="text-lg text-gray-500 mb-10">
+        <p className="t-lead text-gray-500 mb-10">
           Product Designer Doll™ – assembly &amp; operation guide.
         </p>
 
@@ -153,7 +153,7 @@ export default async function About() {
               className="flex justify-between gap-4 py-3 border-b"
               style={{ borderColor: "var(--border)" }}
             >
-              <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase pt-0.5">{k}</span>
+              <span className="t-label text-gray-400 pt-0.5">{k}</span>
               <span style={{ fontFamily: mono, fontSize: 12 }} className="text-right font-semibold" >{v}</span>
             </div>
           ))}
@@ -162,7 +162,7 @@ export default async function About() {
 
       {/* 01 – Overview */}
       <Part n="01" title="Overview">
-        <div className="text-lg text-gray-600 leading-relaxed max-w-2xl space-y-4">
+        <div className="t-body max-w-2xl space-y-4">
           <p>
             Product design leader with 10 years in UX and product design and a background
             in physics (DAAD scholarship). I head the product design department at AMTOSS
@@ -317,8 +317,8 @@ function Part({ n, title, children }: { n: string; title: string; children: Reac
   return (
     <section className="mb-20 last:mb-0">
       <div className="flex items-baseline gap-4 mb-6 border-b-2 pb-3" style={{ borderColor: "var(--border)" }}>
-        <span style={{ fontFamily: mono, fontSize: 20, fontWeight: 700, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
-        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>{title}</h2>
+        <span className="t-label" style={{ fontSize: 20, fontWeight: 700, color: "var(--accent-red)" }}>{n}</span>
+        <h2 className="t-title">{title}</h2>
       </div>
       {children}
     </section>

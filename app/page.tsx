@@ -7,6 +7,7 @@ import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import ChalkTodo from "@/components/ChalkTodo";
 import NicheLight from "@/components/NicheLight";
 import PocketWatch from "@/components/PocketWatch";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /** The site's navigation, which on Home lives in the hero's left column
  *  instead of a bar across the top. */
@@ -341,13 +342,16 @@ export default function Home() {
    *  worth clicking. No rules, no panels, nothing that reads as a sidebar. */
   const heroLeft = (
     <div>
-      <p className="font-black uppercase tracking-tight leading-none" style={{ color: "var(--fg)", fontSize: 40 }}>
-        Kate<sup style={{ fontSize: "0.34em", verticalAlign: "top", position: "relative", top: "0.35em" }}>™</sup>
+      <p
+        className="font-black uppercase tracking-tight leading-none"
+        style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}
+      >
+        KATE<span style={{ color: "var(--accent-red)" }}>™</span>
       </p>
-      <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.22em" }} className="text-gray-400 uppercase mt-3">
+      <h2 className="t-title mt-[124px]">
         Product Designer &amp; Design Lead
-      </p>
-      <p className="text-[15px] leading-relaxed text-gray-500 mt-6" style={{ maxWidth: "22ch" }}>
+      </h2>
+      <p className="t-body mt-4">
         I work on complicated products and make them less complicated.
       </p>
 
@@ -356,8 +360,7 @@ export default function Home() {
           <Link
             key={l.href}
             href={l.href}
-            style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.18em" }}
-            className="uppercase hover:opacity-60 transition-opacity"
+            className="t-label hover:opacity-60 transition-opacity"
           >
             {l.label}
           </Link>
@@ -366,20 +369,18 @@ export default function Home() {
           href={CV_HREF}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.18em" }}
-          className="uppercase text-gray-400 hover:opacity-60 transition-opacity mt-3"
+          className="t-label text-gray-400 hover:opacity-60 transition-opacity mt-3"
         >
           CV ↗
         </a>
+        <ThemeToggle />
       </nav>
 
       <div className="mt-16">
-        <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.2em" }} className="text-gray-400 uppercase">
-          Have a project?
-        </p>
+        <p className="t-lead">Have a project?</p>
         <Link
           href="/contact"
-          className="inline-block font-black uppercase tracking-tight mt-2 hover:opacity-70 transition-opacity"
+          className="t-title inline-block mt-2 hover:opacity-70 transition-opacity"
           style={{ color: "var(--accent-red)", fontSize: 22 }}
         >
           Let&apos;s talk →
@@ -466,7 +467,7 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-start gap-10 select-none px-6 pb-14"
+      className="min-h-screen flex flex-col items-center justify-start gap-10 px-6 pb-14"
       // Painted, not transparent: <main> is the plate's nearest stacking
       // context, so it is what the sweep blends onto. Transparent here and the
       // blend has no backdrop, which shows the raw near-white plate instead.
@@ -486,7 +487,9 @@ export default function Home() {
           percentages of this one box, so moving or scaling it moves everything
           together. Nudge it with --case-x / --case-y / --case-scale in
           globals.css rather than touching any item. */}
-      <div className="case-stage">
+      {/* select-none only here: dragging the watch hand used to smear a
+          selection across the scene. The page's own text stays selectable. */}
+      <div className="case-stage select-none" style={{ "--case-x": "90px" } as React.CSSProperties}>
         {/* The studio sweep, anchored to the case so it travels with it, and
             the flat floor that carries its last tone down past the plate. */}
         <div className="studio-floor" aria-hidden />
@@ -1004,7 +1007,8 @@ export default function Home() {
         {/* The title block to the left of the box, the schedule to its right:
             the case itself stays centred and untouched between them. Both are
             absolute, so neither can push it off centre. */}
-        <div className="basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-1/2 min-[1440px]:left-6 min-[1440px]:-translate-y-1/2 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(300px,calc(50vw-min(44vw,559px)-48px))]">
+        <div style={{ borderColor: "var(--hairline)" }}
+          className="basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:border-r min-[1440px]:pr-6 min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-0 min-[1440px]:left-6 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
           {heroLeft}
         </div>
 

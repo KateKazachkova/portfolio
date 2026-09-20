@@ -79,8 +79,8 @@ export function CyclingSkeleton() {
   return (
     <section className="mb-20 last:mb-0">
       <div className="flex items-baseline gap-4 mb-6 border-b-2 pb-3" style={{ borderColor: "var(--border)" }}>
-        <span style={{ fontFamily: mono, fontSize: 20, fontWeight: 700, letterSpacing: "0.15em", color: "var(--accent-red)" }}>06</span>
-        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>Cycling – Field Telemetry</h2>
+        <span className="t-label" style={{ fontSize: 20, fontWeight: 700, color: "var(--accent-red)" }}>06</span>
+        <h2 className="t-title">Cycling – Field Telemetry</h2>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {["Distance", "Rides", "Time", "Elevation"].map((label) => (
@@ -98,8 +98,8 @@ function Part({ n, title, children }: { n: string; title: string; children: Reac
   return (
     <section className="mb-20 last:mb-0">
       <div className="flex items-baseline gap-4 mb-6 border-b-2 pb-3" style={{ borderColor: "var(--border)" }}>
-        <span style={{ fontFamily: mono, fontSize: 20, fontWeight: 700, letterSpacing: "0.15em", color: "var(--accent-red)" }}>{n}</span>
-        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight" style={{ color: "var(--fg)" }}>{title}</h2>
+        <span className="t-label" style={{ fontSize: 20, fontWeight: 700, color: "var(--accent-red)" }}>{n}</span>
+        <h2 className="t-title">{title}</h2>
       </div>
       {children}
     </section>

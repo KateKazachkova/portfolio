@@ -1,6 +1,13 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { mono } from "@/components/ui/type";
 
 export default function Footer() {
+  // Home ends on the case: its own column already carries the links and the
+  // contact call, so the footer would only repeat them under the floor.
+  if (usePathname() === "/") return null;
+
   return (
     // No rule of its own: on home the studio floor runs straight through the
     // footer, so a border and a second tone cut the page in two. The gap above

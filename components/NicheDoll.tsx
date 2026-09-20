@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 /**
  * The doll living in the suitcase niche, per time-of-day edition.
  *
- * Every clip is generated straight into a crop of the real niche (openpart.png),
+ * Every clip is generated straight into a crop of the real niche (mid-niche-empty.png),
  * so it is OPAQUE and drops onto the niche region 1:1 — no masking, no fitting.
  * The rect below is that crop's exact position inside the suitcase image
  * (template-matched, corr 0.997); it lines up on open.png and open2.png.

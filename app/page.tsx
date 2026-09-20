@@ -216,7 +216,7 @@ function TardisModel() {
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/tardis.png"
+            src="/items/left-1-tardis.png"
             alt="A model police box"
             className="block w-full h-auto relative"
             style={{ ...imgStyle, zIndex: 1 }}
@@ -543,7 +543,7 @@ export default function Home() {
                 the dark wood it stands in. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/items/trophy.png"
+              src="/items/mid-top-trophy.png"
               alt=""
               style={{
                 position: "absolute",
@@ -571,7 +571,7 @@ export default function Home() {
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
             <video
               ref={awardClip}
-              src="/items/award_turn_v3.mp4"
+              src="/items/mid-top-trophy-turn.mp4"
               muted
               loop
               playsInline
@@ -612,7 +612,7 @@ export default function Home() {
             front edges stay. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/door_rail_patch_top.png"
+          src="/items/right-rail-patch-top.png"
           alt=""
           aria-hidden
           style={{
@@ -628,7 +628,7 @@ export default function Home() {
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/door_rail_patch.png"
+          src="/items/right-rail-patch.png"
           alt=""
           aria-hidden
           style={{
@@ -650,7 +650,7 @@ export default function Home() {
             so it changes together with the doll in the niche. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/wardrobe/empty.png"
+          src="/items/wardrobe/right-rail-empty.png"
           alt=""
           aria-hidden
           style={{
@@ -673,7 +673,7 @@ export default function Home() {
             little past it, the way a folded fleece actually sits. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/wardrobe/blanket.png"
+          src="/items/right-2-blanket.png"
           alt=""
           aria-hidden
           style={{
@@ -730,7 +730,7 @@ export default function Home() {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={o.key}
-                src={`/items/wardrobe/${o.src}.png`}
+                src={`/items/wardrobe/right-rail-${o.src}.png`}
                 alt=""
                 style={{
                   position: "absolute",
@@ -834,11 +834,11 @@ export default function Home() {
           meta="Box sets"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "11.53%", top: "21.67%", width: "13.6%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.42%", top: "21.67%", width: "13.6%", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/dvds.png"
+            src="/items/left-1-dvds.webp"
             alt="A row of DVD box sets: Bones, Doctor Who, The X-Files, Supernatural"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
@@ -867,7 +867,7 @@ export default function Home() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/tv show.png"
+            src="/items/left-2-cassettes.png"
             alt="Books: The 10th Kingdom and Are You Afraid of the Dark?"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
@@ -885,7 +885,7 @@ export default function Home() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/books_stack.png"
+            src="/items/right-3-books.png"
             alt="Books: Animal Farm and The Little Prince"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
@@ -903,7 +903,7 @@ export default function Home() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/bike_hang.png"
+            src="/items/mid-bike.png"
             alt="A miniature gravel bike hung by its front wheel in the niche"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             // The generated frame came back a pale mint sage, too cold next to
@@ -923,7 +923,7 @@ export default function Home() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/shoes.png"
+            src="/items/mid-bike-shoes.webp"
             alt="A pair of black canvas high-top sneakers standing on the compartment floor"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" }}

@@ -3,7 +3,7 @@
 /**
  * The gold pocket watch that hangs in the case and tells — and sets — the
  * hour. The engraved case and empty enamel dial are a generated still
- * (/items/pocketwatch.png); the hands are SVG drawn over the dial, so they
+ * (/items/left-3-pocketwatch.webp); the hands are SVG drawn over the dial, so they
  * turn. Dragging the hour hand round the face sets the scene's hour, the same
  * whole-hour model the old clock used: 12 at the top, 30° an hour, and passing
  * twelve carries over between AM and PM.
@@ -72,7 +72,7 @@ export default function PocketWatch({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/items/pocketwatch.png"
+        src="/items/left-3-pocketwatch.webp"
         alt="A gold pocket watch"
         className="pocketwatch-img"
         style={{ display: "block", width: "100%", height: "auto" }}

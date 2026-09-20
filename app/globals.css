@@ -881,15 +881,15 @@ body::after {
   text-shadow: 0 0.05cqw 0.1cqw rgba(58, 53, 80, 0.35);
 }
 .sticky-note__date {
-  margin: 0 0 1.6cqw;
-  font-size: 8.4cqw;
+  margin: 0 0 3.2cqw;
+  font-size: 16.8cqw;
   line-height: 1;
   color: #4b4468;
   border-bottom: 0.3cqw solid rgba(75, 68, 104, 0.3);
-  padding-bottom: 1.4cqw;
+  padding-bottom: 2.8cqw;
   transform: rotate(-0.8deg);
 }
-.sticky-note ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.7cqw; }
+.sticky-note ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3.4cqw; }
 .sticky-note li { line-height: 1; }
 /* Nobody writes a list perfectly level: each line leans a little, alternately,
    and the lean is its own so the block never reads as a table. */
@@ -898,7 +898,7 @@ body::after {
 .sticky-note button {
   display: flex;
   align-items: baseline;
-  gap: 1.8cqw;
+  gap: 3.4cqw;
   width: 100%;
   padding: 0;
   background: none;
@@ -910,8 +910,8 @@ body::after {
   transition: transform 0.18s ease, color 0.18s ease;
 }
 .sticky-note button:hover { color: var(--accent-red); }
-.sticky-note__time { flex: 0 0 auto; font-size: 6.9cqw; opacity: 0.7; }
-.sticky-note__text { position: relative; font-size: 7.3cqw; white-space: nowrap; }
+.sticky-note__time { flex: 0 0 auto; font-size: 13.8cqw; opacity: 0.7; }
+.sticky-note__text { position: relative; font-size: 14.6cqw; white-space: nowrap; }
 /* Crossed off by hand: a line that overshoots the words at both ends, because
    nobody starts and stops a pen on the letter. */
 .sticky-note li[data-done="true"] { opacity: 0.55; }
@@ -1169,3 +1169,137 @@ body::after {
   text-transform: uppercase;
   line-height: 1.3;
 }
+
+/* ── KATE™ talks back ──────────────────────────────────────────────────────
+   A short conversation with the doll in the niche (components/KateTalk.tsx).
+   Two pieces, both absolutely positioned inside .case-stage so nothing in the
+   hero moves to make room: an invisible hotspot over Kate, and a panel that
+   opens on the niche's back wall above her, where the chalked day used to be.
+
+   The panel is meant to read as a slightly translucent editorial card, not as
+   glass: one blur, one hairline highlight along the top edge, a thin ink
+   border, and a shadow small enough to be mistaken for the border. No
+   gradients, no reflections, no rounded pills. */
+
+.katetalk__hotspot {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.katetalk__hotspot:focus { outline: none; }
+.katetalk__hotspot:focus-visible {
+  outline: 1px solid var(--accent-red);
+  outline-offset: 2px;
+}
+
+/* Her reaction to being pointed at: the niche warms very slightly. It is a
+   filter and nothing else — the clip is registered to the real woodwork 1:1,
+   so any nudge or scale would open a seam along the arch. */
+.niche-clip { transition: filter 300ms ease; }
+.case-stage:has(.katetalk__hotspot:hover) .niche-clip,
+.case-stage:has(.katetalk__hotspot:focus-visible) .niche-clip,
+.case-stage:has(.katetalk[data-open="true"]) .niche-clip {
+  filter: brightness(1.05) saturate(1.04);
+}
+
+.katetalk {
+  position: absolute;
+  /* Over the niche's back wall, where the chalked day used to be: centred on
+     the niche (40.62% + half of its 17.46% width) and hung by its BOTTOM just
+     clear of Kate's head, so the panel grows upward into the empty arch as a
+     branch adds a line rather than creeping down over her. */
+  left: 49.35%;
+  bottom: 58.5%;            /* her head starts at 41.5% of the case box */
+  width: 300px;
+  padding: 13px 15px 11px;
+  z-index: 70;
+
+  border: 1px solid color-mix(in srgb, var(--border) 52%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--panel) 64%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  backdrop-filter: blur(14px) saturate(1.08);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    0 4px 14px rgba(44, 38, 63, 0.09);
+  color: var(--fg);
+
+  opacity: 0;
+  /* translateX(-50%) is the centring, not the animation — it has to survive
+     into the open state, so both keyframes carry it. */
+  transform: translateX(-50%) translateY(4px);
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+[data-theme="dark"] .katetalk {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 9%, transparent),
+    0 4px 14px rgba(0, 0, 0, 0.34);
+}
+.katetalk[data-open="true"] {
+  opacity: 1;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+/* Type comes from the site's own ladder — .t-label for the eyebrow, .t-body
+   for everything Kate and the visitor say — so the panel cannot drift from the
+   rest of the page. Only the colours are set here: her words carry --fg like
+   any primary line, the answers sit at --muted until you point at one. */
+.katetalk__who {
+  font-weight: 700;
+  color: var(--fg);
+}
+.katetalk__who span { color: var(--accent-red); }
+
+.katetalk__say { margin-top: 8px; }
+.katetalk__say p { color: var(--fg); }
+
+.katetalk__opts {
+  margin-top: 10px;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 16%, transparent);
+  list-style: none;
+}
+.katetalk__opt {
+  /* A text row, not a control: the arrow follows the words instead of being
+     pushed to a far edge, which is what would make it read as a menu item. */
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 7px;
+  width: calc(100% + 16px);
+  margin: 0 -8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.katetalk__opt i {
+  font-style: normal;
+  opacity: 0.5;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.katetalk__opt:hover {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  color: var(--fg);
+}
+.katetalk__opt:hover i { transform: translateX(2px); opacity: 1; }
+.katetalk__opt:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
+  color: var(--fg);
+}
+
+/* No gutter to park in, and no hover to open it with. */
+@media (max-width: 1023px) {
+  .katetalk, .katetalk__hotspot { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .katetalk, .katetalk__opt, .katetalk__opt i, .niche-clip { transition: none; }
+}
+

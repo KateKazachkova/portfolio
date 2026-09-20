@@ -873,7 +873,7 @@ export default function Home() {
             rail, in front of the coats — it both tells and (by dragging the
             hands) sets the scene's hour. The chain's bow sits just above the
             brass bar (railY(79) = 16.42%), so it reads as hung, not floating. */}
-        <div style={{ position: "absolute", left: "76.2%", top: "13.2%", width: "10%", zIndex: 4 }}>
+        <div style={{ position: "absolute", left: "81.6%", top: "11.2%", width: "10%", zIndex: 4 }}>
           <PocketWatch hour={hour ?? 12} onChange={pickHour} />
         </div>
 
@@ -881,7 +881,7 @@ export default function Home() {
             the watch — the schedule that used to live in a panel beside the
             case, now an object in it. Tapping a line jumps the doll to that
             edition, which is what the old chips did. */}
-        <div style={{ position: "absolute", left: "74.2%", top: "33%", width: "11.2%", zIndex: 5 }}>
+        <div style={{ position: "absolute", left: "73.8%", top: "31%", width: "18%", zIndex: 5 }}>
           <DaySticky hour={hour} active={forced} onPick={setForced} />
         </div>
 
@@ -1002,8 +1002,8 @@ export default function Home() {
         <NicheLight edition={shown} />
 
         {/* Kate answers, briefly. The hotspot sits over her in the niche; the
-            panel it opens parks in the empty strip under the right-hand door,
-            so the case is never covered. Nothing else in the hero moves. */}
+            panel it opens fills the wall above her head, where the chalked day
+            used to be. Nothing else in the hero moves. */}
         <KateTalk edition={shown} />
 
         {/* First-visit opening sequence — opens the case in place, doors

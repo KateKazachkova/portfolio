@@ -9,15 +9,15 @@ import { nodeFor, ROOT } from "@/lib/kate-talk";
  *
  * Two pieces that have to stay apart: an invisible HOTSPOT over Kate herself,
  * given in the suitcase box's own percentages like every other item on the
- * stage, and the PANEL, parked in the empty strip under the case's right-hand
- * door so it never lands on the case. The hotspot opens the panel on hover and
- * pins it on click; the panel keeps itself open while the pointer is inside it,
- * so the diagonal from Kate down to the panel is walkable.
+ * stage, and the PANEL, which opens on the niche's back wall directly above
+ * her — the space the chalked day used to occupy. The hotspot opens the panel
+ * on hover and pins it on click; the panel keeps itself open while the pointer
+ * is inside it, so the short trip up from Kate to the panel is walkable.
  *
  * Nothing here moves the hero: both children are absolutely positioned inside
- * .case-stage, so the layout around them is untouched. Below 1100px there is no
- * strip to park in and no hover to speak of, so the whole thing stands down
- * (see .katetalk in globals.css).
+ * .case-stage, so the layout around them is untouched. Below 1024px the case is
+ * too small to carry a 300px panel and there is no hover to open it with, so
+ * the whole thing stands down (see .katetalk in globals.css).
  */
 
 /** Kate inside the case box — the lower half of the niche clip, where she sits.
@@ -58,8 +58,14 @@ export default function KateTalk({ edition }: { edition: string }) {
   }, [pinned, cancelClose, close]);
 
   // She goes back to her own opening line when the hour (and so the scene)
-  // changes under an open panel.
-  useEffect(() => { setId(ROOT); }, [edition]);
+  // changes under an open panel. Adjusted during render rather than in an
+  // effect: an effect would paint the old scene's answer for a frame first,
+  // and React flags the cascading render it costs.
+  const [scene, setScene] = useState(edition);
+  if (scene !== edition) {
+    setScene(edition);
+    setId(ROOT);
+  }
 
   useEffect(() => () => cancelClose(), [cancelClose]);
 

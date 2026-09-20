@@ -203,9 +203,10 @@ export default function NicheDoll({ edition }: { edition: string }) {
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={poster} alt={`${edition} edition — in the niche`} style={{ ...NICHE, zIndex: 2 }} draggable={false} />
+      <img className="niche-clip" src={poster} alt={`${edition} edition — in the niche`} style={{ ...NICHE, zIndex: 2 }} draggable={false} />
       {!set.still && !failed && (
         <video
+          className="niche-clip"
           key={file}
           src={V + file}
           autoPlay

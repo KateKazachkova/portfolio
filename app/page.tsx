@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
-import ChalkTodo from "@/components/ChalkTodo";
 import NicheLight from "@/components/NicheLight";
+import KateTalk from "@/components/KateTalk";
 import PocketWatch from "@/components/PocketWatch";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -23,6 +23,7 @@ const CV_HREF =
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 import { mono } from "@/components/ui/type";
+import DaySticky from "@/components/DaySticky";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
@@ -376,16 +377,6 @@ export default function Home() {
         <ThemeToggle />
       </nav>
 
-      <div className="mt-16">
-        <p className="t-lead">Have a project?</p>
-        <Link
-          href="/contact"
-          className="t-title inline-block mt-2 hover:opacity-70 transition-opacity"
-          style={{ color: "var(--accent-red)", fontSize: 22 }}
-        >
-          Let&apos;s talk →
-        </Link>
-      </div>
     </div>
   );
 
@@ -878,10 +869,20 @@ export default function Home() {
             (see TARDIS_SPOTS); the shelf lip above is its own element. */}
         <TardisModel />
 
-        {/* The gold pocket watch, hung in the left door's curtain cutout — it
-            both tells and (by dragging the hands) sets the scene's hour. */}
-        <div style={{ position: "absolute", left: "11%", top: "44.45%", width: "10%", zIndex: 4 }}>
+        {/* The gold pocket watch, hung off the free left end of the wardrobe
+            rail, in front of the coats — it both tells and (by dragging the
+            hands) sets the scene's hour. The chain's bow sits just above the
+            brass bar (railY(79) = 16.42%), so it reads as hung, not floating. */}
+        <div style={{ position: "absolute", left: "76.2%", top: "13.2%", width: "10%", zIndex: 4 }}>
           <PocketWatch hour={hour ?? 12} onChange={pickHour} />
+        </div>
+
+        {/* Today's plan on a sticky note, pressed to the wardrobe wall under
+            the watch — the schedule that used to live in a panel beside the
+            case, now an object in it. Tapping a line jumps the doll to that
+            edition, which is what the old chips did. */}
+        <div style={{ position: "absolute", left: "74.2%", top: "33%", width: "11.2%", zIndex: 5 }}>
+          <DaySticky hour={hour} active={forced} onPick={setForced} />
         </div>
 
         {/* Left door — middle shelf: cassettes */}
@@ -957,9 +958,11 @@ export default function Home() {
           />
         </InkTip>
 
-        {/* The day chalked on the niche's back wall — schedule and to-do in one
-            list, struck through as the hours go by */}
-        <ChalkTodo edition={shown} />
+        {/* The chalked day used to live on the niche's back wall. That wall is
+            now where Kate's dialogue opens, and two lists of text in the same
+            small arch read as clutter — so the chalk is off (the component
+            itself is untouched, in components/ChalkTodo.tsx). */}
+        {/* <ChalkTodo edition={shown} /> */}
 
         {/* Central niche — editions with a generated clip play their video
             sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}
@@ -998,6 +1001,11 @@ export default function Home() {
             because the light is painted into it. */}
         <NicheLight edition={shown} />
 
+        {/* Kate answers, briefly. The hotspot sits over her in the niche; the
+            panel it opens parks in the empty strip under the right-hand door,
+            so the case is never covered. Nothing else in the hero moves. */}
+        <KateTalk edition={shown} />
+
         {/* First-visit opening sequence — opens the case in place, doors
             swing apart to reveal the doll in the niche underneath.
             HIDDEN for now per Kate — re-enable when the concept is reworked. */}
@@ -1032,6 +1040,22 @@ export default function Home() {
         <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }} className="text-gray-400 uppercase mt-1">
           {hour !== null ? `${((hour % 12) || 12)}:00 ${hour >= 12 ? "PM" : "AM"} · your local time` : ""}
         </p>
+      </div>
+
+      {/* Have a project? — parked in the bottom-left corner of the page, in the
+          same voice as the line under the title: body type, no accent colour.
+          mt-auto keeps it on the floor of the min-h-screen column. */}
+      <div className="w-full mt-auto pt-24">
+        <div className="ml-[6vw] min-[1440px]:ml-6">
+          <p className="t-body" style={{ color: "var(--fg)" }}>Have a project?</p>
+          <Link
+            href="/contact"
+            className="t-body inline-block mt-1 hover:opacity-60 transition-opacity"
+            style={{ color: "var(--fg)" }}
+          >
+            Let&apos;s talk →
+          </Link>
+        </div>
       </div>
 
     </main>

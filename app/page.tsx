@@ -832,18 +832,21 @@ export default function Home() {
           <DaySticky hour={hour} active={forced} onPick={setForced} />
         </div>
 
-        {/* Left door — middle shelf: cassettes */}
+        {/* Left door — middle shelf: the VHS tapes. The row is the width of
+            the shelf, like the box sets above it, and its base runs under the
+            shelf's front lip (zIndex 3) so the tapes stand on the board rather
+            than in front of it. */}
         <InkTip
-          label="Cassettes"
-          meta="The 10th Kingdom · Are You Afraid of the Dark?"
+          label="VHS shelf"
+          meta="The 10th Kingdom · The X-Files · Jumanji"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "14.9%", top: "29.8%", width: "9.4%", zIndex: 2 }}
+          style={{ position: "absolute", left: "10.24%", top: "31.54%", width: "13.6%", zIndex: 2 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/left-2-cassettes.png"
-            alt="Books: The 10th Kingdom and Are You Afraid of the Dark?"
+            src="/items/left-2-vhs.webp"
+            alt="A shelf of VHS tapes: The 10th Kingdom, Are You Afraid of the Dark?, Goosebumps, Harry Potter, The Lord of the Rings, The X-Files, Supernatural, Jumanji, IT, The Silence of the Lambs, The Princess Bride, Stargate"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
             draggable={false}

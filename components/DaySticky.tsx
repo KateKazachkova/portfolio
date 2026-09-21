@@ -36,10 +36,12 @@ const hourOf = (range: string) => parseInt(startOfRange(range).slice(0, 2), 10);
  *  is off the clock. */
 function planFor(day: number): string[] {
   if (day === 0 || day === 6)
-    return ["weekend_brunch", "weekend_cleaning", "weekend_series", "evening", "night"];
+    return ["weekend_brunch", "weekend_cleaning", "weekend_series", "evening_guitar", "night"];
   const standup = day === 1 ? "mon_standup" : "work_standup";
   const out = day === 5 ? "fri_wine" : "street";
-  return ["morning", standup, "office", "work_lunch", out, "evening"];
+  // The day closes on the guitar rather than on reading: the note is what she
+  // means to do, and "four chords so far" is a line you write to yourself.
+  return ["morning", standup, "office", "work_lunch", out, "evening_guitar"];
 }
 
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];

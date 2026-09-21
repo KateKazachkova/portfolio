@@ -25,7 +25,11 @@ export const EDITIONS: Record<string, Edition> = {
   fri_wine:       { key: "fri_wine",       label: "Day Edition", slogan: "Friday Call",     range: "Fri 17:00–17:58", items: ["Laptop", "Red wine", "Colleagues"] },
   fri_transition: { key: "fri_transition", label: "Day Edition", slogan: "Closing Time",    range: "Fri 17:58–18:00", items: ["Laptop shut", "Hoodie", "Yellow raincoat"] },
   street:  { key: "street",  label: "Street Edition",  slogan: "Urban Explorer",     range: "17–19", items: ["Flashlight", "Old map", "Compass", "Key"] },
-  evening: { key: "evening", label: "Evening Edition", slogan: null,                 range: "19–23", items: [] },
+  // The evening splits in two: she practises first, then reads. The guitar is
+  // a real Valencia she is learning on, so the slogan counts what she can
+  // actually play rather than claiming she plays.
+  evening_guitar: { key: "evening_guitar", label: "Evening Edition", slogan: "Four Chords So Far", range: "19–21", items: ["Valencia", "Chord chart", "Sore fingers"] },
+  evening: { key: "evening", label: "Evening Edition", slogan: null,                 range: "21–23", items: [] },
   night:   { key: "night",   label: "Deep Night Edition", slogan: "Archive Mode",    range: "23–07", items: ["Blanket", "Harari books", "Film negatives"] },
 
   // Weekend editions — she rests, she doesn't work. Shown on Saturday by real
@@ -44,7 +48,8 @@ export function editionForHour(h: number, m = 0): Edition {
   if (h >= 14 && h < 16) return EDITIONS.work_calls;
   if (h >= 16 && h < 17) return EDITIONS.work_wrapup;
   if (h >= 17 && h < 19) return EDITIONS.street;
-  if (h >= 19 && h < 23) return EDITIONS.evening;
+  if (h >= 19 && h < 21) return EDITIONS.evening_guitar;
+  if (h >= 21 && h < 23) return EDITIONS.evening;
   return EDITIONS.night;
 }
 
@@ -85,7 +90,7 @@ export type Daytime = "morning" | "day" | "evening" | "night";
 export function daytimeForEdition(key: string): Daytime {
   if (key === "morning" || key.startsWith("morn_") || key === "mon_alarm" || key === "weekend_brunch") return "morning";
   if (key === "office" || key.startsWith("work_") || key === "mon_standup" || key === "weekend_cleaning" || key === "weekend_series") return "day";
-  if (key === "street" || key === "evening" || key.startsWith("fri_")) return "evening";
+  if (key === "street" || key === "evening" || key === "evening_guitar" || key.startsWith("fri_")) return "evening";
   return "night";
 }
 

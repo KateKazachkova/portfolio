@@ -357,6 +357,10 @@ export default function Home() {
             { label: "Closing", key: "fri_transition" },
             { label: "Mon ×2", key: "mon_standup" },
           ] },
+          { title: "Evening", chips: [
+            { label: "Guitar", key: "evening_guitar" },
+            { label: "Reading", key: "evening" },
+          ] },
           { title: "Weekend", chips: [
             { label: "Brunch", key: "weekend_brunch" },
             { label: "Cleaning", key: "weekend_cleaning" },

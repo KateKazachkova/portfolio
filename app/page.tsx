@@ -405,7 +405,7 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-start gap-10 px-6 pb-14"
+      className="min-h-screen flex flex-col items-center justify-start gap-4 px-6 pb-3"
       // Painted, not transparent: <main> is the plate's nearest stacking
       // context, so it is what the sweep blends onto. Transparent here and the
       // blend has no backdrop, which shows the raw near-white plate instead.
@@ -427,7 +427,7 @@ export default function Home() {
           globals.css rather than touching any item. */}
       {/* select-none only here: dragging the watch hand used to smear a
           selection across the scene. The page's own text stays selectable. */}
-      <div className="case-stage select-none" style={{ "--case-x": "90px" } as React.CSSProperties}>
+      <div className="case-stage select-none" style={{ "--case-x": "90px", marginBottom: -48 } as React.CSSProperties}>
         {/* The studio sweep, anchored to the case so it travels with it, and
             the flat floor that carries its last tone down past the plate. */}
         <div className="studio-floor" aria-hidden />
@@ -1016,7 +1016,7 @@ export default function Home() {
       {/* Have a project? — parked in the bottom-left corner of the page, in the
           same voice as the line under the title: body type, no accent colour.
           mt-auto keeps it on the floor of the min-h-screen column. */}
-      <div className="w-full mt-auto pt-24">
+      <div className="w-full mt-auto pt-4">
         <div className="ml-[6vw] min-[1440px]:ml-6">
           <p className="t-body" style={{ color: "var(--fg)" }}>Have a project?</p>
           <Link

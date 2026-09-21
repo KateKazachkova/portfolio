@@ -50,7 +50,7 @@ export default async function ProjectsPage() {
 
   return (
     <main className="min-h-screen px-8 py-24 max-w-5xl mx-auto">
-      <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Work</p>
+      <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Case Files</p>
       <h1 className="t-display mb-12">Projects & Case Studies</h1>
 
       {cards.length === 0 ? (

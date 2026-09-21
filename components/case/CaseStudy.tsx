@@ -168,7 +168,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
       <div className="sheet">
         <div className="mast row">
           <div className="rail">
-            <Link className="backlink" href="/work"><span>←</span> Work</Link>
+            <Link className="backlink" href="/work"><span>←</span> Case Files</Link>
           </div>
           <div className="body" />
           <div className="side" style={{ textAlign: "right" }}>
@@ -266,7 +266,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         <div className="row">
           <div className="rail" />
           <div className="body casenav" style={{ gridColumn: "2 / 4" }}>
-            <Link href="/work"><span>←</span> All projects</Link>
+            <Link href="/work"><span>←</span> All case files</Link>
             {data.next && <Link href={data.next.href}>{data.next.label} <span>→</span></Link>}
           </div>
         </div>

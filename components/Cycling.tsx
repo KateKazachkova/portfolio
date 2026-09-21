@@ -3,18 +3,29 @@ import { polylineToSvgPath } from "@/lib/polyline";
 import { buildStaticMapUrl } from "@/lib/staticmap";
 import { mono } from "@/components/ui/type";
 
-/** Part 06 of the manual — the Strava telemetry.
+/** Where the section sits in the page it is dropped into. */
+type SectionProps = { n?: string; title?: string };
+
+/** The Strava telemetry — part 01 of the field notes.
  *
  *  It lives apart from the rest of the page because it is the only section
  *  that waits on a network call: the token, then the ride history. Behind a
- *  Suspense boundary the manual renders at once and the bike figures drop in
- *  when Strava answers. */
-export default async function Cycling() {
+ *  Suspense boundary the page renders at once and the bike figures drop in
+ *  when Strava answers.
+ *
+ *  The section number and heading are props because the block has already
+ *  moved once — it was part 06 of the assembly manual before the personal
+ *  half of that page became Off Duty — and the skeleton has to be numbered
+ *  the same as whatever the page asks for. */
+export default async function Cycling({
+  n = "01",
+  title = "Field Telemetry",
+}: SectionProps = {}) {
   const [stats, activities] = await Promise.all([getRideStats(), getLongestRides(3)]);
   if (!stats) return null;
 
   return (
-<Part n="06" title="Cycling – Field Telemetry">
+<Part n={n} title={title}>
           <div className="flex justify-end mb-4">
             <a href="https://www.strava.com/athletes/52565503" target="_blank" rel="noopener noreferrer"
               className="uppercase font-bold underline hover:no-underline text-gray-400" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
@@ -75,12 +86,12 @@ export default async function Cycling() {
 }
 
 /** What stands in while Strava answers: the same frame, the figures blank. */
-export function CyclingSkeleton() {
+export function CyclingSkeleton({ n = "01", title = "Field Telemetry" }: SectionProps = {}) {
   return (
     <section className="mb-20 last:mb-0">
       <div className="flex items-baseline gap-4 mb-6 border-b-2 pb-3" style={{ borderColor: "var(--border)" }}>
-        <span className="t-label" style={{ fontSize: 20, fontWeight: 700, color: "var(--accent-red)" }}>06</span>
-        <h2 className="t-title">Cycling – Field Telemetry</h2>
+        <span className="t-label" style={{ fontSize: 20, fontWeight: 700, color: "var(--accent-red)" }}>{n}</span>
+        <h2 className="t-title">{title}</h2>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {["Distance", "Rides", "Time", "Elevation"].map((label) => (

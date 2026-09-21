@@ -104,6 +104,17 @@ body::before {
 /* Keep page content above the grain */
 body > * { position: relative; z-index: 1; }
 
+/* ── The page beside its navigation ──
+   components/SideNav.tsx puts the index down the left edge from 1100px up.
+   The row it shares with the page becomes a flex only when the rail is really
+   in it: home carries its links in the hero's own column, and a case file has
+   a margin of its own (app/case.css), so both render no rail — and there the
+   row has to stay a block, or the small-screen bar would line up beside the
+   page instead of sitting above it. */
+@media (min-width: 1100px) {
+  .page-row:has(> .nav-rail) { display: flex; }
+}
+
 /* ── The studio sweep (home only, via data-scene on <html>) ──
    Wall and floor are one colour; only the light tells them apart. On a light
    ground there is no headroom to separate them by lightness, so they split by

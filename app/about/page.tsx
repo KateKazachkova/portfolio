@@ -1,13 +1,9 @@
-import Link from "next/link";
-import { Suspense } from "react";
-import { getFilms, getSeries, getBooks } from "@/lib/content";
-import FilmStack from "@/components/FilmStack";
-import DiscStack from "@/components/DiscStack";
-import BookShelf from "@/components/BookShelf";
 import { mono } from "@/components/ui/type";
-import Cycling, { CyclingSkeleton } from "@/components/Cycling";
 
-export const revalidate = 3600;
+export const metadata = {
+  title: "Profile – Kate Kazachkova",
+  description: "The professional specification of the KATE™ model: overview, field history, teaching and specifications.",
+};
 
 const SPECS: [string, string][] = [
   ["MODEL", "KATE™"],
@@ -126,11 +122,7 @@ const SKILLS = [
   "Business Analysis", "AI-First Design (Figma + Claude)", "Figma", "Adobe Creative Suite",
 ];
 
-export default async function About() {
-  const films = getFilms();
-  const series = getSeries();
-  const books = getBooks();
-  
+export default function Profile() {
   return (
     <main className="min-h-screen px-8 py-16 max-w-5xl mx-auto">
       {/* ── Manual cover ── */}
@@ -147,7 +139,7 @@ export default async function About() {
 
         {/* Spec table */}
         <div className="border-t-2 grid grid-cols-1 sm:grid-cols-2 gap-x-10" style={{ borderColor: "var(--border)" }}>
-          {SPECS.map(([k, v], i) => (
+          {SPECS.map(([k, v]) => (
             <div
               key={k}
               className="flex justify-between gap-4 py-3 border-b"
@@ -248,65 +240,6 @@ export default async function About() {
               <span style={{ fontFamily: mono, fontSize: 11 }} className="text-gray-400 whitespace-nowrap">{e.period}</span>
             </div>
           ))}
-        </div>
-      </Part>
-
-      {/* 05 – Recognition */}
-      <Part n="05" title="Recognition">
-        <div className="flex items-baseline justify-between mb-3">
-          <p className="text-gray-600">30 international design awards – 6 Gold · 20 Silver · 4 Bronze.</p>
-          <Link href="/recognition" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
-            Quality Check →
-          </Link>
-        </div>
-      </Part>
-
-      {/* 06 – Cycling. Its own component behind Suspense: Strava costs a few
-          round trips, and the manual should not wait on a bike ride. */}
-      <Suspense fallback={<CyclingSkeleton />}>
-        <Cycling />
-      </Suspense>
-
-      {/* 07 – Travels */}
-      <Part n="07" title="Travels">
-        <div className="flex items-baseline justify-between">
-          <p className="text-gray-500 italic">A map of places I&apos;ve been – coming soon.</p>
-          <Link href="/about/map" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
-            View map →
-          </Link>
-        </div>
-      </Part>
-
-      {/* 08 – Reference Library */}
-      <Part n="08" title="Reference Library">
-        <p className="text-gray-500 mb-10 max-w-2xl">What I watch and read – a small archive on the shelf.</p>
-
-        {/* Series – disc rack */}
-        <div className="mb-12">
-          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
-            Series · {series.length} · disc rack
-          </p>
-          <DiscStack series={series} />
-        </div>
-
-        {/* Films – VHS shelf */}
-        <div className="mb-12">
-          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
-            Films · {films.length} · VHS shelf
-          </p>
-          <FilmStack films={films} />
-        </div>
-
-        {/* Books – shelf */}
-        <div>
-          <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">
-            Books · {books.length} · shelf
-          </p>
-          {books.length > 0 ? (
-            <BookShelf books={books} />
-          ) : (
-            <p className="text-gray-400 italic text-sm">Books – coming soon.</p>
-          )}
         </div>
       </Part>
     </main>

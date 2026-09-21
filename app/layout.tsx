@@ -9,7 +9,7 @@ import {
 } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import Nav from "@/components/Nav";
+import SideNav from "@/components/SideNav";
 import Footer from "@/components/Footer";
 import TimeProvider from "@/components/TimeProvider";
 
@@ -107,8 +107,22 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <TimeProvider>
-          <Nav />
-          <div className="flex-1">{children}</div>
+          {/* The navigation is a left margin, not a bar across the top — the
+              way home has always carried it. The row keeps the default stretch
+              so the rail's column runs the full height of the page: that is
+              what its sticky inner block needs to travel in. On home SideNav
+              renders nothing and the row collapses to the page itself. The
+              breakpoint is the one SideNav documents: under it the navigation
+              is a bar again and there is no column to lay out.
+
+              The row turns into a flex only when the rail is actually in it —
+              `.page-row:has(> .nav-rail)` in globals.css. Home and the case
+              files render no rail, and there the row must stay a block or the
+              bar would line up beside the page instead of above it. */}
+          <div className="flex-1 page-row">
+            <SideNav />
+            <div className="flex-1 min-w-0">{children}</div>
+          </div>
           <Footer />
         </TimeProvider>
       </body>

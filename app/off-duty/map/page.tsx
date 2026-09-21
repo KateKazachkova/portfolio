@@ -8,7 +8,7 @@ const PLACES = [
 export default function TravelMap() {
   return (
     <main className="min-h-screen px-8 py-20 max-w-6xl mx-auto">
-      <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Travels</p>
+      <p className="text-sm text-gray-400 uppercase tracking-widest mb-4">Off Duty · Travel Log</p>
       <h1 className="text-4xl font-bold text-gray-900 mb-12">Where I&apos;ve been</h1>
 
       <div className="flex flex-col md:flex-row gap-8">

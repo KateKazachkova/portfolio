@@ -1,6 +1,4 @@
-import Link from "next/link";
-import ThemeToggle from "@/components/ThemeToggle";
-import { NAV_LINKS, CV_HREF } from "@/lib/nav";
+import { NavIndex } from "@/components/SideNav";
 
 /**
  * The column to the left of the case: the wordmark, who she is, and the
@@ -31,26 +29,9 @@ export default function HeroAside({
           this line is the second half of the title, not body copy. */}
       <p className="t-body mt-4" style={{ color: "var(--fg)" }}>{lead}</p>
 
-      <nav className="mt-14 flex flex-col items-start gap-3">
-        {NAV_LINKS.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="t-label hover:opacity-60 transition-opacity"
-          >
-            {l.label}
-          </Link>
-        ))}
-        <a
-          href={CV_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="t-label text-gray-400 hover:opacity-60 transition-opacity mt-3"
-        >
-          CV ↗
-        </a>
-        <ThemeToggle />
-      </nav>
+      {/* The index itself comes from the navigation component every other
+          page uses down its left edge — same list, same order, one place. */}
+      <NavIndex />
     </div>
   );
 }

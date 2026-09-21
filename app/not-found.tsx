@@ -384,7 +384,7 @@ export default function NotFound() {
                 padding: "10px 16px", border: "2px solid var(--border)", color: "var(--fg)",
               }}
             >
-              View the work →
+              View the case files →
             </Link>
           </div>
         </div>

@@ -6,7 +6,8 @@
  * column — which is two lists to keep in step and one of them to forget.
  *
  * The labels are the case's own vocabulary, not the routes: /work is filed as
- * Case Files, /about as Profile. The URLs stay as they were so nothing that
+ * Case Files, /about as Profile, /kit as the Parts List — the product's own
+ * page, what this one is made of. The URLs stay as they were so nothing that
  * already points at them breaks.
  */
 export const NAV_LINKS = [
@@ -14,6 +15,7 @@ export const NAV_LINKS = [
   { href: "/about", label: "Profile" },
   { href: "/off-duty", label: "Off Duty" },
   { href: "/recognition", label: "Recognition" },
+  { href: "/kit", label: "Parts List" },
   { href: "/contact", label: "Contact" },
 ] as const;
 

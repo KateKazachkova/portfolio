@@ -4,27 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
+import HeroAside from "./HeroAside";
 import { mono } from "@/components/ui/type";
 import { NAV_LINKS as LINKS, CV_HREF } from "@/lib/nav";
 
 /** The site's navigation, in the left margin of every page.
  *
  *  It used to run across the top in a bar. Home never had that bar — its
- *  links sit in the column beside the case (components/HeroAside.tsx) — so
- *  the rest of the site now reads the same way: the wordmark, the index and
- *  the CV down the left edge, the page itself to the right of them.
+ *  links sit in the column beside the case — so the rest of the site now
+ *  reads the same way, and reads it from the same component: the rail *is*
+ *  HeroAside, at home's own measure and offsets. Wordmark at 56px from the
+ *  top, the masthead 124px under it, the index 56px under that, 34ch of
+ *  measure, and the hairline down the right edge that home draws once it has
+ *  room for it. One column, one set of spacings, six pages.
  *
- *  Home keeps HeroAside, which renders NavIndex from this same file, so the
- *  rail stays off that route entirely rather than putting a second index
- *  beside the first.
+ *  Home renders HeroAside itself, inside the hero, so the rail stays off that
+ *  route rather than standing a second copy of the column beside the first.
  *
- *  The rail only appears once the window can spare it: it takes 232px out of
- *  every page's measure, and the widest thing on the site — the inspection
- *  record on /recognition, whose findings are set nowrap against the right
- *  edge — needs about 1,065px alongside it. Under that the component falls
- *  back to what it replaced: a sticky bar with a latch, and the index as a
- *  numbered panel under it. 1100px is that threshold, and app/layout.tsx
- *  switches the row to a flex at the same width.
+ *  The rail only appears once the window can spare it: at home's measure it
+ *  takes 376px out of every page's, and the widest thing on the site — the
+ *  inspection record on /recognition — needs about 913px alongside it. Under
+ *  that the component falls back to what it replaced: a sticky bar with a
+ *  latch, and the index as a numbered panel under it. 1280px is that
+ *  threshold; app/layout.tsx switches the row to a flex at the same width,
+ *  and components/ui/DocTable.tsx lets the record's findings run unbroken
+ *  from it.
  */
 export default function SideNav() {
   const pathname = usePathname();
@@ -83,33 +87,30 @@ export default function SideNav() {
       {/* ── The rail, once there is room for it ── */}
       {!inCaseFile && (
       <div
-        className="nav-rail hidden min-[1100px]:block shrink-0"
-        style={{ width: 232 }}
+        className="nav-rail hidden min-[1280px]:block shrink-0"
+        // The measure and the offsets are home's, read off the hero: 48px in
+        // from the edge, then 34ch of column — home's own cap — then 24px and
+        // a hairline between it and the page, which is the rule home draws
+        // down this same edge once the window is wide enough to stand the
+        // column beside the case. 376 = 48 + 303 + 24 + 1.
+        style={{ width: 376, borderRight: "1px solid var(--hairline)" }}
       >
         <div
-          className="sticky top-0 px-7 flex flex-col items-start"
-          // Sticky set inline for the same reason the bar's was: globals.css
+          className="sticky top-0"
+          // Sticky set inline for the same reason the bar's is: globals.css
           // has an unlayered `body > *` rule that beats Tailwind's layered
           // utilities, and this column is close enough to that root to be
           // worth not relying on the class.
-          style={{ position: "sticky", top: 0, paddingTop: 56, paddingBottom: 40 }}
+          style={{ position: "sticky", top: 0, padding: "56px 24px 40px 48px" }}
         >
-          <Link
-            href="/"
-            className="font-black uppercase tracking-tight leading-none"
-            style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}
-          >
-            KATE<span style={{ color: "var(--accent-red)" }}>™</span>
-          </Link>
-
-          <NavIndex />
+          <HeroAside />
         </div>
       </div>
       )}
 
       {/* ── The bar + panel, under that ── */}
       <header
-        className={inCaseFile ? undefined : "min-[1100px]:hidden"}
+        className={inCaseFile ? undefined : "min-[1280px]:hidden"}
         style={{
           position: "sticky",
           top: 0,
@@ -243,51 +244,5 @@ export default function SideNav() {
         )}
       </header>
     </>
-  );
-}
-
-/** The index itself: the links, the CV and the theme, set down the page.
- *
- *  Exported because home carries the same column beside the case
- *  (components/HeroAside.tsx) — one list of links, rendered one way, in both
- *  places it appears.
- *
- *  The active rule is the same 2px the top bar used, stood on its end: on a
- *  vertical index "you are here" belongs down the side of a label, not under
- *  it. The negative margin pays back the border and the padding exactly, so
- *  the labels sit on the same left edge whether or not one of them is lit.
- */
-export function NavIndex({ className = "mt-14" }: { className?: string }) {
-  const pathname = usePathname();
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
-
-  return (
-    <nav className={`flex flex-col items-start gap-3 ${className}`}>
-      {LINKS.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className="t-label transition-opacity hover:opacity-60"
-          style={{
-            color: isActive(link.href) ? "var(--fg)" : "var(--muted)",
-            borderLeft: isActive(link.href) ? "2px solid var(--accent)" : "2px solid transparent",
-            paddingLeft: 10,
-            marginLeft: -12,
-          }}
-        >
-          {link.label}
-        </Link>
-      ))}
-
-      <a
-        href={CV_HREF}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="t-label text-gray-400 hover:opacity-60 transition-opacity mt-3"
-      >
-        CV ↗
-      </a>
-      <ThemeToggle />
-    </nav>
   );
 }

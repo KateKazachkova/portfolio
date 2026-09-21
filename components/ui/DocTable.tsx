@@ -94,7 +94,15 @@ const CELL: Record<CellKind, { className: string; style?: React.CSSProperties }>
   ref:   { className: "text-gray-400 max-md:pb-0", style: { fontFamily: mono, fontSize: 12 } },
   key:   { className: "text-sm font-semibold max-md:py-0", style: { color: "var(--fg)" } },
   muted: { className: "text-sm text-gray-500 max-md:py-0" },
-  value: { className: "text-sm text-right whitespace-nowrap max-md:text-left max-md:pt-0", style: { color: "var(--fg)" } },
+  /* The finding reads as one line against the edge — but only from 1280px up,
+     where the column has room for it. One record's finding is four
+     distinctions long, and an unconditional nowrap made those 337px the
+     table's minimum width, which pushed the report past the window and
+     scrolled the whole page sideways at tablet widths. Under that it folds
+     instead of dragging the page along. 1280px is where the left rail comes
+     in (components/SideNav.tsx), so it is the narrowest width the line has
+     room to sit on. */
+  value: { className: "text-sm text-right min-[1280px]:whitespace-nowrap max-md:text-left max-md:pt-0", style: { color: "var(--fg)" } },
 };
 
 export function DocCell({

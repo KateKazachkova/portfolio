@@ -105,13 +105,13 @@ body::before {
 body > * { position: relative; z-index: 1; }
 
 /* ── The page beside its navigation ──
-   components/SideNav.tsx puts the index down the left edge from 1100px up.
+   components/SideNav.tsx puts the index down the left edge from 1280px up.
    The row it shares with the page becomes a flex only when the rail is really
    in it: home carries its links in the hero's own column, and a case file has
    a margin of its own (app/case.css), so both render no rail — and there the
    row has to stay a block, or the small-screen bar would line up beside the
    page instead of sitting above it. */
-@media (min-width: 1100px) {
+@media (min-width: 1280px) {
   .page-row:has(> .nav-rail) { display: flex; }
 }
 

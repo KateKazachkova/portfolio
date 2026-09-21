@@ -112,7 +112,7 @@ export default function RootLayout({
               so the rail's column runs the full height of the page: that is
               what its sticky inner block needs to travel in. On home SideNav
               renders nothing and the row collapses to the page itself. The
-              breakpoint is the one SideNav documents: under it the navigation
+              breakpoint is the one SideNav documents (1280px): under it the navigation
               is a bar again and there is no column to lay out.
 
               The row turns into a flex only when the rail is actually in it —

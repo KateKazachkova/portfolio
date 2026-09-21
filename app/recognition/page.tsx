@@ -154,7 +154,10 @@ export default function QualityCheck() {
             <Sheet
               key={name}
               raised
-              className="grid grid-cols-1 md:grid-cols-[200px_1fr]"
+              // minmax(0,…) rather than a bare 1fr: a plain fr is floored at
+              // its content's minimum, so one wide row inside could widen the
+              // column past the card and take the page with it.
+              className="grid grid-cols-1 md:grid-cols-[200px_minmax(0,1fr)]"
               style={name === "Ukrainska 15" ? { border: "none" } : undefined}
             >
               {/* specimen frame */}

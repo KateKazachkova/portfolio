@@ -1,4 +1,4 @@
-import { NavIndex } from "@/components/SideNav";
+import NavIndex from "@/components/NavIndex";
 
 /**
  * The column to the left of the case: the wordmark, who she is, and the
@@ -29,8 +29,8 @@ export default function HeroAside({
           this line is the second half of the title, not body copy. */}
       <p className="t-body mt-4" style={{ color: "var(--fg)" }}>{lead}</p>
 
-      {/* The index itself comes from the navigation component every other
-          page uses down its left edge — same list, same order, one place. */}
+      {/* The index itself — the same component the rail down every other page
+          uses, because the rail is this column. */}
       <NavIndex />
     </div>
   );

@@ -27,7 +27,9 @@ export default function HeroAside({
         KATE<span style={{ color: "var(--accent-red)" }}>™</span>
       </p>
       <h2 className="t-title mt-[124px]">{title}</h2>
-      <p className="t-body mt-4">{lead}</p>
+      {/* Full ink, not the muted grey .t-body carries elsewhere: on the hero
+          this line is the second half of the title, not body copy. */}
+      <p className="t-body mt-4" style={{ color: "var(--fg)" }}>{lead}</p>
 
       <nav className="mt-14 flex flex-col items-start gap-3">
         {NAV_LINKS.map((l) => (

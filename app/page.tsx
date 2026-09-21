@@ -797,11 +797,9 @@ export default function Home() {
             BASE, not their top — the shelf board is at 28.3% and the spines
             are different heights, so a shared `top` would leave one of them
             floating. Their bottoms run a little past the board, under the
-            shelf lip above them (zIndex 3). */}
-        <InkTip
-          label="Read this year"
-          meta="Sapiens · IT · Animal Farm"
-          place="bottom"
+            shelf lip above them (zIndex 3). They carry no label: the shelf is
+            a thing to notice, not a list to read. */}
+        <div
           className="group"
           style={{ position: "absolute", left: "10.25%", top: "14.45%", width: "5.5%", zIndex: 2 }}
         >
@@ -813,12 +811,9 @@ export default function Home() {
             style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
             draggable={false}
           />
-        </InkTip>
+        </div>
 
-        <InkTip
-          label="Read at twelve"
-          meta="W.I.T.C.H. 1–3 · The Little Prince"
-          place="bottom"
+        <div
           className="group"
           style={{ position: "absolute", left: "18.9%", top: "14.9%", width: "5%", zIndex: 2 }}
         >
@@ -830,7 +825,7 @@ export default function Home() {
             style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
             draggable={false}
           />
-        </InkTip>
+        </div>
 
         {/* The TARDIS — starts on the left door's top shelf and jumps between
             spots on each charge. Placement and glow live in the component
@@ -857,10 +852,7 @@ export default function Home() {
             the shelf, like the box sets above it, and its base runs under the
             shelf's front lip (zIndex 3) so the tapes stand on the board rather
             than in front of it. */}
-        <InkTip
-          label="VHS shelf"
-          meta="The 10th Kingdom · The X-Files · Jumanji"
-          place="bottom"
+        <div
           className="group"
           style={{ position: "absolute", left: "10.24%", top: "31.54%", width: "13.6%", zIndex: 2 }}
         >
@@ -872,31 +864,10 @@ export default function Home() {
             style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
             draggable={false}
           />
-        </InkTip>
-
-        {/* Right door — bottom shelf: books */}
-        <InkTip
-          label="On the Shelf"
-          meta="Animal Farm · The Little Prince"
-          place="top"
-          className="group"
-          style={{ position: "absolute", left: "74.88%", top: "69%", width: "11.4%", zIndex: 2 }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/items/right-3-books.png"
-            alt="Books: Animal Farm and The Little Prince"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
-            draggable={false}
-          />
-        </InkTip>
+        </div>
 
         {/* Right compartment, above the poster: the bicycle hung on the wall. */}
-        <InkTip
-          label="Field kit"
-          meta="The gravel bike"
-          place="bottom"
+        <div
           className="group"
           style={{ position: "absolute", left: "56.48%", top: "17.16%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4 }}
         >
@@ -909,7 +880,7 @@ export default function Home() {
             style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" }}
             draggable={false}
           />
-        </InkTip>
+        </div>
 
         {/* Under the hung bike: the Converse she rides in, left on the floor. */}
         <InkTip

@@ -898,7 +898,7 @@ body::after {
 .sticky-note button {
   display: flex;
   align-items: baseline;
-  gap: 1.0cqw;
+  gap: 0.6cqw;
   width: 100%;
   padding: 0;
   background: none;
@@ -910,7 +910,7 @@ body::after {
   transition: transform 0.18s ease, color 0.18s ease;
 }
 .sticky-note button:hover { color: var(--accent-red); }
-.sticky-note__time { flex: 0 0 auto; font-size: 7.0cqw; opacity: 0.7; }
+.sticky-note__time { flex: 0 0 auto; font-size: 8.0cqw; opacity: 0.7; }
 .sticky-note__text { position: relative; font-size: 8.3cqw; white-space: nowrap; }
 /* Crossed off by hand: a line that overshoots the words at both ends, because
    nobody starts and stops a pen on the letter. */

@@ -248,7 +248,7 @@ function TardisModel() {
 }
 
 export default function Home() {
-  const { hour, auto, setHour, setNow, applyAmbient } = useTime();
+  const { hour, auto, setHour, setNow, applyAmbient, previewMood } = useTime();
   // Manual mode override — buttons force a specific edition (incl. the
   // weekend ones, which otherwise only show on Saturday). Cleared by the
   // clock / presets / Now.
@@ -276,10 +276,10 @@ export default function Home() {
   // the presets clear the force without necessarily changing the hour, so the
   // provider's own effect had no reason to fire and repaint.
   useEffect(() => {
-    if (forced) document.documentElement.setAttribute("data-daytime", daytimeForEdition(forced));
+    if (forced) previewMood(daytimeForEdition(forced));
     else applyAmbient();
     return applyAmbient;
-  }, [forced, applyAmbient]);
+  }, [forced, applyAmbient, previewMood]);
   const [videoFailed, setVideoFailed] = useState(false);
 
   // The award takes her turn when you point at her. The clip was generated

@@ -72,17 +72,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Default the theme by local time — night (dark) from 19:00 to 06:00,
-  // day (light) otherwise — on top of the time-of-day dolls. A manual
-  // toggle is saved to localStorage and always wins over the time default.
+  // The first frame, before React runs: paint the theme the visitor is about
+  // to get, so the page never flashes the wrong one.
+  //
+  // In auto it restates themeForDaytime() from lib/time.ts in hours rather
+  // than editions — dark from the walk home (17:00, or 19:00 at the weekend,
+  // when the morning starts later and the day runs longer) through to the
+  // alarm. TimeProvider corrects it from the real edition on mount, so a
+  // disagreement of an hour costs a repaint, not a wrong page. A pinned
+  // light or dark is the visitor's and wins outright.
   const themeScript = `
     (function () {
       try {
         var saved = localStorage.getItem('theme');
-        var h = new Date().getHours();
-        var byTime = (h >= 19 || h < 6) ? 'dark' : 'light';
-        var theme = saved || byTime;
-        document.documentElement.setAttribute('data-theme', theme);
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', saved);
+          return;
+        }
+        var d = new Date(), h = d.getHours(), weekend = d.getDay() === 0 || d.getDay() === 6;
+        var dark = weekend ? (h < 8 || h >= 19) : (h < 7 || h >= 17);
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
       } catch (e) {}
     })();
   `;

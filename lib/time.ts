@@ -96,3 +96,17 @@ export function daytimeForHour(h: number): Daytime {
 export function daytimeForDate(d: Date): Daytime {
   return daytimeForEdition(editionForDate(d).key);
 }
+
+export type Theme = "light" | "dark";
+
+/** The page's own light/dark, derived from the scene's mood: the case is lit
+ *  by the hour it is showing, and a dark case on a bright page reads as two
+ *  pictures rather than one. Morning and the working day are light; the walk
+ *  home, the evening and the small hours are dark.
+ *
+ *  app/layout.tsx re-states this rule in the inline boot script, in hours
+ *  rather than editions, so the first paint is already the right colour. If
+ *  the editions move, move that script with them. */
+export function themeForDaytime(mood: Daytime): Theme {
+  return mood === "morning" || mood === "day" ? "light" : "dark";
+}

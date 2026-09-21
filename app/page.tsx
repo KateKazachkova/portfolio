@@ -886,18 +886,40 @@ export default function Home() {
           />
         </div>
 
-        {/* Under the hung bike: the Converse she rides in, left on the floor. */}
+        {/* The other way she gets around, parked on the compartment floor
+            under the hung bike — the bike hangs, the wheel stands. Colour is
+            baked into the file like the bike's, so only the shadow is left. */}
+        <InkTip
+          label="Field kit"
+          meta="The wheel"
+          place="bottom"
+          className="group"
+          style={{ position: "absolute", left: "61.4%", top: "58.5%", width: "10.1%", zIndex: 4 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/mid-mono.webp"
+            alt="A miniature electric unicycle parked on the compartment floor under the bike"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" }}
+            draggable={false}
+          />
+        </InkTip>
+
+        {/* The Converse she rides in, paired on the wardrobe's bottom shelf
+            under the folded blankets — the floor below the bike is the wheel's
+            now, and shoes on a shelf read as put away rather than dropped. */}
         <InkTip
           label="Field kit"
           meta="The Converse"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "62.83%", top: "72.52%", width: "8%", zIndex: 5 }}
+          style={{ position: "absolute", left: "76.2%", top: "72.9%", width: "7.4%", zIndex: 5 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/items/mid-bike-shoes.webp"
-            alt="A pair of black canvas high-top sneakers standing on the compartment floor"
+            alt="A pair of black canvas high-top sneakers on the wardrobe's bottom shelf"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" }}
             draggable={false}

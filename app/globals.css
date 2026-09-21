@@ -858,6 +858,11 @@ body::after {
 }
 /* The shadow is written in container units, so it has to hang on a child: the
    note itself is the query container and cannot measure itself. */
+/* At night the note is the one thing in the case that was photographed in a
+   lit room: left alone it reads as a lamp stuck to the door while everything
+   around it is in shadow. Paper and writing dim together, so the ink keeps
+   its contrast against the sheet. */
+[data-theme="dark"] .sticky-note { filter: brightness(0.62) saturate(0.88); }
 .sticky-note__paper {
   display: block;
   width: 100%;
@@ -1085,7 +1090,7 @@ body::after {
   filter: sepia(0.32) saturate(0.78) hue-rotate(-7deg) brightness(0.95) contrast(1.06);
 }
 [data-theme="dark"] .pocketwatch-img {
-  filter: sepia(0.34) saturate(0.74) hue-rotate(-7deg) brightness(0.82) contrast(1.04);
+  filter: sepia(0.34) saturate(0.74) hue-rotate(-7deg) brightness(0.68) contrast(1.04);
 }
 
 /* ── The suitcase stage ───────────────────────────────────────────────────

@@ -5,17 +5,6 @@ export const metadata = {
   description: "The professional specification of the KATE™ model: overview, field history, teaching and specifications.",
 };
 
-const SPECS: [string, string][] = [
-  ["MODEL", "KATE™"],
-  ["SERIAL", "PD-001"],
-  ["CATEGORY", "Product Designer"],
-  ["ASSEMBLED", "Ukraine"],
-  ["CURRENT LOCATION", "Poland"],
-  ["EXPERIENCE", "10 years"],
-  ["KNOWN FEATURES", "Systems thinking · engineering mindset"],
-  ["KNOWN ISSUE", "Still asks “Why?”"],
-];
-
 const EXPERIENCE = [
   {
     company: "AMTOSS (ACT Software)",
@@ -125,28 +114,47 @@ const SKILLS = [
 export default function Profile() {
   return (
     <main className="min-h-screen px-8 py-16 max-w-5xl mx-auto">
-      {/* ── Manual cover ── */}
+      {/* ── Manual cover ──
+          The cover carries the same furniture as the inspection report on
+          Quality Check: a line of prose, one number worth saying out loud,
+          then the four fields that identify the unit. The eight-row spec
+          table it replaces asked the reader to parse a form before it had
+          said anything. */}
       <div className="border-2 p-8 md:p-12 mb-20" style={{ borderColor: "var(--border)" }}>
-        <p className="t-label text-gray-400 mb-6">
+        <p className="t-label text-[color:var(--faint)] mb-6">
           Assembly Manual · PD-001
         </p>
-        <h1 className="t-display mb-3">
+        <h1 className="t-display mb-6">
           Kate Kazachkova
         </h1>
-        <p className="t-lead text-gray-500 mb-10">
+        <p className="t-lead max-w-2xl mb-4">
           Product Designer Doll™ – assembly &amp; operation guide.
         </p>
+        <p className="text-[color:var(--muted)] leading-relaxed max-w-2xl mb-10">
+          Assembled in Ukraine, currently operating from Poland. Heads the design
+          department at AMTOSS across four B2B SaaS products, having built the
+          flagship platform from 0→1 alone. Known issue: still asks “Why?”.
+        </p>
 
-        {/* Spec table */}
-        <div className="border-t-2 grid grid-cols-1 sm:grid-cols-2 gap-x-10" style={{ borderColor: "var(--border)" }}>
-          {SPECS.map(([k, v]) => (
-            <div
-              key={k}
-              className="flex justify-between gap-4 py-3 border-b"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <span className="t-label text-gray-400 pt-0.5">{k}</span>
-              <span style={{ fontFamily: mono, fontSize: 12 }} className="text-right font-semibold" >{v}</span>
+        {/* big stat */}
+        <div className="flex items-end gap-5 mb-10">
+          <span className="font-black leading-none" style={{ fontSize: 72, color: "var(--fg)" }}>10</span>
+          <span className="uppercase text-xs font-bold tracking-widest text-[color:var(--faint)] pb-2 leading-relaxed">
+            Years in UX<br />and product design
+          </span>
+        </div>
+
+        {/* unit metadata */}
+        <div className="border-t-2 pt-5 grid grid-cols-2 sm:grid-cols-4 gap-4" style={{ borderColor: "var(--border)" }}>
+          {[
+            ["MODEL", "KATE™"],
+            ["SERIAL", "PD-001"],
+            ["CATEGORY", "PRODUCT DESIGNER"],
+            ["STATUS", "IN SERVICE"],
+          ].map(([k, v]) => (
+            <div key={k}>
+              <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-[color:var(--faint)] uppercase mb-1">{k}</div>
+              <div style={{ fontFamily: mono, fontSize: 13, fontWeight: 700 }} className="uppercase">{v}</div>
             </div>
           ))}
         </div>

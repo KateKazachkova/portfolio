@@ -878,14 +878,32 @@ export default function Home() {
             the bike when it lifts on hover, and a shadow on a wall does not. */}
         <div
           aria-hidden
-          style={{ position: "absolute", left: "57.9%", top: "18.5%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 3, pointerEvents: "none" }}
+          style={{ position: "absolute", left: "57.9%", top: "18.5%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4, pointerEvents: "none" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/items/mid-bike.webp"
             alt=""
             className="w-full h-auto"
-            style={{ filter: "brightness(0) blur(5px)", opacity: 0.34 }}
+            style={{ filter: "brightness(0) blur(4px)", opacity: 0.5 }}
+            draggable={false}
+          />
+        </div>
+
+        {/* A second pass, displaced almost straight down. The wide one slides
+            along the bars — they run down and to the right, the same way the
+            light throws the shadow, so it hides behind them — and the bike
+            loses its shadow exactly where it meets the wood. */}
+        <div
+          aria-hidden
+          style={{ position: "absolute", left: "56.8%", top: "19.3%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4, pointerEvents: "none" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/mid-bike.webp"
+            alt=""
+            className="w-full h-auto"
+            style={{ filter: "brightness(0) blur(2px)", opacity: 0.45 }}
             draggable={false}
           />
         </div>

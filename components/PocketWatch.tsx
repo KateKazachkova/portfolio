@@ -31,18 +31,15 @@ const MIN_LEN = 142;
  *  number is rounded, because Node and the browser print a float's last digit
  *  differently and React calls that a hydration mismatch. */
 const HANDS = {
-  hour: { src: "/items/hand-hour.webp", w: 118, h: 626, px: 58.7, py: 591, len: 588 },
-  minute: { src: "/items/hand-minute.webp", w: 111, h: 844, px: 58.6, py: 813.5, len: 810.5 },
+  hour: { src: "/items/hand-hour.webp", w: 140, h: 626, px: 69.5, py: 552.5, len: 485.5 },
+  minute: { src: "/items/hand-minute.webp", w: 140, h: 900, px: 69, py: 818, len: 803 },
 } as const;
 
 function Hand({ hand, len, deg }: { hand: typeof HANDS[keyof typeof HANDS]; len: number; deg: number }) {
   const s = Math.round((len / hand.len) * 10000) / 10000;
-  // Widened across their own axis: at true proportions these hands are a few
-  // pixels of dark bronze on a dark blue dial and read as a scratch.
-  const FAT = 1.4;
-  const w = Math.round(hand.w * s * FAT * 100) / 100;
+  const w = Math.round(hand.w * s * 100) / 100;
   const h = Math.round(hand.h * s * 100) / 100;
-  const x = Math.round((CX - hand.px * s * FAT) * 100) / 100;
+  const x = Math.round((CX - hand.px * s) * 100) / 100;
   const y = Math.round((CY - hand.py * s) * 100) / 100;
   return (
     <image
@@ -51,12 +48,10 @@ function Hand({ hand, len, deg }: { hand: typeof HANDS[keyof typeof HANDS]; len:
       y={y}
       width={w}
       height={h}
-      // none, or the browser would letterbox the widened box and undo it
-      preserveAspectRatio="none"
       transform={`rotate(${deg} ${CX} ${CY})`}
-      // Brightened and outlined: the hands are dark bronze and the dial's
-      // centre is dark blue, so unlifted they disappear into the tracery.
-      style={{ filter: "brightness(1.4) saturate(1.1) drop-shadow(0 0 2px rgba(0,0,0,0.95)) drop-shadow(0 0 4px rgba(0,0,0,0.6)) drop-shadow(0 3px 3px rgba(0,0,0,0.5))" }}
+      // Only a shadow: these hands are pale enough to read on the blue by
+      // themselves, and it is what lifts them off the tracery.
+      style={{ filter: "drop-shadow(0 0 2px rgba(0,0,0,0.55)) drop-shadow(0 3px 3px rgba(0,0,0,0.45))" }}
     />
   );
 }

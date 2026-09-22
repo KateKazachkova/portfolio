@@ -1214,7 +1214,22 @@ body::after {
 /* Her reaction to being pointed at: the niche warms very slightly. It is a
    filter and nothing else — the clip is registered to the real woodwork 1:1,
    so any nudge or scale would open a seam along the arch. */
-.niche-clip { transition: filter 300ms ease; }
+.niche-clip {
+  transition: filter 300ms ease;
+  /* The clip is generated into a crop of the real niche, so its own woodwork
+     never quite matches the case's in brightness — and where the two meet the
+     seam reads as a hard edge down the sides of the arch. Feather the clip's
+     left, right and top so the two woods dissolve into each other instead;
+     the bottom is left alone, because the shelf's red lip covers that join. */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 4%, #000 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 4%, #000 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
 .case-stage:has(.katetalk__hotspot:hover) .niche-clip,
 .case-stage:has(.katetalk__hotspot:focus-visible) .niche-clip,
 .case-stage:has(.katetalk[data-open="true"]) .niche-clip {

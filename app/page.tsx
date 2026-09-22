@@ -872,6 +872,24 @@ export default function Home() {
           />
         </div>
 
+        {/* The bike's own shadow on the back wall: the same picture again,
+            offset down and to the right of the light, flattened to black and
+            blurred. A drop-shadow filter could not do this — it would follow
+            the bike when it lifts on hover, and a shadow on a wall does not. */}
+        <div
+          aria-hidden
+          style={{ position: "absolute", left: "57.9%", top: "18.5%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 3, pointerEvents: "none" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/mid-bike.webp"
+            alt=""
+            className="w-full h-auto"
+            style={{ filter: "brightness(0) blur(5px)", opacity: 0.34 }}
+            draggable={false}
+          />
+        </div>
+
         {/* Right compartment, above the poster: the bicycle hung on the wall. */}
         <div
           className="group"
@@ -887,6 +905,38 @@ export default function Home() {
             draggable={false}
           />
         </div>
+
+        {/* Where the wheel meets the floor: a contact shadow, dense under the
+            tyre and gone within a few pixels, because that is the only part of
+            it actually touching the boards. */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "59.6%",
+            top: "78.4%",
+            width: "13%",
+            height: "3.2%",
+            background: "radial-gradient(ellipse at center, rgba(14,9,5,0.5), rgba(14,9,5,0) 72%)",
+            filter: "blur(4px)",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: "62.4%",
+            top: "79.3%",
+            width: "7.4%",
+            height: "1.7%",
+            background: "radial-gradient(ellipse at center, rgba(8,5,2,0.78), rgba(8,5,2,0) 62%)",
+            filter: "blur(1.5px)",
+            zIndex: 3,
+            pointerEvents: "none",
+          }}
+        />
 
         {/* The other way she gets around, parked on the compartment floor
             under the hung bike — the bike hangs, the wheel stands. Colour is

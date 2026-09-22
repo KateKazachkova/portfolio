@@ -626,7 +626,9 @@ export default function Home() {
           style={{
             position: "absolute",
             left: "74.88%",
-            top: "53.46%",
+            // Four pixels below the computed line: the stack reads as resting
+            // on the shelf rather than hovering a hair above it.
+            top: "54.0%",
             width: "13.9%",
             height: "auto",
             maxWidth: "none",
@@ -894,7 +896,7 @@ export default function Home() {
           meta="The wheel"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "61.4%", top: "58.5%", width: "10.1%", zIndex: 4 }}
+          style={{ position: "absolute", left: "60.5%", top: "56.4%", width: "11.1%", zIndex: 4 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -902,6 +904,30 @@ export default function Home() {
             alt="A miniature electric unicycle parked on the compartment floor under the bike"
             className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
             style={{ filter: "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" }}
+            draggable={false}
+          />
+        </InkTip>
+
+        {/* Beside them, the armour that goes on before the wheel does: knee and
+            elbow pads stacked at the front of the shelf, overlapping the shoes
+            the way a pile of kit dumped on a shelf overlaps whatever is behind
+            it. Same baked colour and shadow as the rest of the compartment. */}
+        <InkTip
+          label="Field kit"
+          meta="The armour"
+          place="bottom"
+          className="group"
+          style={{ position: "absolute", left: "78.96%", top: "70.6%", width: "10.8%", zIndex: 6 }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/mid-pads.webp"
+            alt="A set of miniature knee and elbow pads stacked on the wardrobe's bottom shelf"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            // Cut at the wardrobe's side wall: the case is a photograph, so
+            // nothing can pass behind it by z-index — the pile is clipped where
+            // the wall stands, which reads as pushed into the corner.
+            style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.42))", clipPath: "inset(0 9% 0 0)" }}
             draggable={false}
           />
         </InkTip>
@@ -914,7 +940,7 @@ export default function Home() {
           meta="The Converse"
           place="bottom"
           className="group"
-          style={{ position: "absolute", left: "76.2%", top: "72.9%", width: "7.4%", zIndex: 5 }}
+          style={{ position: "absolute", left: "75.1%", top: "72.96%", width: "8.1%", zIndex: 5 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

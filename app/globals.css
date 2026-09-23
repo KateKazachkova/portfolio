@@ -1143,28 +1143,47 @@ body::after {
    the img/video leaves rather than on a wrapper, since the scene is forty flat
    siblings and a filter on a parent would also become the containing block for
    anything positioned inside it. The plate is a background, so it is untouched.
-   Second, cool moonlight from the upper left, laid over the case body only:
-   masked to the case's own alpha and sitting at the case's z-index, so the
-   things inside the case stay out of it — they are in the shadow of the lid,
-   and the warm niche lamp keeps its colour. */
+   Second, the falloff from the niche lamp below (.case-dark). */
 .case-stage :is(img, video) { transition: filter 0.7s ease; }
 [data-theme="dark"] .case-stage :is(img, video) {
   filter: brightness(0.72) saturate(0.8);
 }
-.case-moonlight {
+/* The lamp is the only light. No moonlight on the case — a cool wash on red
+   leather read as lilac, and it lit the doors from a source the scene does not
+   have. Instead the case falls off into the night from the bulb over the doll:
+   clear across the niche, darkening outward to the doors and the base, which
+   are furthest from it. Above everything in the case except the grass, so the
+   books, the coats and the bike fall off with it, and masked to the case's own
+   alpha so the field is untouched. Niche geometry is NicheLight's: 40.62% +
+   18.16% across → centre 49.7%; 18.16% wide at 648/1664 on a 3:2 box is 69.95%
+   tall from 11.43% → centre 46.4%. */
+.case-dark {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 7;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.7s ease;
-  background:
-    linear-gradient(128deg, rgba(128, 168, 220, 0.42) 0%, rgba(128, 168, 220, 0.12) 26%, rgba(128, 168, 220, 0) 48%);
-  mix-blend-mode: screen;
+  background: radial-gradient(22% 52% at 49.7% 46.4%,
+    rgba(22, 14, 12, 0) 0%, rgba(22, 14, 12, 0) 78%,
+    rgba(22, 14, 12, 0.5) 150%, rgba(22, 14, 12, 0.8) 250%);
+  mix-blend-mode: multiply;
   -webkit-mask: url("/suitcase/open2.webp") center / contain no-repeat;
   mask: url("/suitcase/open2.webp") center / contain no-repeat;
 }
-[data-theme="dark"] .case-moonlight { opacity: 1; }
+[data-theme="dark"] .case-dark { opacity: 1; }
+/* The sticky note and the pocket watch hang past the case's outline, so the
+   masked falloff darkened only the half of them that overlapped a door — a
+   visible seam down the paper and across the dial. They are lifted above it
+   and dimmed as a whole instead, to about what the door beside them gets
+   (their own pictures are let off the per-image grade so it does not stack). */
+[data-theme="dark"] .case-stage .sticky-note,
+[data-theme="dark"] .case-stage :has(> .pocketwatch-img) {
+  z-index: 8 !important;
+  filter: brightness(0.5) saturate(0.8);
+}
+[data-theme="dark"] .case-stage .sticky-note img,
+[data-theme="dark"] .case-stage :has(> .pocketwatch-img) :is(img, image) { filter: none; }
 
 /* Outside cold, inside warm. The niche is the one place the night grade does
    not reach: the doll's clip keeps its full light, and a warm wash from the

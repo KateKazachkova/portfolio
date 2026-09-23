@@ -489,8 +489,8 @@ export default function Home() {
           style={{ zIndex: 1 }}
           draggable={false}
         />
-        {/* Moonlight on the case body, dark theme only — see .case-moonlight. */}
-        <div className="case-moonlight" aria-hidden />
+        {/* Night only: the case falling off into the dark from the niche lamp — see .case-dark. */}
+        <div className="case-dark" aria-hidden />
         {/* Night only: the niche's warm light and the contact pool on grass. */}
         <div className="niche-warmth" aria-hidden />
         <div className="case-night-contact" aria-hidden />        {/* Meadow grass in front of the case, dark theme only — see .case-grass. */}

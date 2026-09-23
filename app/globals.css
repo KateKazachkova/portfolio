@@ -228,7 +228,16 @@ body > * { position: relative; z-index: 1; }
   pointer-events: none;
   z-index: 0;
 }
-[data-theme="dark"] .studio-plate { background-blend-mode: soft-light; opacity: 0.85; }
+/* Night leaves the studio for a meadow. The plate is a finished picture, not a
+   near-white light map, so it is shown as it is — no blend, no tint. Its
+   floor horizon was generated at the same 54%, so the geometry above holds;
+   the ground below it takes the grass's own tone so the fade has somewhere
+   to land. */
+[data-theme="dark"] .studio-plate {
+  background-image: url("/scene/night-meadow.jpg");
+  background-blend-mode: normal;
+}
+[data-theme="dark"][data-scene="studio"] { --scene-ground: #0e1d14; }
 
 /* ── Time-of-day ambient wash (set via data-daytime on <html>) ── */
 :root { --ambient: transparent; }

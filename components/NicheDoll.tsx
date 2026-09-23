@@ -75,9 +75,11 @@ const CLIPS: Record<string, ClipSet> = {
     accentEveryMs: 60_000,
   },
   evening: {
-    intro: "evening_intro.mp4",
+    // Re-shot 2026-09-23: the old clips were generated into a niche of their
+    // own, so their wood never matched the case's. The intro belongs to the
+    // retired doll and is gone with it; the accent is now a page turn.
     loop: "evening_read.mp4",
-    accent: "evening_tea_sip.mp4",
+    accent: "evening_page_turn.mp4",
     poster: "niche_poster.jpg",
     accentEveryMs: 120_000,
   },
@@ -153,8 +155,11 @@ const CLIPS: Record<string, ClipSet> = {
     accentEveryMs: 7_000,
   },
   weekend_series: {
+    // Re-shot 2026-09-23 at the size of the other seated editions. She flinches
+    // at the screen rather than laughing — the old laugh clip had her mouth
+    // wide open, which read as a horse, not a doll.
     loop: "wknd_series_loop.mp4",
-    accents: ["wknd_series_popcorn.mp4", "wknd_series_laugh.mp4", "wknd_series_cosy.mp4"],
+    accents: ["wknd_series_scare.mp4", "wknd_series_cosy.mp4"],
     poster: "wknd_series_poster.jpg",
     accentEveryMs: 6_000,
   },

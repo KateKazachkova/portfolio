@@ -13,7 +13,6 @@ import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 import { mono } from "@/components/ui/type";
 import DaySticky from "@/components/DaySticky";
-import NightGrass from "@/components/NightGrass";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
@@ -490,14 +489,6 @@ export default function Home() {
           style={{ zIndex: 1 }}
           draggable={false}
         />
-        {/* Night only: the case falling off into the dark from the niche lamp — see .case-dark. */}
-        <div className="case-dark" aria-hidden />
-        {/* Night only: the niche's warm light and the contact pool on grass. */}
-        <div className="niche-warmth" aria-hidden />
-        <div className="case-night-contact" aria-hidden />
-        {/* Meadow grass in front of the case, dark theme only; it bends as the
-            pointer brushes through it — see NightGrass. */}
-        <NightGrass />
 
         {/* The award, in the top-left cubby — and the way in to Recognition.
             The hoverable box is the CUBBY, not the statue's own outline: it is

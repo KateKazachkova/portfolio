@@ -135,10 +135,10 @@ body > * { position: relative; z-index: 1; }
 }
 
 :root[data-scene="studio"] { --bg: #ece3d0; --scene-ground: #c5b496; }
-/* Night: the page takes the sky's own navy, so the plate's top fade lands on the
-   colour it is fading from. The warm near-black it had before mixed with the
-   navy into a lilac haze across the top and down the left column. */
-[data-theme="dark"][data-scene="studio"] { --bg: #030a18; --scene-ground: #322b22; }
+/* Night: the page takes the desk wall's own charcoal, so the plate's top fade
+   lands on the colour it is fading from, and the ground below is the dark
+   under the desk. */
+[data-theme="dark"][data-scene="studio"] { --bg: #151313; --scene-ground: #12100e; }
 
 /* The scene is deliberately wider and taller than the window — the sweep plate
    is 240% of the case, one shadow layer is 124%, and the floor under the plate
@@ -231,16 +231,32 @@ body > * { position: relative; z-index: 1; }
   pointer-events: none;
   z-index: 0;
 }
-/* Night leaves the studio for a meadow. The plate is a finished picture, not a
-   near-white light map, so it is shown as it is — no blend, no tint. Its
-   floor horizon was generated at the same 54%, so the geometry above holds;
-   the ground below it takes the grass's own tone so the fade has somewhere
-   to land. */
+/* Night is the desk. The case stands on Kate's own IKEA grid desk against a
+   dark wall hung with her real certificates, trophies at the back of the
+   desk, the mushroom mug beside it (scene/desk.jpg, composed from a generated
+   room plus the real award files). A finished picture, so no blend and no
+   tint, and its own geometry, since a desk is far shallower than a sweep:
+
+   The desk's back edge is at 50.4% of the image and its plywood front at
+   90.5%. The back edge goes at 70% of the case box — a quarter of the case's
+   height above its base (92.4%), so the desk reads ~65 cm deep, not a
+   drafting table — and the front edge ~47% of the box lower, near the bottom
+   of the hero. (90.5 - 50.4) × H = 47 → H = 118%; top = 70 - 0.504 × 118 =
+   10.5%. The plate was outpainted to 3168×1344 so that at its natural aspect
+   it is 185% of the box wide, which covers the window, even with the case
+   pushed right by --case-x, up to ~2000px; past that the 110vw floor wins
+   and it stretches a little. Above the plate's top the page is the
+   wall's own colour (--bg), so the long top fade has nothing to reveal. */
 [data-theme="dark"] .studio-plate {
-  background-image: url("/scene/night-meadow.jpg");
+  background-image: url("/scene/desk.jpg");
   background-blend-mode: normal;
+  top: 10.5%;
+  height: 118%;
+  width: max(185%, calc(110vw + 2 * var(--case-x)));
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 94%, transparent 100%);
 }
-[data-theme="dark"][data-scene="studio"] { --scene-ground: #060d0b; }
+[data-theme="dark"] .studio-floor { top: 120%; }
 /* The grain and the ambient wash paint on <body>, under the opaque <main>, so
    on the home page they only ever showed in the strip below it — where, over
    a near-black field, they lifted the ground into a grey band. */
@@ -1134,147 +1150,6 @@ body::after {
   --case-scale: 1;
   transform: translate(var(--case-x), var(--case-y)) scale(var(--case-scale));
   transform-origin: center top;
-}
-
-/* ── The case at night ──
-   Every photograph in the case was shot under warm studio light, which on the
-   moonlit meadow made the whole scene read as a sticker. Two fixes, both dark
-   theme only. First, every picture in the stage is stepped down — filters on
-   the img/video leaves rather than on a wrapper, since the scene is forty flat
-   siblings and a filter on a parent would also become the containing block for
-   anything positioned inside it. The plate is a background, so it is untouched.
-   Second, the falloff from the niche lamp below (.case-dark). */
-.case-stage :is(img, video) { transition: filter 0.7s ease; }
-[data-theme="dark"] .case-stage :is(img, video) {
-  filter: brightness(0.72) saturate(0.8);
-}
-/* The lamp is the only light. No moonlight on the case — a cool wash on red
-   leather read as lilac, and it lit the doors from a source the scene does not
-   have. Instead the case falls off into the night from the bulb over the doll:
-   clear across the niche, darkening outward to the doors and the base, which
-   are furthest from it. Above everything in the case except the grass, so the
-   books, the coats and the bike fall off with it, and masked to the case's own
-   alpha so the field is untouched. Niche geometry is NicheLight's: 40.62% +
-   18.16% across → centre 49.7%; 18.16% wide at 648/1664 on a 3:2 box is 69.95%
-   tall from 11.43% → centre 46.4%. */
-.case-dark {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.7s ease;
-  background: radial-gradient(22% 52% at 49.7% 46.4%,
-    rgba(22, 14, 12, 0) 0%, rgba(22, 14, 12, 0) 78%,
-    rgba(22, 14, 12, 0.5) 150%, rgba(22, 14, 12, 0.8) 250%);
-  mix-blend-mode: multiply;
-  -webkit-mask: url("/suitcase/open2.webp") center / contain no-repeat;
-  mask: url("/suitcase/open2.webp") center / contain no-repeat;
-}
-[data-theme="dark"] .case-dark { opacity: 1; }
-/* The sticky note and the pocket watch hang past the case's outline, so the
-   masked falloff darkened only the half of them that overlapped a door — a
-   visible seam down the paper and across the dial. They are lifted above it
-   and dimmed as a whole instead, to about what the door beside them gets
-   (their own pictures are let off the per-image grade so it does not stack).
-   The lift has to be on the stage's direct child that holds each one: that is
-   the element whose (inline) z-index places it among the case's layers, so a
-   z-index on anything nested inside it changes nothing. */
-[data-theme="dark"] .case-stage > :has(.sticky-note),
-[data-theme="dark"] .case-stage > :has(.pocketwatch-img) {
-  z-index: 8 !important;
-  filter: brightness(0.5) saturate(0.8);
-}
-[data-theme="dark"] .case-stage > :has(.sticky-note) img,
-[data-theme="dark"] .case-stage > :has(.pocketwatch-img) :is(img, image) { filter: none; }
-
-/* Outside cold, inside warm. The niche is the one place the night grade does
-   not reach: the doll's clip keeps its full light, and a warm wash from the
-   bulb lifts it a further ~12% — so the case reads as a lit room in a dark
-   field rather than as one more dimmed object. Rect and bulb position are
-   NicheLight's (40.62 / 11.43 / 18.16%, bulb at 48.7% × 6.4%). */
-[data-theme="dark"] .case-stage .niche-clip { filter: none; }
-.niche-warmth {
-  position: absolute;
-  left: 40.62%;
-  top: 11.43%;
-  width: 18.16%;
-  aspect-ratio: 648 / 1664;
-  z-index: 4;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0;
-  transition: opacity 0.7s ease;
-  background: radial-gradient(90% 70% at 48.7% 6.4%, rgba(255, 176, 96, 0.16), rgba(255, 176, 96, 0.06) 55%, rgba(255, 176, 96, 0) 85%);
-}
-[data-theme="dark"] .niche-warmth { opacity: 1; }
-
-/* Contact on grass. The four studio shadow layers were tuned for pale paper
-   and read as a faint plum smear on the meadow; at night a dense, near-black
-   pool sits under the trunk's base and both feet, so the grass in front of it
-   has something to be in front of. */
-.case-night-contact {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 3.5%;
-  width: 90%;
-  height: 7%;
-  z-index: 0;
-  pointer-events: none;
-  display: none;
-  background:
-    radial-gradient(8% 60% at 5% 60%, rgba(2, 6, 4, 0.9), rgba(2, 6, 4, 0) 100%),
-    radial-gradient(10% 60% at 96% 55%, rgba(2, 6, 4, 0.9), rgba(2, 6, 4, 0) 100%),
-    radial-gradient(52% 70% at 50% 45%, rgba(2, 6, 4, 0.82), rgba(2, 6, 4, 0) 100%);
-  filter: blur(6px);
-}
-[data-theme="dark"] .case-night-contact { display: block; }
-
-/* Grass in front of the case, so at night it stands IN the meadow rather than
-   on it. A generated strip of ordinary tall field grass on transparency
-   (night-grass.webp, 1920×657), in front of everything in the stage and
-   click-through. Geometry, in the box's own percentages: 116% wide at the
-   strip's aspect is 59.5% of the box's height; the grass in the middle tops
-   out a median 48.4% down the strip, and that is set at 87% of the box — just
-   above the trunk's base (88.1%), so the base sinks into it, while single
-   blades climb onto the lower drawers and the tall clumps at the ends climb
-   the doors. top = 87 - 0.484 × 59.5 = 58.2%. The strip's bottom edge is a
-   hard cut, so it fades out into the photographed floor. */
-.case-grass {
-  display: none;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 58.2%;
-  width: 116%;
-  aspect-ratio: 1920 / 657;
-  /* Faded on three sides: the bottom into the floor, and both ends, which
-     would otherwise stand as hard vertical cuts in the meadow. */
-  -webkit-mask-image:
-    linear-gradient(180deg, #000 74%, transparent 100%),
-    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(180deg, #000 74%, transparent 100%),
-    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
-  mask-composite: intersect;
-  pointer-events: none;
-  z-index: 8;
-}
-[data-theme="dark"] .case-grass { display: block; }
-/* One column of the strip each, bent from the foot by NightGrass. A pixel
-   wider than their share so subpixel edges never open a hairline between
-   them. */
-.case-grass__slice {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: calc(100% / 48 + 1px);
-  background: url("/scene/night-grass.webp") no-repeat;
-  background-size: 4800% 100%;
-  transform-origin: 50% 100%;
-  will-change: transform;
 }
 
 /* ── Type scale ───────────────────────────────────────────────────────────

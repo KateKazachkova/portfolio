@@ -20,7 +20,9 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
     font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
-  .viewport { position: fixed; inset: 0; overflow: hidden; background: var(--bg); }
+  /* clip, not hidden: a hidden box can still be scrolled by focus or
+     scrollIntoView, which slid the whole scene sideways under a card. */
+  .viewport { position: fixed; inset: 0; overflow: clip; background: var(--bg); }
 
   .stage { position: absolute; width: 1118px; height: 745px; transform-origin: 0 0;
            transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--s, 1));
@@ -42,6 +44,36 @@
   .desk-shadow { position: absolute; inset: 0; background: url(desk-shadow.png) 0 0 / 100% 100%;
                  transition: opacity .6s ease .15s; }
   .desk-mode .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
+  /* ── Case files on the desk ──────────────────────────────────────────
+     Plain cards for now, the /work grid's own: paper, hairline border,
+     rounded corners, a cover slot, tags and a title. They are children of
+     the desk plane, so they lie on it in true perspective and stay real
+     links. Desk-plane px are 1075/m; from the camera's end height (1 m) one
+     of them is ~2 screen px, so a card of 180 × 126 reads ~360 × 250.
+     Placed around where the camera's axis meets the desk (desk y 636) and
+     nudged right, clear of the nav column. Hidden in the home view — they
+     would otherwise lie in front of the case — and dealt out once the
+     camera has arrived. */
+  .projects { position: absolute; inset: 0; pointer-events: none; }
+  .card {
+    position: absolute; width: 180px; height: 126px; margin: -63px 0 0 -90px;
+    background: #faf8f3; border: 1px solid #d9d4c8; border-radius: 7px; overflow: hidden;
+    color: #22283a; text-decoration: none; font-size: 7px; line-height: 1.35;
+    box-shadow: 0 1px 1px rgba(20,16,12,.18), 0 5px 10px -4px rgba(20,16,12,.28);
+    opacity: 0; transform: rotate(var(--r)) translateY(6px);
+    transition: opacity .35s ease, transform .35s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .card .cover { height: 64px; background: #ebe6db; border-bottom: 1px solid #e0dbcf; }
+  .card .body { padding: 7px 9px; }
+  .card .tags { font: 5px/1.2 ui-monospace, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: #8b8577; }
+  .card h2 { margin: 3px 0 2px; font-size: 10px; line-height: 1.15; font-weight: 600; }
+  .card p { margin: 0; color: #6b6558; }
+  .desk-mode .projects { pointer-events: auto; }
+  .desk-mode .card { opacity: 1; transform: rotate(var(--r)); transition-delay: calc(1.35s + var(--i) * 90ms); }
+  .desk-mode .card:hover, .desk-mode .card:focus-visible {
+    transform: rotate(var(--r)) translateY(-3px); border-color: #b9b2a3; transition-delay: 0s;
+    box-shadow: 0 2px 2px rgba(20,16,12,.16), 0 12px 18px -8px rgba(20,16,12,.34); outline: none;
+  }
   .ply   { top: 656px; height: 27px; background: url(ply.jpg) 0 0 / 100% 100%; transform: translateZ(645px); }
   .under { top: 683px; height: 1200px; background: linear-gradient(var(--under), #0b0a09 30%); transform: translateZ(645px); }
   .case  { position: absolute; left: 0; top: 0; width: 1118px; height: 745px;
@@ -69,7 +101,7 @@
   h1 { margin: 64px 0 0; font-size: 30px; line-height: 1.12; text-transform: uppercase; letter-spacing: -.01em;
        transition: opacity .5s ease; }
   .lede { margin: 0; color: var(--fg); opacity: .85; max-width: 300px; transition: opacity .5s ease; }
-  nav { display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+  .chrome nav { display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
         font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; }
   nav button { all: unset; cursor: pointer; color: var(--muted); text-transform: uppercase; }
   nav button:hover, nav button[aria-pressed="true"] { color: var(--accent); }
@@ -84,7 +116,7 @@
           font: 11px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .08em; }
 
   @media (prefers-reduced-motion: reduce) {
-    .stage, .world, .case, .desk-shadow, h1, .lede { transition: none !important; }
+    .stage, .world, .case, .desk-shadow, .card, h1, .lede { transition: none !important; }
   }
 </style>
 </head>
@@ -94,7 +126,9 @@
     <div class="cam">
       <div class="world">
         <div class="plane wall" aria-hidden="true"></div>
-        <div class="plane desk" aria-hidden="true"><div class="desk-shadow"></div></div>
+        <div class="plane desk"><div class="desk-shadow" aria-hidden="true"></div>
+          <nav class="projects" aria-label="Case files" id="projects"></nav>
+        </div>
         <div class="plane ply" aria-hidden="true"></div>
         <div class="plane under" aria-hidden="true"></div>
         <img class="case" src="/suitcase/open2.png" alt="Kate's collector suitcase" draggable="false">
@@ -131,15 +165,41 @@
   }
   addEventListener('resize', layout); layout();
 
+  // The /work grid's five case files, laid out 3 + 2 on the desk plane.
+  // Exactly what the /work grid shows today: titles and tags only (Notion's
+  // descriptions are empty or a placeholder), years from the case files.
+  const CASES = [
+    { slug: 'bulksource',       title: 'BulkSource',              tags: ['UX', 'UI'] },
+    { slug: 'ukrainska-15',     title: 'Ukrainska 15',            tags: ['2024 — 2026'] },
+    { slug: 'my-portfolio2026', title: 'Portfolio & My Branding', tags: [] },
+    { slug: 'onsisoft',         title: 'OnsiSoft',                tags: [] },
+    { slug: 'waypro',           title: 'WayPro',                  tags: ['2024'] },
+  ];
+  const SPOTS = [ [1507, 563, -2.2], [1712, 556, 1.4], [1917, 566, -0.8], [1610, 712, 1.9], [1815, 706, -1.6] ];
+  const deskProjects = document.getElementById('projects');
+  CASES.forEach((c, i) => {
+    const [x, y, r] = SPOTS[i];
+    const a = document.createElement('a');
+    a.className = 'card'; a.href = `/work/${c.slug}`;
+    a.style.left = x + 'px'; a.style.top = y + 'px';
+    a.style.setProperty('--r', r + 'deg'); a.style.setProperty('--i', i);
+    a.innerHTML = `<div class="cover"></div><div class="body"><div class="tags">${c.tags.join(' · ') || '&nbsp;'}</div><h2>${c.title}</h2></div>`;
+    deskProjects.appendChild(a);
+  });
+  // Out of the tab order until the camera is over the desk.
+  const syncTab = on => deskProjects.querySelectorAll('a').forEach(a => a.tabIndex = on ? 0 : -1);
+
   const root = document.documentElement, btn = document.getElementById('caseFiles');
   function setDesk(on) {
     root.classList.toggle('desk-mode', on);
     btn.setAttribute('aria-pressed', String(on));
     history.replaceState(null, '', on ? '#case-files' : '#');
+    syncTab(on);
   }
   btn.addEventListener('click', () => setDesk(!root.classList.contains('desk-mode')));
   document.getElementById('home').addEventListener('click', () => setDesk(false));
   addEventListener('keydown', e => { if (e.key === 'Escape') setDesk(false); });
+  syncTab(false);
   if (location.hash === '#case-files') setDesk(true);
 </script>
 </body>

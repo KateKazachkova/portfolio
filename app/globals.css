@@ -138,7 +138,7 @@ body > * { position: relative; z-index: 1; }
 /* Night: the page takes the desk wall's own charcoal, so the plate's top fade
    lands on the colour it is fading from, and the ground below is the dark
    under the desk. */
-[data-theme="dark"][data-scene="studio"] { --bg: #151313; --scene-ground: #12100e; }
+[data-theme="dark"][data-scene="studio"] { --bg: #161413; --scene-ground: #100e0c; }
 
 /* The scene is deliberately wider and taller than the window — the sweep plate
    is 240% of the case, one shadow layer is 124%, and the floor under the plate
@@ -231,32 +231,29 @@ body > * { position: relative; z-index: 1; }
   pointer-events: none;
   z-index: 0;
 }
-/* Night is the desk. The case stands on Kate's own IKEA grid desk against a
-   dark wall hung with her real certificates, trophies at the back of the
-   desk, the mushroom mug beside it (scene/desk.jpg, composed from a generated
-   room plus the real award files). A finished picture, so no blend and no
-   tint, and its own geometry, since a desk is far shallower than a sweep:
+/* Night is the desk: Kate's IKEA grid desk against a dark wall. The plate
+   (scene/desk.jpg) is not generated but rendered (delete/render_desk.py) in
+   the suitcase's own camera, because a generated desk never agreed with it:
+   the case is shot almost head-on and its open doors land only ~5% lower
+   than its base, so the desk is seen at a shallow ~11°, with the vanishing
+   point on the case's centre line and the horizon at 30% of the box. The
+   trunk's base then sits 2 m away, the wall 25 cm behind it (back edge at
+   81.6% of the box) and the front edge 60 cm before it (112.8%).
 
-   The desk's back edge is at 50.4% of the image and its plywood front at
-   90.5%. The back edge goes at 70% of the case box — a quarter of the case's
-   height above its base (92.4%), so the desk reads ~65 cm deep, not a
-   drafting table — and the front edge ~47% of the box lower, near the bottom
-   of the hero. (90.5 - 50.4) × H = 47 → H = 118%; top = 70 - 0.504 × 118 =
-   10.5%. The plate was outpainted to 3168×1344 so that at its natural aspect
-   it is 185% of the box wide, which covers the window, even with the case
-   pushed right by --case-x, up to ~2000px; past that the 110vw floor wins
-   and it stretches a little. Above the plate's top the page is the
-   wall's own colour (--bg), so the long top fade has nothing to reveal. */
+   The plate is drawn in the box's own coordinates — 185% × 150% of it, from
+   -20% — so it needs no maths here: it lines up at its natural aspect. It is
+   held at 110vw + the case's offset minimum so its sides never enter the
+   frame; only past ~2000px does that stretch it. */
 [data-theme="dark"] .studio-plate {
   background-image: url("/scene/desk.jpg");
   background-blend-mode: normal;
-  top: 10.5%;
-  height: 118%;
+  top: -20%;
+  height: 150%;
   width: max(185%, calc(110vw + 2 * var(--case-x)));
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 94%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 94%, transparent 100%);
 }
-[data-theme="dark"] .studio-floor { top: 120%; }
+[data-theme="dark"] .studio-floor { top: 125%; }
 /* The grain and the ambient wash paint on <body>, under the opaque <main>, so
    on the home page they only ever showed in the strip below it — where, over
    a near-black field, they lifted the ground into a grey band. */

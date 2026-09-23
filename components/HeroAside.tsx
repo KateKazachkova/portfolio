@@ -1,3 +1,4 @@
+import Link from "next/link";
 import NavIndex from "@/components/NavIndex";
 
 /**
@@ -22,7 +23,9 @@ export default function HeroAside({
         className="font-black uppercase tracking-tight leading-none"
         style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}
       >
-        KATE<span style={{ color: "var(--accent-red)" }}>™</span>
+        <Link href="/" aria-label="KATE™ — home" style={{ color: "inherit" }}>
+          KATE<span style={{ color: "var(--accent-red)" }}>™</span>
+        </Link>
       </p>
       <h2 className="t-title mt-[124px]">{title}</h2>
       {/* Full ink, not the muted grey .t-body carries elsewhere: on the hero

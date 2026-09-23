@@ -1176,14 +1176,17 @@ body::after {
    masked falloff darkened only the half of them that overlapped a door — a
    visible seam down the paper and across the dial. They are lifted above it
    and dimmed as a whole instead, to about what the door beside them gets
-   (their own pictures are let off the per-image grade so it does not stack). */
-[data-theme="dark"] .case-stage .sticky-note,
-[data-theme="dark"] .case-stage :has(> .pocketwatch-img) {
+   (their own pictures are let off the per-image grade so it does not stack).
+   The lift has to be on the stage's direct child that holds each one: that is
+   the element whose (inline) z-index places it among the case's layers, so a
+   z-index on anything nested inside it changes nothing. */
+[data-theme="dark"] .case-stage > :has(.sticky-note),
+[data-theme="dark"] .case-stage > :has(.pocketwatch-img) {
   z-index: 8 !important;
   filter: brightness(0.5) saturate(0.8);
 }
-[data-theme="dark"] .case-stage .sticky-note img,
-[data-theme="dark"] .case-stage :has(> .pocketwatch-img) :is(img, image) { filter: none; }
+[data-theme="dark"] .case-stage > :has(.sticky-note) img,
+[data-theme="dark"] .case-stage > :has(.pocketwatch-img) :is(img, image) { filter: none; }
 
 /* Outside cold, inside warm. The niche is the one place the night grade does
    not reach: the doll's clip keeps its full light, and a warm wash from the

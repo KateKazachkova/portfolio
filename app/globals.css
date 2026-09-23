@@ -254,6 +254,10 @@ body > * { position: relative; z-index: 1; }
   mask-image: linear-gradient(180deg, #000 0%, #000 94%, transparent 100%);
 }
 [data-theme="dark"] .studio-floor { top: 125%; }
+/* The four studio shadow layers were tuned for the pale sweep. On the desk
+   the shadow is baked into the plate instead, from the case's own bottom
+   profile in the same camera, so these would only double it. */
+[data-theme="dark"] .case-shadow { display: none; }
 /* The grain and the ambient wash paint on <body>, under the opaque <main>, so
    on the home page they only ever showed in the strip below it — where, over
    a near-black field, they lifted the ground into a grey band. */

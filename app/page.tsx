@@ -41,6 +41,7 @@ function Shadow({ cx, bottom, w, h, rgb, a, blur, stop }: {
   return (
     <div
       aria-hidden
+      className="case-shadow"
       style={{
         position: "absolute",
         left: `${cx}%`,

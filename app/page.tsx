@@ -491,7 +491,9 @@ export default function Home() {
         />
         {/* Moonlight on the case body, dark theme only — see .case-moonlight. */}
         <div className="case-moonlight" aria-hidden />
-        {/* Meadow grass in front of the case, dark theme only — see .case-grass. */}
+        {/* Night only: the niche's warm light and the contact pool on grass. */}
+        <div className="niche-warmth" aria-hidden />
+        <div className="case-night-contact" aria-hidden />        {/* Meadow grass in front of the case, dark theme only — see .case-grass. */}
         <div className="case-grass" aria-hidden />
 
         {/* The award, in the top-left cubby — and the way in to Recognition.

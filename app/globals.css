@@ -135,7 +135,10 @@ body > * { position: relative; z-index: 1; }
 }
 
 :root[data-scene="studio"] { --bg: #ece3d0; --scene-ground: #c5b496; }
-[data-theme="dark"][data-scene="studio"] { --bg: #171412; --scene-ground: #322b22; }
+/* Night: the page takes the sky's own navy, so the plate's top fade lands on the
+   colour it is fading from. The warm near-black it had before mixed with the
+   navy into a lilac haze across the top and down the left column. */
+[data-theme="dark"][data-scene="studio"] { --bg: #030a18; --scene-ground: #322b22; }
 
 /* The scene is deliberately wider and taller than the window — the sweep plate
    is 240% of the case, one shadow layer is 124%, and the floor under the plate
@@ -237,7 +240,12 @@ body > * { position: relative; z-index: 1; }
   background-image: url("/scene/night-meadow.jpg");
   background-blend-mode: normal;
 }
-[data-theme="dark"][data-scene="studio"] { --scene-ground: #0e1d14; }
+[data-theme="dark"][data-scene="studio"] { --scene-ground: #060d0b; }
+/* The grain and the ambient wash paint on <body>, under the opaque <main>, so
+   on the home page they only ever showed in the strip below it — where, over
+   a near-black field, they lifted the ground into a grey band. */
+[data-theme="dark"][data-scene="studio"] body::before,
+[data-theme="dark"][data-scene="studio"] body::after { display: none; }
 
 /* ── Time-of-day ambient wash (set via data-daytime on <html>) ── */
 :root { --ambient: transparent; }
@@ -1158,23 +1166,67 @@ body::after {
 }
 [data-theme="dark"] .case-moonlight { opacity: 1; }
 
+/* Outside cold, inside warm. The niche is the one place the night grade does
+   not reach: the doll's clip keeps its full light, and a warm wash from the
+   bulb lifts it a further ~12% — so the case reads as a lit room in a dark
+   field rather than as one more dimmed object. Rect and bulb position are
+   NicheLight's (40.62 / 11.43 / 18.16%, bulb at 48.7% × 6.4%). */
+[data-theme="dark"] .case-stage .niche-clip { filter: none; }
+.niche-warmth {
+  position: absolute;
+  left: 40.62%;
+  top: 11.43%;
+  width: 18.16%;
+  aspect-ratio: 648 / 1664;
+  z-index: 4;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  background: radial-gradient(90% 70% at 48.7% 6.4%, rgba(255, 176, 96, 0.16), rgba(255, 176, 96, 0.06) 55%, rgba(255, 176, 96, 0) 85%);
+}
+[data-theme="dark"] .niche-warmth { opacity: 1; }
+
+/* Contact on grass. The four studio shadow layers were tuned for pale paper
+   and read as a faint plum smear on the meadow; at night a dense, near-black
+   pool sits under the trunk's base and both feet, so the grass in front of it
+   has something to be in front of. */
+.case-night-contact {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 3.5%;
+  width: 90%;
+  height: 7%;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+  background:
+    radial-gradient(8% 60% at 5% 60%, rgba(2, 6, 4, 0.9), rgba(2, 6, 4, 0) 100%),
+    radial-gradient(10% 60% at 96% 55%, rgba(2, 6, 4, 0.9), rgba(2, 6, 4, 0) 100%),
+    radial-gradient(52% 70% at 50% 45%, rgba(2, 6, 4, 0.82), rgba(2, 6, 4, 0) 100%);
+  filter: blur(6px);
+}
+[data-theme="dark"] .case-night-contact { display: block; }
+
 /* Grass in front of the case, so at night it stands IN the meadow rather than
-   on it. A generated strip on transparency (night-grass.webp, 1920×553), in
-   front of everything in the stage and click-through. Geometry, in the box's
-   own percentages: 116% wide at the strip's aspect is 50.1% of the box's
-   height; the low grass in the middle tops out 64.3% down the strip, and that
-   is set at 89% of the box — just over the trunk's base (88.1%) and short of
-   the feet (92.9%), so the base sinks into the grass while the tall clumps at
-   the ends climb the doors. top = 89 - 0.643 × 50.1 = 56.8%. The strip's
-   bottom edge is a hard cut, so it fades out into the photographed floor. */
+   on it. A generated strip of ordinary tall field grass on transparency
+   (night-grass.webp, 1920×657), in front of everything in the stage and
+   click-through. Geometry, in the box's own percentages: 116% wide at the
+   strip's aspect is 59.5% of the box's height; the grass in the middle tops
+   out a median 48.4% down the strip, and that is set at 87% of the box — just
+   above the trunk's base (88.1%), so the base sinks into it, while single
+   blades climb onto the lower drawers and the tall clumps at the ends climb
+   the doors. top = 87 - 0.484 × 59.5 = 58.2%. The strip's bottom edge is a
+   hard cut, so it fades out into the photographed floor. */
 .case-grass {
   display: none;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 56.8%;
+  top: 58.2%;
   width: 116%;
-  aspect-ratio: 1920 / 553;
+  aspect-ratio: 1920 / 657;
   background: url("/scene/night-grass.webp") center / 100% 100% no-repeat;
   /* Faded on three sides: the bottom into the floor, and both ends, which
      would otherwise stand as hard vertical cuts in the meadow. */
@@ -1186,8 +1238,6 @@ body::after {
     linear-gradient(180deg, #000 74%, transparent 100%),
     linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
   mask-composite: intersect;
-  /* Generated a touch brighter and bluer than the plate behind it. */
-  filter: brightness(0.82) saturate(0.85);
   pointer-events: none;
   z-index: 8;
 }

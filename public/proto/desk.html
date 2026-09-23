@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desk camera prototype</title>
+<style>
+  /* ── Prototype: the home scene as real CSS 3D planes ──────────────────────
+     Units are the case box's own px (1118 × 745 at full size). One metre is
+     1075 px at the case's distance, so the case photo sits at z = 0 unscaled.
+     The camera is the one render_desk.py uses: perspective 2150 px (f), its
+     principal point — and so the desk's vanishing point — at (560, 226), the
+     eye 0.40 m (430 px) above the desk. The desk's back edge is 0.25 m behind
+     the case (z -269), its front 0.60 m before it (z +645).
+
+     The camera moves by moving the world the other way: .world is rotated
+     and shifted about the camera's own position (transform-origin 560px
+     226px 2150px), so at rest it is exactly the static home composition. */
+  :root { --bg: #161413; --under: #100e0c; --fg: #ece6da; --muted: #9a8e82; --accent: #F8C662; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  .viewport { position: fixed; inset: 0; overflow: hidden; background: var(--bg); }
+
+  .stage { position: absolute; width: 1118px; height: 745px; transform-origin: 0 0;
+           transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(var(--s, 1));
+           transition: transform 1.9s cubic-bezier(.65, 0, .2, 1); }
+  /* Lens shift: the camera's principal point sits high in the home frame (the
+     horizon is at 30% of the case box). Looking down at the desk it belongs
+     in the middle of the screen, so the stage slides to put it there. */
+  .desk-mode .stage { --tx: var(--dx); --ty: var(--dy); }
+  .cam { position: absolute; inset: 0; perspective: 2150px; perspective-origin: 560px 226px; }
+  .world {
+    position: absolute; inset: 0; transform-style: preserve-3d;
+    transform-origin: 560px 226px 2150px;
+    transition: transform 1.9s cubic-bezier(.65, 0, .2, 1);
+  }
+  .plane { position: absolute; left: -1052.5px; width: 3225px; backface-visibility: hidden; }
+  .wall  { top: -144px; height: 800px; background: url(wall.jpg) 0 0 / 100% 100%; transform: translateZ(-269px); }
+  .desk  { top: 656px; height: 914px; background: url(desk-top.jpg) 0 0 / 100% 100%;
+           transform-origin: 50% 0; transform: translateZ(-269px) rotateX(90deg); }
+  .desk-shadow { position: absolute; inset: 0; background: url(desk-shadow.png) 0 0 / 100% 100%;
+                 transition: opacity .6s ease .15s; }
+  .desk-mode .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
+  .ply   { top: 656px; height: 27px; background: url(ply.jpg) 0 0 / 100% 100%; transform: translateZ(645px); }
+  .under { top: 683px; height: 1200px; background: linear-gradient(var(--under), #0b0a09 30%); transform: translateZ(645px); }
+  .case  { position: absolute; left: 0; top: 0; width: 1118px; height: 745px;
+           transition: opacity .6s ease .15s, filter .7s ease .15s; }
+
+  /* The move. The camera ends up 1 m above the front of the desk (eye y
+     -419), 45 cm in front of the case (z 480), looking down 84° — nearly
+     straight down. With the principal point centred (the lens shift above)
+     the frame then spans the desk from z 110 to z 612: everything the case
+     stood on is past the top edge, and the front edge (645) just outside the
+     bottom. Moving the camera by d is moving the world by -d, then rotating
+     about the (original) camera point:
+     translate (0, 226 + 419, 2150 - 480) = (0, 645, 1670).
+     The wall is only 0.74 m tall: any taller and its top would pass behind
+     the camera on the way down, which browsers render as garbage. */
+  .desk-mode .world { transform: rotateX(-84deg) translate3d(0, 645px, 1670px); }
+  .desk-mode .case  { opacity: 0; filter: blur(3px); transition: opacity .6s ease .7s, filter .6s ease .4s; }
+
+  /* The page chrome stays flat, in front of the scene. */
+  .chrome { position: fixed; left: 48px; top: 36px; bottom: 36px; width: 330px; z-index: 5;
+            display: flex; flex-direction: column; gap: 28px; pointer-events: none; }
+  .chrome > * { pointer-events: auto; }
+  .logo { font-weight: 700; letter-spacing: .02em; font-size: 18px; }
+  .logo sup { color: #d8352a; font-size: 10px; }
+  h1 { margin: 64px 0 0; font-size: 30px; line-height: 1.12; text-transform: uppercase; letter-spacing: -.01em;
+       transition: opacity .5s ease; }
+  .lede { margin: 0; color: var(--fg); opacity: .85; max-width: 300px; transition: opacity .5s ease; }
+  nav { display: flex; flex-direction: column; gap: 6px; margin-top: 12px;
+        font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; }
+  nav button { all: unset; cursor: pointer; color: var(--muted); text-transform: uppercase; }
+  nav button:hover, nav button[aria-pressed="true"] { color: var(--accent); }
+  nav button:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+  .desk-mode h1, .desk-mode .lede { opacity: .0; }
+  /* Over the white desk the chrome inverts to the desk's own ink. */
+  .chrome, nav button { transition: color .6s ease .6s; }
+  .desk-mode .chrome { color: #22283a; }
+  .desk-mode nav button { color: #5b6275; }
+  .desk-mode nav button:hover, .desk-mode nav button[aria-pressed="true"] { color: #22283a; text-decoration: underline; text-underline-offset: 4px; }
+  .hint { position: fixed; right: 20px; bottom: 16px; z-index: 5; color: var(--muted);
+          font: 11px/1.4 ui-monospace, Menlo, monospace; letter-spacing: .08em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage, .world, .case, .desk-shadow, h1, .lede { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="viewport" id="vp">
+  <div class="stage" id="stage">
+    <div class="cam">
+      <div class="world">
+        <div class="plane wall" aria-hidden="true"></div>
+        <div class="plane desk" aria-hidden="true"><div class="desk-shadow"></div></div>
+        <div class="plane ply" aria-hidden="true"></div>
+        <div class="plane under" aria-hidden="true"></div>
+        <img class="case" src="/suitcase/open2.png" alt="Kate's collector suitcase" draggable="false">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chrome">
+  <div class="logo">KATE<sup>™</sup></div>
+  <h1>Product designer<br>&amp; design lead</h1>
+  <p class="lede">I work on complicated products and make them less complicated.</p>
+  <nav aria-label="Prototype">
+    <button id="caseFiles" aria-pressed="false">Case files</button>
+    <button id="home">Back to the suitcase</button>
+  </nav>
+</div>
+<div class="hint">prototype · camera move only · Esc returns</div>
+
+<script>
+  // Lay the stage out the way the home page does: the case box is
+  // min(88vw, 1118px) wide, sits 56px from the top, centred and nudged
+  // right by --case-x (130px).
+  const stage = document.getElementById('stage');
+  function layout() {
+    const w = Math.min(innerWidth * 0.88, 1118), s = w / 1118;
+    const caseX = innerWidth > 900 ? 130 : 0;
+    const left = (innerWidth - w) / 2 + caseX;
+    stage.style.setProperty('--s', s);
+    stage.style.left = `${left}px`;
+    stage.style.top = '56px';
+    stage.style.setProperty('--dx', `${innerWidth / 2 - (left + 560 * s)}px`);
+    stage.style.setProperty('--dy', `${innerHeight / 2 - (56 + 226 * s)}px`);
+  }
+  addEventListener('resize', layout); layout();
+
+  const root = document.documentElement, btn = document.getElementById('caseFiles');
+  function setDesk(on) {
+    root.classList.toggle('desk-mode', on);
+    btn.setAttribute('aria-pressed', String(on));
+    history.replaceState(null, '', on ? '#case-files' : '#');
+  }
+  btn.addEventListener('click', () => setDesk(!root.classList.contains('desk-mode')));
+  document.getElementById('home').addEventListener('click', () => setDesk(false));
+  addEventListener('keydown', e => { if (e.key === 'Escape') setDesk(false); });
+  if (location.hash === '#case-files') setDesk(true);
+</script>
+</body>
+</html>

@@ -431,7 +431,7 @@ export default function Home() {
           globals.css rather than touching any item. */}
       {/* select-none only here: dragging the watch hand used to smear a
           selection across the scene. The page's own text stays selectable. */}
-      <div className="case-stage select-none" style={{ "--case-x": "90px", marginBottom: -48 } as React.CSSProperties}>
+      <div className="case-stage select-none" style={{ "--case-x": "130px", marginBottom: -48 } as React.CSSProperties}>
         {/* The studio sweep, anchored to the case so it travels with it, and
             the flat floor that carries its last tone down past the plate. */}
         <div className="studio-floor" aria-hidden />
@@ -489,6 +489,10 @@ export default function Home() {
           style={{ zIndex: 1 }}
           draggable={false}
         />
+        {/* Moonlight on the case body, dark theme only — see .case-moonlight. */}
+        <div className="case-moonlight" aria-hidden />
+        {/* Meadow grass in front of the case, dark theme only — see .case-grass. */}
+        <div className="case-grass" aria-hidden />
 
         {/* The award, in the top-left cubby — and the way in to Recognition.
             The hoverable box is the CUBBY, not the statue's own outline: it is

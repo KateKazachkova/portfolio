@@ -1128,6 +1128,71 @@ body::after {
   transform-origin: center top;
 }
 
+/* ── The case at night ──
+   Every photograph in the case was shot under warm studio light, which on the
+   moonlit meadow made the whole scene read as a sticker. Two fixes, both dark
+   theme only. First, every picture in the stage is stepped down — filters on
+   the img/video leaves rather than on a wrapper, since the scene is forty flat
+   siblings and a filter on a parent would also become the containing block for
+   anything positioned inside it. The plate is a background, so it is untouched.
+   Second, cool moonlight from the upper left, laid over the case body only:
+   masked to the case's own alpha and sitting at the case's z-index, so the
+   things inside the case stay out of it — they are in the shadow of the lid,
+   and the warm niche lamp keeps its colour. */
+.case-stage :is(img, video) { transition: filter 0.7s ease; }
+[data-theme="dark"] .case-stage :is(img, video) {
+  filter: brightness(0.72) saturate(0.8);
+}
+.case-moonlight {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  background:
+    linear-gradient(128deg, rgba(128, 168, 220, 0.42) 0%, rgba(128, 168, 220, 0.12) 26%, rgba(128, 168, 220, 0) 48%);
+  mix-blend-mode: screen;
+  -webkit-mask: url("/suitcase/open2.webp") center / contain no-repeat;
+  mask: url("/suitcase/open2.webp") center / contain no-repeat;
+}
+[data-theme="dark"] .case-moonlight { opacity: 1; }
+
+/* Grass in front of the case, so at night it stands IN the meadow rather than
+   on it. A generated strip on transparency (night-grass.webp, 1920×553), in
+   front of everything in the stage and click-through. Geometry, in the box's
+   own percentages: 116% wide at the strip's aspect is 50.1% of the box's
+   height; the low grass in the middle tops out 64.3% down the strip, and that
+   is set at 89% of the box — just over the trunk's base (88.1%) and short of
+   the feet (92.9%), so the base sinks into the grass while the tall clumps at
+   the ends climb the doors. top = 89 - 0.643 × 50.1 = 56.8%. The strip's
+   bottom edge is a hard cut, so it fades out into the photographed floor. */
+.case-grass {
+  display: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 56.8%;
+  width: 116%;
+  aspect-ratio: 1920 / 553;
+  background: url("/scene/night-grass.webp") center / 100% 100% no-repeat;
+  /* Faded on three sides: the bottom into the floor, and both ends, which
+     would otherwise stand as hard vertical cuts in the meadow. */
+  -webkit-mask-image:
+    linear-gradient(180deg, #000 74%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(180deg, #000 74%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-composite: intersect;
+  /* Generated a touch brighter and bluer than the plate behind it. */
+  filter: brightness(0.82) saturate(0.85);
+  pointer-events: none;
+  z-index: 8;
+}
+[data-theme="dark"] .case-grass { display: block; }
+
 /* ── Type scale ───────────────────────────────────────────────────────────
    One ladder for the whole site. Until now every page set its own numbers —
    the home column inline, /about in Tailwind steps, the case studies in their

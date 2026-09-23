@@ -1249,7 +1249,6 @@ body::after {
   top: 58.2%;
   width: 116%;
   aspect-ratio: 1920 / 657;
-  background: url("/scene/night-grass.webp") center / 100% 100% no-repeat;
   /* Faded on three sides: the bottom into the floor, and both ends, which
      would otherwise stand as hard vertical cuts in the meadow. */
   -webkit-mask-image:
@@ -1264,6 +1263,19 @@ body::after {
   z-index: 8;
 }
 [data-theme="dark"] .case-grass { display: block; }
+/* One column of the strip each, bent from the foot by NightGrass. A pixel
+   wider than their share so subpixel edges never open a hairline between
+   them. */
+.case-grass__slice {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(100% / 48 + 1px);
+  background: url("/scene/night-grass.webp") no-repeat;
+  background-size: 4800% 100%;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
 
 /* ── Type scale ───────────────────────────────────────────────────────────
    One ladder for the whole site. Until now every page set its own numbers —

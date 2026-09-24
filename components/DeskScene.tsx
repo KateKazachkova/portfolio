@@ -83,13 +83,31 @@ const STICKERS = [
   { src: "cssda-kudos.png", cls: "kudos" },
 ] as const;
 
+// What's in the folder so far: two stacks of prints tucked in the pocket,
+// the family before and the house after (public/artefacts/ukrainska-15/
+// family, after — the live site's own sets). Only the top few are drawn;
+// the rest wait for the folder to be opened. First is on top.
+const STACKS = [
+  { key: "family", prints: [[1, 547, 378, -2], [2, 532, 378, 3], [4, 500, 400, -5], [5, 500, 400, 6]] },
+  { key: "after", prints: [[2, 700, 444, 2], [6, 500, 444, -4], [1, 400, 444, 5], [3, 400, 420, -2]] },
+] as const;
+
 function Envelope() {
   return (
     <span className="env">
       <span className="sr-only">Ukrainska 15</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="env__layer" src="/artefacts/ukrainska-15/envelope/back.webp?v=3" alt="" draggable={false} />
-      {/* the contents go here, between the back and the pocket */}
+      {STACKS.map((st) => (
+        <span key={st.key} className={`env__stack env__stack--${st.key}`}>
+          {[...st.prints].reverse().map(([n, w, h, t]) => (
+            <span key={n} className="env__print-photo" style={{ "--t": `${t}deg`, aspectRatio: `${w} / ${h}` } as React.CSSProperties}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/artefacts/ukrainska-15/${st.key}/${String(n).padStart(2, "0")}.webp`} alt="" draggable={false} />
+            </span>
+          ))}
+        </span>
+      ))}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="env__layer" src="/artefacts/ukrainska-15/envelope/pocket.webp?v=3" alt="" draggable={false} />
       <span className="env__print" aria-hidden>

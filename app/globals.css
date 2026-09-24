@@ -231,28 +231,12 @@ body > * { position: relative; z-index: 1; }
   pointer-events: none;
   z-index: 0;
 }
-/* Night is the desk: Kate's IKEA grid desk against a dark wall. The plate
-   (scene/desk.jpg) is not generated but rendered (delete/render_desk.py) in
-   the suitcase's own camera, because a generated desk never agreed with it:
-   the case is shot almost head-on and its open doors land only ~5% lower
-   than its base, so the desk is seen at a shallow ~11°, with the vanishing
-   point on the case's centre line and the horizon at 30% of the box. The
-   trunk's base then sits 2 m away, the wall 25 cm behind it (back edge at
-   81.6% of the box) and the front edge 60 cm before it (112.8%).
-
-   The plate is drawn in the box's own coordinates — 185% × 150% of it, from
-   -20% — so it needs no maths here: it lines up at its natural aspect. It is
-   held at 110vw + the case's offset minimum so its sides never enter the
-   frame; only past ~2000px does that stretch it. */
-[data-theme="dark"] .studio-plate {
-  background-image: url("/scene/desk.jpg");
-  background-blend-mode: normal;
-  top: -20%;
-  height: 150%;
-  width: max(185%, calc(110vw + 2 * var(--case-x)));
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 94%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 94%, transparent 100%);
-}
+/* Night is the desk: Kate's IKEA grid desk against a dark wall, built as real
+   3D planes (components/DeskScene.tsx, styles under "The desk as a room")
+   so Case Files can move the camera across it. The flat plate is not used
+   at night; scene/desk.jpg (delete/render_desk.py) is kept as the picture
+   the planes were made to match. */
+[data-theme="dark"] .studio-plate { display: none; }
 [data-theme="dark"] .studio-floor { top: 125%; }
 /* The four studio shadow layers were tuned for the pale sweep. On the desk
    the shadow is baked into the plate instead, from the case's own bottom
@@ -1151,6 +1135,114 @@ body::after {
   --case-scale: 1;
   transform: translate(var(--case-x), var(--case-y)) scale(var(--case-scale));
   transform-origin: center top;
+}
+
+/* ── The desk as a room (components/DeskScene.tsx) ────────────────────────
+   Every length is in the case box's own px (1118 × 745 at full size) times
+   --u, the box's real width over 1118 — .case-stage is a size container, so
+   the whole room scales with the case. One metre is 1075 of those px at the
+   case's distance, so the case sits at z = 0 unscaled.
+
+   The camera is render_desk.py's: perspective 2150 (its focal length), its
+   principal point — and so the desk's vanishing point — at (560, 226), the
+   eye 0.40 m above the desk. It moves by moving the world the other way:
+   .desk-world and .case-world turn and shift about the camera's own
+   position (their transform-origin), so at rest they are exactly the flat
+   composition. Only at night; in daylight .scene-cam and .case-world are
+   plain boxes the size of the stage and nothing here applies. */
+.case-stage { container-type: inline-size; }
+.scene-cam, .case-world { position: absolute; inset: 0; }
+.scene-cam { --u: calc(100cqw / 1118); }
+.desk-world { display: none; }
+
+[data-theme="dark"] .scene-cam {
+  perspective: calc(2150 * var(--u));
+  perspective-origin: calc(560 * var(--u)) calc(226 * var(--u));
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1);
+}
+[data-theme="dark"] .desk-world,
+[data-theme="dark"] .case-world {
+  transform-origin: calc(560 * var(--u)) calc(226 * var(--u)) calc(2150 * var(--u));
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .15s;
+}
+[data-theme="dark"] .desk-world {
+  display: block; position: absolute; inset: 0; z-index: 0;
+  transform-style: preserve-3d; pointer-events: none;
+}
+.desk-plane {
+  position: absolute; left: calc(-1052.5 * var(--u)); width: calc(3225 * var(--u));
+  background-size: 100% 100%; backface-visibility: hidden;
+}
+/* The wall is only 0.74 m tall: any taller and its top passes behind the
+   camera on the way down, which browsers draw as garbage. */
+.desk-wall  { top: calc(-144 * var(--u)); height: calc(800 * var(--u));
+              background-image: url("/scene/desk3d/wall.jpg"); transform: translateZ(calc(-269 * var(--u))); }
+.desk-top   { top: calc(656 * var(--u)); height: calc(914 * var(--u));
+              background-image: url("/scene/desk3d/desk.jpg");
+              transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
+.desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
+              background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(645 * var(--u))); }
+.desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
+              background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
+              transform: translateZ(calc(645 * var(--u))); }
+/* The case's shadow, projected onto the desk from the flat plate; its own
+   layer so it can leave with the case. */
+.desk-shadow { position: absolute; inset: 0; background: url("/scene/desk3d/desk-shadow.png") 0 0 / 100% 100%;
+               transition: opacity .6s ease .15s; }
+
+/* The case files, lying on the desk plane: the /work grid's plain cards for
+   now (folders later). Desk-plane px, so from the camera's end height of 1 m
+   one of them is ~2 screen px. Hidden and out of the tab order until the
+   camera arrives, then dealt out one by one. */
+.desk-cases { position: absolute; inset: 0; }
+.desk-card {
+  position: absolute;
+  width: calc(180 * var(--u)); height: calc(126 * var(--u));
+  margin: calc(-63 * var(--u)) 0 0 calc(-90 * var(--u));
+  background: #faf8f3; border: calc(1 * var(--u)) solid #d9d4c8; border-radius: calc(7 * var(--u));
+  overflow: hidden; color: #22283a; text-decoration: none;
+  box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.18), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.28);
+  opacity: 0; transform: rotate(var(--r)) translateY(calc(6 * var(--u)));
+  transition: opacity .35s ease, transform .35s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.desk-card__cover { height: calc(64 * var(--u)); background: #ebe6db; border-bottom: calc(1 * var(--u)) solid #e0dbcf; }
+.desk-card__body { padding: calc(7 * var(--u)) calc(9 * var(--u)); }
+.desk-card__tags { font: calc(5 * var(--u)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
+                   letter-spacing: .14em; text-transform: uppercase; color: #8b8577; }
+.desk-card h2 { margin: calc(3 * var(--u)) 0 0; font-size: calc(10 * var(--u)); line-height: 1.15; font-weight: 600; }
+
+/* ── The camera move ── */
+[data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+[data-desk="open"] .desk-world,
+[data-desk="open"] .case-world {
+  transform: rotateX(-84deg) translate3d(0, calc(645 * var(--u)), calc(1670 * var(--u)));
+}
+[data-desk="open"] .desk-world { pointer-events: auto; }
+[data-desk="open"] .case-world { opacity: 0; pointer-events: none;
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
+[data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
+[data-desk="open"] .desk-card { opacity: 1; transform: rotate(var(--r)); transition-delay: calc(1.35s + var(--i) * 90ms); }
+[data-desk="open"] .desk-card:hover,
+[data-desk="open"] .desk-card:focus-visible {
+  transform: rotate(var(--r)) translateY(calc(-3 * var(--u))); border-color: #b9b2a3; transition-delay: 0s; outline: none;
+  box-shadow: 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(20,16,12,.16), 0 calc(12 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34);
+}
+/* The page around it: the title and the lines under the case step aside,
+   and the index stays, inked for the white desk. */
+.hero-aside h2, .hero-aside h2 + p, .hero-caption, .hero-contact { transition: opacity .5s ease; }
+[data-desk="open"] .hero-aside h2,
+[data-desk="open"] .hero-aside h2 + p,
+[data-desk="open"] .hero-caption,
+[data-desk="open"] .hero-contact { opacity: 0; pointer-events: none; }
+[data-desk="open"] .hero-aside { --fg: #22283a; --muted: #5b6275; }
+[data-desk="open"] .hero-aside-wrap { border-color: transparent !important; }
+/* <main> starts 56px above the window (under the header) and is one window
+   tall, so it stops 56px short of the bottom — and it clips the room. Over
+   the desk it has to reach the bottom edge. */
+[data-desk="open"] main { min-height: calc(100vh + 56px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-cam, .desk-world, .case-world, .desk-shadow, .desk-card { transition: none !important; }
 }
 
 /* ── Type scale ───────────────────────────────────────────────────────────

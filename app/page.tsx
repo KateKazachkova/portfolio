@@ -13,6 +13,7 @@ import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 import { mono } from "@/components/ui/type";
 import DaySticky from "@/components/DaySticky";
+import { DeskPlanes, useDeskCamera } from "@/components/DeskScene";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
@@ -254,6 +255,8 @@ export default function Home() {
   // weekend ones, which otherwise only show on Saturday). Cleared by the
   // clock / presets / Now.
   const [forced, setForced] = useState<string | null>(null);
+  const deskCam = useRef<HTMLDivElement>(null);
+  useDeskCamera(deskCam);
   const edition =
     forced ? EDITIONS[forced]
     : hour === null ? EDITIONS.office
@@ -437,6 +440,14 @@ export default function Home() {
             the flat floor that carries its last tone down past the plate. */}
         <div className="studio-floor" aria-hidden />
         <div className="studio-plate" aria-hidden />
+
+        {/* The camera. At night the desk is a room of real planes and Case
+            Files moves the camera through it; everything the case holds
+            rides in .case-world, the one plane at z = 0, so it moves with the
+            desk. In daylight both are inert and the scene is flat as ever. */}
+        <div className="scene-cam" ref={deskCam}>
+        <DeskPlanes />
+        <div className="case-world">
 
         {/* ── The shadow, in four layers ──────────────────────────────────
             The case does not sit flat on the floor: it stands on the feet at
@@ -1073,13 +1084,15 @@ export default function Home() {
             swing apart to reveal the doll in the niche underneath.
             HIDDEN for now per Kate — re-enable when the concept is reworked. */}
         {/* <IntroOverlay /> */}
+        </div>
+        </div>
       </div>
 
         {/* The title block to the left of the box, the schedule to its right:
             the case itself stays centred and untouched between them. Both are
             absolute, so neither can push it off centre. */}
         <div style={{ borderColor: "var(--hairline)" }}
-          className="basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:border-r min-[1440px]:pr-6 min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-0 min-[1440px]:left-6 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
+          className="hero-aside-wrap basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:border-r min-[1440px]:pr-6 min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-0 min-[1440px]:left-6 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
           <HeroAside />
         </div>
 
@@ -1096,7 +1109,7 @@ export default function Home() {
       </div>
 
       {/* Caption */}
-      <div className="text-center -mt-2">
+      <div className="hero-caption text-center -mt-2">
         <p style={{ fontFamily: mono, fontSize: 12, letterSpacing: "0.15em" }} className="uppercase">
           {edition.label}{edition.slogan ? ` · “${edition.slogan}”` : ""}
         </p>
@@ -1108,7 +1121,7 @@ export default function Home() {
       {/* Have a project? — parked in the bottom-left corner of the page, in the
           same voice as the line under the title: body type, no accent colour.
           mt-auto keeps it on the floor of the min-h-screen column. */}
-      <div className="w-full mt-auto pt-4">
+      <div className="hero-contact w-full mt-auto pt-4">
         <div className="ml-[6vw] min-[1440px]:ml-6">
           <p className="t-body" style={{ color: "var(--fg)" }}>Have a project?</p>
           <Link

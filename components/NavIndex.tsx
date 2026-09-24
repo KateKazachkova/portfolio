@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import { NAV_LINKS as LINKS, CV_HREF } from "@/lib/nav";
+import { DESK_EVENT, shouldOpenDesk } from "@/components/DeskScene";
 
 /** The index itself: the links, the CV and the theme, set down the page.
  *
@@ -27,6 +28,13 @@ export default function NavIndex({ className = "mt-14" }: { className?: string }
         <Link
           key={link.href}
           href={link.href}
+          // On home at night, Case Files is a camera move across the desk
+          // rather than a page (components/DeskScene.tsx).
+          onClick={link.href === "/work" && pathname === "/" ? (e) => {
+            if (!shouldOpenDesk(e)) return;
+            e.preventDefault();
+            window.dispatchEvent(new Event(DESK_EVENT));
+          } : undefined}
           className="t-label transition-opacity hover:opacity-60"
           style={{
             color: isActive(link.href) ? "var(--fg)" : "var(--muted)",

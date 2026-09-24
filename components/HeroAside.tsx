@@ -18,7 +18,7 @@ export default function HeroAside({
   lead?: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="hero-aside">
       <p
         className="font-black uppercase tracking-tight leading-none"
         style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}

@@ -1186,8 +1186,21 @@ body::after {
    camera on the way down, which browsers draw as garbage. */
 .desk-wall  { top: calc(-144 * var(--u)); height: calc(800 * var(--u));
               background-image: url("/scene/desk3d/wall.jpg"); transform: translateZ(calc(-269 * var(--u))); }
+/* The desk's tiles are drawn, not photographed: desk-clean.jpg is the
+   plate's light and shade with its grid lines taken out, and the lines go
+   back on top as gradients — 2 px every 107.5 (10 cm), from 53.75 across
+   and 58.3 out, measured off the plate — so they stay sharp however close
+   the camera comes. Multiplied, so they darken with the light under them. */
 .desk-top   { top: calc(656 * var(--u)); height: calc(914 * var(--u));
-              background-image: url("/scene/desk3d/desk.jpg");
+              --tile: calc(107.5 * var(--u)); --line: rgb(58, 60, 74);
+              background-image:
+                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
+                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
+                url("/scene/desk3d/desk-clean.jpg");
+              background-size: var(--tile) 100%, 100% var(--tile), 100% 100%;
+              background-position: calc(52.75 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0;
+              background-repeat: repeat-x, repeat-y, no-repeat;
+              background-blend-mode: multiply, multiply, normal;
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
               background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(645 * var(--u))); }
@@ -1196,7 +1209,10 @@ body::after {
    mirrored, so the seam is its own reflection. */
 .desk-ext { left: calc(2172.5 * var(--u)); width: calc(700 * var(--u)); }
 .desk-wall.desk-ext { background-image: url("/scene/desk3d/wall-ext.jpg"); }
-.desk-top.desk-ext  { background-image: url("/scene/desk3d/desk-ext.jpg"); }
+.desk-top.desk-ext  { background-image:
+                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
+                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
+                url("/scene/desk3d/desk-ext.jpg"); }
 .desk-ply.desk-ext  { background-image: url("/scene/desk3d/ply-ext.jpg"); }
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
               background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));

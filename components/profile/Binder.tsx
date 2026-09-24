@@ -96,15 +96,15 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
           up out of the sleeves (edge-on from above, so only seen from the side) */}
       {["front", "back", "left", "right"].map((e) => <span key={e} className={`pf-edge pf-edge--${e}`} aria-hidden />)}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="pf-binder__base" src="/profile/binder/binder.webp" alt="" draggable={false} />
-      {[13.1, 47.05, 78.65].map((y) => (
-        <svg key={y} className="pf-hoop" style={{ top: `${y}%` }} viewBox="0 0 44 28" preserveAspectRatio="none" aria-hidden>
+      <img className="pf-binder__base" src="/profile/binder/binder-2.webp" alt="" draggable={false} />
+      {[14.84, 47.66, 81.55].map((y) => (
+        <svg key={y} className="pf-hoop" style={{ top: `${y}%` }} viewBox="0 0 60 28" preserveAspectRatio="none" aria-hidden>
           <defs>
             <linearGradient id={`pf-steel-${y}`} x1="0" x2="1">
               <stop offset="0" stopColor="#8d9096" /><stop offset=".45" stopColor="#e9ebee" /><stop offset=".6" stopColor="#b7bac0" /><stop offset="1" stopColor="#7c7f85" />
             </linearGradient>
           </defs>
-          <path d="M3 28 C3 3 41 3 41 28" fill="none" stroke={`url(#pf-steel-${y})`} strokeWidth="3.4" strokeLinecap="round" />
+          <path d="M3 28 C3 3 57 3 57 28" fill="none" stroke={`url(#pf-steel-${y})`} strokeWidth="3.4" strokeLinecap="round" />
         </svg>
       ))}
       {leaves.map((l, i) => {
@@ -133,7 +133,7 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
         );
       })}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="pf-binder__rings" src="/profile/binder/rings.webp" alt="" draggable={false} />
+      <img className="pf-binder__rings" src="/profile/binder/rings-2.webp" alt="" draggable={false} />
     </div>
   );
 }

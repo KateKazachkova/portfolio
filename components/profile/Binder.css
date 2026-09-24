@@ -11,9 +11,11 @@
   border-radius: .75%; box-shadow: 0 1px 2px rgba(40, 25, 10, .18), 0 18px 40px -14px rgba(40, 25, 10, .35); user-select: none; }
 .pf-binder > * { --px: calc(100cqw / 1200); }
 .pf-binder__base { position: absolute; inset: 0; width: 100%; height: 100%; }
-/* The rings alone, cut out of the photograph (x 1880–2220): the sleeves
-   turn under the metal, not under a strip of the picture. */
-.pf-binder__rings { position: absolute; top: 0; left: 45.49%; width: 9.147%; height: 100%; z-index: 100; pointer-events: none; }
+/* The rings alone, cut out of the photograph and taken off the base
+   (binder-2.webp): 1.37× wider than photographed and moved to the nearest
+   round holes (4k y 587, 1288, 2012), so their ends go into the sleeves'
+   punched strips (x 1830–2266). The sleeves turn under the metal. */
+.pf-binder__rings { position: absolute; top: 0; left: 44.15%; width: 11.73%; height: 100%; z-index: 100; pointer-events: none; }
 
 /* A leaf is its sleeve with the punched strip (x 2195–3754): it turns about
    the ring line, 145 px short of its own edge. It bends as it goes — three
@@ -151,7 +153,7 @@
   background: linear-gradient(90deg, #d9a43c, #a8741a); }
 .desk-binder .pf-edge--left  { top: .7%; bottom: .7%; right: 100%; width: var(--t); transform-origin: 100% 50%; transform: rotateY(90deg);
   background: linear-gradient(270deg, #d9a43c, #a8741a); }
-.desk-binder .pf-hoop { display: block; position: absolute; left: calc(50.07% - 22 * var(--u)); width: calc(44 * var(--u)); height: calc(28 * var(--u));
+.desk-binder .pf-hoop { display: block; position: absolute; left: calc(50.07% - 30 * var(--u)); width: calc(60 * var(--u)); height: calc(28 * var(--u));
   margin-top: calc(-28 * var(--u)); transform-origin: 50% 100%; transform: translateZ(var(--t)) rotateX(-90deg); overflow: visible; }
 
 /* ── pager ── */

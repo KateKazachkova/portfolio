@@ -6,7 +6,7 @@ import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import NicheLight from "@/components/NicheLight";
 import KateTalk from "@/components/KateTalk";
-import PocketWatch from "@/components/PocketWatch";
+import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
 import HeroAside from "@/components/HeroAside";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
@@ -257,13 +257,33 @@ export default function Home() {
   const [forced, setForced] = useState<string | null>(null);
   const deskCam = useRef<HTMLDivElement>(null);
   useDeskCamera(deskCam);
+  // The flip clock's own time: a weekday and minutes, or null while it simply
+  // follows now. Set, it decides the edition — weekday specials included —
+  // and hands its hour to the rest of the site's mood.
+  const [clock, setClock] = useState<ClockTime | null>(null);
+  const [now, setNowTick] = useState<Date | null>(null);
+  useEffect(() => {
+    // After mount, so server and client agree on the first paint.
+    const first = window.setTimeout(() => setNowTick(new Date()), 0);
+    const t = window.setInterval(() => setNowTick(new Date()), 30_000);
+    return () => { window.clearTimeout(first); window.clearInterval(t); };
+  }, []);
   const edition =
     forced ? EDITIONS[forced]
+    : clock ? editionForDate(clockDate(clock))
     : hour === null ? EDITIONS.office
     : auto ? editionForDate(new Date())
     : editionForHour(hour);
 
-  const pickHour = (h: number) => { setForced(null); setHour(h); };
+  const setClockTime = (t: ClockTime) => {
+    setForced(null);
+    setClock(t);
+    setHour(Math.floor(t.minutes / 60));
+  };
+  const clockNow = () => { setForced(null); setClock(null); setNow(); };
+  const clockShown: ClockTime = clock ?? (now
+    ? { day: now.getDay(), minutes: now.getHours() * 60 + now.getMinutes() }
+    : { day: 1, minutes: 10 * 60 });
 
   // Home is a product shot: it gets the studio sweep. Every other route stays
   // flat paper, so the box reads as packaging and the documents read as paper.
@@ -850,14 +870,6 @@ export default function Home() {
             (see TARDIS_SPOTS); the shelf lip above is its own element. */}
         <TardisModel />
 
-        {/* The gold pocket watch, hung off the free left end of the wardrobe
-            rail, in front of the coats — it both tells and (by dragging the
-            hands) sets the scene's hour. The chain's bow sits just above the
-            brass bar (railY(79) = 16.42%), so it reads as hung, not floating. */}
-        <div style={{ position: "absolute", left: "84.75%", top: "6.6%", width: "10%", zIndex: 4 }}>
-          <PocketWatch hour={hour ?? 12} onChange={pickHour} />
-        </div>
-
         {/* Today's plan on a sticky note, pressed to the wardrobe wall under
             the watch — the schedule that used to live in a panel beside the
             case, now an object in it. Tapping a line jumps the doll to that
@@ -1079,6 +1091,12 @@ export default function Home() {
             panel it opens fills the wall above her head, where the chalked day
             used to be. Nothing else in the hero moves. */}
         <KateTalk edition={shown} />
+
+        {/* The flip clock, standing on the desk left of the case, under the
+            index. It tells the scene's time and sets it: see FlipClock. */}
+        <div className="flip-clock-slot">
+          <FlipClock time={clockShown} live={clock === null} onChange={setClockTime} onNow={clockNow} />
+        </div>
 
         {/* First-visit opening sequence — opens the case in place, doors
             swing apart to reveal the doll in the niche underneath.

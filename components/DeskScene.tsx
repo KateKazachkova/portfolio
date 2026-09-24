@@ -42,7 +42,7 @@ import { DeskPlayer, U15File, U15_OPEN, U15_RESET } from "./desk/U15File";
 // they are ~2.5 screen px per desk px — more than fits across the window,
 // which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
-  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 150, h: 208, x: 1559, y: 575, r: -3 },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 195, h: 270, x: 1540, y: 575, r: -3 },
   { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1809, y: 548, r: 3 },
   { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 2079, y: 570, r: -2 },
   { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2359, y: 552, r: 2 },

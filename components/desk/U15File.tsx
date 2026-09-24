@@ -16,15 +16,19 @@ import { booklet } from "@/content/work/ukrainska-15-booklet";
  * the right. A click on the folder again, or leaving the desk, puts it all
  * back.
  *
- * Everything is laid out in the folder's own desk px (it is 150 × 208; see
- * .env in globals.css for why it is drawn 3× up), and the open layout is
- * for the camera's pan 0, where the axis is over desk x 1612.
+ * Everything is laid out in the folder's own units (150 × 208, each K desk
+ * px; see .env in globals.css for why it is drawn 3× up), and the open
+ * layout is for the camera's pan 0, where the axis is over desk x 1612.
  */
 
 export const U15_OPEN = "kate:u15-open";      // → DeskScene pans home
 export const U15_RESET = "kate:u15-reset";    // ← DeskScene, leaving the desk
 
+// The folder is drawn 1.3× a real A4 pocket so that, opened, the card, the
+// booklet and the prints read at the camera's height without zooming. Inside
+// it everything is in folder units (150 × 208); a unit is K desk px.
 const FOLDER = { w: 150, h: 208 };
+const K = 1.3;
 const SPD = 2150 / 860;                       // screen px per desk px at the camera's height (× --u)
 
 // The round CSSDA seals, stuck on as die-cut stickers in their own colours;
@@ -111,7 +115,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
       data-open={open || undefined}
       style={{
         left: `calc(${x} * var(--u))`, top: `calc(${y} * var(--u))`,
-        "--w": FOLDER.w, "--h": FOLDER.h, "--r": `${r}deg`,
+        "--w": FOLDER.w * K, "--h": FOLDER.h * K, "--r": `${r}deg`, "--k": K,
       } as React.CSSProperties}
     >
       <span className="env">

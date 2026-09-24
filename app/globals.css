@@ -1285,7 +1285,7 @@ body::after {
    and carries no filter — a filter renders it into a surface at its layout
    size, which the camera then blows up. Its shadow is a box under the back
    panel (the panel is a plain rectangle, inset in the cut-out). */
-.desk-card--env { --eu: calc(3 * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
+.desk-card--env { --eu: calc(3 * var(--k, 1) * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
                   transform: rotate(var(--r)) translateZ(.1px); }
 .desk-card--env::before { content: ""; position: absolute; inset: .4% 3.1% 2.1% 1.2%;
   box-shadow: 0 calc(1 * var(--u)) calc(1.5 * var(--u)) rgba(20,16,12,.3);
@@ -1307,19 +1307,19 @@ body::after {
 .env__print-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* The library card, in front of the prints: buff card stock, a typed head,
    ruled rows, date stamps in violet ink. */
-.env__card { position: absolute; left: 17%; top: 9%; width: 66%; display: block; box-sizing: border-box;
+.env__card { position: absolute; left: 10%; top: 14%; width: 80%; display: block; box-sizing: border-box;
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
   transform: rotate(-1.5deg); box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
-  font: 400 calc(2.3 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
+  font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
 .env__card-head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
   padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
-.env__card-head span:first-child { font-size: calc(5.2 * var(--eu)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-.env__card-row { display: grid; grid-template-columns: 19% 37% 44%; align-items: end;
-  height: calc(5.2 * var(--eu)); border-bottom: calc(.25 * var(--eu)) solid #9fb3c8; }
+.env__card-head span:first-child { font-size: calc(6 * var(--eu)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.env__card-row { display: grid; grid-template-columns: 18% 36% 46%; align-items: end;
+  height: calc(6.4 * var(--eu)); border-bottom: calc(.25 * var(--eu)) solid #9fb3c8; }
 .env__card-row > span { padding-left: calc(1 * var(--eu)); white-space: nowrap; overflow: hidden; }
 .env__card-row > span + span { border-left: calc(.25 * var(--eu)) solid #d59a95; }
-.env__card-row--th { font-size: calc(2 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
-.env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2 * var(--eu)); transform: rotate(-3deg); }
+.env__card-row--th { font-size: calc(2.5 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+.env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2.7 * var(--eu)); transform: rotate(-3deg); }
 /* Dark red ink printed into the card, as on the reference folder. */
 .env__print { position: absolute; inset: 0; color: #6e0d06; mix-blend-mode: multiply; }
 .env__no { position: absolute; left: 9%; top: 33%;
@@ -1387,7 +1387,7 @@ body::after {
 /* ── Ukrainska 15, opened (U15File) ──
    Layers, back to front: the folder's back · the prints, the card and the
    booklet · the pocket, its print and stamps · the click target. Opened,
-   the sleeve (back, pocket, print, target) slides 170 px down, and the
+   the sleeve (back, pocket, print, target) slides 175 units down, and the
    contents come up over it — their z-index switches once they are clear
    of the pocket, and back only once they are in again. */
 .env > * { z-index: 1; }
@@ -1397,17 +1397,18 @@ body::after {
 .env > .env__back { z-index: 0; }
 .u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none;
   cursor: pointer; z-index: 30 !important; }
-.desk-card--env[data-open] .u15-sleeve { transform: translateY(calc(170 * var(--eu))); }
-.desk-card--env[data-open]::before { transform: translateY(calc(170 * var(--u))); }
+.desk-card--env[data-open] .u15-sleeve { transform: translateY(calc(175 * var(--eu))); }
+.desk-card--env[data-open]::before { transform: translateY(calc(175 * var(--eu) / 3)); }
 .desk-card--env[data-open] .u15-hit { z-index: 6 !important; }
 .desk-card--env[data-open] :is(.env__stack, .env__card, .u15-book) { z-index: 10; pointer-events: auto;
   transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
 /* where things go: the stacks up, the card left, the booklet to the middle
-   (the camera's axis is over folder x 128), the player right, the other
+   (the camera's axis is over folder x 130; the booklet sits right of it to
+   leave the card room), the player right, the other
    files off to the right */
-.desk-card--env[data-open] .env__stack--family { transform: translate(calc(-4 * var(--eu)), calc(-62 * var(--eu))) rotate(3deg); }
-.desk-card--env[data-open] .env__stack--after  { transform: translate(calc(112 * var(--eu)), calc(-66 * var(--eu))) rotate(3deg); }
-.desk-card--env[data-open] .env__card { transform: translate(calc(-118 * var(--eu)), calc(38 * var(--eu))) rotate(-4deg); }
+.desk-card--env[data-open] .env__stack--family { transform: translate(calc(-7 * var(--eu)), calc(-28 * var(--eu))) rotate(3deg); }
+.desk-card--env[data-open] .env__stack--after  { transform: translate(calc(97 * var(--eu)), calc(-46 * var(--eu))) rotate(3deg); }
+.desk-card--env[data-open] .env__card { transform: translate(calc(-53 * var(--eu)), calc(31 * var(--eu))) rotate(-3deg); }
 html[data-u15] .desk-card:not(.desk-card--env) { --slide: 560; }
 html[data-u15] .desk-player { --px: 128; }
 /* each print: its drag (--dx/--dy, folder px), and once out a little fan so
@@ -1431,7 +1432,7 @@ html[data-u15] .desk-player { --px: 128; }
 .u15-book[data-at="start"] { --shift: -36; }
 .u15-book[data-at="end"] { --shift: 36; }
 .desk-card--env[data-open] .u15-book { cursor: pointer;
-  transform: translate(calc((53 + var(--shift)) * var(--eu)), calc(-22 * var(--eu))) rotate(3deg); }
+  transform: translate(calc((85 + var(--shift)) * var(--eu)), calc(-12 * var(--eu))) rotate(3deg); }
 .u15-leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; display: block;
   transform-origin: 0 50%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.45, 0, .2, 1); }
 .u15-leaf[data-turned] { transform: rotateY(-180deg); }

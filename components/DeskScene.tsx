@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
+import AwardRail from "@/components/AwardRail";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -86,6 +87,11 @@ export function DeskPlanes() {
         }} />
       </div>
       <div className="desk-plane desk-wall desk-ext" aria-hidden />
+      {/* the wall once more, bare, over both halves of it: what hangs there
+          runs across the seam and must not be covered by the extension */}
+      <div className="desk-plane desk-wall desk-wall--hung">
+        <AwardRail />
+      </div>
       <div className="desk-plane desk-top desk-ext" aria-hidden />
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top">
@@ -285,6 +291,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));
+      el.querySelectorAll<HTMLAnchorElement>(".award-ribbon").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
     };
 
     // Opened by us, it has a history entry of its own and closing is Back.

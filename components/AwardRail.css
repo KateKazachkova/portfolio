@@ -1,0 +1,68 @@
+/* Imported by components/AwardRail.tsx. */
+[data-desk="award"] .desk-world { pointer-events: auto; }
+
+/* ── The award ribbons (components/AwardRail.tsx) ──
+   On the wall plane, in its px. A brass rail, a short bar per project hung
+   from it with the project's paper tag between, and a ribbon per award:
+   the satin is the level, the competition's logo runs down it (the white
+   logo files as a mask, inked for the satin), shadows fall down-right as
+   everything else's does. */
+.desk-wall.desk-wall--hung { background: none; }
+.award-rail { position: absolute; inset: 0; }
+.award-rail__bar, .award-rail__sub {
+  position: absolute; height: calc(4 * var(--u)); border-radius: calc(2 * var(--u));
+  background: linear-gradient(#f3d58c, #b8883a 45%, #6e4d1c 80%, #a67b35);
+  box-shadow: calc(3 * var(--u)) calc(3 * var(--u)) calc(4 * var(--u)) rgba(0,0,0,.6);
+}
+.award-rail__sub { height: calc(3 * var(--u)); }
+.award-rail__sub::before, .award-rail__sub::after {         /* its hangers */
+  content: ""; position: absolute; bottom: 100%; width: calc(1 * var(--u)); height: var(--drop);
+  background: linear-gradient(90deg, #6e4d1c, #d9b36a, #6e4d1c);
+}
+.award-rail__sub::before { left: calc(3 * var(--u)); }
+.award-rail__sub::after  { right: calc(3 * var(--u)); }
+.award-tag {
+  position: absolute; transform: translateX(-50%); white-space: nowrap;
+  padding: calc(2.5 * var(--u)) calc(6 * var(--u)); border-radius: calc(1.5 * var(--u));
+  background: #efe7d6; color: #22283a;
+  font: 600 calc(8.5 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .12em; text-transform: uppercase;
+  box-shadow: calc(2 * var(--u)) calc(2 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.55);
+}
+.award-ribbon {
+  position: absolute; display: block; background: 0 0 / 100% 100% no-repeat;
+  transform-origin: 50% 3%; transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+  filter: drop-shadow(calc(3 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.6));
+  --ink: rgba(34, 26, 16, .78);
+}
+.award-ribbon--gold   { background-image: url("/items/ribbons/gold.webp"); }
+.award-ribbon--silver { background-image: url("/items/ribbons/silver.webp"); --ink: rgba(30, 32, 38, .72); }
+.award-ribbon--bronze { background-image: url("/items/ribbons/bronze.webp"); --ink: rgba(40, 20, 10, .72); }
+.award-ribbon--web    { background-image: url("/items/ribbons/web.webp"); --ink: rgba(236, 230, 218, .82); }
+/* the logo down the satin: laid across, then turned to run bottom to top */
+.award-ribbon__logo, .award-ribbon__name {
+  position: absolute; left: 50%; top: 58%; width: calc(72 * var(--u)); height: calc(16 * var(--u));
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.award-ribbon__logo {
+  background: var(--ink);
+  -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat;
+}
+.award-ribbon__name {
+  display: grid; place-items: center; color: var(--ink); white-space: nowrap;
+  font: 700 calc(6 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .14em; text-transform: uppercase;
+}
+[data-desk="award"] .award-ribbon:hover,
+[data-desk="award"] .award-ribbon:focus-visible { transform: rotate(-4deg) translateY(calc(-2 * var(--u))); outline: none; z-index: 2; }
+/* what it is, under the ribbon on hover */
+.award-ribbon::after {
+  content: attr(data-label); position: absolute; left: 50%; top: 104%; transform: translateX(-50%);
+  width: max-content; max-width: calc(260 * var(--u)); white-space: normal; text-align: center;
+  padding: calc(5 * var(--u)) calc(9 * var(--u)); border-radius: calc(3 * var(--u));
+  background: rgba(250, 248, 243, .95); color: #22283a;
+  font: 500 calc(11 * var(--u)) / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .04em;
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+}
+[data-desk="award"] .award-ribbon:hover::after,
+[data-desk="award"] .award-ribbon:focus-visible::after { opacity: 1; }

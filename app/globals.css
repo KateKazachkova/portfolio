@@ -1286,7 +1286,8 @@ body::after {
    size, which the camera then blows up. Its shadow is a box under the back
    panel (.env__shadow — the panel is a plain rectangle, inset in the cut-out). */
 .desk-card--env { --eu: calc(3 * var(--k, 1) * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
-                  transform: rotate(var(--r)) translateZ(.1px); }
+                  transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateZ(.1px);
+                  transition: transform .6s cubic-bezier(.65, 0, .2, 1); }
 /* Laid out 3× up and scaled back down: the desk plane is rasterised at its
    own size before the camera magnifies it ~2.5×, so at 1× the folder's print
    and stickers go soft. --eu is the desk px inside it. */
@@ -1376,7 +1377,8 @@ body::after {
 .u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
 /* the other files make room, and stay in sight at the right edge; opened,
    the folder's things lie over them */
-html[data-u15] .desk-card:not(.desk-card--env) { --slide: 150; }
+/* (see Focus in globals: the others move aside — for this one, only a
+   little, so they stay just in sight at the right edge) */
 .desk-card--env[data-open] { z-index: 2; }
 
 /* each print: its own drag (--dx/--dy), and once out a little fan so the
@@ -1517,6 +1519,23 @@ html[data-u15] .desk-card:not(.desk-card--env) { --slide: 150; }
   .u15-leaf, .u15-print, .u15-item, .u15-book__inner { transition-duration: 0s !important; }
 }
 
+/* ── Focus: a case the camera has come to ──
+   DeskScene marks it data-side="here" and every other file left or right
+   of it; those slide out of the way (the folder's own layout wants them
+   only just off the right edge). The case in focus lifts and says what a
+   second click does. */
+html[data-desk-focus] .desk-card[data-side="left"] { --slide: -240; }
+html[data-desk-focus] .desk-card[data-side="right"] { --slide: 240; }
+html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 150; }
+[data-desk="open"] .desk-card[data-side="here"]:not(.desk-card--env) {
+  transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(0deg) translateY(calc(-4 * var(--u)));
+  box-shadow: 0 calc(3 * var(--u)) calc(3 * var(--u)) rgba(20,16,12,.14), 0 calc(16 * var(--u)) calc(24 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34); }
+.desk-card__open { position: absolute; right: calc(8 * var(--u)); top: calc(8 * var(--u));
+  padding: calc(4 * var(--u)) calc(7 * var(--u)); border-radius: 999px; background: #c21f10; color: #f7f2e6;
+  font: 600 calc(7 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase;
+  opacity: 0; transform: translateY(calc(-3 * var(--u))); transition: opacity .3s ease .35s, transform .3s ease .35s; pointer-events: none; }
+.desk-card[data-side="here"] .desk-card__open { opacity: 1; transform: none; }
+
 /* ── The camera move ──
    The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), right over
    the row of case files (desk y 560, z 291), looking straight down — 90°,
@@ -1572,10 +1591,10 @@ html[data-u15] .desk-card:not(.desk-card--env) { --slide: 150; }
 /* The folder lifts by its own outline, not the card's box — and not at all
    once it is open (the generic card hover must not reach it either). */
 [data-desk="open"] .desk-card--env:hover { box-shadow: none; border-color: transparent; }
-[data-desk="open"] .desk-card--env[data-open]:hover { transform: rotate(var(--r)) translateZ(.1px); }
+[data-desk="open"] .desk-card--env[data-open]:hover { transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateZ(.1px); }
 [data-desk="open"] .desk-card--env:not([data-open]):hover,
 [data-desk="open"] .desk-card--env:not([data-open]):focus-within {
-  box-shadow: none; transform: rotate(var(--r)) translateY(calc(-3 * var(--u))) translateZ(.1px);
+  box-shadow: none; transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateY(calc(-3 * var(--u))) translateZ(.1px);
 }
 [data-desk="open"] .desk-card--env:not([data-open]):hover .env__shadow {
   box-shadow: 0 calc(6 * var(--eu) / 3) calc(8 * var(--eu) / 3) rgba(20,16,12,.24);

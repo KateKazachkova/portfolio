@@ -24,6 +24,8 @@ import { booklet, type BookletChapter, type BookletClip } from "@/content/work/u
 
 export const U15_OPEN = "kate:u15-open";      // → DeskScene pans home
 export const U15_RESET = "kate:u15-reset";    // ← DeskScene, leaving the desk
+export const U15_CLOSE = "kate:u15-close";    // ← DeskScene: Escape, or another case in focus
+export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 
 // The folder is drawn 1.3× a real A4 pocket so that, opened, the card, the
 // booklet and the prints read at the camera's height without zooming. Inside
@@ -104,7 +106,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   useEffect(() => {
     const root = document.documentElement;
     if (open) { root.dataset.u15 = "open"; dispatchEvent(new Event(U15_OPEN)); }
-    else delete root.dataset.u15;
+    else if (root.dataset.u15) { delete root.dataset.u15; dispatchEvent(new Event(U15_CLOSED)); }
   }, [open]);
   const go = (to: "spill", then: "open" | "closed", ms: number) => {
     clearTimeout(timer.current); setPhase(to);
@@ -113,8 +115,10 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const putAway = () => { setDrag({}); setTop({}); setPage(0); setScreen(false); go("spill", "closed", GATHER_MS); };
   useEffect(() => {
     const reset = () => { clearTimeout(timer.current); setDrag({}); setTop({}); setPage(0); setScreen(false); setPhase("closed"); };
+    const close = () => document.querySelector<HTMLElement>(".desk-card--env[data-phase=open] .u15-hit")?.click();
     addEventListener(U15_RESET, reset);
-    return () => { removeEventListener(U15_RESET, reset); clearTimeout(timer.current); delete document.documentElement.dataset.u15; };
+    addEventListener(U15_CLOSE, close);
+    return () => { removeEventListener(U15_RESET, reset); removeEventListener(U15_CLOSE, close); clearTimeout(timer.current); delete document.documentElement.dataset.u15; };
   }, []);
   const toggle = () => (phase === "open" ? putAway() : phase === "closed" ? go("spill", "open", SPILL_MS) : undefined);
 
@@ -177,6 +181,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     <div
       ref={card}
       className="desk-card desk-card--env"
+      data-slug="ukrainska-15"
+      data-x={x}
       data-open={open || undefined}
       data-phase={phase}
       style={{

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { U15File, U15_OPEN, U15_RESET } from "./desk/U15File";
+import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -104,6 +104,8 @@ export function DeskPlanes() {
               key={c.slug}
               href={`/work/${c.slug}`}
               className={c.img ? "desk-card desk-card--ref" : "desk-card"}
+              data-slug={c.slug}
+              data-x={c.x}
               tabIndex={-1}
               style={{
                 left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
@@ -115,6 +117,7 @@ export function DeskPlanes() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
                   <span className="desk-card__label">Placeholder · {c.title}</span>
+                  <span className="desk-card__open" aria-hidden>Read the case →</span>
                 </>
               ) : (
                 <>
@@ -123,6 +126,7 @@ export function DeskPlanes() {
                     <div className="desk-card__tags">&nbsp;</div>
                     <h2>{c.title}</h2>
                   </div>
+                  <span className="desk-card__open" aria-hidden>Read the case →</span>
                 </>
               )}
             </Link>
@@ -206,12 +210,29 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     const go = (v: number) => { target = clamp(v); if (!raf) raf = requestAnimationFrame(tick); };
 
+    // ── Focus: one case laid out, the camera on it, the others moved aside
+    // to either side (html[data-desk-focus], each card's data-side) ──
+    const U15 = "ukrainska-15";
+    let focus: string | null = null;
+    const setFocus = (slug: string | null) => {
+      if (focus === U15 && slug !== U15) dispatchEvent(new Event(U15_CLOSE));
+      focus = slug;
+      const all = el.querySelectorAll<HTMLElement>(".desk-card[data-slug]");
+      const fx = Number([...all].find((c) => c.dataset.slug === slug)?.dataset.x);
+      all.forEach((c) => {
+        if (!slug) delete c.dataset.side;
+        else c.dataset.side = c.dataset.slug === slug ? "here" : Number(c.dataset.x) < fx ? "left" : "right";
+      });
+      if (slug) root.dataset.deskFocus = slug; else delete root.dataset.deskFocus;
+    };
+
     // only the desk pans; the wall is one still frame
     const panning = () => arrived && open.current === "files";
     const onWheel = (e: WheelEvent) => {
       if (!panning()) return;
       e.preventDefault();
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (focus && focus !== U15) setFocus(null);
       go(target + d / (SPD * u()));
     };
     let dragX: number | null = null, dragFrom = 0, dragged = false;
@@ -225,11 +246,20 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (dragX === null) return;
       const dx = e.clientX - dragX;
       if (Math.abs(dx) > 5) dragged = true;
-      if (dragged) go(dragFrom - dx / (SPD * u()));
+      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (SPD * u())); }
     };
     const onUp = () => { dragX = null; };
     // a drag that ends on a card is not a click on it
-    const onClick = (e: MouseEvent) => { if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; } };
+    const onClick = (e: MouseEvent) => {
+      if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; return; }
+      // the first click on a case brings the camera to it and lays it out;
+      // a click on the case in focus goes on to its page
+      const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-slug]:not(.desk-card--env)");
+      if (!a || !panning() || focus === a.dataset.slug) return;
+      e.preventDefault(); e.stopPropagation();
+      setFocus(a.dataset.slug!);
+      go(Number(a.dataset.x) - VIEW_X);
+    };
     const onFocus = (e: FocusEvent) => {
       const a = (e.target as HTMLElement).closest?.(".desk-card");
       if (!a || !panning()) return;
@@ -250,7 +280,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       // leaving the desk (home, or on to the wall): the pan unwinds with the
       // rest of the move
       arrived = false; delete root.dataset.deskArrived;
-      if (v !== "files") dispatchEvent(new Event(U15_RESET));
+      if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
       cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
@@ -277,7 +307,11 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onPop = () => { pushed = false; set(viewOf(location.hash)); };
     const onKey = (e: KeyboardEvent) => {
       if (!open.current) return;
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") {
+        if (focus === U15) dispatchEvent(new Event(U15_CLOSE));
+        else if (focus) setFocus(null);
+        else close();
+      }
       else if (panning() && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
         e.preventDefault();
         go(target + (e.key === "ArrowRight" ? 1 : -1) * 220);
@@ -286,8 +320,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onResize = () => { if (open.current) { measure(); go(target); } };
 
     // opening Ukrainska 15's folder lays it out for the camera at pan 0
-    const onU15 = () => { if (panning()) go(0); };
+    const onU15 = () => { if (panning()) { setFocus(U15); go(0); } };
+    const onU15Closed = () => { if (focus === U15) setFocus(null); };
     window.addEventListener(U15_OPEN, onU15);
+    window.addEventListener(U15_CLOSED, onU15Closed);
     window.addEventListener(DESK_EVENT, onFiles);
     window.addEventListener(AWARD_EVENT, onAward);
     window.addEventListener("popstate", onPop);
@@ -303,6 +339,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
 
     return () => {
       window.removeEventListener(U15_OPEN, onU15);
+      window.removeEventListener(U15_CLOSED, onU15Closed);
     window.removeEventListener(DESK_EVENT, onFiles);
       window.removeEventListener(AWARD_EVENT, onAward);
       window.removeEventListener("popstate", onPop);

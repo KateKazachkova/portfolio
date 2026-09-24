@@ -89,6 +89,11 @@ export function DeskPlanes() {
           top: `calc(${656 - AWARD.h + CAST.y + 144} * var(--u))`,
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
         }} />
+        {/* chalked over the rail (AwardRail's RAIL: x 1362–2022, y 108),
+            centred on it */}
+        <span className="desk-chalk-title" style={{
+          left: `calc(${1692 + 1052.5} * var(--u))`, top: `calc(${104 + 144} * var(--u))`,
+        }}>Recognition</span>
       </div>
       <div className="desk-plane desk-wall desk-ext" aria-hidden />
       {/* the wall once more, bare, over both halves of it: what hangs there

@@ -1140,6 +1140,31 @@ body::after {
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
               background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(645 * var(--u))); }
+/* The wall is painted in chalkboard paint: a matt slate, cloudy where chalk
+   has been wiped off it. Drawn over the plate's own light, so its falloff
+   stays, and under whatever sits on the wall (the trophy's cast, the rail). */
+.desk-wall:not(.desk-wall--hung)::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 22% at 34% 30%, rgba(236, 232, 220, .075), transparent 70%),
+    radial-gradient(26% 16% at 58% 62%, rgba(236, 232, 220, .06), transparent 70%),
+    radial-gradient(30% 12% at 80% 38%, rgba(236, 232, 220, .05), transparent 70%),
+    radial-gradient(22% 18% at 14% 66%, rgba(236, 232, 220, .045), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .92 0 0 0 0 .88 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    rgba(52, 60, 58, .22);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, calc(240 * var(--u)) calc(240 * var(--u)), auto;
+  mix-blend-mode: screen;
+}
+/* "Recognition", chalked on the board over the rail: the niche's chalk hand,
+   a touch uphill, the strokes dusty at their edges. */
+.desk-chalk-title {
+  position: absolute; transform: translate(-50%, -100%) rotate(-1.5deg);
+  white-space: nowrap; pointer-events: none;
+  font: 400 calc(64 * var(--u)) / 1 var(--font-chalk), "Comic Sans MS", cursive;
+  letter-spacing: .02em; color: rgba(245, 240, 226, .82);
+  text-shadow: 0 0 calc(1.5 * var(--u)) rgba(245, 240, 226, .5),
+               0 0 calc(7 * var(--u)) rgba(245, 240, 226, .14);
+}
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */

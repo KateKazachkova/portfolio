@@ -1256,8 +1256,8 @@ body::after {
   background: #faf8f3; border: calc(1 * var(--u)) solid #d9d4c8; border-radius: calc(7 * var(--u));
   overflow: hidden; color: #22283a; text-decoration: none;
   box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.18), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.28);
-  transform: rotate(var(--r));
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r));
+  transition: transform .6s cubic-bezier(.65, 0, .2, 1), box-shadow .25s ease, border-color .25s ease;
 }
 .desk-card__cover { height: calc(64 * var(--u)); background: #ebe6db; border-bottom: calc(1 * var(--u)) solid #e0dbcf; }
 .desk-card__body { padding: calc(7 * var(--u)) calc(9 * var(--u)); }
@@ -1288,7 +1288,8 @@ body::after {
 .desk-card--env { --eu: calc(3 * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
                   transform: rotate(var(--r)) translateZ(.1px); }
 .desk-card--env::before { content: ""; position: absolute; inset: .4% 3.1% 2.1% 1.2%;
-  box-shadow: 0 calc(1 * var(--u)) calc(1.5 * var(--u)) rgba(20,16,12,.3); transition: box-shadow .25s ease; }
+  box-shadow: 0 calc(1 * var(--u)) calc(1.5 * var(--u)) rgba(20,16,12,.3);
+  transition: box-shadow .25s ease, transform .8s cubic-bezier(.65, 0, .2, 1); }
 /* Laid out 3× up and scaled back down: the desk plane is rasterised at its
    own size before the camera magnifies it ~2.5×, so at 1× the folder's print
    and stickers go soft. --eu is the desk px inside it. */
@@ -1355,12 +1356,13 @@ body::after {
   position: absolute; padding: 0; border: 0; background: none; cursor: pointer;
   width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
   margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
-  transform: rotate(var(--r)) translateZ(.1px); transition: transform .25s ease;
+  transform: translateX(calc(var(--px, 0) * var(--u))) rotate(var(--r)) translateZ(.1px);
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1);
 }
 .desk-player img { display: block; width: 100%; height: 100%;
   filter: drop-shadow(0 calc(.8 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.3)); }
 [data-desk="open"] .desk-player:hover, [data-desk="open"] .desk-player:focus-visible {
-  transform: rotate(var(--r)) translateY(calc(-2 * var(--u))) translateZ(.1px); outline: none; }
+  transform: translateX(calc(var(--px, 0) * var(--u))) rotate(var(--r)) translateY(calc(-2 * var(--u))) translateZ(.1px); outline: none; }
 .desk-player__lcd {
   position: absolute; left: 7.3%; top: 24.5%; width: 21.1%; height: 12.5%;
   display: flex; flex-direction: column; justify-content: center; gap: calc(1 * var(--u));
@@ -1380,6 +1382,93 @@ body::after {
 .desk-player__time { display: block; font-size: calc(1.7 * var(--u)); }
 @media (prefers-reduced-motion: reduce) {
   .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
+}
+
+/* ── Ukrainska 15, opened (U15File) ──
+   Layers, back to front: the folder's back · the prints, the card and the
+   booklet · the pocket, its print and stamps · the click target. Opened,
+   the sleeve (back, pocket, print, target) slides 170 px down, and the
+   contents come up over it — their z-index switches once they are clear
+   of the pocket, and back only once they are in again. */
+.env > * { z-index: 1; }
+.env__stack, .env__card, .u15-book { z-index: 2; pointer-events: none;
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .6s; }
+.env > .u15-sleeve { z-index: 5; transition: transform .8s cubic-bezier(.65, 0, .2, 1); }
+.env > .env__back { z-index: 0; }
+.u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none;
+  cursor: pointer; z-index: 30 !important; }
+.desk-card--env[data-open] .u15-sleeve { transform: translateY(calc(170 * var(--eu))); }
+.desk-card--env[data-open]::before { transform: translateY(calc(170 * var(--u))); }
+.desk-card--env[data-open] .u15-hit { z-index: 6 !important; }
+.desk-card--env[data-open] :is(.env__stack, .env__card, .u15-book) { z-index: 10; pointer-events: auto;
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
+/* where things go: the stacks up, the card left, the booklet to the middle
+   (the camera's axis is over folder x 128), the player right, the other
+   files off to the right */
+.desk-card--env[data-open] .env__stack--family { transform: translate(calc(-4 * var(--eu)), calc(-62 * var(--eu))) rotate(3deg); }
+.desk-card--env[data-open] .env__stack--after  { transform: translate(calc(112 * var(--eu)), calc(-66 * var(--eu))) rotate(3deg); }
+.desk-card--env[data-open] .env__card { transform: translate(calc(-118 * var(--eu)), calc(38 * var(--eu))) rotate(-4deg); }
+html[data-u15] .desk-card:not(.desk-card--env) { --slide: 560; }
+html[data-u15] .desk-player { --px: 128; }
+/* each print: its drag (--dx/--dy, folder px), and once out a little fan so
+   the stack reads as a stack */
+.u15-print { --open: 0;
+  transform: translate(calc((var(--dx) + var(--fan) * 1.4 * var(--open)) * var(--eu)),
+                       calc((var(--dy) - var(--fan) * .9 * var(--open)) * var(--eu))) rotate(var(--t));
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1); touch-action: none; }
+.desk-card--env[data-open] .u15-print { --open: 1; cursor: grab; }
+.u15-print[data-held] { transition: none; cursor: grabbing;
+  box-shadow: 0 calc(3 * var(--eu)) calc(5 * var(--eu)) rgba(20,16,12,.32); }
+
+/* The booklet: A6-ish, 72 × 100, two pages to a spread about the spine at
+   its middle. Closed it sits inside the pocket, out of sight; opened, it
+   comes to the middle of the desk. At the start or the end only one page
+   shows, so the book shifts half a page to keep it centred. */
+.u15-book { position: absolute; left: calc(3 * var(--eu)); top: calc(70 * var(--eu));
+  width: calc(144 * var(--eu)); height: calc(100 * var(--eu)); display: block;
+  --shift: 0; perspective: calc(420 * var(--eu));
+  transform: translateX(calc(var(--shift) * var(--eu))); }
+.u15-book[data-at="start"] { --shift: -36; }
+.u15-book[data-at="end"] { --shift: 36; }
+.desk-card--env[data-open] .u15-book { cursor: pointer;
+  transform: translate(calc((53 + var(--shift)) * var(--eu)), calc(-22 * var(--eu))) rotate(3deg); }
+.u15-leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; display: block;
+  transform-origin: 0 50%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.45, 0, .2, 1); }
+.u15-leaf[data-turned] { transform: rotateY(-180deg); }
+.u15-leaf__face { position: absolute; inset: 0; display: block; backface-visibility: hidden; }
+.u15-leaf__face--back { transform: rotateY(180deg); }
+.u15-page { position: absolute; inset: 0; display: flex; flex-direction: column; box-sizing: border-box;
+  padding: calc(8 * var(--eu)) calc(7 * var(--eu)) calc(7 * var(--eu));
+  background: #f7f2e6; color: #1f1b16; overflow: hidden;
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1.2 * var(--eu)) rgba(20,16,12,.28);
+  font: 400 calc(3.4 * var(--eu)) / 1.42 var(--font-serif), Georgia, serif; }
+/* the gutter's shade, on whichever edge is the spine */
+.u15-leaf__face:not(.u15-leaf__face--back) .u15-page { background-image: linear-gradient(90deg, rgba(60,40,20,.16), transparent 12%); }
+.u15-leaf__face--back .u15-page { background-image: linear-gradient(270deg, rgba(60,40,20,.16), transparent 12%); }
+.u15-page__label { font: 500 calc(2.1 * var(--eu)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .12em; text-transform: uppercase; color: #c21f10; }
+.u15-page__heading { margin: calc(3 * var(--eu)) 0 calc(4 * var(--eu));
+  font: 700 calc(6.2 * var(--eu)) / 1.02 var(--font-display), system-ui, sans-serif; font-stretch: 80%; letter-spacing: -.01em; }
+.u15-page__text { hyphens: auto; }
+.u15-page__no { margin-top: auto; align-self: flex-end;
+  font: 500 calc(2.1 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; color: #8b8577; }
+.u15-leaf__face--back .u15-page__no { align-self: flex-start; }
+.u15-page--cover, .u15-page--back { background: #c21f10; color: #f7f2e6; }
+.u15-page--cover { padding: calc(8 * var(--eu)); }
+.u15-page--cover::after { /* two staples on the spine */
+  content: ""; position: absolute; left: calc(1.4 * var(--eu)); top: 24%; width: calc(1 * var(--eu)); height: 52%;
+  background: linear-gradient(#bfc3c7 0 12%, transparent 12% 88%, #bfc3c7 88%); }
+.u15-cover__kicker { font: 500 calc(2.3 * var(--eu)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+.u15-cover__title { margin-top: calc(3 * var(--eu)); font: 800 calc(9 * var(--eu)) / .95 var(--font-display), system-ui, sans-serif;
+  font-stretch: 75%; letter-spacing: -.01em; }
+.u15-cover__big { margin-top: auto; font: 900 calc(34 * var(--eu)) / .8 var(--font-display), system-ui, sans-serif;
+  font-stretch: 62%; letter-spacing: -.04em; color: #6e0d06; }
+.u15-cover__place { margin-top: calc(3 * var(--eu)); font: 500 calc(2.3 * var(--eu)) / 1.4 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .08em; text-transform: uppercase; }
+.u15-page--back { justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) {
+  .u15-leaf, .u15-print, .env__stack, .env__card, .u15-book, .env > .u15-sleeve { transition-duration: 0s !important; }
 }
 
 /* ── The camera move ──
@@ -1431,16 +1520,19 @@ body::after {
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
 [data-desk="open"] .desk-card:hover,
 [data-desk="open"] .desk-card:focus-visible {
-  transform: rotate(var(--r)) translateY(calc(-3 * var(--u))); border-color: #b9b2a3; outline: none;
+  transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateY(calc(-3 * var(--u))); border-color: #b9b2a3; outline: none;
   box-shadow: 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(20,16,12,.16), 0 calc(12 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34);
 }
-/* The folder lifts by its own outline, not the card's box. */
-[data-desk="open"] .desk-card--env:hover,
-[data-desk="open"] .desk-card--env:focus-visible {
+/* The folder lifts by its own outline, not the card's box — and not at all
+   once it is open (the generic card hover must not reach it either). */
+[data-desk="open"] .desk-card--env:hover { box-shadow: none; border-color: transparent; }
+[data-desk="open"] .desk-card--env[data-open]:hover { transform: rotate(var(--r)) translateZ(.1px); }
+[data-desk="open"] .desk-card--env:not([data-open]):hover,
+[data-desk="open"] .desk-card--env:not([data-open]):focus-within {
   box-shadow: none; transform: rotate(var(--r)) translateY(calc(-3 * var(--u))) translateZ(.1px);
 }
-[data-desk="open"] .desk-card--env:hover::before,
-[data-desk="open"] .desk-card--env:focus-visible::before {
+[data-desk="open"] .desk-card--env:not([data-open]):hover::before,
+[data-desk="open"] .desk-card--env:not([data-open]):focus-within::before {
   box-shadow: 0 calc(6 * var(--u)) calc(8 * var(--u)) rgba(20,16,12,.24);
 }
 /* The page around it: the title and the lines under the case step aside,

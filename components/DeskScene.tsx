@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { DeskPlayer, U15File, U15_OPEN, U15_RESET } from "./desk/U15File";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -69,144 +70,6 @@ const AWARD_W = Math.round(AWARD.h * 1033 / 3590);   // the still's own aspect
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
 
-// Ukrainska 15's file: a red card pocket folder (public/artefacts/ukrainska-15/
-// envelope/, generated empty in two layers so the papers can go in between
-// later), in the live site's accent. The print and the award stamps are set
-// here rather than generated, so the type and the seals stay true.
-// The round CSSDA seals, stuck on as die-cut stickers in their own colours;
-// MUSE Gold is printed in its foil and French Design Awards (no artwork) is a
-// struck ink stamp.
-const STICKERS = [
-  { src: "cssda-ui.png", cls: "ui" },
-  { src: "cssda-ux.png", cls: "ux" },
-  { src: "cssda-inn.png", cls: "inn" },
-  { src: "cssda-kudos.png", cls: "kudos" },
-] as const;
-
-// What's in the folder so far: two stacks of prints tucked in the pocket,
-// the family before and the house after (public/artefacts/ukrainska-15/
-// family, after — the live site's own sets). Only the top few are drawn;
-// the rest wait for the folder to be opened. First is on top.
-const STACKS = [
-  { key: "family", prints: [[1, 547, 378, -2], [2, 532, 378, 3], [4, 500, 400, -5], [5, 500, 400, 6]] },
-  { key: "after", prints: [[2, 700, 444, 2], [6, 500, 444, -4], [1, 400, 444, 5], [3, 400, 420, -2]] },
-] as const;
-
-// In front of the prints, a library book card — but what it has been out to
-// is juries. Dates are stamped only where the award's own page gives one.
-const LENDINGS = [
-  { jury: "MUSE Creative Awards", award: "Gold · Causes & Awareness" },
-  { jury: "MUSE Creative Awards", award: "Gold · Strange & Unusual" },
-  { jury: "CSS Design Awards", award: "Best UI Design" },
-  { jury: "CSS Design Awards", award: "Best UX Design" },
-  { jury: "CSS Design Awards", award: "Best Innovation" },
-  { jury: "CSS Design Awards", award: "Special Kudos" },
-  { jury: "CSS Winner", award: "Star" },
-  { jury: "CSS Nectar", award: "Site of the Day", date: "11 MAR 2026" },
-  { jury: "Design Nominees", award: "Site of the Day", date: "06 MAR 2026" },
-  { jury: "French Design Awards", award: "Silver" },
-];
-
-function Envelope() {
-  return (
-    <span className="env">
-      <span className="sr-only">Ukrainska 15</span>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/back.webp?v=3" alt="" draggable={false} />
-      {STACKS.map((st) => (
-        <span key={st.key} className={`env__stack env__stack--${st.key}`}>
-          {[...st.prints].reverse().map(([n, w, h, t]) => (
-            <span key={n} className="env__print-photo" style={{ "--t": `${t}deg`, aspectRatio: `${w} / ${h}` } as React.CSSProperties}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/artefacts/ukrainska-15/${st.key}/${String(n).padStart(2, "0")}.webp`} alt="" draggable={false} />
-            </span>
-          ))}
-        </span>
-      ))}
-      <span className="env__card" aria-hidden>
-        <span className="env__card-head">
-          <span>Ukrainska 15</span>
-          <span>Voice from the Basement · K. Kazachkova</span>
-        </span>
-        <span className="env__card-row env__card-row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
-        {LENDINGS.map((l) => (
-          <span key={l.award + l.jury} className="env__card-row">
-            <span className="env__card-date">{"date" in l ? l.date : ""}</span><span>{l.jury}</span><span>{l.award}</span>
-          </span>
-        ))}
-      </span>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/pocket.webp?v=3" alt="" draggable={false} />
-      <span className="env__print" aria-hidden>
-        <span className="env__no">01</span>
-        <span className="env__where">Ukrainska 15 · Kupiansk</span>
-        <span className="env__big">15</span>
-      </span>
-      <span className="env__stamps" aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="env__stamp env__stamp--muse" src="/stamps/awards/muse-gold.png" alt="" draggable={false} />
-        {STICKERS.map((k) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img key={k.src} className={`env__sticker env__sticker--${k.cls}`} src={`/stamps/awards/${k.src}`} alt="" draggable={false} />
-        ))}
-        <span className="env__stamp env__stamp--fda">French Design Awards<b>Silver</b>2026</span>
-      </span>
-    </span>
-  );
-}
-
-// Beside the folder, the song Kate made for the site, on a 2000s flash
-// player (public/artefacts/ukrainska-15/player/). Click plays, click again
-// pauses; the LCD lights up and scrolls the title while it plays. Desk px:
-// the body is ~8 cm (86 px); the cut-out with its earbuds is 58 × 124.
-const PLAYER = { x: 1668, y: 598, w: 58, h: 124, r: 5 };
-const SONG = { title: "Still live in my mind", src: "/artefacts/ukrainska-15/player/still-live-in-my-mind.mp3" };
-const clock = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
-
-function DeskPlayer() {
-  const audio = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [time, setTime] = useState(0);
-  // leaving the desk (Back, Escape, Case Files again) stops the song
-  useEffect(() => {
-    const stop = () => { if (location.hash !== "#case-files") audio.current?.pause(); };
-    addEventListener("hashchange", stop);
-    return () => removeEventListener("hashchange", stop);
-  }, []);
-  const toggle = () => {
-    const a = audio.current;
-    if (!a) return;
-    if (a.paused) a.play().catch(() => {}); else a.pause();
-  };
-  return (
-    <button
-      type="button"
-      className="desk-player"
-      data-playing={playing || undefined}
-      tabIndex={-1}
-      aria-label={`${playing ? "Pause" : "Play"} “${SONG.title}”`}
-      aria-pressed={playing}
-      onClick={toggle}
-      style={{
-        left: `calc(${PLAYER.x} * var(--u))`, top: `calc(${PLAYER.y} * var(--u))`,
-        "--w": PLAYER.w, "--h": PLAYER.h, "--r": `${PLAYER.r}deg`,
-      } as React.CSSProperties}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/artefacts/ukrainska-15/player/player.webp" alt="" draggable={false} />
-      <span className="desk-player__lcd" aria-hidden>
-        <span className="desk-player__title"><span>{SONG.title}</span></span>
-        <span className="desk-player__time">{playing ? "▶" : "❚❚"} {clock(time)}</span>
-      </span>
-      <audio
-        ref={audio} src={SONG.src} preload="none"
-        onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setTime(0)}
-        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
-      />
-    </button>
-  );
-}
-
 export function DeskPlanes() {
   return (
     <div className="desk-world">
@@ -234,20 +97,20 @@ export function DeskPlanes() {
           "--w": AWARD_W,
         } as React.CSSProperties} />
         <nav className="desk-cases" aria-label="Case files">
-          {CASES.map((c) => (
+          {CASES.map((c) => c.img === "envelope" ? (
+            <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />
+          ) : (
             <Link
               key={c.slug}
               href={`/work/${c.slug}`}
-              className={c.img === "envelope" ? "desk-card desk-card--env" : c.img ? "desk-card desk-card--ref" : "desk-card"}
+              className={c.img ? "desk-card desk-card--ref" : "desk-card"}
               tabIndex={-1}
               style={{
                 left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
                 "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
               } as React.CSSProperties}
             >
-              {c.img === "envelope" ? (
-                <Envelope />
-              ) : c.img ? (
+              {c.img ? (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
@@ -316,7 +179,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);
     };
 
-    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card, .desk-player");
+    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player");
 
     // ── The pan: the camera slides along the desk (desk px, 0 … max) ──
     // Wheel (either axis), a drag of the desk, arrow keys, and focus all
@@ -355,6 +218,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let dragX: number | null = null, dragFrom = 0, dragged = false;
     const onDown = (e: PointerEvent) => {
       if (!panning() || e.button !== 0) return;
+      // a print being carried, or a page being turned, is not a pan
+      if ((e.target as HTMLElement).closest?.(".u15-print, .u15-book")) return;
       dragX = e.clientX; dragFrom = target; dragged = false;
     };
     const onMove = (e: PointerEvent) => {
@@ -386,6 +251,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       // leaving the desk (home, or on to the wall): the pan unwinds with the
       // rest of the move
       arrived = false; delete root.dataset.deskArrived;
+      if (v !== "files") dispatchEvent(new Event(U15_RESET));
       cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
@@ -420,6 +286,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     const onResize = () => { if (open.current) { measure(); go(target); } };
 
+    // opening Ukrainska 15's folder lays it out for the camera at pan 0
+    const onU15 = () => { if (panning()) go(0); };
+    window.addEventListener(U15_OPEN, onU15);
     window.addEventListener(DESK_EVENT, onFiles);
     window.addEventListener(AWARD_EVENT, onAward);
     window.addEventListener("popstate", onPop);
@@ -434,7 +303,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     set(viewOf(location.hash));
 
     return () => {
-      window.removeEventListener(DESK_EVENT, onFiles);
+      window.removeEventListener(U15_OPEN, onU15);
+    window.removeEventListener(DESK_EVENT, onFiles);
       window.removeEventListener(AWARD_EVENT, onAward);
       window.removeEventListener("popstate", onPop);
       window.removeEventListener("keydown", onKey);

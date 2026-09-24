@@ -1253,7 +1253,17 @@ body::after {
    own size before the camera magnifies it ~2.5×, so at 1× the folder's print
    and stickers go soft. --eu is the desk px inside it. */
 .env { position: absolute; left: 0; top: 0; display: block; width: 300%; height: 300%;
-       transform: scale(calc(1 / 3)); transform-origin: 0 0; }
+       transform: translateZ(var(--env-t)) scale(calc(1 / 3)); transform-origin: 0 0; }
+/* Its thickness: 6 mm of card and prints (--env-t), lifted off the desk on
+   two edges cut to the pocket's outline (.env__shadow's insets). */
+.desk-card--env { transform-style: preserve-3d; --env-t: calc(6.5 * var(--u)); }
+.desk-card--env[data-open] { --env-t: 0px; }
+.env__edge { position: absolute; display: block; pointer-events: none; transition: opacity .3s ease; }
+.env__edge--front { left: 1.2%; right: 3.1%; top: 97.9%; height: var(--env-t); transform-origin: 50% 0; transform: rotateX(90deg);
+  background: linear-gradient(#a81b0e, #7c1309); }
+.env__edge--right { top: .4%; bottom: 2.1%; left: 96.9%; width: var(--env-t); transform-origin: 0 50%; transform: rotateY(-90deg);
+  background: linear-gradient(90deg, #b01d0f, #86150a); }
+.desk-card--env[data-open] .env__edge { opacity: 0; }
 .env__layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* The two stacks of prints, between the back and the pocket, their tops
    standing above the cut. */
@@ -1544,17 +1554,23 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 /* ── Profile: the third stop ──
    Straight down, as over the case files, onto the yellow binder lying in
    front of the certificate (DeskBinder: desk x 3010, y 290, so z 21). The
-   eye is 1.25 m over the desk (y 656 - 1250), high enough for the whole
-   open binder: translate (-(3010 - 93 - 1612.5), 226 + 594, 2150 - 21) — the axis 93 px left of the binder, so it sits clear of the index column. */
+   eye is 0.90 m over the desk (y 656 - 969): the open binder fills the
+   window, its cover runs off the right edge but the right-hand page stays
+   whole (at 1440 × 900). translate (-(3010 - 62.5 - 1612.5), 226 + 313,
+   2150 - 21) — the axis 62.5 px left of the binder, so its left edge stays
+   clear of the index column. */
 [data-desk="profile"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="profile"] .desk-world,
 [data-desk="profile"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc(-1304.5 * var(--u)), calc(820 * var(--u)), calc(2129 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc(-1335 * var(--u)), calc(539 * var(--u)), calc(2129 * var(--u)));
 }
 [data-desk="profile"] .case-world { opacity: 0; pointer-events: none;
   transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
 [data-desk="profile"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
 .desk-binder { cursor: pointer; }
+/* the desk keeps what lies on it in 3D, so the binder and the folder can
+   stand their edges up off it (they are edge-on from the camera overhead) */
+.desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
 /* Once there, the pan is driven frame by frame, so the move's own
    transition must not smear it. Grab cursor: the desk can be dragged. */
 [data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }

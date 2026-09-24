@@ -11,22 +11,52 @@
   border-radius: .75%; box-shadow: 0 1px 2px rgba(40, 25, 10, .18), 0 18px 40px -14px rgba(40, 25, 10, .35); user-select: none; }
 .pf-binder > * { --px: calc(100cqw / 1200); }
 .pf-binder__base { position: absolute; inset: 0; width: 100%; height: 100%; }
-.pf-binder__spine { position: absolute; top: 0; left: 43.34%; width: 13.45%; height: 100%; z-index: 100; pointer-events: none; }
+/* The rings alone, cut out of the photograph (x 1880–2220): the sleeves
+   turn under the metal, not under a strip of the picture. */
+.pf-binder__rings { position: absolute; top: 0; left: 45.49%; width: 9.147%; height: 100%; z-index: 100; pointer-events: none; }
 
-.pf-leaf { position: absolute; left: 56.79%; top: 2.39%; width: 39.14%; height: 94.33%;
-  transform-origin: -17.18% 50%; transform-style: preserve-3d;
-  transition: transform .9s cubic-bezier(.45, .05, .25, 1); }
-.pf-leaf[data-turned] { transform: rotateY(-180deg); }
-.pf-leaf__face { position: absolute; inset: 0; backface-visibility: hidden;
-  background: url(/profile/binder/sleeve-r.webp) center / 100% 100%; }
-.pf-leaf__face--back { transform: rotateY(180deg); background-image: url(/profile/binder/sleeve-l.webp); }
-/* the plastic over the paper: the sleeve's own wrinkles, soft-lit */
-.pf-leaf__face::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: url(/profile/binder/sheen-r.webp) center / 100% 100%; mix-blend-mode: soft-light; opacity: .95; }
-.pf-leaf__face--back::after { background-image: url(/profile/binder/sheen-l.webp); }
+/* A leaf is its sleeve with the punched strip (x 2195–3754): it turns about
+   the ring line, 145 px short of its own edge. It bends as it goes — three
+   bands, each hinged on the one before, lag behind the turn and catch up
+   (pf-curl) — and is lifted over the others while it is in the air. */
+.pf-leaf { position: absolute; left: 53.97%; top: 2.39%; width: 41.94%; height: 94.33%;
+  transform-origin: -9.3% 50%; transform-style: preserve-3d;
+  transition: transform 1.15s cubic-bezier(.4, 0, .2, 1); }
+.pf-leaf { transform: translateZ(calc(var(--lift, 0px) + var(--z, 0) * .4 * var(--u, 1px))); }
+.pf-leaf[data-turned] { transform: translateZ(calc(var(--lift, 0px) + var(--z, 0) * .4 * var(--u, 1px))) rotateY(-180deg); }
+.pf-leaf[data-flying] { z-index: 60 !important; }
+.pf-seg { position: absolute; top: 0; left: 0; width: calc(100% / 3); height: 100%; transform-style: preserve-3d; transform-origin: 0 50%; }
+.pf-seg .pf-seg { left: 100%; width: 100%; }
+.pf-leaf[data-dir="f"] .pf-seg .pf-seg { animation: pf-curl-f 1.15s cubic-bezier(.4, 0, .2, 1) var(--lag, 0s) both; }
+.pf-leaf[data-dir="b"] .pf-seg .pf-seg { animation: pf-curl-b 1.15s cubic-bezier(.4, 0, .2, 1) var(--lag, 0s) both; }
+@keyframes pf-curl-f { 0% { transform: none; } 35% { transform: rotateY(16deg); } 70% { transform: rotateY(7deg); } 100% { transform: none; } }
+@keyframes pf-curl-b { 0% { transform: none; } 35% { transform: rotateY(-16deg); } 70% { transform: rotateY(-7deg); } 100% { transform: none; } }
 
-.pf-leaf .pf-sheet { position: absolute; inset: 2.1% 2.4% 2.1% 2.6%; }
-.pf-leaf__face--back .pf-sheet { inset: 2.1% 2.6% 2.1% 2.4%; }
+/* each band's faces overlap the next by 4 px, so no seam of desk shows
+   between them; the full sheet inside is laid out on the band's own width */
+.pf-face { position: absolute; inset: 0 -2px; overflow: hidden; backface-visibility: hidden; }
+.pf-face--back { transform: rotateY(180deg); }
+.pf-face__full { position: absolute; top: 0; height: 100%; width: calc(300% - 12px); left: calc(var(--c) * (4px - 100%) + 2px); background: url(/profile/binder/leaf-r.webp) center / 100% 100%; }
+.pf-face--back .pf-face__full { background-image: url(/profile/binder/leaf-l.webp); }
+/* the plastic over the paper: the sleeve's own wrinkles, as light and shade
+   with alpha (a blend mode here costs the 3D camera its frame rate) */
+.pf-face__full::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: url(/profile/binder/leaf-gloss-r.webp) center / 100% 100%; opacity: .9; }
+.pf-face--back .pf-face__full::after { background-image: url(/profile/binder/leaf-gloss-l.webp); }
+/* leaves under the two on show are covered: not drawn at all */
+.pf-leaf[data-hidden]:not([data-flying]) { visibility: hidden; }
+/* the light going off a sleeve as it stands up */
+.pf-face::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: rgba(30, 20, 10, .28); opacity: 0; }
+.pf-leaf[data-dir] .pf-face::before { animation: pf-shade 1.15s cubic-bezier(.4, 0, .2, 1) var(--lag, 0s) both; }
+@keyframes pf-shade { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+.pf-whole { position: absolute; inset: 0; transform-style: preserve-3d; }
+.pf-whole > .pf-face { inset: 0; }
+.pf-whole .pf-face__full { width: 100%; left: 0; }
+.pf-leaf[data-flying] > .pf-whole { visibility: hidden; }
+
+.pf-leaf .pf-sheet { position: absolute; inset: 2.1% 2.25% 2.1% 9.17%; }
+.pf-face--back .pf-sheet { inset: 2.1% 8.92% 2.1% 2.44%; }
 
 /* ── the paper ── */
 .pf-sheet { background: var(--paper); color: var(--ink); overflow: hidden;
@@ -106,6 +136,24 @@
   border-radius: calc(4 * var(--u));
   box-shadow: 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(20, 16, 12, .3), 0 calc(12 * var(--u)) calc(22 * var(--u)) calc(-8 * var(--u)) rgba(20, 16, 12, .4); }
 
+/* its body, on the desk only: the whole binder is in the room's 3D, so the
+   sleeves turn under the real camera; the board is 4 mm thick (--t), the
+   sleeves lie on it, the rings stand 26 mm up out of them. */
+.pf-edge, .pf-hoop { display: none; }
+.pf-binder.desk-binder { transform-style: preserve-3d; perspective: none; --t: calc(4.5 * var(--u)); }
+.desk-binder .pf-binder__base { transform: translateZ(var(--t)); border-radius: calc(4 * var(--u)); }
+.desk-binder .pf-leaf { --lift: var(--t); }
+.desk-binder .pf-binder__rings { transform: translateZ(calc(var(--t) + 4 * var(--u))); }
+.desk-binder .pf-edge { display: block; position: absolute; background: linear-gradient(#e7b54e, #b88220); }
+.desk-binder .pf-edge--front { left: .4%; right: .4%; top: 100%; height: var(--t); transform-origin: 50% 0; transform: rotateX(90deg); }
+.desk-binder .pf-edge--back  { left: .4%; right: .4%; bottom: 100%; height: var(--t); transform-origin: 50% 100%; transform: rotateX(-90deg); }
+.desk-binder .pf-edge--right { top: .7%; bottom: .7%; left: 100%; width: var(--t); transform-origin: 0 50%; transform: rotateY(-90deg);
+  background: linear-gradient(90deg, #d9a43c, #a8741a); }
+.desk-binder .pf-edge--left  { top: .7%; bottom: .7%; right: 100%; width: var(--t); transform-origin: 100% 50%; transform: rotateY(90deg);
+  background: linear-gradient(270deg, #d9a43c, #a8741a); }
+.desk-binder .pf-hoop { display: block; position: absolute; left: calc(50.07% - 22 * var(--u)); width: calc(44 * var(--u)); height: calc(28 * var(--u));
+  margin-top: calc(-28 * var(--u)); transform-origin: 50% 100%; transform: translateZ(var(--t)) rotateX(-90deg); overflow: visible; }
+
 /* ── pager ── */
 .pf-pager { display: flex; align-items: center; gap: 14px; font-family: var(--font-typewriter), monospace; font-size: 12px;
   letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -122,4 +170,4 @@
   .pf-stack { display: flex; flex-direction: column; gap: 18px; width: 100%; --px: calc(100cqw / 443); }
   .pf-stack .pf-sheet { position: relative; width: 100%; aspect-ratio: 1455 / 2015; }
 }
-@media (prefers-reduced-motion: reduce) { .pf-leaf { transition-duration: 0s; } }
+@media (prefers-reduced-motion: reduce) { .pf-leaf { transition-duration: 0s; } .pf-leaf *, .pf-leaf *::before { animation: none !important; } }

@@ -191,6 +191,10 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
         "--w": FOLDER.w * K, "--h": FOLDER.h * K, "--r": `${r}deg`, "--k": K,
       } as React.CSSProperties}
     >
+      {/* the folder's thickness, prints and all: its front and right edges
+          stand up off the desk (edge-on from overhead; gone once it opens) */}
+      <span className="env__edge env__edge--front" aria-hidden />
+      <span className="env__edge env__edge--right" aria-hidden />
       <span className="env">
         <Tablet live={open} place={place("tablet", 8)} held={held === "tablet"} onPointerDown={(e) => grab("tablet", () => setScreen(true))(e)} onOpen={() => setScreen(true)} />
 

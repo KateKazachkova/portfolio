@@ -1194,6 +1194,15 @@ body::after {
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
               background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
               transform: translateZ(calc(645 * var(--u))); }
+/* The Davey trophy, standing against the wall right of the case (placed
+   in DeskScene.tsx). Its contact shadow lies on the desk-top plane. */
+.desk-award { position: absolute; display: block; max-width: none;
+              filter: brightness(.9) saturate(.92) drop-shadow(calc(-4 * var(--u)) calc(2 * var(--u)) calc(6 * var(--u)) rgba(20,16,12,.25)); }
+.desk-award-shadow {
+  position: absolute; width: calc(var(--w) * 1.5 * var(--u)); height: calc(var(--w) * .7 * var(--u));
+  margin: calc(var(--w) * -.35 * var(--u)) 0 0 calc(var(--w) * -.75 * var(--u));
+  background: radial-gradient(closest-side, rgba(20,16,12,.55), rgba(20,16,12,0)); filter: blur(calc(3 * var(--u)));
+}
 /* The case's shadow, projected onto the desk from the flat plate; its own
    layer so it can leave with the case. */
 .desk-shadow { position: absolute; inset: 0; background: url("/scene/desk3d/desk-shadow.png") 0 0 / 100% 100%;
@@ -1246,11 +1255,27 @@ body::after {
   transform: rotateX(-84deg) translate3d(calc(var(--pan, 0) * -1 * var(--u)), calc(430 * var(--u)), calc(1769 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
+
+/* ── Recognition: the camera's second stop ──
+   It keeps the case's eye height, comes 1.1 m in (z 1050) and 0.6 m right
+   (x 1201), and tips down 12°: the trophy (x 1060, 7 cm off the wall) lands
+   right of the index, its base ~20% up the window, with the desk a strip
+   under it and the wall from there to the right edge (x ≈ 1620 at 1440px).
+   The trophy stands behind the case's right door, so from here the case
+   would stand in front of it: it leaves, as it does for the desk. */
+[data-desk="award"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+[data-desk="award"] .desk-world,
+[data-desk="award"] .case-world {
+  transform: rotateX(-12deg) translate3d(calc(-641 * var(--u)), 0, calc(1100 * var(--u)));
+}
+[data-desk="award"] .case-world { opacity: 0; pointer-events: none;
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .3s; }
+[data-desk="award"] .desk-shadow { opacity: 0; transition: opacity .6s ease .3s; }
 /* Once there, the pan is driven frame by frame, so the move's own
    transition must not smear it. Grab cursor: the desk can be dragged. */
 [data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }
-[data-desk-arrived] .desk-world { cursor: grab; }
-[data-desk-arrived] .desk-world:active { cursor: grabbing; }
+[data-desk="open"][data-desk-arrived] .desk-world { cursor: grab; }
+[data-desk="open"][data-desk-arrived] .desk-world:active { cursor: grabbing; }
 .desk-hint {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20;
   display: flex; gap: 18px; align-items: center; pointer-events: none;
@@ -1260,7 +1285,7 @@ body::after {
   text-transform: uppercase; color: #22283a;
   opacity: 0; transition: opacity .4s ease;
 }
-[data-desk-arrived] .desk-hint { opacity: 1; }
+[data-desk="open"][data-desk-arrived] .desk-hint { opacity: 1; }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
@@ -1270,18 +1295,19 @@ body::after {
   box-shadow: 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(20,16,12,.16), 0 calc(12 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34);
 }
 /* The page around it: the title and the lines under the case step aside,
-   and the index stays, inked for the white desk. */
+   and the index stays, inked for the white desk (over the dark wall it keeps
+   its own colours). */
 .hero-aside h2, .hero-aside h2 + p, .hero-caption, .hero-contact { transition: opacity .5s ease; }
-[data-desk="open"] .hero-aside h2,
-[data-desk="open"] .hero-aside h2 + p,
-[data-desk="open"] .hero-caption,
-[data-desk="open"] .hero-contact { opacity: 0; pointer-events: none; }
+[data-desk="open"] .hero-aside h2, [data-desk="award"] .hero-aside h2,
+[data-desk="open"] .hero-aside h2 + p, [data-desk="award"] .hero-aside h2 + p,
+[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption,
+[data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact { opacity: 0; pointer-events: none; }
 [data-desk="open"] .hero-aside { --fg: #22283a; --muted: #5b6275; }
-[data-desk="open"] .hero-aside-wrap { border-color: transparent !important; }
+[data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */
-[data-desk="open"] main { min-height: calc(100vh + 56px); }
+[data-desk="open"] main, [data-desk="award"] main { min-height: calc(100vh + 56px); }
 
 @media (prefers-reduced-motion: reduce) {
   .scene-cam, .desk-world, .case-world, .desk-shadow, .desk-card { transition: none !important; }
@@ -1302,9 +1328,9 @@ body::after {
 }
 @media (min-width: 1440px) { .flip-clock-slot { display: block; } }
 .flip-clock-slot::before {                      /* contact on the desk */
-  content: ""; position: absolute; left: 3%; right: 3%; bottom: -3%; height: 12%;
-  background: radial-gradient(closest-side, rgba(10, 8, 6, .62), rgba(10, 8, 6, 0));
-  filter: blur(3px); z-index: -1;
+  content: ""; position: absolute; left: -2%; right: -2%; bottom: -9%; height: 20%;
+  background: radial-gradient(closest-side, rgba(10, 8, 6, .7), rgba(10, 8, 6, .3) 60%, rgba(10, 8, 6, 0));
+  filter: blur(4px); z-index: -1;
 }
 .flip-clock { position: relative; aspect-ratio: 1400 / 756; container-type: inline-size; user-select: none; }
 .flip-clock__body { position: absolute; inset: 0; width: 100%; height: 100%;
@@ -1359,6 +1385,21 @@ body::after {
 }
 .flip-clock__now:hover, .flip-clock__now:focus-visible { background: rgba(255, 250, 235, .12); outline: 1px solid rgba(248, 198, 98, .8); outline-offset: 1px; }
 @media (prefers-reduced-motion: reduce) { .flap__fall { display: none; } }
+
+/* ── The ride (components/MonoRide.tsx) ── */
+.mono-parked { all: unset; display: block; width: 100%; cursor: pointer; }
+.mono-parked:focus-visible { outline: 1px solid rgba(248, 198, 98, .9); outline-offset: 2px; }
+.mono-parked:disabled { cursor: default; }
+.mono-ride { position: absolute; aspect-ratio: 718 / 960; pointer-events: none; will-change: left, top, width; }
+.mono-ride__clip { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+/* her own contact shadow on the desk, at the ground point of the frame */
+.mono-ride__shadow {
+  position: absolute; left: 30%; right: 30%; top: 92%; height: 5%;
+  background: radial-gradient(closest-side, rgba(10, 8, 6, .55), rgba(10, 8, 6, 0));
+  filter: blur(2px);
+}
+/* the niche doll steps aside while her clip is out */
+.niche-away { visibility: hidden; }
 
 /* ── Type scale ───────────────────────────────────────────────────────────
    One ladder for the whole site. Until now every page set its own numbers —

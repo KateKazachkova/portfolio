@@ -130,7 +130,7 @@
 .case .award-stamps > *:nth-child(7n) { transform:rotate(2.2deg) }
 @media (max-width:900px) { .case .seal { height:56px } .case .seal--mask { height:46px } }
 /* TK — anything not yet confirmed by Kate, visibly flagged, never invented */
-.case .tk { font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; background:repeating-linear-gradient(45deg,var(--inner),var(--inner) 6px,#d5c9ae 6px,#d5c9ae 12px); border:1px dashed var(--violet); color:var(--violet); padding:1px 7px; white-space:nowrap }
+.case .tk { font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; background:repeating-linear-gradient(45deg,var(--inner),var(--inner) 6px,#d5c9ae 6px,#d5c9ae 12px); border:1px dashed var(--violet); color:var(--violet); padding:1px 7px; -webkit-box-decoration-break:clone; box-decoration-break:clone }
 /* technical spec list */
 .case .spec { border-top:2px solid var(--fg); margin-top:30px; padding-top:0 }
 .case .spec div { display:grid; grid-template-columns:96px 1fr; gap:14px; padding:8px 0; border-bottom:1px solid var(--hairline) }

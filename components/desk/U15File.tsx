@@ -19,7 +19,7 @@ import { booklet, type BookletChapter, type BookletClip, type BookletNote } from
  *
  * Everything is laid out in the folder's own units (150 × 208, each K desk
  * px; see .env in globals.css for why it is drawn 3× up), and the open
- * layout is for the camera's pan 0, where the axis is over desk x 1612.
+ * layout is for the camera's pan 0, where the axis is over desk x 1412.
  */
 
 export const U15_OPEN = "kate:u15-open";      // → DeskScene pans home

@@ -1522,7 +1522,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc(var(--pan, 0) * -1 * var(--u)), calc(430 * var(--u)), calc(1859 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1859 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 

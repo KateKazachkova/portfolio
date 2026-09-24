@@ -1556,12 +1556,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    front of the certificate (DeskBinder: desk x 3010, y 290, so z 21). The
    eye is 0.87 m over the desk (y 656 - 936): the open binder fills the
    window, its cover runs off the right edge but the right-hand page stays
-   whole (at 1440 × 900). translate (-(3010 - 27 - 1612.5), 226 + 280,
-   2150 - 21) — the axis 27 px left of the binder. */
+   whole (at 1440 × 900). translate (-(3010 - 70 - 1612.5), 226 + 280,
+   2150 - 21) — the axis 70 px left of the binder, so it sits right of
+   the window's middle, clear of the index column. */
 [data-desk="profile"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="profile"] .desk-world,
 [data-desk="profile"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc(-1370.5 * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc(-1327.5 * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
 }
 [data-desk="profile"] .case-world { opacity: 0; pointer-events: none;
   transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }

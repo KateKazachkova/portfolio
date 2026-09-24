@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { DeskPlayer, U15File, U15_OPEN, U15_RESET } from "./desk/U15File";
+import { U15File, U15_OPEN, U15_RESET } from "./desk/U15File";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -127,7 +127,6 @@ export function DeskPlanes() {
               )}
             </Link>
           ))}
-          <DeskPlayer />
         </nav>
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -179,7 +178,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);
     };
 
-    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player");
+    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player, .u15-tablet");
 
     // ── The pan: the camera slides along the desk (desk px, 0 … max) ──
     // Wheel (either axis), a drag of the desk, arrow keys, and focus all
@@ -219,7 +218,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onDown = (e: PointerEvent) => {
       if (!panning() || e.button !== 0) return;
       // a print being carried, or a page being turned, is not a pan
-      if ((e.target as HTMLElement).closest?.(".u15-print, .u15-book")) return;
+      if ((e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
       dragX = e.clientX; dragFrom = target; dragged = false;
     };
     const onMove = (e: PointerEvent) => {

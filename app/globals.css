@@ -1284,12 +1284,9 @@ body::after {
    folder sits on its own 3D layer (translateZ) to get a scale of its own,
    and carries no filter — a filter renders it into a surface at its layout
    size, which the camera then blows up. Its shadow is a box under the back
-   panel (the panel is a plain rectangle, inset in the cut-out). */
+   panel (.env__shadow — the panel is a plain rectangle, inset in the cut-out). */
 .desk-card--env { --eu: calc(3 * var(--k, 1) * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
                   transform: rotate(var(--r)) translateZ(.1px); }
-.desk-card--env::before { content: ""; position: absolute; inset: .4% 3.1% 2.1% 1.2%;
-  box-shadow: 0 calc(1 * var(--u)) calc(1.5 * var(--u)) rgba(20,16,12,.3);
-  transition: box-shadow .25s ease, transform .8s cubic-bezier(.65, 0, .2, 1); }
 /* Laid out 3× up and scaled back down: the desk plane is rasterised at its
    own size before the camera magnifies it ~2.5×, so at 1× the folder's print
    and stickers go soft. --eu is the desk px inside it. */
@@ -1309,7 +1306,7 @@ body::after {
    ruled rows, date stamps in violet ink. */
 .env__card { position: absolute; left: 10%; top: 14%; width: 80%; display: block; box-sizing: border-box;
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
-  transform: rotate(-1.5deg); box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
   font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
 .env__card-head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
   padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
@@ -1349,70 +1346,41 @@ body::after {
                    mix-blend-mode: multiply; opacity: .72; }
 .env__stamp--fda b { font-size: calc(5 * var(--eu)); letter-spacing: .1em; margin: calc(1 * var(--eu)) 0; }
 
-/* The flash player beside the folder. The LCD sits over the photographed
-   screen (7.3% / 24.5%, 21.1 × 12.5% of the cut-out): unlit it shows the
-   title faintly; playing, the backlight comes on and the title scrolls. */
-.desk-player {
-  position: absolute; padding: 0; border: 0; background: none; cursor: pointer;
-  width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
-  margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
-  transform: translateX(calc(var(--px, 0) * var(--u))) rotate(var(--r)) translateZ(.1px);
-  transition: transform .8s cubic-bezier(.65, 0, .2, 1);
-}
-.desk-player img { display: block; width: 100%; height: 100%;
-  filter: drop-shadow(0 calc(.8 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.3)); }
-[data-desk="open"] .desk-player:hover, [data-desk="open"] .desk-player:focus-visible {
-  transform: translateX(calc(var(--px, 0) * var(--u))) rotate(var(--r)) translateY(calc(-2 * var(--u))) translateZ(.1px); outline: none; }
-.desk-player__lcd {
-  position: absolute; left: 7.3%; top: 24.5%; width: 21.1%; height: 12.5%;
-  display: flex; flex-direction: column; justify-content: center; gap: calc(1 * var(--u));
-  padding: 0 calc(.8 * var(--u)); box-sizing: border-box; overflow: hidden; border-radius: calc(.4 * var(--u));
-  color: rgba(22, 32, 24, .42); background: transparent; transition: background .3s ease, color .3s ease;
-  font: 600 calc(2.1 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .06em; text-transform: uppercase; text-align: left;
-}
-.desk-player[data-playing] .desk-player__lcd {
-  color: #13241a; background: rgba(170, 225, 190, .72);
-  box-shadow: 0 0 calc(2 * var(--u)) rgba(170, 225, 190, .5);
-}
-.desk-player__title { display: block; white-space: nowrap; overflow: hidden; }
-.desk-player__title span { display: inline-block; }
-.desk-player[data-playing] .desk-player__title span { padding-left: 100%; animation: lcd-marquee 7s linear infinite; }
-@keyframes lcd-marquee { to { transform: translateX(-100%); } }
-.desk-player__time { display: block; font-size: calc(1.7 * var(--u)); }
-@media (prefers-reduced-motion: reduce) {
-  .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
-}
-
-/* ── Ukrainska 15, opened (U15File) ──
-   Layers, back to front: the folder's back · the prints, the card and the
-   booklet · the pocket, its print and stamps · the click target. Opened,
-   the sleeve (back, pocket, print, target) slides 175 units down, and the
-   contents come up over it — their z-index switches once they are clear
-   of the pocket, and back only once they are in again. */
+/* ── Ukrainska 15 (U15File) ──
+   Layers, back to front: the tablet (tucked under the folder) · the folder's
+   shadow and back · the prints, the card and the booklet · the pocket, its
+   print and stamps · the click target · the player. Every one of them is a
+   .u15-item: it lies where its own rule puts it (folder units, --eu) and
+   moves by --ox/--oy at --rot, which U15File sets — the open layout plus
+   whatever the visitor has dragged it by. Opened, the contents come up over
+   the pocket: their z-index switches once they are clear of it, and back
+   only once they are in again. */
 .env > * { z-index: 1; }
+.u15-item { transform: translate(calc(var(--ox, 0) * var(--eu)), calc(var(--oy, 0) * var(--eu))) rotate(var(--rot, 0deg));
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1); touch-action: none; }
+.u15-item[data-held] { transition: none; cursor: grabbing; }
+/* the first step out (and the last one back in): straight up, quick */
+.desk-card--env[data-phase="spill"] .u15-item { transition-duration: .48s; transition-timing-function: cubic-bezier(.3, 0, .2, 1); }
+.desk-card--env[data-open] .u15-item { cursor: grab; }
 .env__stack, .env__card, .u15-book { z-index: 2; pointer-events: none;
   transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .6s; }
-.env > .u15-sleeve { z-index: 5; transition: transform .8s cubic-bezier(.65, 0, .2, 1); }
-.env > .env__back { z-index: 0; }
-.u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none;
-  cursor: pointer; z-index: 30 !important; }
-.desk-card--env[data-open] .u15-sleeve { transform: translateY(calc(175 * var(--eu))); }
-.desk-card--env[data-open]::before { transform: translateY(calc(175 * var(--eu) / 3)); }
-.desk-card--env[data-open] .u15-hit { z-index: 6 !important; }
-.desk-card--env[data-open] :is(.env__stack, .env__card, .u15-book) { z-index: 10; pointer-events: auto;
+.desk-card--env[data-open] :is(.env__stack, .env__card) { z-index: 10; pointer-events: auto;
   transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
-/* where things go: the stacks up, the card left, the booklet to the middle
-   (the camera's axis is over folder x 130; the booklet sits right of it to
-   leave the card room), the player right, the other
-   files off to the right */
-.desk-card--env[data-open] .env__stack--family { transform: translate(calc(-7 * var(--eu)), calc(-28 * var(--eu))) rotate(3deg); }
-.desk-card--env[data-open] .env__stack--after  { transform: translate(calc(97 * var(--eu)), calc(-46 * var(--eu))) rotate(3deg); }
-.desk-card--env[data-open] .env__card { transform: translate(calc(-53 * var(--eu)), calc(31 * var(--eu))) rotate(-3deg); }
-html[data-u15] .desk-card:not(.desk-card--env) { --slide: 560; }
-html[data-u15] .desk-player { --px: 128; }
-/* each print: its drag (--dx/--dy, folder px), and once out a little fan so
-   the stack reads as a stack */
+.desk-card--env[data-open] .u15-book { z-index: 11; pointer-events: auto;
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
+.env__stack[data-held], .env__card[data-held], .u15-book[data-held] { transition: none; }
+.env > .u15-sleeve { z-index: 5; }
+.env > .env__back, .env > .env__shadow { z-index: 0; }
+.env__shadow { position: absolute; left: 1.2%; top: .4%; right: 3.1%; bottom: 2.1%; display: block;
+  box-shadow: 0 calc(1 * var(--eu) / 3) calc(1.5 * var(--eu) / 3) rgba(20,16,12,.3); }
+.u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+/* the other files make room, and stay in sight at the right edge; opened,
+   the folder's things lie over them */
+html[data-u15] .desk-card:not(.desk-card--env) { --slide: 150; }
+.desk-card--env[data-open] { z-index: 2; }
+
+/* each print: its own drag (--dx/--dy), and once out a little fan so the
+   stack reads as a stack */
 .u15-print { --open: 0;
   transform: translate(calc((var(--dx) + var(--fan) * 1.4 * var(--open)) * var(--eu)),
                        calc((var(--dy) - var(--fan) * .9 * var(--open)) * var(--eu))) rotate(var(--t));
@@ -1421,55 +1389,132 @@ html[data-u15] .desk-player { --px: 128; }
 .u15-print[data-held] { transition: none; cursor: grabbing;
   box-shadow: 0 calc(3 * var(--eu)) calc(5 * var(--eu)) rgba(20,16,12,.32); }
 
-/* The booklet: A6-ish, 72 × 100, two pages to a spread about the spine at
-   its middle. Closed it sits inside the pocket, out of sight; opened, it
-   comes to the middle of the desk. At the start or the end only one page
-   shows, so the book shifts half a page to keep it centred. */
-.u15-book { position: absolute; left: calc(3 * var(--eu)); top: calc(70 * var(--eu));
-  width: calc(144 * var(--eu)); height: calc(100 * var(--eu)); display: block;
-  --shift: 0; perspective: calc(420 * var(--eu));
-  transform: translateX(calc(var(--shift) * var(--eu))); }
-.u15-book[data-at="start"] { --shift: -36; }
-.u15-book[data-at="end"] { --shift: 36; }
-.desk-card--env[data-open] .u15-book { cursor: pointer;
-  transform: translate(calc((85 + var(--shift)) * var(--eu)), calc(-12 * var(--eu))) rotate(3deg); }
+/* The flash player, beside the folder (58 × 124 desk px). The LCD sits over
+   the photographed screen (7.3% / 24.5%, 21.1 × 12.5% of the cut-out):
+   unlit it shows the title faintly; playing, the backlight comes on and the
+   title scrolls. */
+.desk-player { position: absolute; left: calc(151.2 * var(--eu)); top: calc(73.8 * var(--eu));
+  width: calc(44.6 * var(--eu)); height: calc(95.4 * var(--eu)); padding: 0; border: 0; background: none;
+  cursor: pointer; z-index: 12 !important; }
+.desk-player img { display: block; width: 100%; height: 100%; }
+.desk-player__lcd {
+  position: absolute; left: 7.3%; top: 24.5%; width: 21.1%; height: 12.5%;
+  display: flex; flex-direction: column; justify-content: center; gap: calc(.8 * var(--eu));
+  padding: 0 calc(.6 * var(--eu)); box-sizing: border-box; overflow: hidden; border-radius: calc(.3 * var(--eu));
+  color: rgba(22, 32, 24, .42); background: transparent; transition: background .3s ease, color .3s ease;
+  font: 600 calc(1.6 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .06em; text-transform: uppercase; text-align: left;
+}
+.desk-player[data-playing] .desk-player__lcd {
+  color: #13241a; background: rgba(170, 225, 190, .72);
+  box-shadow: 0 0 calc(1.5 * var(--eu)) rgba(170, 225, 190, .5);
+}
+.desk-player__title { display: block; white-space: nowrap; overflow: hidden; }
+.desk-player__title span { display: inline-block; }
+.desk-player[data-playing] .desk-player__title span { padding-left: 100%; animation: lcd-marquee 7s linear infinite; }
+@keyframes lcd-marquee { to { transform: translateX(-100%); } }
+.desk-player__time { display: block; font-size: calc(1.3 * var(--eu)); }
+@media (prefers-reduced-motion: reduce) {
+  .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
+}
+
+/* The tablet (248.6 × 179.5 mm, 205.5 × 148.5 units), under the folder's
+   bottom right; its screen plays the scroll-through. */
+.u15-tablet { position: absolute; left: calc(18.5 * var(--eu)); top: calc(95 * var(--eu));
+  width: calc(205.5 * var(--eu)); height: calc(148.5 * var(--eu)); padding: 0; border: 0; background: none;
+  cursor: pointer; z-index: -1 !important; box-shadow: 0 calc(.6 * var(--eu)) calc(1.4 * var(--eu)) rgba(20,16,12,.28);
+  border-radius: calc(6 * var(--eu)); }
+.desk-card--env[data-open] .u15-tablet { z-index: 8 !important; }
+.u15-tablet img { display: block; width: 100%; height: 100%; }
+.u15-tablet__screen { position: absolute; left: 4.08%; top: 3.32%; width: 91.3%; height: 88.6%;
+  object-fit: cover; border-radius: calc(4.6 * var(--eu)); background: #111; }
+
+/* Raised: over the whole window, the live site in the screen. */
+.u15-raised { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; padding: 16px; background: rgba(12, 11, 10, .72); animation: u15-raise .35s ease both; }
+@keyframes u15-raise { from { opacity: 0; } }
+.u15-raised__tablet { position: relative; width: min(94vw, calc((100vh - 90px) * 2183 / 1565)); aspect-ratio: 2183 / 1565;
+  animation: u15-lift .45s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes u15-lift { from { transform: scale(.6) translateY(20%); opacity: 0; } }
+.u15-raised__tablet img { display: block; width: 100%; height: 100%; }
+.u15-raised__site { position: absolute; left: 4.08%; top: 3.32%; width: 91.3%; height: 88.6%;
+  border: 0; border-radius: 2.4% / 3.3%; background: #fafafa; }
+.u15-raised__bar { display: flex; gap: 12px; align-items: center;
+  font: 500 12px/1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
+.u15-raised__bar a, .u15-raised__bar button { color: #f3eee4; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25);
+  border-radius: 999px; padding: 9px 14px; text-decoration: none; cursor: pointer; font: inherit; }
+@media (prefers-reduced-motion: reduce) { .u15-raised, .u15-raised__tablet { animation: none; } }
+
+/* The booklet: two pages to a spread about the spine at its middle, set
+   like the case page — a left rail with the chapter's big red number, an
+   uppercase heading, serif text, the chapter's question as a red lead.
+   --bu is its geometry (twice the folder's units: a single page is nearly
+   the folder's size, and lies in its pocket behind the prints), --bt its
+   type (1.25×). Closed or finished only one page shows, so the pages shift half
+   a page to keep it centred. */
+.u15-book { --bu: calc(2 * var(--eu)); --bt: calc(1.25 * var(--eu));
+  position: absolute; left: calc(-69 * var(--eu)); top: calc(5 * var(--eu));
+  width: calc(144 * var(--bu)); height: calc(100 * var(--bu)); display: block; }
+.u15-book__inner { position: absolute; inset: 0; display: block; --shift: 0; perspective: calc(420 * var(--bu));
+  transform: translateX(calc(var(--shift) * var(--bu))); transition: transform .7s cubic-bezier(.45, 0, .2, 1); }
+.u15-book__inner[data-at="start"] { --shift: -36; }
+.u15-book__inner[data-at="end"] { --shift: 36; }
 .u15-leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; display: block;
   transform-origin: 0 50%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.45, 0, .2, 1); }
 .u15-leaf[data-turned] { transform: rotateY(-180deg); }
 .u15-leaf__face { position: absolute; inset: 0; display: block; backface-visibility: hidden; }
 .u15-leaf__face--back { transform: rotateY(180deg); }
-.u15-page { position: absolute; inset: 0; display: flex; flex-direction: column; box-sizing: border-box;
-  padding: calc(8 * var(--eu)) calc(7 * var(--eu)) calc(7 * var(--eu));
-  background: #f7f2e6; color: #1f1b16; overflow: hidden;
+.u15-page-wrap { position: absolute; inset: 0; display: block; }
+.u15-page { position: absolute; inset: 0; display: grid; grid-template-columns: 24% 1fr; grid-template-rows: 1fr auto;
+  column-gap: calc(3 * var(--bu)); box-sizing: border-box;
+  padding: calc(8 * var(--bu)) calc(6 * var(--bu)) calc(5 * var(--bu)); overflow: hidden;
+  background: #efe7d6; color: #29223a;
   box-shadow: 0 calc(.5 * var(--eu)) calc(1.2 * var(--eu)) rgba(20,16,12,.28);
-  font: 400 calc(3.4 * var(--eu)) / 1.42 var(--font-serif), Georgia, serif; }
+  font: 400 calc(3.4 * var(--bt)) / 1.45 var(--font-serif), Georgia, serif; }
 /* the gutter's shade, on whichever edge is the spine */
-.u15-leaf__face:not(.u15-leaf__face--back) .u15-page { background-image: linear-gradient(90deg, rgba(60,40,20,.16), transparent 12%); }
-.u15-leaf__face--back .u15-page { background-image: linear-gradient(270deg, rgba(60,40,20,.16), transparent 12%); }
-.u15-page__label { font: 500 calc(2.1 * var(--eu)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .12em; text-transform: uppercase; color: #c21f10; }
-.u15-page__heading { margin: calc(3 * var(--eu)) 0 calc(4 * var(--eu));
-  font: 700 calc(6.2 * var(--eu)) / 1.02 var(--font-display), system-ui, sans-serif; font-stretch: 80%; letter-spacing: -.01em; }
-.u15-page__text { hyphens: auto; }
-.u15-page__no { margin-top: auto; align-self: flex-end;
-  font: 500 calc(2.1 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; color: #8b8577; }
-.u15-leaf__face--back .u15-page__no { align-self: flex-start; }
-.u15-page--cover, .u15-page--back { background: #c21f10; color: #f7f2e6; }
-.u15-page--cover { padding: calc(8 * var(--eu)); }
+.u15-leaf__face:not(.u15-leaf__face--back) .u15-page { background-image: linear-gradient(90deg, rgba(60,40,20,.16), transparent 10%); }
+.u15-leaf__face--back .u15-page { background-image: linear-gradient(270deg, rgba(60,40,20,.16), transparent 10%); }
+.u15-page__rail { display: flex; flex-direction: column; gap: calc(1.5 * var(--bt)); }
+.u15-page__num { font: 700 calc(11 * var(--bt)) / .9 var(--font-display), system-ui, sans-serif; color: #d8352a; letter-spacing: .02em; }
+.u15-page__kick { padding-top: calc(1.4 * var(--bt)); border-top: calc(.4 * var(--bt)) solid #d8352a;
+  font: 500 calc(1.9 * var(--bt)) / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .14em; text-transform: uppercase; color: #6d6252; }
+.u15-page__body { display: block; min-width: 0; }
+.u15-page__heading { display: block; margin: 0 0 calc(4 * var(--bt)); padding-bottom: calc(2.2 * var(--bt));
+  border-bottom: calc(.35 * var(--bt)) solid #29223a;
+  font: 700 calc(6.2 * var(--bt)) / 1.02 var(--font-display), system-ui, sans-serif; text-transform: uppercase; letter-spacing: -.005em; }
+.u15-page__p { display: block; margin-bottom: calc(1.4 * var(--bt)); text-indent: calc(3.4 * var(--bt)); hyphens: auto; }
+.u15-page__heading + .u15-page__p, .u15-page__p[data-cont] { text-indent: 0; }
+/* the chapter's question, as the case page's red lead */
+.u15-page__pull { text-indent: 0; margin: calc(2.4 * var(--bt)) 0; color: #d8352a;
+  font: 700 calc(5.2 * var(--bt)) / 1.12 var(--font-display), system-ui, sans-serif; letter-spacing: -.01em; }
+.u15-page__no { grid-column: 1 / -1; justify-self: end;
+  font: 500 calc(2 * var(--bt)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; color: #8b8577; }
+.u15-leaf__face--back .u15-page__no { justify-self: start; }
+/* a photo pinned to the page with a paper clip, standing out over its top */
+.u15-clip { position: absolute; right: 10%; top: -21%; width: 22%; display: block; box-sizing: border-box;
+  padding: calc(1.4 * var(--bu)); background: #f4f0e6; transform: rotate(var(--t));
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3); }
+.u15-clip[data-n="1"] { right: auto; left: 38%; top: -20%; }
+.u15-clip img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.u15-clip__wire { position: absolute; left: 18%; top: calc(-4 * var(--bu)); width: calc(4.4 * var(--bu)); height: calc(12.5 * var(--bu));
+  color: #9aa0a6; }
+/* covers: the site's red */
+.u15-page--cover, .u15-page--back { display: flex; flex-direction: column; background: #c21f10; color: #f7f2e6; }
+.u15-page--cover { padding: calc(8 * var(--bu)); }
 .u15-page--cover::after { /* two staples on the spine */
-  content: ""; position: absolute; left: calc(1.4 * var(--eu)); top: 24%; width: calc(1 * var(--eu)); height: 52%;
+  content: ""; position: absolute; left: calc(1.4 * var(--bu)); top: 24%; width: calc(1 * var(--bu)); height: 52%;
   background: linear-gradient(#bfc3c7 0 12%, transparent 12% 88%, #bfc3c7 88%); }
-.u15-cover__kicker { font: 500 calc(2.3 * var(--eu)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
-.u15-cover__title { margin-top: calc(3 * var(--eu)); font: 800 calc(9 * var(--eu)) / .95 var(--font-display), system-ui, sans-serif;
-  font-stretch: 75%; letter-spacing: -.01em; }
-.u15-cover__big { margin-top: auto; font: 900 calc(34 * var(--eu)) / .8 var(--font-display), system-ui, sans-serif;
+.u15-cover__title { font: 800 calc(12 * var(--bt)) / .95 var(--font-display), system-ui, sans-serif; font-stretch: 75%;
+  text-transform: uppercase; letter-spacing: -.01em; }
+.u15-cover__lede { margin-top: calc(4 * var(--bt)); font: 400 calc(4.2 * var(--bt)) / 1.35 var(--font-serif), Georgia, serif; font-style: italic; }
+.u15-cover__big { margin-top: auto; font: 900 calc(48 * var(--bt)) / .8 var(--font-display), system-ui, sans-serif;
   font-stretch: 62%; letter-spacing: -.04em; color: #6e0d06; }
-.u15-cover__place { margin-top: calc(3 * var(--eu)); font: 500 calc(2.3 * var(--eu)) / 1.4 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .08em; text-transform: uppercase; }
-.u15-page--back { justify-content: flex-end; }
+.u15-cover__place { margin-top: calc(4 * var(--bt)); font: 500 calc(2.3 * var(--bt)) / 1.5 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .1em; text-transform: uppercase; }
+.u15-page--back { justify-content: flex-end; padding: calc(8 * var(--bu)); }
 @media (prefers-reduced-motion: reduce) {
-  .u15-leaf, .u15-print, .env__stack, .env__card, .u15-book, .env > .u15-sleeve { transition-duration: 0s !important; }
+  .u15-leaf, .u15-print, .u15-item, .u15-book__inner { transition-duration: 0s !important; }
 }
 
 /* ── The camera move ──
@@ -1532,9 +1577,8 @@ html[data-u15] .desk-player { --px: 128; }
 [data-desk="open"] .desk-card--env:not([data-open]):focus-within {
   box-shadow: none; transform: rotate(var(--r)) translateY(calc(-3 * var(--u))) translateZ(.1px);
 }
-[data-desk="open"] .desk-card--env:not([data-open]):hover::before,
-[data-desk="open"] .desk-card--env:not([data-open]):focus-within::before {
-  box-shadow: 0 calc(6 * var(--u)) calc(8 * var(--u)) rgba(20,16,12,.24);
+[data-desk="open"] .desk-card--env:not([data-open]):hover .env__shadow {
+  box-shadow: 0 calc(6 * var(--eu) / 3) calc(8 * var(--eu) / 3) rgba(20,16,12,.24);
 }
 /* The page around it: the title and the lines under the case step aside,
    and the index stays, inked for the white desk (over the dark wall it keeps

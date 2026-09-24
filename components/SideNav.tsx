@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
 import { mono } from "@/components/ui/type";
-import { NAV_LINKS as LINKS, CV_HREF } from "@/lib/nav";
+import { NAV_LINKS as LINKS, CV_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
 
 /** The site's navigation, in the left margin of every page.
  *
@@ -197,6 +197,12 @@ export default function SideNav() {
               }}
             >
               <div className="px-6 py-2">
+                {/* The same two lines the rail carries, so the menu reads the
+                    same on every page and at every width. */}
+                <div style={{ padding: "18px 0 18px 14px", borderBottom: "1px solid var(--hairline)" }}>
+                  <p className="t-title">{NAV_TITLE}</p>
+                  <p className="t-body mt-2" style={{ color: "var(--fg)" }}>{NAV_LEAD}</p>
+                </div>
                 {LINKS.map((link, i) => (
                   <Link
                     key={link.href}

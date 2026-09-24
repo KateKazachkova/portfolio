@@ -38,10 +38,10 @@ const SPD = 2150 / 860;                       // screen px per desk px at the ca
 // MUSE Gold is printed in its foil and French Design Awards (no artwork) is a
 // struck ink stamp.
 const STICKERS = [
-  { src: "cssda-ui.png", cls: "ui" },
-  { src: "cssda-ux.png", cls: "ux" },
-  { src: "cssda-inn.png", cls: "inn" },
-  { src: "cssda-kudos.png", cls: "kudos" },
+  { src: "cssda-ui-paper.webp", cls: "ui" },
+  { src: "cssda-ux-paper.webp", cls: "ux" },
+  { src: "cssda-inn-paper.webp", cls: "inn" },
+  { src: "cssda-kudos-paper.webp", cls: "kudos" },
 ] as const;
 
 // Two stacks of prints tucked in the pocket, the family before and the house
@@ -71,17 +71,18 @@ type Pt = { x: number; y: number };
 
 // Where each thing goes once the folder is open, as an offset from where it
 // lies closed (folder units) and the angle it lands at. The layout is for the
-// camera at pan 0: the card left, the booklet to the middle, the stacks up,
+// camera at pan 0, clear of the nav column on the left (it stays on the desk
+// too): the card left, the booklet to the middle, the stacks up,
 // the player right, the tablet slid out bottom right, the folder down.
 // The booklet (nearly the folder's own size, so it lies in the pocket behind
 // the prints) takes the middle of the desk; everything else is laid round
 // its edges, in sight but out of the way, and can be pulled out from under it.
 const OPEN: Record<string, Pt & { r: number }> = {
   sleeve: { x: -20, y: 190, r: -2 },
-  family: { x: -67.5, y: -63, r: 4 },
+  family: { x: 22.5, y: -63, r: 4 },
   after: { x: 169.5, y: -74.6, r: -3 },
-  card: { x: -120, y: 31, r: -4 },
-  book: { x: 55.5, y: -12.5, r: 1 },
+  card: { x: 10, y: 31, r: -4 },
+  book: { x: 85.5, y: -12.5, r: 1 },
   player: { x: 129, y: 20, r: 12 },
   tablet: { x: 160, y: 95, r: -4 },
 };
@@ -191,7 +192,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
       } as React.CSSProperties}
     >
       <span className="env">
-        <Tablet place={place("tablet", 8)} held={held === "tablet"} onPointerDown={(e) => grab("tablet", () => setScreen(true))(e)} onOpen={() => setScreen(true)} />
+        <Tablet live={open} place={place("tablet", 8)} held={held === "tablet"} onPointerDown={(e) => grab("tablet", () => setScreen(true))(e)} onOpen={() => setScreen(true)} />
 
         <span className="env__shadow u15-sleeve u15-item" style={sleeve} aria-hidden />
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -479,7 +480,8 @@ function DeskPlayer({ place, held, onGrab }: {
 // The screen is 4.08% / 3.32% in, 91.3 × 88.6% of the cut-out (2360 × 1640).
 const SITE = "https://ukrainska15.com/";
 
-function Tablet({ place, held, onPointerDown, onOpen }: {
+function Tablet({ live, place, held, onPointerDown, onOpen }: {
+  live: boolean;
   place: React.CSSProperties; held: boolean;
   onPointerDown: (e: React.PointerEvent<HTMLElement>) => void; onOpen: () => void;
 }) {
@@ -498,8 +500,10 @@ function Tablet({ place, held, onPointerDown, onOpen }: {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/artefacts/ukrainska-15/tablet/tablet.webp" alt="" draggable={false} />
-      <video className="u15-tablet__screen" src="/artefacts/ukrainska-15/tablet/site-scroll.mp4"
-        poster="/artefacts/ukrainska-15/tablet/site-poster.jpg" muted loop playsInline autoPlay preload="metadata" />
+      {/* Switched off until the folder is open: a dark screen, and the
+          recording only loads once there is a case on the desk to show. */}
+      <video className="u15-tablet__screen" src={live ? "/artefacts/ukrainska-15/tablet/site-scroll.mp4" : undefined}
+        poster={live ? "/artefacts/ukrainska-15/tablet/site-poster.jpg" : undefined} muted loop playsInline autoPlay preload="metadata" />
     </button>
   );
 }

@@ -1289,13 +1289,15 @@ body::after {
 .env__big { position: absolute; left: 7%; bottom: 3%;
             font-family: var(--font-display), system-ui, sans-serif; font-weight: 900; font-stretch: 62%;
             font-size: calc(118 * var(--eu)); line-height: .8; letter-spacing: -.04em; }
-/* MUSE Gold keeps its foil; the round CSSDA seals are stickers with a white
-   die-cut edge and a thin shadow (box-shadows, not filters — see above). */
+/* MUSE Gold keeps its foil; the round CSSDA seals are paper stickers — matte
+   stock, a die-cut off-white edge and ink worn off in places, all baked into
+   the -paper.webp files — lying flat with a thin shadow (box-shadows, not
+   filters — see above). */
 .env__stamps { position: absolute; inset: 0; }
 .env__stamp, .env__sticker { position: absolute; display: block; }
 .env__stamp--muse { right: 9%; top: 33%; width: 36%; transform: rotate(-4deg); opacity: .92; }
 .env__sticker { transform: rotate(var(--t, 0deg)); border-radius: 50%;
-  box-shadow: 0 0 0 calc(.9 * var(--eu)) #fff, 0 calc(.6 * var(--eu)) calc(.9 * var(--eu)) calc(.9 * var(--eu)) rgba(20,16,12,.3); }
+  box-shadow: 0 calc(.3 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.28); }
 .env__sticker--ui    { right: 6%;  top: 42%; width: 21%; --t: -8deg; }
 .env__sticker--ux    { right: 27%; top: 44%; width: 18%; --t: 6deg; }
 .env__sticker--kudos { right: 5%;  top: 55%; width: 18%; --t: 14deg; }
@@ -1525,15 +1527,16 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .desk-world { pointer-events: auto; }
 
 /* ── Recognition: the camera's second stop ──
-   The trophy is big (56 cm), so the camera barely comes in: 15 cm (z 2000),
-   1 m right (x 1578) and 4° down. The trophy (x 1240, 7 cm off the wall)
+   The trophy is big (56 cm), so the camera stands back 35 cm, a little
+   right of the case (x -1100) and 4° down: far enough for the trophy, the
+   rail and the framed certificate beside it to share the frame. The trophy (x 1240, 7 cm off the wall)
    lands left of centre with its base ~16% up the window, the wall to its
    right, a strip of desk under it. Nothing leaves: the case slides off to
    the left (its edge may stay in shot) and the case files stay on the desk. */
 [data-desk="award"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="award"] .desk-world,
 [data-desk="award"] .case-world {
-  transform: rotateX(-4deg) translate3d(calc(-1018 * var(--u)), 0, calc(150 * var(--u)));
+  transform: rotateX(-4deg) translate3d(calc(-1100 * var(--u)), 0, calc(-350 * var(--u)));
 }
 [data-desk="award"] .case-world { pointer-events: none; }
 /* Once there, the pan is driven frame by frame, so the move's own
@@ -1570,15 +1573,19 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .desk-card--env:not([data-open]):hover .env__shadow {
   box-shadow: 0 calc(6 * var(--eu) / 3) calc(8 * var(--eu) / 3) rgba(20,16,12,.24);
 }
-/* The page around it: the title and the lines under the case step aside,
-   and the index stays, inked for the white desk (over the dark wall it keeps
-   its own colours). */
-.hero-aside h2, .hero-aside h2 + p, .hero-caption, .hero-contact { transition: opacity .5s ease; }
-[data-desk="open"] .hero-aside h2, [data-desk="award"] .hero-aside h2,
-[data-desk="open"] .hero-aside h2 + p, [data-desk="award"] .hero-aside h2 + p,
+/* The page around it: the lines under the case step aside; the column —
+   title, lead and index — stays as it is on every page, inked for the white
+   desk (over the dark wall it keeps its own colours). */
+.hero-caption, .hero-contact { transition: opacity .5s ease; }
 [data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption,
 [data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact { opacity: 0; pointer-events: none; }
-[data-desk="open"] .hero-aside { --fg: #22283a; --muted: #5b6275; }
+/* Over the desk the column's title and lead stay, but only its links take the
+   pointer, so what lies under the words can still be picked up. The ink turns
+   dark only where the column stands over the white desk (1440px and up);
+   under that it sits above the scene, on the page's own ground. */
+[data-desk="open"] .hero-aside-wrap { pointer-events: none; }
+[data-desk="open"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
+@media (min-width: 1440px) { [data-desk="open"] .hero-aside { --fg: #22283a; --muted: #5b6275; } }
 [data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over

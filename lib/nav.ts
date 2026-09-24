@@ -21,3 +21,8 @@ export const NAV_LINKS = [
 
 export const CV_HREF =
   "https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf";
+
+/** Who she is, in the column and at the top of the menu panel — the same two
+ *  lines wherever the navigation is. */
+export const NAV_TITLE = "Product Designer & Design Lead";
+export const NAV_LEAD = "I work on complicated products and make them less complicated.";

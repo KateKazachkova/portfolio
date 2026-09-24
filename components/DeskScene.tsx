@@ -70,8 +70,11 @@ const AWARD = { x: 1240, h: 600, z: -190 };
 const AWARD_W = Math.round(AWARD.h * 1033 / 3590);   // the still's own aspect
 // The latest certificate (Indigo, Women in Design 2026), framed and
 // standing on the desk against the wall at the right end of the awards:
-// 30 × 21 cm, its foot 2 cm off the wall and its top leaning back onto it.
-const CERT = { x: 2200, w: 322, h: 241, z: -250, lean: 5 };
+// 43 × 32 cm, leaning back 4° with its top just short of the wall: the foot
+// stands h·sin(lean) + 3 px out from it (the wall is at z -269), so the top
+// edge never passes behind the wall and gets cut off.
+const CERT = { x: 2290, w: 460, h: 339, lean: 4 };
+const CERT_Z = Math.round(-269 + CERT.h * Math.sin(CERT.lean * Math.PI / 180) + 3);
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
 
@@ -107,7 +110,7 @@ export function DeskPlanes() {
         style={{
           left: `calc(${CERT.x - CERT.w / 2} * var(--u))`, top: `calc(${656 - CERT.h} * var(--u))`,
           width: `calc(${CERT.w} * var(--u))`, height: `calc(${CERT.h} * var(--u))`,
-          transform: `translateZ(calc(${CERT.z} * var(--u))) rotateX(${CERT.lean}deg)`,
+          transform: `translateZ(calc(${CERT_Z} * var(--u))) rotateX(${CERT.lean}deg)`,
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -338,6 +341,18 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onFiles = () => toggle("files");
     const onAward = () => toggle("award");
     const onPop = () => { pushed = false; set(viewOf(location.hash)); };
+    // A link to home (the KATE™ wordmark) from the desk or the wall: Next
+    // changes the URL with pushState, which fires no popstate, so the camera
+    // would stay where it is. Take the click and bring it back to the case.
+    const onHomeLink = (e: MouseEvent) => {
+      if (!open.current || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element).closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank") return;
+      const u = new URL(a.href, location.href);
+      if (u.origin !== location.origin || u.pathname !== "/" || u.hash) return;
+      e.preventDefault(); e.stopPropagation();
+      close();
+    };
     const onKey = (e: KeyboardEvent) => {
       if (!open.current) return;
       if (e.key === "Escape") {
@@ -360,6 +375,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener(DESK_EVENT, onFiles);
     window.addEventListener(AWARD_EVENT, onAward);
     window.addEventListener("popstate", onPop);
+    document.addEventListener("click", onHomeLink, true);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
     window.addEventListener("wheel", onWheel, { passive: false });
@@ -376,6 +392,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.removeEventListener(DESK_EVENT, onFiles);
       window.removeEventListener(AWARD_EVENT, onAward);
       window.removeEventListener("popstate", onPop);
+      document.removeEventListener("click", onHomeLink, true);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("wheel", onWheel);

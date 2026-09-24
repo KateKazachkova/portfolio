@@ -1,5 +1,6 @@
 import Link from "next/link";
 import NavIndex from "@/components/NavIndex";
+import { NAV_TITLE, NAV_LEAD } from "@/lib/nav";
 
 /**
  * The column to the left of the case: the wordmark, who she is, and the
@@ -11,8 +12,8 @@ import NavIndex from "@/components/NavIndex";
  * sentence gets it without a second copy of the markup.
  */
 export default function HeroAside({
-  title = "Product Designer & Design Lead",
-  lead = "I work on complicated products and make them less complicated.",
+  title = NAV_TITLE,
+  lead = NAV_LEAD,
 }: {
   title?: React.ReactNode;
   lead?: React.ReactNode;

@@ -221,7 +221,7 @@ function TardisModel() {
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/left-1-tardis.png"
+            src="/items/left-1-tardis.webp"
             alt="A model police box"
             className="block w-full h-auto relative"
             style={{ ...imgStyle, zIndex: 1 }}
@@ -586,7 +586,7 @@ export default function Home() {
                 the dark wood it stands in. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/items/mid-top-trophy.png"
+              src="/items/mid-top-trophy.webp"
               alt=""
               style={{
                 position: "absolute",
@@ -658,7 +658,7 @@ export default function Home() {
             little past it, the way a folded fleece actually sits. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/right-2-blanket.png"
+          src="/items/right-2-blanket.webp"
           alt=""
           aria-hidden
           style={{
@@ -718,7 +718,7 @@ export default function Home() {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={o.key}
-                src={`/items/wardrobe/right-rail-${o.src}.png`}
+                src={`/items/wardrobe/right-rail-${o.src}.webp`}
                 alt=""
                 style={{
                   position: "absolute",

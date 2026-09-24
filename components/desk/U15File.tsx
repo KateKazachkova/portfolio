@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { booklet, type BookletChapter, type BookletClip } from "@/content/work/ukrainska-15-booklet";
+import { booklet, type BookletChapter, type BookletClip, type BookletNote } from "@/content/work/ukrainska-15-booklet";
 
 /**
  * Ukrainska 15's file on the desk: a red card pocket folder in the live
@@ -282,7 +282,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 // broken at a sentence and carried over. Deliberately a little short of
 // full, so nothing is ever cut off.
 type Para = { t: string; pull?: boolean };
-type Page = { head?: { label: string; kicker?: string; heading: string }; paras: Para[]; cont?: boolean; clips: BookletClip[] };
+type Page = { head?: { label: string; kicker?: string; heading: string }; paras: Para[]; cont?: boolean; clips: BookletClip[]; notes: BookletNote[] };
 const CHARS = 44, LINES = 29;
 // the heading (≈19 capitals to a line, each 1.3 text lines) and the rule under it
 const headLines = (h: string) => 1.8 + Math.ceil(h.length / 19) * 1.3;
@@ -290,13 +290,15 @@ const linesOf = (t: string) => Math.ceil(t.length / CHARS) + 0.5;
 function paginate(chapters: BookletChapter[]): Page[] {
   const out: Page[] = [];
   for (const ch of chapters) {
-    let page: Page = { head: { label: ch.label, kicker: ch.kicker, heading: ch.heading }, paras: [], clips: [] };
+    let page: Page = { head: { label: ch.label, kicker: ch.kicker, heading: ch.heading }, paras: [], clips: [], notes: [] };
     let room = LINES - headLines(ch.heading);
-    const turn = (cont: boolean) => { out.push(page); page = { paras: [], cont, clips: [] }; room = LINES; };
+    const turn = (cont: boolean) => { out.push(page); page = { paras: [], cont, clips: [], notes: [] }; room = LINES; };
     ch.paragraphs.forEach((para, i) => {
       if (room < 2) turn(false);
       const clip = ch.clips?.[i];
       if (clip) page.clips.push(clip);
+      const note = ch.notes?.[i];
+      if (note) page.notes.push(note);
       const pull = ch.pull === i;
       const cost = (t: string) => linesOf(t) * (pull ? 1.4 : 1);
       let rest = para;
@@ -325,6 +327,8 @@ function paginate(chapters: BookletChapter[]): Page[] {
  * the single cover sits in the middle.
  */
 const PAGES = paginate(booklet.chapters);
+// ==phrase== → the highlighter
+const marked = (t: string) => t.split(/==(.+?)==/).map((x, i) => (i % 2 ? <mark key={i} className="u15-mark">{x}</mark> : x));
 
 function Booklet({ live, at, held, place, onGrab, onTurn }: {
   live: boolean; at: number; held: boolean; place: React.CSSProperties;
@@ -346,11 +350,16 @@ function Booklet({ live, at, held, place, onGrab, onTurn }: {
               <span className="u15-page__num">{pg.head.label}</span>
               {pg.head.kicker && <span className="u15-page__kick">{pg.head.kicker}</span>}
             </>}
+            {pg.notes.map((n) => (
+              <span key={n.lines[0]} className="u15-hand">
+                {n.lines.map((l, k) => <span key={k} data-ink={(n.inkFrom !== undefined && k >= n.inkFrom) || undefined}>{l}</span>)}
+              </span>
+            ))}
           </span>
           <span className="u15-page__body">
             {pg.head && <span className="u15-page__heading">{pg.head.heading}</span>}
             {pg.paras.map((p, j) => (
-              <span key={j} className={p.pull ? "u15-page__p u15-page__pull" : "u15-page__p"} data-cont={(j === 0 && pg.cont) || undefined}>{p.t}</span>
+              <span key={j} className={p.pull ? "u15-page__p u15-page__pull" : "u15-page__p"} data-cont={(j === 0 && pg.cont) || undefined}>{marked(p.t)}</span>
             ))}
           </span>
           <span className="u15-page__no">{i + 1}</span>

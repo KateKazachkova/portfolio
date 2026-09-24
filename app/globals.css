@@ -1423,6 +1423,16 @@ body::after {
   font: 700 calc(6.2 * var(--bt)) / 1.02 var(--font-display), system-ui, sans-serif; text-transform: uppercase; letter-spacing: -.005em; }
 .u15-page__p { display: block; margin-bottom: calc(1.4 * var(--bt)); text-indent: calc(3.4 * var(--bt)); hyphens: auto; }
 .u15-page__heading + .u15-page__p, .u15-page__p[data-cont] { text-indent: 0; }
+/* the case page's annotation layer: Saffron highlighter, and Kate's hand in
+   the rail — red ink, the last lines in dark */
+.u15-mark { background: linear-gradient(180deg, transparent 8%, color-mix(in srgb, var(--brand, #f4b942) 88%, transparent) 8%,
+  color-mix(in srgb, var(--brand, #f4b942) 88%, transparent) 92%, transparent 92%);
+  color: inherit; padding: 0 .12em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.u15-hand { display: block; margin-top: calc(6 * var(--bt)); width: 106%;
+  font: 400 calc(6 * var(--bt)) / 1.02 var(--font-chalk), cursive; letter-spacing: -.03em; color: #d8352a;
+  transform: rotate(-3deg); transform-origin: 0 0; }
+.u15-hand > span::after { content: " "; }
+.u15-hand [data-ink] { color: #29223a; }
 /* the chapter's question, as the case page's red lead */
 .u15-page__pull { text-indent: 0; margin: calc(2.4 * var(--bt)) 0; color: #d8352a;
   font: 700 calc(5.2 * var(--bt)) / 1.12 var(--font-display), system-ui, sans-serif; letter-spacing: -.01em; }

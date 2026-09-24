@@ -1093,6 +1093,7 @@ body::after {
   opacity: 0; transition: opacity 1.2s ease;
 }
 .night-room[data-on] { opacity: 1; }
+.night-room__torch { opacity: 0; transition: opacity .5s ease; }
 /* The labels and Kate's panel live inside the case, under this layer, and
    went down with the room. While one is open the lamp comes up instead. */
 .case-stage:has(.inktip[data-open="true"]) .night-room[data-on],

@@ -1082,6 +1082,20 @@ body::after {
   transform: translate(var(--case-x), var(--case-y)) scale(var(--case-scale));
   transform-origin: center top;
 }
+/* Landscape tablets and small laptops (1024–1439px) get the desktop scene
+   itself, just smaller: the case keeps its 1440px share of the width
+   (1118 / 1440), so the column beside it and everything on the desk scale
+   with it instead of the column dropping above the case. */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .case-stage { width: 77.64vw; }
+  /* The column beside it narrows with it (19.65vw), so its type and its
+     gaps step down too — enough that the index ends above the flip clock.
+     Each is a straight line from its 1024px value to its 1440px one, so
+     nothing jumps at the top of the range.  */
+  .hero-aside { --t-title: calc(2.16vw - 1.15px); --t-body: calc(.721vw + 5.6px); }
+  .hero-aside .t-title { margin-top: calc(19.95vw - 163px); }
+  .hero-aside nav { margin-top: calc(7.69vw - 55px); gap: calc(1.442vw - 8.77px); }
+}
 
 /* The room at night (components/NightRoom.tsx): one multiply layer over the
    stage in its own px, drawn far past its edges. At rest only — once the
@@ -1733,7 +1747,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    under that it sits above the scene, on the page's own ground. */
 [data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap, [data-desk="offduty"] .hero-aside-wrap { pointer-events: none; }
 [data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button), [data-desk="offduty"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
-@media (min-width: 1440px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
+@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
 [data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap, [data-desk="offduty"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
@@ -1761,7 +1775,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform-origin: 0 0; transform: translateZ(calc(269 * var(--u))) scale(.5); pointer-events: auto;
   display: none;
 }
-@media (min-width: 1440px) { .flip-clock-slot { display: block; } }
+@media (min-width: 1024px) { .flip-clock-slot { display: block; } }
 /* Its shadows, for the room's key (above, in front, to the left): a tight
    dark line where the base meets the desk, and the body's shadow falling
    back and to the right — mostly behind it, showing as a soft edge off its

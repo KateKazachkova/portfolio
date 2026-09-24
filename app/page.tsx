@@ -1125,7 +1125,7 @@ export default function Home() {
             the case itself stays centred and untouched between them. Both are
             absolute, so neither can push it off centre. */}
         <div style={{ borderColor: "var(--hairline)" }}
-          className="hero-aside-wrap basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1440px]:border-r min-[1440px]:pr-6 min-[1440px]:ml-0 min-[1440px]:mr-0 min-[1440px]:absolute min-[1440px]:top-0 min-[1440px]:left-6 min-[1440px]:order-none min-[1440px]:basis-auto min-[1440px]:mb-0 min-[1440px]:max-w-none min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
+          className="hero-aside-wrap basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1024px]:border-r min-[1024px]:pr-6 min-[1024px]:ml-0 min-[1024px]:mr-0 min-[1024px]:absolute min-[1024px]:top-0 min-[1024px]:left-6 min-[1024px]:order-none min-[1024px]:basis-auto min-[1024px]:mb-0 min-[1024px]:max-w-none min-[1024px]:w-[19.65vw] min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
           <HeroAside />
         </div>
 
@@ -1155,7 +1155,7 @@ export default function Home() {
           same voice as the line under the title: body type, no accent colour.
           mt-auto keeps it on the floor of the min-h-screen column. */}
       <div className="hero-contact w-full mt-auto pt-4">
-        <div className="ml-[6vw] min-[1440px]:ml-6">
+        <div className="ml-[6vw] min-[1024px]:ml-6">
           <p className="t-body" style={{ color: "var(--fg)" }}>Have a project?</p>
           <Link
             href="/contact"

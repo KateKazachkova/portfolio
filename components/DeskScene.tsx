@@ -14,7 +14,7 @@ import { useEffect, useRef } from "react";
  * the box's own px, scaled to its real width through --u (see .scene-cam).
  *
  * Case Files moves the camera instead of the page: it rises to 0.8 m over the
- * front of the desk and looks almost straight down (84°), then pans along it, the case leaves
+ * row of case files and looks straight down (90°), then pans along it, the case leaves
  * past the top of the frame, and the case files — lying on the desk all
  * along, slivers in front of the case — fill the view. The URL
  * becomes /#case-files, so Back, Escape or Case Files again bring it home.

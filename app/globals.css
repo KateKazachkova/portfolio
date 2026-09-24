@@ -1306,19 +1306,19 @@ body::after {
 .env__print-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* The library card, in front of the prints: buff card stock, a typed head,
    ruled rows, date stamps in violet ink. */
-.env__card { position: absolute; left: 20%; top: 9%; width: 60%; display: block; box-sizing: border-box;
+.env__card { position: absolute; left: 17%; top: 9%; width: 66%; display: block; box-sizing: border-box;
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
   transform: rotate(-1.5deg); box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
-  font: 400 calc(3 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
+  font: 400 calc(2.3 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
 .env__card-head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
   padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
 .env__card-head span:first-child { font-size: calc(5.2 * var(--eu)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-.env__card-row { display: grid; grid-template-columns: 22% 38% 40%; align-items: end;
+.env__card-row { display: grid; grid-template-columns: 19% 37% 44%; align-items: end;
   height: calc(5.2 * var(--eu)); border-bottom: calc(.25 * var(--eu)) solid #9fb3c8; }
 .env__card-row > span { padding-left: calc(1 * var(--eu)); white-space: nowrap; overflow: hidden; }
 .env__card-row > span + span { border-left: calc(.25 * var(--eu)) solid #d59a95; }
-.env__card-row--th { font-size: calc(2.4 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
-.env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2.4 * var(--eu)); transform: rotate(-3deg); }
+.env__card-row--th { font-size: calc(2 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+.env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2 * var(--eu)); transform: rotate(-3deg); }
 /* Dark red ink printed into the card, as on the reference folder. */
 .env__print { position: absolute; inset: 0; color: #6e0d06; mix-blend-mode: multiply; }
 .env__no { position: absolute; left: 9%; top: 33%;
@@ -1349,17 +1349,19 @@ body::after {
 .env__stamp--fda b { font-size: calc(5 * var(--eu)); letter-spacing: .1em; margin: calc(1 * var(--eu)) 0; }
 
 /* ── The camera move ──
-   The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), 35 cm in
-   front of the case (z 381), looking down 84°; its axis lands on the row of
-   case files (desk y 560), and a desk px is then 2.5 screen px (× --u), so
+   The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), right over
+   the row of case files (desk y 560, z 291), looking straight down — 90°,
+   so the desk is parallel to the screen and is rasterised like a flat
+   picture at the right scale (at 84° it went soft). A desk px is then
+   2.5 screen px (× --u), so
    the row runs off the right of the window and the camera pans along it:
    --pan, in desk px, set by useDeskCamera once it has arrived. Moving the
    camera by d is moving the world by -d, then rotating about the original
-   camera point: translate (-pan, 226 + 204, 2150 - 381). */
+   camera point: translate (-pan, 226 + 204, 2150 - 291). */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-84deg) translate3d(calc(var(--pan, 0) * -1 * var(--u)), calc(430 * var(--u)), calc(1769 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc(var(--pan, 0) * -1 * var(--u)), calc(430 * var(--u)), calc(1859 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 

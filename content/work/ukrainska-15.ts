@@ -94,7 +94,7 @@ const ukrainska15: CaseStudy = {
     {
       kind: "pile",
       title: "The pile",
-      count: "6 items — none of them made for this",
+      count: "4 items — none of them made for this",
       help: "Push them around — or focus one and use the arrow keys",
       notes: [
         { quiet: true, text: ["Sorting this pile is what produced the structure of the site. You are doing, in miniature, the only research method this project had."] },
@@ -112,12 +112,6 @@ const ukrainska15: CaseStudy = {
         { src: "/artefacts/ukrainska-15/photo-04.jpg", kind: "Photograph",
           alt: "A windowsill of broken glass and toppled plant pots, looking onto a collapsed brick building outside where a small fire still burns.",
           caption: ["The view from the sill — broken glass, a knocked-over plant, and the building opposite still burning."] },
-        { src: "/artefacts/ukrainska-15/plate-01.jpg", kind: "Artefact plate",
-          alt: "Photographs of the house, medals, a handwritten name tag and a teddy bear arranged on aged paper.",
-          caption: ["Objects that survived, laid out and photographed together."] },
-        { src: "/artefacts/ukrainska-15/plate-02.jpg", kind: "Artefact plate",
-          alt: "Ukrainian and design-award medals, a pressed sunflower and three photographs of the house arranged on aged paper, tagged Ukrainska 15, Kupiansk, and dated Easter 2025.",
-          caption: ["The award medals set beside three photographs of the house, dated Easter 2025."] },
       ],
     },
 

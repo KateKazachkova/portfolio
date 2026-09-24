@@ -5,6 +5,7 @@ import Link from "next/link";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import NicheLight from "@/components/NicheLight";
+import NightRoom from "@/components/NightRoom";
 import KateTalk from "@/components/KateTalk";
 import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
 import HeroAside from "@/components/HeroAside";
@@ -1115,6 +1116,9 @@ export default function Home() {
         {/* <IntroOverlay /> */}
         </div>
         </div>
+        {/* The room put out while she sleeps: over the whole stage, the
+            desk and the wall as well as the case. */}
+        <NightRoom edition={shown} />
       </div>
 
         {/* The title block to the left of the box, the schedule to its right:

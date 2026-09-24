@@ -1083,6 +1083,30 @@ body::after {
   transform-origin: center top;
 }
 
+/* The room at night (components/NightRoom.tsx): one multiply layer over the
+   stage in its own px, drawn far past its edges. At rest only — once the
+   camera travels, the lamp's pool is no longer where the case is. */
+.night-room {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none; z-index: 40;
+  mix-blend-mode: multiply;
+  opacity: 0; transition: opacity 1.2s ease;
+}
+.night-room[data-on] { opacity: 1; }
+/* The labels and Kate's panel live inside the case, under this layer, and
+   went down with the room. While one is open the lamp comes up instead. */
+.case-stage:has(.inktip[data-open="true"]) .night-room[data-on],
+.case-stage:has(.katetalk[data-open="true"]) .night-room[data-on] { opacity: .55; transition-duration: .4s; }
+:root[data-desk]:not([data-desk="closed"]) .night-room { opacity: 0; transition-duration: .6s; }
+/* Multiply needs something to land on. The stage is its own blend group (it
+   has a transform), and past the plate's edges the group is empty — there
+   the layer showed its own grey-blue as a band down the left. This gives it
+   the page's own ground everywhere, which is what showed through anyway. */
+.case-stage::before {
+  content: ""; position: absolute; inset: -2000px -3000px; z-index: -1;
+  background: var(--bg); pointer-events: none;
+}
+
 /* ── The desk as a room (components/DeskScene.tsx) ────────────────────────
    Every length is in the case box's own px (1118 × 745 at full size) times
    --u, the box's real width over 1118 — .case-stage is a size container, so

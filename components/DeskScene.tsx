@@ -73,6 +73,16 @@ const CAST = { x: 34, y: 20 };
 // envelope/, generated empty in two layers so the papers can go in between
 // later), in the live site's accent. The print and the award stamps are set
 // here rather than generated, so the type and the seals stay true.
+// The round CSSDA seals, stuck on as die-cut stickers in their own colours;
+// MUSE Gold is printed in its foil and French Design Awards (no artwork) is a
+// struck ink stamp.
+const STICKERS = [
+  { src: "cssda-ui.png", cls: "ui" },
+  { src: "cssda-ux.png", cls: "ux" },
+  { src: "cssda-inn.png", cls: "inn" },
+  { src: "cssda-kudos.png", cls: "kudos" },
+] as const;
+
 function Envelope() {
   return (
     <span className="env">
@@ -90,8 +100,10 @@ function Envelope() {
       <span className="env__stamps" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="env__stamp env__stamp--muse" src="/stamps/awards/muse-gold.png" alt="" draggable={false} />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="env__stamp env__stamp--cssda" src="/stamps/awards/cssda-kudos.png" alt="" draggable={false} />
+        {STICKERS.map((k) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={k.src} className={`env__sticker env__sticker--${k.cls}`} src={`/stamps/awards/${k.src}`} alt="" draggable={false} />
+        ))}
         <span className="env__stamp env__stamp--fda">French Design Awards<b>Silver</b>2026</span>
       </span>
     </span>

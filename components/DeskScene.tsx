@@ -15,7 +15,8 @@ import { useEffect, useRef } from "react";
  *
  * Case Files moves the camera instead of the page: it rises to 1 m over the
  * front of the desk and looks almost straight down (84°), the case leaves
- * past the top of the frame, and the case files are lying there. The URL
+ * past the top of the frame, and the case files — lying on the desk all
+ * along, slivers in front of the case — fill the view. The URL
  * becomes /#case-files, so Back, Escape or Case Files again bring it home.
  * Only in the dark theme, where the desk exists; in the light one the link
  * goes to /work as it always did. The prototype this came from is
@@ -55,7 +56,7 @@ export function DeskPlanes() {
               tabIndex={-1}
               style={{
                 left: `calc(${SPOTS[i][0]} * var(--u))`, top: `calc(${SPOTS[i][1]} * var(--u))`,
-                "--r": `${SPOTS[i][2]}deg`, "--i": i,
+                "--r": `${SPOTS[i][2]}deg`,
               } as React.CSSProperties}
             >
               <div className="desk-card__cover" />

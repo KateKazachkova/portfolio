@@ -1192,8 +1192,10 @@ body::after {
 
 /* The case files, lying on the desk plane: the /work grid's plain cards for
    now (folders later). Desk-plane px, so from the camera's end height of 1 m
-   one of them is ~2 screen px. Hidden and out of the tab order until the
-   camera arrives, then dealt out one by one. */
+   one of them is ~2 screen px. They are always there — from the case's
+   view they are thin slivers on the desk in front of it, which is the point:
+   the files are already on the desk before you look down at them. Out of the
+   tab order and click-through until the camera arrives. */
 .desk-cases { position: absolute; inset: 0; }
 .desk-card {
   position: absolute;
@@ -1202,8 +1204,8 @@ body::after {
   background: #faf8f3; border: calc(1 * var(--u)) solid #d9d4c8; border-radius: calc(7 * var(--u));
   overflow: hidden; color: #22283a; text-decoration: none;
   box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.18), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.28);
-  opacity: 0; transform: rotate(var(--r)) translateY(calc(6 * var(--u)));
-  transition: opacity .35s ease, transform .35s ease, box-shadow .25s ease, border-color .25s ease;
+  transform: rotate(var(--r));
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 }
 .desk-card__cover { height: calc(64 * var(--u)); background: #ebe6db; border-bottom: calc(1 * var(--u)) solid #e0dbcf; }
 .desk-card__body { padding: calc(7 * var(--u)) calc(9 * var(--u)); }
@@ -1221,10 +1223,9 @@ body::after {
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
-[data-desk="open"] .desk-card { opacity: 1; transform: rotate(var(--r)); transition-delay: calc(1.35s + var(--i) * 90ms); }
 [data-desk="open"] .desk-card:hover,
 [data-desk="open"] .desk-card:focus-visible {
-  transform: rotate(var(--r)) translateY(calc(-3 * var(--u))); border-color: #b9b2a3; transition-delay: 0s; outline: none;
+  transform: rotate(var(--r)) translateY(calc(-3 * var(--u))); border-color: #b9b2a3; outline: none;
   box-shadow: 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(20,16,12,.16), 0 calc(12 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34);
 }
 /* The page around it: the title and the lines under the case step aside,

@@ -21,7 +21,9 @@ import "./Binder.css";
  */
 /** tab: a divider tab on the sleeve that opens this spread, standing above
  *  the others (its logo), a click on it goes straight there */
-export type Spread = { label: string; left: React.ReactNode; right?: React.ReactNode; tab?: { src: string; alt: string } };
+/** hang: something hung on the rings over the left-hand sleeve (not in it),
+ *  its holes on the rings — turned with that sleeve */
+export type Spread = { label: string; left: React.ReactNode; right?: React.ReactNode; tab?: { src: string; alt: string }; hang?: React.ReactNode };
 
 /** at = turned leaves (1 … spreads.length); spread on show = at - 1 */
 export function useBinder(n: number, live = true) {
@@ -69,6 +71,7 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
     front: i > 0 ? spreads[i - 1].right : null,
     back: i < n ? spreads[i].left : null,
     tab: i < n ? spreads[i].tab : undefined,
+    hang: i < n ? spreads[i].hang : undefined,
   }));
   // which leaves are in the air, and which way: set when `at` moves, cleared
   // once the turn is over so the next one restarts the bend
@@ -126,18 +129,22 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
             data-dir={air ? flying.dir : undefined}
             data-flying={air || undefined}
             style={{ zIndex: i < at ? i + 1 : leaves.length - i + 1, "--z": i < at ? i + 1 : leaves.length - i + 1, transitionDelay: `${lag}ms`, "--lag": `${lag}ms` } as React.CSSProperties}
-            data-hidden={!(i === at - 1 || i === at) || undefined}
+            // drawn: the two on show and the one under each, which a turning
+            // leaf uncovers
+            data-hidden={(i < at - 2 || i > at + 1) || undefined}
             aria-hidden={!(i === at - 1 || i === at)}
           >
             {/* at rest the leaf is one piece (bands would show their seams);
                 the bands take over only while it is in the air */}
             <div className="pf-whole">
               <div className="pf-face"><div className="pf-face__full">{l.front && <div className="pf-sheet">{l.front}</div>}</div></div>
-              <div className="pf-face pf-face--back"><div className="pf-face__full">{l.back && <div className="pf-sheet">{l.back}</div>}</div></div>
+              <div className="pf-face pf-face--back"><div className="pf-face__full">{l.back && <div className="pf-sheet">{l.back}</div>}{l.hang && <div className="pf-hang">{l.hang}</div>}</div></div>
             </div>
             {air && <Band k={0} front={l.front} back={l.back} />}
             {l.tab && (
-              <span className="pf-tab" data-tab={i} role="button" aria-label={`Open ${l.tab.alt}`}>
+              <span className="pf-tab" data-tab={i} role="button" aria-label={`Open ${l.tab.alt}`}
+                // dividers step along the top edge, so each tab shows
+                style={{ left: `${24 + 23 * leaves.slice(0, i).filter((x) => x.tab).length}%` }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <span className="pf-tab__face"><img src={l.tab.src} alt="" draggable={false} /></span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

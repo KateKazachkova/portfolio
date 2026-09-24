@@ -137,8 +137,8 @@ export function TeachingSheet() {
 export function SpecsSheet() {
   return (
     <div className="pf-page">
-      <Head sheet="09" title="Specifications" />
-      <Part n="05" title="Specifications" />
+      <Head sheet="13" title="Specifications" />
+      <Part n="07" title="Specifications" />
       <div className="pf-mono">Capabilities</div>
       <div className="pf-chips pf-mono">{SKILLS.map((s) => <span key={s}>{s}</span>)}</div>
       <p style={{ margin: "0 0 calc(14 * var(--px))" }}>Languages: Ukrainian (native) · Russian (fluent) · English</p>
@@ -149,7 +149,7 @@ export function SpecsSheet() {
           <div style={{ opacity: 0.7 }}>{e.org}</div>
         </div>
       ))}
-      <div className="pf-foot pf-mono"><span>End of file</span><span>09</span></div>
+      <div className="pf-foot pf-mono"><span>End of file</span><span>13</span></div>
     </div>
   );
 }
@@ -158,10 +158,10 @@ export function SpecsSheet() {
    Facts from Kate's MC2 evidence note (INSCIENCE, Digitizing.Space). */
 const BUD_LOG = [
   ["27 Apr", "Applied to mentor"],
-  ["28 Apr", "Welcomed to the mentor team by INSCIENCE"],
-  ["2 Jun", "Booking opens · 28 sessions booked on day one"],
-  ["23 Jun", "Live: Portfolio UI/UX/Product Designer 101"],
-  ["1 Jul", "Live: Working on Products · Q&A / AMA"],
+  ["28 Apr", "Welcomed to the mentor team"],
+  ["2 Jun", "Booking opens · 28 on day one"],
+  ["23 Jun", "Live: Portfolio 101"],
+  ["1 Jul", "Live: Working on Products"],
   ["Jul", "Certificate of Appreciation"],
 ] as const;
 
@@ -189,12 +189,40 @@ export function BudSheet() {
           <div key={t}><span className="pf-mono">{d}</span><span>{t}</span></div>
         ))}
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="pf-cert" src="/profile/bud/certificate.webp" alt="INSCIENCE Certificate of Appreciation for mentoring in БУДЬ/BE, 2025" />
       <div className="pf-foot pf-mono">
         <a href="https://inscience.io/en/be/" target="_blank" rel="noopener noreferrer">inscience.io/en/be ↗</a><span>07</span>
       </div>
     </div>
+  );
+}
+
+/** A punched card hung on the rings (Spread.hang): holes down both edges,
+ *  a document on it and a line or two of what it is. */
+function PunchedCard({ no, src, alt, title, text, meta, className = "" }: {
+  no: string; src: string; alt: string; title: string; text?: string; meta: string; className?: string;
+}) {
+  return (
+    <div className={`pf-certcard ${className}`}>
+      <span className="pf-certcard__no pf-mono">{no}</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} />
+      <span className="pf-certcard__cap">
+        <b>{title}</b>
+        {text}
+        <span className="pf-mono">{meta}</span>
+      </span>
+    </div>
+  );
+}
+
+/** Hung over the БУДЬ sleeve, not in it: the certificate on its own card. */
+export function BudCertificate() {
+  return (
+    <PunchedCard no="07a · Certificate" src="/profile/bud/certificate.webp"
+      alt="INSCIENCE Certificate of Appreciation for mentoring in БУДЬ/BE, 2025"
+      title="Certificate of Appreciation"
+      text="For mentoring Ukrainian women in their job search and career development in tech and the creative industries."
+      meta="INSCIENCE · signed by Olena Skyrta, co-founder · July 2025" />
   );
 }
 
@@ -240,6 +268,168 @@ export function BudEvidenceSheet() {
         <span className="pf-mono">A participant, in the programme’s Slack</span>
       </div>
       <div className="pf-foot pf-mono"><span>Translated from Ukrainian</span><span>08</span></div>
+    </div>
+  );
+}
+
+/* ── Kharkiv IT Cluster: the courses and the talks ──
+   Facts from Kate's KharkivITCluster folder (README and each Детали.md). */
+const ITC_COURSES = [
+  { t: "Visual Design Basics for Educators", p: "Teachers2IT · Jul–Aug 2024", h: "4 ECTS", n: "170+", c: "48" },
+  { t: "Design Systems: from Basics to Adoption", p: "Prof2IT · Nov–Dec 2024", h: "180 h · 6 ECTS", n: "96", c: "35" },
+  { t: "Product Design", p: "Prof2IT · Sep–Nov 2025", h: "90 h · 3 ECTS", n: "143", c: "58" },
+];
+const ITC_TALKS = [
+  ["Nov 2024", "Guest EDU · UI, UX, CX", "200+ students, 4 universities"],
+  ["Nov 2025", "ProfClub · Visual content with AI", "webinar"],
+  ["Dec 2025", "Syllabus review · UX/UI Development", "expert reviewer"],
+  ["Dec 2025", "ProfClub · AI in education", "webinar"],
+  ["Jan 2026", "Teachers2IT · Designing learning content", "webinar"],
+  ["Feb 2026", "AI in Practice · AI for Designers", "marathon, EDIH"],
+  ["Apr 2026", "#SchooLeadCommunity · Presentations", "190 student leaders"],
+  ["Jun 2026", "Prof2IT · Presentations & visual content", "2K+ views"],
+] as const;
+
+export function ClusterSheet() {
+  return (
+    <div className="pf-page">
+      <Head sheet="09" title="Teaching" />
+      <Part n="05" title="Kharkiv IT Cluster" />
+      <p className="pf-lead" style={{ margin: "0 0 calc(8 * var(--px))" }}>
+        Educator and speaker with Kharkiv IT Cluster since 2024: three accredited courses I wrote and taught, and a run of lectures.
+      </p>
+      <p style={{ margin: "0 0 calc(10 * var(--px))", opacity: 0.8 }}>
+        The cluster links Kharkiv’s IT companies, universities and teachers. My Product Design course has since been built into
+        Zaporizhzhia National University’s bachelor’s programme in Marketing and helped it through accreditation (ZNU, Jan 2026).
+      </p>
+      <div className="pf-mono" style={{ marginBottom: "calc(3 * var(--px))" }}>Courses · enrolled → certified</div>
+      <div className="pf-courses">
+        {ITC_COURSES.map((c) => (
+          <div key={c.t}>
+            <span><b>{c.t}</b><span className="pf-mono">{c.p} · {c.h}</span></span>
+            <span className="pf-courses__n">{c.n}<i>→</i>{c.c}</span>
+          </div>
+        ))}
+      </div>
+      <div className="pf-foot pf-mono">
+        <a href="https://it-kharkiv.com/projects/prof2it" target="_blank" rel="noopener noreferrer">it-kharkiv.com ↗</a><span>09</span>
+      </div>
+    </div>
+  );
+}
+
+/** Hung over the cluster's sleeve: both course certificates, one on the other. */
+export function ClusterCertificates() {
+  return (
+    <>
+      <PunchedCard className="pf-certcard--under" no="09b · Certificate PK-685" src="/profile/itc/cert-design-systems.webp"
+        alt="Kharkiv IT Cluster certificate PK-685: Design Systems course, 180 hours, 2024"
+        title="Design Systems" meta="Prof2IT · 180 h · 24 Dec 2024" />
+      <PunchedCard no="09a · Certificate ITK-25/1303" src="/profile/itc/cert-product-design.webp"
+        alt="Kharkiv IT Cluster certificate ITK-25/1303: Product Design course, 90 hours, 2025"
+        title="Product Design" text="For teaching a professional development course of practical webinars."
+        meta="Prof2IT · 90 h · signed by Olga Shapoval · 18 Dec 2025" />
+    </>
+  );
+}
+
+export function ClusterTalksSheet() {
+  return (
+    <div className="pf-page">
+      <Head sheet="10" title="Teaching" />
+      <div className="pf-mono" style={{ marginBottom: "calc(3 * var(--px))" }}>Lectures, webinars, reviews</div>
+      <div className="pf-log pf-log--3">
+        {ITC_TALKS.map(([d, t, m]) => (
+          <div key={t}><span className="pf-mono">{d}</span><span>{t}</span><span className="pf-mono">{m}</span></div>
+        ))}
+      </div>
+      <div className="pf-snaps">
+        <figure style={{ "--t": "-2deg" } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/profile/itc/teachers2it-results.webp" alt="Kharkiv IT Cluster's summary of the educators' course: 7 sessions, 170+ participants, 50+ finalists" />
+          <figcaption className="pf-mono">Teachers2IT, 2024 — the cluster’s summary</figcaption>
+        </figure>
+        <figure style={{ "--t": "1.5deg" } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/profile/itc/teachers2it-work.webp" alt="A graduate's work from the educators' course" />
+          <figcaption className="pf-mono">A graduate’s work</figcaption>
+        </figure>
+      </div>
+      <div className="pf-foot pf-mono"><span>Kharkiv IT Cluster</span><span>10</span></div>
+    </div>
+  );
+}
+
+/* ── IxDF Kharkiv: the local chapter I lead ── */
+const IXDF_LOG = [
+  ["May 2025", "Appointed Local Leader, IxDF Kharkiv"],
+  ["11 Jul 2025", "Mentorship as a catalyst: the БУДЬ experience"],
+  ["11 Oct 2025", "IxDF Kharkiv meetup at Dysarium (in person)"],
+  ["16 Jan 2026", "How to assess your skills (with IxDF Odesa)"],
+  ["9 Apr 2026", "AI, Design & Reality: an open conversation"],
+  ["23 Jun 2026", "From project to award: design competitions"],
+  ["21 Jul 2026", "Portfolio Review: Share, Learn, Improve"],
+] as const;
+
+export function IxdfSheet() {
+  return (
+    <div className="pf-page">
+      <Head sheet="11" title="Community" />
+      <Part n="06" title="IxDF Kharkiv" />
+      <p className="pf-lead" style={{ margin: "0 0 calc(8 * var(--px))" }}>
+        Local Leader of the Interaction Design Foundation’s Kharkiv chapter — one of six in Ukraine.
+      </p>
+      <p style={{ margin: "0 0 calc(12 * var(--px))", opacity: 0.8 }}>
+        Free meetups for designers in and from Kharkiv: skills, careers, AI, portfolios. I pick the topics, invite the guests and host.
+      </p>
+      <div className="pf-mono" style={{ marginBottom: "calc(3 * var(--px))" }}>Meetups</div>
+      <div className="pf-log">
+        {IXDF_LOG.map(([d, t]) => (
+          <div key={t}><span className="pf-mono">{d}</span><span>{t}</span></div>
+        ))}
+      </div>
+      <div className="pf-card" style={{ margin: "calc(14 * var(--px)) auto 0 0", width: "52%", transform: "rotate(.8deg)" }}>
+        <p>“Big thanks to Kateryna Kazachkova for showing the Figma MCP + Claude magic — super inspiring to see where things are going.”</p>
+        <span className="pf-mono">Dmytro Yatsenko, IxDF Ukraine · LinkedIn</span>
+      </div>
+      <div className="pf-foot pf-mono">
+        <a href="https://ixdf.org/" target="_blank" rel="noopener noreferrer">ixdf.org ↗</a><span>11</span>
+      </div>
+    </div>
+  );
+}
+
+/** Hung over the IxDF sleeve: the letter that made it official. */
+export function IxdfLetter() {
+  return (
+    <PunchedCard no="11a · Letter" src="/profile/ixdf/local-leader-letter.webp"
+      alt="Interaction Design Foundation email: Congrats, you're now an IxDF Local Leader"
+      title="“You’re now an IxDF Local Leader”" meta="Interaction Design Foundation · 2025" />
+  );
+}
+
+export function IxdfEvidenceSheet() {
+  return (
+    <div className="pf-page">
+      <Head sheet="12" title="Community" />
+      <div className="pf-ixdf">
+        <figure className="pf-poster">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/profile/ixdf/portfolio-review-poster.webp" alt="IxDF Kharkiv poster: Portfolio Review — Share, Learn, Improve, 21 July 2026" />
+        </figure>
+        <div>
+          <figure className="pf-snap" style={{ "--t": "2deg" } as React.CSSProperties}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/profile/ixdf/portfolio-review-call.webp" alt="The Portfolio Review meetup on a video call" />
+            <figcaption className="pf-mono">Portfolio Review, 21 Jul 2026</figcaption>
+          </figure>
+          <div className="pf-card" style={{ width: "100%", margin: "calc(12 * var(--px)) 0 0" }}>
+            <p>“Kateryna helped us figure out approaches for creating and presenting case studies under an NDA. It inspired me to keep working on my portfolio.”</p>
+            <span className="pf-mono">Veronika Fesiun, UX/UI designer · LinkedIn</span>
+          </div>
+        </div>
+      </div>
+      <div className="pf-foot pf-mono"><span>IxDF Kharkiv</span><span>12</span></div>
     </div>
   );
 }

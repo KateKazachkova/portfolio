@@ -1,21 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * The red flip clock on the desk, left of the case under the index — it
  * tells the scene's time and sets it, and replaces the pocket watch that
  * used to hang on the rail.
  *
- * The body is a generated still (/items/flip-clock.webp: blank flaps, a wide
- * date window, KATE™ on the face, two knurled knobs on the right side); the
- * flaps, the AM/PM dots and the date are drawn over it here. Every position
- * below is a percentage of that still, measured off the file.
+ * The body is a generated still (/items/flip-clock.webp: matte oxblood case,
+ * aged ivory face, blank flaps, a wide date window, KATE™), facing the room
+ * straight on; the flaps, the AM/PM lamps and the date are drawn over it
+ * here. Every position is a percentage of that still, measured off the file.
  *
- *  - Upper knob: the time, in quarter hours. Drag it up or down, turn the
- *    wheel over it, or focus it and use the arrow keys.
- *  - Lower knob: the day of the week — so every edition is reachable, not
- *    only today's (Monday's alarm, Friday's call, the weekend).
+ * It is set the way a flip clock looks like it should be: by its flaps.
+ *  - Each flap is two buttons — the upper half turns it forward, the lower
+ *    half back, with ▲ / ▼ showing on hover: hours by one, minutes by a
+ *    quarter, the date window by a day (so every weekday's edition is
+ *    reachable — Monday's alarm, Friday's call, the weekend — not only
+ *    today's).
+ *  - AM and PM are buttons on the face, their lamp lit for the half of the
+ *    day it is.
  *  - The bar on top: back to now.
  */
 
@@ -58,52 +62,19 @@ function Flap({ value }: { value: string }) {
   );
 }
 
-/** A knob you turn: drag vertically (a notch every 14px), wheel over it, or
- *  the arrow keys. Exposed as a slider. */
-function Knob({
-  className, label, value, min, max, valueText, onStep,
-}: {
-  className: string; label: string; value: number; min: number; max: number;
-  valueText: string; onStep: (n: number) => void;
-}) {
-  const [turn, setTurn] = useState(0);
-  const drag = useRef<{ y: number; acc: number } | null>(null);
-  const el = useRef<HTMLButtonElement>(null);
-  const step = (n: number) => { if (!n) return; setTurn((t) => t + n); onStep(n); };
-
-  useEffect(() => {
-    const node = el.current;
-    if (!node) return;
-    // Non-passive so the page doesn't scroll while the knob is being turned.
-    const onWheel = (e: WheelEvent) => { e.preventDefault(); step(e.deltaY > 0 ? 1 : -1); };
-    node.addEventListener("wheel", onWheel, { passive: false });
-    return () => node.removeEventListener("wheel", onWheel);
-  });
-
+/** A flap you can set: the card, with its upper and lower halves as the two
+ *  buttons that turn it forward and back. */
+function SetFlap({ value, label, onStep }: { value: string; label: string; onStep: (n: number) => void }) {
   return (
-    <button
-      ref={el}
-      type="button"
-      role="slider"
-      aria-label={label}
-      aria-valuenow={value}
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuetext={valueText}
-      className={`clock-knob ${className}`}
-      style={{ "--turn": turn } as React.CSSProperties}
-      onPointerDown={(e) => { drag.current = { y: e.clientY, acc: 0 }; e.currentTarget.setPointerCapture(e.pointerId); }}
-      onPointerMove={(e) => {
-        const d = drag.current; if (!d) return;
-        const dy = d.y - e.clientY; d.y = e.clientY; d.acc += dy;
-        const n = Math.trunc(d.acc / 14); if (n) { d.acc -= n * 14; step(n); }
-      }}
-      onPointerUp={() => { drag.current = null; }}
-      onKeyDown={(e) => {
-        if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); step(1); }
-        if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
-      }}
-    />
+    <>
+      <Flap value={value} />
+      <button type="button" className="flap-btn flap-btn--up" aria-label={`${label}: forward`} onClick={() => onStep(1)}>
+        <span aria-hidden>▲</span>
+      </button>
+      <button type="button" className="flap-btn flap-btn--down" aria-label={`${label}: back`} onClick={() => onStep(-1)}>
+        <span aria-hidden>▼</span>
+      </button>
+    </>
   );
 }
 
@@ -120,25 +91,29 @@ export default function FlipClock({
   const hhmm = `${h12}:${String(mm).padStart(2, "0")} ${h24 < 12 ? "AM" : "PM"}`;
   const dayText = `${DAYS[time.day]} ${date.getDate()}`;
 
-  const addMinutes = (n: number) => {
+  const set = (minutes: number, day = time.day) =>
+    onChange({ day: ((day % 7) + 7) % 7, minutes: ((minutes % DAY_MIN) + DAY_MIN) % DAY_MIN });
+  const addHours = (n: number) => set(time.minutes + n * 60);
+  const addQuarters = (n: number) => {
     // Snap to the quarter first, so a live 10:37 turns to 10:45, not 10:52.
-    const base = n > 0 ? Math.floor(time.minutes / STEP) * STEP : Math.ceil(time.minutes / STEP) * STEP;
-    const next = (((base + n * STEP) % DAY_MIN) + DAY_MIN) % DAY_MIN;
-    onChange({ day: time.day, minutes: next });
+    const base = n > 0 ? Math.floor(mm / STEP) * STEP : Math.ceil(mm / STEP) * STEP;
+    const next = (((base + n * STEP) % 60) + 60) % 60;       // the hour stays put
+    set(h24 * 60 + next);
   };
-  const addDays = (n: number) => onChange({ day: (((time.day + n) % 7) + 7) % 7, minutes: time.minutes });
+  const addDays = (n: number) => set(time.minutes, time.day + n);
+  const setHalf = (pm: boolean) => { if (pm !== h24 >= 12) set(time.minutes + (pm ? 720 : -720)); };
 
   return (
     <div className="flip-clock" role="group" aria-label={`Scene clock: ${hhmm}, ${dayText}${live ? " (now)" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/items/flip-clock.webp" alt="" draggable={false} className="flip-clock__body" />
-      <span className="flip-clock__win flip-clock__win--h"><Flap value={String(h12)} /></span>
-      <span className="flip-clock__win flip-clock__win--m"><Flap value={String(mm).padStart(2, "0")} /></span>
-      <span className="flip-clock__win flip-clock__win--d"><Flap value={dayText} /></span>
-      <span className={`flip-clock__dot flip-clock__dot--am${h24 < 12 ? " is-on" : ""}`} aria-hidden />
-      <span className={`flip-clock__dot flip-clock__dot--pm${h24 >= 12 ? " is-on" : ""}`} aria-hidden />
-      <Knob className="clock-knob--time" label="Time" value={time.minutes} min={0} max={DAY_MIN - 1} valueText={hhmm} onStep={addMinutes} />
-      <Knob className="clock-knob--day" label="Day of the week" value={time.day} min={0} max={6} valueText={dayText} onStep={addDays} />
+      <span className="flip-clock__win flip-clock__win--h"><SetFlap value={String(h12)} label="Hour" onStep={addHours} /></span>
+      <span className="flip-clock__win flip-clock__win--m"><SetFlap value={String(mm).padStart(2, "0")} label="Minutes" onStep={addQuarters} /></span>
+      <span className="flip-clock__win flip-clock__win--d"><SetFlap value={dayText} label="Day" onStep={addDays} /></span>
+      <button type="button" className={`flip-clock__half flip-clock__half--am${h24 < 12 ? " is-on" : ""}`}
+        aria-label="AM" aria-pressed={h24 < 12} onClick={() => setHalf(false)}><span className="flip-clock__lamp" /></button>
+      <button type="button" className={`flip-clock__half flip-clock__half--pm${h24 >= 12 ? " is-on" : ""}`}
+        aria-label="PM" aria-pressed={h24 >= 12} onClick={() => setHalf(true)}><span className="flip-clock__lamp" /></button>
       <button
         type="button"
         className="flip-clock__now"

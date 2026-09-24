@@ -1280,8 +1280,15 @@ body::after {
    a 150-wide folder; the pocket's cut runs from 16.4% down on the left to
    29.3% on the right, and everything printed sits below it; the flap is
    left to the prints standing out of the pocket. */
+/* Sharpness: the desk plane is rasterised at one scale for all of it, so the
+   folder sits on its own 3D layer (translateZ) to get a scale of its own,
+   and carries no filter — a filter renders it into a surface at its layout
+   size, which the camera then blows up. Its shadow is a box under the back
+   panel (the panel is a plain rectangle, inset in the cut-out). */
 .desk-card--env { --eu: calc(3 * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
-                  filter: drop-shadow(0 calc(1 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28)); }
+                  transform: rotate(var(--r)) translateZ(.1px); }
+.desk-card--env::before { content: ""; position: absolute; inset: .4% 3.1% 2.1% 1.2%;
+  box-shadow: 0 calc(1 * var(--u)) calc(1.5 * var(--u)) rgba(20,16,12,.3); transition: box-shadow .25s ease; }
 /* Laid out 3× up and scaled back down: the desk plane is rasterised at its
    own size before the camera magnifies it ~2.5×, so at 1× the folder's print
    and stickers go soft. --eu is the desk px inside it. */
@@ -1297,6 +1304,21 @@ body::after {
   padding: calc(2.2 * var(--eu)); background: #f4f0e6; transform: rotate(var(--t)); transform-origin: 50% 0;
   box-shadow: 0 calc(.4 * var(--eu)) calc(.8 * var(--eu)) rgba(20,16,12,.3); }
 .env__print-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* The library card, in front of the prints: buff card stock, a typed head,
+   ruled rows, date stamps in violet ink. */
+.env__card { position: absolute; left: 20%; top: 9%; width: 60%; display: block; box-sizing: border-box;
+  padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
+  transform: rotate(-1.5deg); box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  font: 400 calc(3 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
+.env__card-head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
+  padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
+.env__card-head span:first-child { font-size: calc(5.2 * var(--eu)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.env__card-row { display: grid; grid-template-columns: 22% 38% 40%; align-items: end;
+  height: calc(5.2 * var(--eu)); border-bottom: calc(.25 * var(--eu)) solid #9fb3c8; }
+.env__card-row > span { padding-left: calc(1 * var(--eu)); white-space: nowrap; overflow: hidden; }
+.env__card-row > span + span { border-left: calc(.25 * var(--eu)) solid #d59a95; }
+.env__card-row--th { font-size: calc(2.4 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+.env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2.4 * var(--eu)); transform: rotate(-3deg); }
 /* Dark red ink printed into the card, as on the reference folder. */
 .env__print { position: absolute; inset: 0; color: #6e0d06; mix-blend-mode: multiply; }
 .env__no { position: absolute; left: 9%; top: 33%;
@@ -1308,13 +1330,12 @@ body::after {
             font-family: var(--font-display), system-ui, sans-serif; font-weight: 900; font-stretch: 62%;
             font-size: calc(118 * var(--eu)); line-height: .8; letter-spacing: -.04em; }
 /* MUSE Gold keeps its foil; the round CSSDA seals are stickers with a white
-   die-cut edge and a thin shadow. */
+   die-cut edge and a thin shadow (box-shadows, not filters — see above). */
 .env__stamps { position: absolute; inset: 0; }
 .env__stamp, .env__sticker { position: absolute; display: block; }
 .env__stamp--muse { right: 9%; top: 33%; width: 36%; transform: rotate(-4deg); opacity: .92; }
-.env__sticker { transform: rotate(var(--t, 0deg));
-  filter: drop-shadow(0 0 calc(.5 * var(--eu)) #fff) drop-shadow(0 0 calc(.5 * var(--eu)) #fff)
-          drop-shadow(0 calc(.6 * var(--eu)) calc(.6 * var(--eu)) rgba(20,16,12,.35)); }
+.env__sticker { transform: rotate(var(--t, 0deg)); border-radius: 50%;
+  box-shadow: 0 0 0 calc(.9 * var(--eu)) #fff, 0 calc(.6 * var(--eu)) calc(.9 * var(--eu)) calc(.9 * var(--eu)) rgba(20,16,12,.3); }
 .env__sticker--ui    { right: 6%;  top: 42%; width: 21%; --t: -8deg; }
 .env__sticker--ux    { right: 27%; top: 44%; width: 18%; --t: 6deg; }
 .env__sticker--kudos { right: 5%;  top: 55%; width: 18%; --t: 14deg; }
@@ -1380,7 +1401,11 @@ body::after {
 /* The folder lifts by its own outline, not the card's box. */
 [data-desk="open"] .desk-card--env:hover,
 [data-desk="open"] .desk-card--env:focus-visible {
-  box-shadow: none; filter: drop-shadow(0 calc(6 * var(--u)) calc(6 * var(--u)) rgba(20,16,12,.22));
+  box-shadow: none; transform: rotate(var(--r)) translateY(calc(-3 * var(--u))) translateZ(.1px);
+}
+[data-desk="open"] .desk-card--env:hover::before,
+[data-desk="open"] .desk-card--env:focus-visible::before {
+  box-shadow: 0 calc(6 * var(--u)) calc(8 * var(--u)) rgba(20,16,12,.24);
 }
 /* The page around it: the title and the lines under the case step aside,
    and the index stays, inked for the white desk (over the dark wall it keeps

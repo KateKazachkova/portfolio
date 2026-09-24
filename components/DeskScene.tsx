@@ -92,6 +92,21 @@ const STACKS = [
   { key: "after", prints: [[2, 700, 444, 2], [6, 500, 444, -4], [1, 400, 444, 5], [3, 400, 420, -2]] },
 ] as const;
 
+// In front of the prints, a library book card — but what it has been out to
+// is juries. Dates are stamped only where the award's own page gives one.
+const LENDINGS = [
+  { jury: "MUSE Creative Awards", award: "Gold · Causes & Awareness" },
+  { jury: "MUSE Creative Awards", award: "Gold · Strange & Unusual" },
+  { jury: "CSS Design Awards", award: "Best UI Design" },
+  { jury: "CSS Design Awards", award: "Best UX Design" },
+  { jury: "CSS Design Awards", award: "Best Innovation" },
+  { jury: "CSS Design Awards", award: "Special Kudos" },
+  { jury: "CSS Winner", award: "Star" },
+  { jury: "CSS Nectar", award: "Site of the Day", date: "11 MAR 2026" },
+  { jury: "Design Nominees", award: "Site of the Day", date: "06 MAR 2026" },
+  { jury: "French Design Awards", award: "Silver" },
+];
+
 function Envelope() {
   return (
     <span className="env">
@@ -108,6 +123,18 @@ function Envelope() {
           ))}
         </span>
       ))}
+      <span className="env__card" aria-hidden>
+        <span className="env__card-head">
+          <span>Ukrainska 15</span>
+          <span>Voice from the Basement · K. Kazachkova</span>
+        </span>
+        <span className="env__card-row env__card-row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
+        {LENDINGS.map((l) => (
+          <span key={l.award + l.jury} className="env__card-row">
+            <span className="env__card-date">{"date" in l ? l.date : ""}</span><span>{l.jury}</span><span>{l.award}</span>
+          </span>
+        ))}
+      </span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="env__layer" src="/artefacts/ukrainska-15/envelope/pocket.webp?v=3" alt="" draggable={false} />
       <span className="env__print" aria-hidden>

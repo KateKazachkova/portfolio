@@ -18,8 +18,7 @@ import { useEffect, useRef } from "react";
  * past the top of the frame, and the case files — lying on the desk all
  * along, slivers in front of the case — fill the view. The URL
  * becomes /#case-files, so Back, Escape or Case Files again bring it home.
- * Only in the dark theme, where the desk exists; in the light one the link
- * goes to /work as it always did. The prototype this came from is
+ * The desk is home's scene in every theme. The prototype this came from is
  * public/proto/desk.html.
  */
 
@@ -135,7 +134,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener("popstate", onPop);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
-    if (location.hash === HASH && root.dataset.theme === "dark") set(true);
+    if (location.hash === HASH) set(true);
 
     return () => {
       window.removeEventListener(DESK_EVENT, onEvent);
@@ -150,12 +149,11 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
 }
 
 /** Whether a click on Case Files should move the camera instead of leaving:
- *  home, dark theme (the desk only exists there), a plain left click. */
+ *  on home, with a plain left click. */
 export function shouldOpenDesk(e: React.MouseEvent) {
   const root = document.documentElement;
   return (
     root.dataset.deskReady === "1" &&
-    root.dataset.theme === "dark" &&
     e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey
   );
 }

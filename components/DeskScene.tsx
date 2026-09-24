@@ -41,7 +41,7 @@ import { useEffect, useRef } from "react";
 // they are ~2.5 screen px per desk px — more than fits across the window,
 // which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
-  { slug: "ukrainska-15", title: "Ukrainska 15", img: "ukrainska-15", w: 150, h: 200, x: 1559, y: 575, r: -3 },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 150, h: 208, x: 1559, y: 575, r: -3 },
   { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1809, y: 548, r: 3 },
   { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 2079, y: 570, r: -2 },
   { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2359, y: 552, r: 2 },
@@ -68,6 +68,35 @@ const AWARD = { x: 1240, h: 600, z: -190 };
 const AWARD_W = Math.round(AWARD.h * 1033 / 3590);   // the still's own aspect
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
+
+// Ukrainska 15's file: a red card pocket folder (public/artefacts/ukrainska-15/
+// envelope/, generated empty in two layers so the papers can go in between
+// later), in the live site's accent. The print and the award stamps are set
+// here rather than generated, so the type and the seals stay true.
+function Envelope() {
+  return (
+    <span className="env">
+      <span className="sr-only">Ukrainska 15</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/back.webp" alt="" draggable={false} />
+      {/* the contents go here, between the back and the pocket */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/pocket.webp" alt="" draggable={false} />
+      <span className="env__print" aria-hidden>
+        <span className="env__no">01</span>
+        <span className="env__where">Ukrainska 15 · Kupiansk</span>
+        <span className="env__big">15</span>
+      </span>
+      <span className="env__stamps" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="env__stamp env__stamp--muse" src="/stamps/awards/muse-gold.png" alt="" draggable={false} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="env__stamp env__stamp--cssda" src="/stamps/awards/cssda-kudos.png" alt="" draggable={false} />
+        <span className="env__stamp env__stamp--fda">French Design Awards<b>Silver</b>2026</span>
+      </span>
+    </span>
+  );
+}
 
 export function DeskPlanes() {
   return (
@@ -100,14 +129,16 @@ export function DeskPlanes() {
             <Link
               key={c.slug}
               href={`/work/${c.slug}`}
-              className={c.img ? "desk-card desk-card--ref" : "desk-card"}
+              className={c.img === "envelope" ? "desk-card desk-card--env" : c.img ? "desk-card desk-card--ref" : "desk-card"}
               tabIndex={-1}
               style={{
                 left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
                 "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
               } as React.CSSProperties}
             >
-              {c.img ? (
+              {c.img === "envelope" ? (
+                <Envelope />
+              ) : c.img ? (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />

@@ -20,6 +20,17 @@
         "3210"
       ],
       "port": 3210
+    },
+    {
+      "name": "u15",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "next",
+        "dev",
+        "-p",
+        "3215"
+      ],
+      "port": 3215
     }
   ]
 }

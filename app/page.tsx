@@ -466,7 +466,15 @@ export default function Home() {
             rides in .case-world, the one plane at z = 0, so it moves with the
             desk. In daylight both are inert and the scene is flat as ever. */}
         <div className="scene-cam" ref={deskCam}>
-        <DeskPlanes />
+        <DeskPlanes>
+          {/* The flip clock, standing on the desk left of the case, under the
+              index. It tells the scene's time and sets it: see FlipClock. It
+              stands in the room itself, not on the case's plate, so the camera
+              can turn to it (Off Duty lies beside it). */}
+          <div className="flip-clock-slot">
+            <FlipClock time={clockShown} live={clock === null} onChange={setClockTime} onNow={clockNow} />
+          </div>
+        </DeskPlanes>
         <div className="case-world">
 
         {/* ── The shadow, in four layers ──────────────────────────────────
@@ -1097,12 +1105,6 @@ export default function Home() {
             panel it opens fills the wall above her head, where the chalked day
             used to be. Nothing else in the hero moves. */}
         <KateTalk edition={shown} />
-
-        {/* The flip clock, standing on the desk left of the case, under the
-            index. It tells the scene's time and sets it: see FlipClock. */}
-        <div className="flip-clock-slot">
-          <FlipClock time={clockShown} live={clock === null} onChange={setClockTime} onNow={clockNow} />
-        </div>
 
         {/* First-visit opening sequence — opens the case in place, doors
             swing apart to reveal the doll in the niche underneath.

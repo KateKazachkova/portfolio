@@ -1572,21 +1572,32 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    stand their edges up off it (they are edge-on from the camera overhead) */
 .desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
 
-/* ── Off Duty: the fourth stop ──
-   Straight down onto the bike computer lying in front of the binder
-   (BikeComputer: desk x 3480, y 700, so z 431), low, 0.56 m up (eye y
-   656 - 600), so the figures on its screen read: translate (-(3420 -
-   1612.5), 226 - 56, 2150 - 431) — the axis 60 px left of it, clear of
-   the index column. */
+/* ── Off Duty: the fourth stop, the other way ──
+   The camera turns to the flip clock's corner, left of the case (the clock
+   stands at x -62, z 269; the bike computer lies in front of it and to the
+   left, at x -200, z 420). It looks at (-120, 656, 360) from 750 box px,
+   tipped 22° down, from 30 px left of that so the pair clears the index:
+   C = (-150, 375, 1055.4), translate O - C = (710, -149, 1094.6). The
+   case is a picture on the z = 0 plate and would read as a cut-out from
+   here, so it steps out, as it does for the Profile.
+   A click on the unit (html[data-desk-focus="bike"]) brings the camera
+   straight down over it, 0.56 m up (eye y 656 - 600), its axis 60 px left
+   of it: translate (560 + 260, 226 - 56, 2150 - 420). */
 [data-desk="offduty"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="offduty"] .desk-world,
 [data-desk="offduty"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc(-1807.5 * var(--u)), calc(170 * var(--u)), calc(1719 * var(--u)));
+  transform: rotateX(-22deg) translate3d(calc(710 * var(--u)), calc(-149 * var(--u)), calc(1094.6 * var(--u)));
 }
-[data-desk="offduty"] .desk-world { pointer-events: auto; }
+[data-desk="offduty"][data-desk-focus="bike"] .desk-world,
+[data-desk="offduty"][data-desk-focus="bike"] .case-world {
+  transform: rotateX(-90deg) translate3d(calc(820 * var(--u)), calc(170 * var(--u)), calc(1730 * var(--u)));
+}
 [data-desk="offduty"] .case-world { opacity: 0; pointer-events: none;
-  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
-[data-desk="offduty"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .3s; }
+[data-desk="offduty"] .desk-shadow { opacity: 0; transition: opacity .6s ease .3s; }
+/* the move down to the unit and back up happens after arrival */
+[data-desk="offduty"][data-desk-arrived] .desk-world,
+[data-desk="offduty"][data-desk-arrived] .case-world { transition: transform 1.4s cubic-bezier(.65, 0, .2, 1); }
 
 /* The bike computer itself. Its shadow, down and to the right, is baked
    into the cut-out (no filter on scene objects: see U15File). The screen
@@ -1685,13 +1696,17 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    Stands on the desk left of the case, under the index, facing the room:
    20 cm wide, its feet 1.75 m from the camera (z +269 box px, 25 cm nearer
    than the case), so in the case's camera it is 246 × 133 box px with its
-   base on the desk at y 717, centred at x -151. It rides in .case-world, so
-   it leaves with the case when the camera goes down to the desk. Only where
-   the index has a column of its own to stand under (≥1440px).
-   Positions inside it are percentages of the 1400 × 756 still, measured off
-   the file. */
+   base on the desk at y 717, centred at x -151. It stands in the room
+   (.desk-world), where it really is: 215 box px wide at z 269, centred at
+   x -62, its base on the desk at y 656 — the same picture from the case's
+   camera, and a clock standing on the desk from any other (Off Duty turns
+   to it). Laid out twice that size and scaled by half, so its filters are
+   drawn sharp enough for Off Duty's camera, which comes close. Only where
+   the index has a column of its own to stand under (≥1440px). Positions inside it are percentages of the 1400 × 756 still,
+   measured off the file. */
 .flip-clock-slot {
-  position: absolute; left: -24.5%; top: 78.4%; width: 22%; z-index: 6;
+  position: absolute; left: calc(-169.6 * var(--u)); top: calc(539.4 * var(--u)); width: calc(430.4 * var(--u));
+  transform-origin: 0 0; transform: translateZ(calc(269 * var(--u))) scale(.5); pointer-events: auto;
   display: none;
 }
 @media (min-width: 1440px) { .flip-clock-slot { display: block; } }
@@ -1702,7 +1717,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .flip-clock-slot::before {                      /* contact on the desk */
   content: ""; position: absolute; left: 2%; right: 1%; bottom: -1.2%; height: 5%;
   background: radial-gradient(closest-side, rgba(10, 8, 6, .85), rgba(10, 8, 6, 0));
-  filter: blur(1.5px); z-index: -1;
+  filter: blur(3px); z-index: -1;               /* 1.5px, drawn at 2× */
 }
 .flip-clock { position: relative; aspect-ratio: 1400 / 756; container-type: inline-size; user-select: none; }
 .flip-clock__body { position: absolute; inset: 0; width: 100%; height: 100%;

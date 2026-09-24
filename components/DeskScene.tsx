@@ -36,8 +36,11 @@ import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
  * in front of the certificate and looks straight down on it, as it does on
  * the case files. /#profile.
  *
- * Off Duty is the fourth: straight down again, lower, onto the bike computer
- * lying in front of the binder, its screen live from Strava. /#off-duty.
+ * Off Duty is the fourth, the other way: the camera turns left to the flip
+ * clock's corner of the desk, tipped down a little, where the bike computer
+ * lies beside the clock. A click on the unit brings it down over it,
+ * straight down and low, so its screen (live from Strava) reads; Escape
+ * goes back up to the corner. /#off-duty.
  */
 
 // The case files. Each will be its own kind of object — a zine, a stack, a
@@ -88,7 +91,7 @@ const CERT_Z = Math.round(-269 + CERT.h * Math.sin(CERT.lean * Math.PI / 180) + 
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
 
-export function DeskPlanes() {
+export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall" aria-hidden>
@@ -174,7 +177,7 @@ export function DeskPlanes() {
         </nav>
         {/* the Profile, filed, in front of the certificate */}
         <DeskBinder />
-        {/* Off Duty: the bike computer, in front of the binder */}
+        {/* Off Duty: the bike computer, beside the flip clock */}
         <BikeComputer />
       </div>
       {/* The trophy is a way in too: from home (where it peeks past the case)
@@ -193,6 +196,8 @@ export function DeskPlanes() {
       />
       <div className="desk-plane desk-ply" aria-hidden />
       <div className="desk-plane desk-under" aria-hidden />
+      {/* what home stands in the room itself: the flip clock */}
+      {children}
     </div>
   );
 }
@@ -374,6 +379,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (e.key === "Escape") {
         if (focus === U15) dispatchEvent(new Event(U15_CLOSE));
         else if (focus) setFocus(null);
+        // down over the bike computer: back up to the clock's corner
+        else if (root.dataset.deskFocus === "bike") delete root.dataset.deskFocus;
         else close();
       }
       else if (panning() && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {

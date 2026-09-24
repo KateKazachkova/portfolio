@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 
 export const OFFDUTY_EVENT = "kate:off-duty";
 
-// Off Duty, on home's desk: the bike computer lying in front of the
-// binder, its screen showing Strava live (app/api/strava). A worn head unit
+// Off Duty, on home's desk: the bike computer lying in front of the flip
+// clock and a little left of it, left of the case, its screen showing Strava live (app/api/strava). A worn head unit
 // with a saffron bumper, cut out of a Higgsfield shot and mirrored so its
 // own shadow side matches the desk's light (above, front, left). Real ones
 // are ~5 × 8 cm; this one is a touch bigger (8 × 11.5 cm) so the figures
 // read from the camera's stop. Its shadow is baked into the cut-out, which
 // is why the picture is wider than the unit (the unit is 78% of it across).
 // x, y are its centre on the desk plane; w is the picture's width.
-export const BIKE = { x: 3480, y: 700, w: 110, r: 7 };
+export const BIKE = { x: 852, y: 689, w: 110, r: -8 };
 const H = Math.round(BIKE.w * 1590 / 1200);
 
 type Ride = { id: number; name: string; distanceKm: number; movingMin: number; date: string; path: string | null };
@@ -24,10 +24,11 @@ const hm = (min: number) => `${Math.floor(min / 60)}:${String(min % 60).padStart
 const day = (iso: string) =>
   iso ? new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase() : "";
 
-/** The head unit. From elsewhere in the room a click brings the camera down
- *  to it (Off Duty in the index does the same); once there, its buttons page
- *  through the screens — the totals, then the three longest rides — and a
- *  click on the screen does too. */
+/** The head unit. From elsewhere in the room a click turns the camera to
+ *  the clock's corner (Off Duty in the index does the same); a click there
+ *  brings it down over the unit (html[data-desk-focus="bike"]), and from
+ *  then on its buttons page through the screens — the totals, then the
+ *  three longest rides — and a click on the screen does too. */
 export default function BikeComputer() {
   const [data, setData] = useState<Data | null>(null);
   const [page, setPage] = useState(0);
@@ -40,19 +41,25 @@ export default function BikeComputer() {
   }, []);
   useEffect(() => {
     const root = document.documentElement;
-    const read = () => setLive(root.dataset.desk === "offduty");
+    const read = () => setLive(root.dataset.desk === "offduty" && root.dataset.deskFocus === "bike");
     read();
     const mo = new MutationObserver(read);
-    mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
+    mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-focus"] });
     return () => mo.disconnect();
   }, []);
 
   const pages = 1 + (data?.rides.length ?? 0);
   const step = (d: number) => setPage((p) => (p + d + pages) % pages);
-  // the first click from anywhere else is the camera's, not the buttons'
+  // the first clicks are the camera's, not the buttons': over to the corner,
+  // then down onto the unit
+  const come = () => {
+    const root = document.documentElement;
+    if (root.dataset.desk !== "offduty") dispatchEvent(new Event(OFFDUTY_EVENT));
+    else root.dataset.deskFocus = "bike";
+  };
   const press = (e: React.MouseEvent, act: () => void) => {
     e.stopPropagation();
-    if (!live) { dispatchEvent(new Event(OFFDUTY_EVENT)); return; }
+    if (!live) { come(); return; }
     act();
   };
   useEffect(() => {
@@ -127,7 +134,7 @@ export default function BikeComputer() {
       <a className="bike__btn" style={{ left: "49.6%" }} tabIndex={live ? 0 : -1}
         href={ride ? `https://www.strava.com/activities/${ride.id}` : "https://www.strava.com/athletes/52565503"}
         target="_blank" rel="noopener noreferrer" aria-label="Open on Strava"
-        onClick={(e) => { e.stopPropagation(); if (!live) { e.preventDefault(); dispatchEvent(new Event(OFFDUTY_EVENT)); } }} />
+        onClick={(e) => { e.stopPropagation(); if (!live) { e.preventDefault(); come(); } }} />
       <button type="button" className="bike__btn" style={{ left: "68%" }} tabIndex={live ? 0 : -1}
         aria-label="Next screen" onClick={(e) => press(e, () => step(1))} />
     </div>

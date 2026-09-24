@@ -73,7 +73,8 @@ type Pt = { x: number; y: number };
 // lies closed (folder units) and the angle it lands at. The layout is for the
 // camera at pan 0, clear of the nav column on the left (it stays on the desk
 // too): the card left, the booklet to the middle, the stacks up,
-// the player right, the tablet slid out bottom right, the folder down.
+// the player right, the tablet slid out from under it to the bottom right,
+// the folder down.
 // The booklet (nearly the folder's own size, so it lies in the pocket behind
 // the prints) takes the middle of the desk; everything else is laid round
 // its edges, in sight but out of the way, and can be pulled out from under it.
@@ -90,7 +91,11 @@ const OPEN: Record<string, Pt & { r: number }> = {
 // together, and only then spreads; on the way back it gathers there first.
 const SPILL: Record<string, Pt> = { family: { x: 0, y: -62 }, after: { x: 0, y: -72 }, card: { x: 0, y: -78 }, book: { x: 0, y: -70 } };
 const SPILL_MS = 480, GATHER_MS = 820;
-const CLOSED_R: Record<string, number> = { card: -1.5, player: 8, tablet: 5 };
+const CLOSED_R: Record<string, number> = { card: -1.5, player: 8, tablet: 91 };
+// Closed, the tablet lies right under the folder, turned on its side so the
+// folder hides it (it is wider than the folder); opened, it slides out to the
+// right and turns back to landscape on the way. Offset from its rule's place.
+const CLOSED: Record<string, Pt> = { tablet: { x: -47.5, y: -67 } };
 
 export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const card = useRef<HTMLDivElement>(null);
@@ -168,8 +173,9 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const place = (id: string, zBase: number) => {
     const o = phase === "open" ? OPEN[id] : undefined, d = drag[id];
     const sp = phase === "spill" ? SPILL[id] : undefined;
+    const c = phase === "open" ? undefined : CLOSED[id];
     return {
-      "--ox": (o?.x ?? sp?.x ?? 0) + (d?.x ?? 0), "--oy": (o?.y ?? sp?.y ?? 0) + (d?.y ?? 0),
+      "--ox": (o?.x ?? sp?.x ?? c?.x ?? 0) + (d?.x ?? 0), "--oy": (o?.y ?? sp?.y ?? c?.y ?? 0) + (d?.y ?? 0),
       "--rot": `${o ? o.r : CLOSED_R[id] ?? 0}deg`,
       zIndex: open ? top[id] ?? zBase : undefined,
     } as React.CSSProperties;
@@ -191,10 +197,14 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
         "--w": FOLDER.w * K, "--h": FOLDER.h * K, "--r": `${r}deg`, "--k": K,
       } as React.CSSProperties}
     >
-      {/* the folder's thickness, prints and all: its front and right edges
-          stand up off the desk (edge-on from overhead; gone once it opens) */}
+      {/* the thickness of what lies here closed — the tablet under the
+          folder, the folder and its prints, the player — as edges standing
+          up off the desk (edge-on from overhead; gone once it opens) */}
+      <span className="env__edge env__edge--tab-front" aria-hidden />
+      <span className="env__edge env__edge--tab-right" aria-hidden />
       <span className="env__edge env__edge--front" aria-hidden />
       <span className="env__edge env__edge--right" aria-hidden />
+      <span className="env__player" aria-hidden><span className="env__player-l" /><span className="env__player-r" /><span className="env__player-b" /></span>
       <span className="env">
         <Tablet live={open} place={place("tablet", 8)} held={held === "tablet"} onPointerDown={(e) => grab("tablet", () => setScreen(true))(e)} onOpen={() => setScreen(true)} />
 
@@ -505,9 +515,13 @@ function Tablet({ live, place, held, onPointerDown, onOpen }: {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/artefacts/ukrainska-15/tablet/tablet.webp" alt="" draggable={false} />
       {/* Switched off until the folder is open: a dark screen, and the
-          recording only loads once there is a case on the desk to show. */}
-      <video className="u15-tablet__screen" src={live ? "/artefacts/ukrainska-15/tablet/site-scroll.mp4" : undefined}
-        poster={live ? "/artefacts/ukrainska-15/tablet/site-poster.jpg" : undefined} muted loop playsInline autoPlay preload="metadata" />
+          recording only loads once there is a case on the desk to show. The
+          video goes when the folder closes — dropping its src alone would
+          leave the last frame lit. */}
+      {live ? (
+        <video className="u15-tablet__screen" src="/artefacts/ukrainska-15/tablet/site-scroll.mp4"
+          poster="/artefacts/ukrainska-15/tablet/site-poster.jpg" muted loop playsInline autoPlay preload="metadata" />
+      ) : <span className="u15-tablet__screen" aria-hidden />}
     </button>
   );
 }

@@ -1527,16 +1527,17 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .desk-world { pointer-events: auto; }
 
 /* ── Recognition: the camera's second stop ──
-   The trophy is big (56 cm), so the camera stands back 35 cm, a little
-   right of the case (x -1100) and 4° down: far enough for the trophy, the
-   rail and the framed certificate beside it to share the frame. The trophy (x 1240, 7 cm off the wall)
+   The trophy is big (56 cm), so the camera barely comes in: 10 cm, a
+   little right of the case (x -1040) and 4° down. The trophy and the rail
+   fill the frame; the framed certificate beside them runs off the right
+   edge by about a quarter. The trophy (x 1240, 7 cm off the wall)
    lands left of centre with its base ~16% up the window, the wall to its
    right, a strip of desk under it. Nothing leaves: the case slides off to
    the left (its edge may stay in shot) and the case files stay on the desk. */
 [data-desk="award"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="award"] .desk-world,
 [data-desk="award"] .case-world {
-  transform: rotateX(-4deg) translate3d(calc(-1100 * var(--u)), 0, calc(-350 * var(--u)));
+  transform: rotateX(-4deg) translate3d(calc(-1040 * var(--u)), 0, calc(100 * var(--u)));
 }
 [data-desk="award"] .case-world { pointer-events: none; }
 /* Once there, the pan is driven frame by frame, so the move's own

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { getFilms, getSeries, getBooks } from "@/lib/content";
 import FilmStack from "@/components/FilmStack";
@@ -46,18 +45,8 @@ export default function OffDuty() {
         <Cycling n="01" title="Field Telemetry" />
       </Suspense>
 
-      {/* 02 – Travel Log */}
-      <Part n="02" title="Travel Log">
-        <div className="flex items-baseline justify-between">
-          <p className="text-gray-500 italic">A map of places I&apos;ve been – coming soon.</p>
-          <Link href="/off-duty/map" className="uppercase font-bold underline hover:no-underline whitespace-nowrap" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.1em" }}>
-            View map →
-          </Link>
-        </div>
-      </Part>
-
-      {/* 03 – Reference Library */}
-      <Part n="03" title="Reference Library">
+      {/* 02 – Reference Library */}
+      <Part n="02" title="Reference Library">
         <p className="text-gray-500 mb-10 max-w-2xl">What I watch and read – a small archive on the shelf.</p>
 
         {/* Series – disc rack */}

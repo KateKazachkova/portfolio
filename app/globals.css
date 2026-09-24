@@ -1233,18 +1233,34 @@ body::after {
 }
 
 /* ── The camera move ──
-   The camera ends 1.4 m above the desk (eye y 656 - 1505 = -849), 42 cm in
-   front of the case (z 450), looking down 84°: the frame then spans the
-   desk from just behind the case's base to its front edge, about 1.0 × 0.65
-   m. The case has faded by then, so the desk it stood on may show. Moving
-   the camera by d is moving the world by -d, then rotating about the
-   original camera point: translate (0, 226 + 849, 2150 - 450). */
+   The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), 35 cm in
+   front of the case (z 381), looking down 84°; its axis lands on the row of
+   case files (desk y 560), and a desk px is then 2.5 screen px (× --u), so
+   the row runs off the right of the window and the camera pans along it:
+   --pan, in desk px, set by useDeskCamera once it has arrived. Moving the
+   camera by d is moving the world by -d, then rotating about the original
+   camera point: translate (-pan, 226 + 204, 2150 - 381). */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-84deg) translate3d(0, calc(1075 * var(--u)), calc(1700 * var(--u)));
+  transform: rotateX(-84deg) translate3d(calc(var(--pan, 0) * -1 * var(--u)), calc(430 * var(--u)), calc(1769 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
+/* Once there, the pan is driven frame by frame, so the move's own
+   transition must not smear it. Grab cursor: the desk can be dragged. */
+[data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }
+[data-desk-arrived] .desk-world { cursor: grab; }
+[data-desk-arrived] .desk-world:active { cursor: grabbing; }
+.desk-hint {
+  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20;
+  display: flex; gap: 18px; align-items: center; pointer-events: none;
+  padding: 7px 14px; border-radius: 999px; background: rgba(250, 248, 243, .88);
+  box-shadow: 0 1px 2px rgba(20,16,12,.18), 0 6px 16px -8px rgba(20,16,12,.35);
+  font: 11px/1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .14em;
+  text-transform: uppercase; color: #22283a;
+  opacity: 0; transition: opacity .4s ease;
+}
+[data-desk-arrived] .desk-hint { opacity: 1; }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }

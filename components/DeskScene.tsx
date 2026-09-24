@@ -13,8 +13,8 @@ import { useEffect, useRef } from "react";
  * plate projected back onto them (delete/render_desk3d.py). Everything is in
  * the box's own px, scaled to its real width through --u (see .scene-cam).
  *
- * Case Files moves the camera instead of the page: it rises to 1.4 m over the
- * front of the desk and looks almost straight down (84°), the case leaves
+ * Case Files moves the camera instead of the page: it rises to 0.8 m over the
+ * front of the desk and looks almost straight down (84°), then pans along it, the case leaves
  * past the top of the frame, and the case files — lying on the desk all
  * along, slivers in front of the case — fill the view. The URL
  * becomes /#case-files, so Back, Escape or Case Files again bring it home.
@@ -28,13 +28,21 @@ import { useEffect, useRef } from "react";
 // with the project it stands for. Portfolio has no picture yet and stays a
 // plain card. Sizes are desk px (1075 per metre), roughly the real objects.
 // x, y are the centre on the desk plane from its left/back corner.
+//
+// They lie in one row along the desk, laid down by hand rather than on a
+// grid, starting just right of the nav column. From the camera's end height
+// they are ~2.5 screen px per desk px — more than fits across the window,
+// which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
-  { slug: "ukrainska-15", title: "Ukrainska 15", img: "ukrainska-15", w: 150, h: 200, x: 1450, y: 430, r: -3 },
-  { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1665, y: 410, r: 4 },
-  { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 1885, y: 445, r: -2 },
-  { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 1565, y: 705, r: 2 },
-  { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 1835, y: 725, r: -1.5 },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "ukrainska-15", w: 150, h: 200, x: 1559, y: 575, r: -3 },
+  { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1809, y: 548, r: 3 },
+  { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 2079, y: 570, r: -2 },
+  { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2359, y: 552, r: 2 },
+  { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 2634, y: 580, r: -1.5 },
 ] as const;
+const ROW_END = 2724 + 70;         // right edge of the last object, plus a margin
+const VIEW_X = 1612.5;             // desk x under the camera's axis at pan 0
+const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
 
 export const DESK_EVENT = "kate:case-files";
 const HASH = "#case-files";
@@ -82,6 +90,18 @@ export function DeskPlanes() {
   );
 }
 
+/** The flat caption over the desk while it is in view: how to move along
+ *  it, and which of the files is in front of you. Outside the 3D world
+ *  (and outside .scene-cam, whose transform would capture position: fixed). */
+export function DeskHint() {
+  return (
+    <div className="desk-hint" aria-hidden>
+      <span>← scroll →</span>
+      <span className="desk-counter">1 / {CASES.length}</span>
+    </div>
+  );
+}
+
 /** Drives the camera: toggles html[data-desk], keeps the lens shift that puts
  *  the camera's axis in the middle of the window, and owns the URL. */
 export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
@@ -105,10 +125,74 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
 
     const cards = () => el.querySelectorAll<HTMLAnchorElement>(".desk-card");
+
+    // ── The pan: the camera slides along the desk (desk px, 0 … max) ──
+    // Wheel (either axis), a drag of the desk, arrow keys, and focus all
+    // move a target; a spring eases the camera onto it. Live only once the
+    // camera has arrived — until then the move's own transition is running.
+    let pan = 0, target = 0, raf = 0, arrived = false;
+    const u = () => el.getBoundingClientRect().width / 1118;
+    const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (SPD * u())));
+    const clamp = (v: number) => Math.min(maxPan(), Math.max(0, v));
+    const counter = document.querySelector<HTMLElement>(".desk-counter");
+    const paint = () => {
+      el.style.setProperty("--pan", pan.toFixed(2));
+      if (counter) {
+        const centre = VIEW_X + pan + 120 / SPD;
+        let best = 0;
+        CASES.forEach((c, i) => { if (Math.abs(c.x - centre) < Math.abs(CASES[best].x - centre)) best = i; });
+        counter.textContent = `${best + 1} / ${CASES.length}`;
+      }
+    };
+    const tick = () => {
+      pan += (target - pan) * 0.16;
+      if (Math.abs(target - pan) < 0.2) pan = target;
+      paint();
+      raf = pan === target ? 0 : requestAnimationFrame(tick);
+    };
+    const go = (v: number) => { target = clamp(v); if (!raf) raf = requestAnimationFrame(tick); };
+
+    const onWheel = (e: WheelEvent) => {
+      if (!arrived) return;
+      e.preventDefault();
+      const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      go(target + d / (SPD * u()));
+    };
+    let dragX: number | null = null, dragFrom = 0, dragged = false;
+    const onDown = (e: PointerEvent) => {
+      if (!arrived || e.button !== 0) return;
+      dragX = e.clientX; dragFrom = target; dragged = false;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (dragX === null) return;
+      const dx = e.clientX - dragX;
+      if (Math.abs(dx) > 5) dragged = true;
+      if (dragged) go(dragFrom - dx / (SPD * u()));
+    };
+    const onUp = () => { dragX = null; };
+    // a drag that ends on a card is not a click on it
+    const onClick = (e: MouseEvent) => { if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; } };
+    const onFocus = (e: FocusEvent) => {
+      const a = (e.target as HTMLElement).closest?.(".desk-card");
+      if (!a || !arrived) return;
+      const i = [...cards()].indexOf(a as HTMLAnchorElement);
+      if (i >= 0) go(CASES[i].x - VIEW_X - 120 / SPD);
+    };
+    const world = el.querySelector<HTMLElement>(".desk-world");
+    const onArrive = (e: TransitionEvent) => {
+      if (e.target !== world || e.propertyName !== "transform" || !open.current) return;
+      arrived = true; root.dataset.deskArrived = "1";
+    };
+    world?.addEventListener("transitionend", onArrive);
     const set = (on: boolean) => {
       if (on === open.current) return;
       if (on) { window.scrollTo({ top: 0 }); measure(); }
       open.current = on;
+      if (!on) {
+        // back home: the pan unwinds with the rest of the move
+        arrived = false; delete root.dataset.deskArrived;
+        cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
+      }
       root.dataset.desk = on ? "open" : "closed";
       document.body.style.overflow = on ? "hidden" : "";
       cards().forEach((a) => (a.tabIndex = on ? 0 : -1));
@@ -127,13 +211,26 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       else { history.pushState({ desk: 1 }, "", `/${HASH}`); pushed = true; set(true); }
     };
     const onPop = () => { pushed = false; set(location.hash === HASH); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && open.current) close(); };
-    const onResize = () => { if (open.current) measure(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (!open.current) return;
+      if (e.key === "Escape") close();
+      else if (arrived && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+        e.preventDefault();
+        go(target + (e.key === "ArrowRight" ? 1 : -1) * 220);
+      }
+    };
+    const onResize = () => { if (open.current) { measure(); go(target); } };
 
     window.addEventListener(DESK_EVENT, onEvent);
     window.addEventListener("popstate", onPop);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
+    window.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    el.addEventListener("click", onClick, true);
+    el.addEventListener("focusin", onFocus);
     if (location.hash === HASH) set(true);
 
     return () => {
@@ -141,6 +238,15 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("popstate", onPop);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      el.removeEventListener("click", onClick, true);
+      el.removeEventListener("focusin", onFocus);
+      world?.removeEventListener("transitionend", onArrive);
+      cancelAnimationFrame(raf);
+      delete root.dataset.deskArrived;
       delete root.dataset.deskReady;
       delete root.dataset.desk;
       document.body.style.overflow = "";

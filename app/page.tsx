@@ -13,7 +13,7 @@ import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 import { mono } from "@/components/ui/type";
 import DaySticky from "@/components/DaySticky";
-import { DeskPlanes, useDeskCamera } from "@/components/DeskScene";
+import { DeskPlanes, DeskHint, useDeskCamera } from "@/components/DeskScene";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
@@ -1134,6 +1134,8 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Over the desk only: how to move along it, which file is in front. */}
+      <DeskHint />
     </main>
   );
 }

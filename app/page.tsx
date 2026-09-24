@@ -6,6 +6,7 @@ import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import NicheLight from "@/components/NicheLight";
 import NightRoom from "@/components/NightRoom";
+import DeskLamp, { DeskLampSwitch } from "@/components/desk/DeskLamp";
 import KateTalk from "@/components/KateTalk";
 import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
 import HeroAside from "@/components/HeroAside";
@@ -476,6 +477,8 @@ export default function Home() {
           <div className="flip-clock-slot">
             <FlipClock time={clockShown} live={clock === null} onChange={setClockTime} onNow={clockNow} />
           </div>
+          {/* The desk lamp behind it, the room's light switch: see DeskLamp */}
+          <DeskLamp />
         </DeskPlanes>
         <div className="case-world">
         {/* Ukrainska 15's stack as this camera sees it, over the live one */}
@@ -1119,6 +1122,7 @@ export default function Home() {
         {/* The room put out while she sleeps: over the whole stage, the
             desk and the wall as well as the case. */}
         <NightRoom edition={shown} />
+        <DeskLampSwitch />
       </div>
 
         {/* The title block to the left of the box, the schedule to its right:

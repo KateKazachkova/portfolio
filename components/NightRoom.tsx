@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useTime } from "@/components/TimeProvider";
+import { useLamp } from "@/lib/lamp";
+import { LAMP_RIM, LAMP_SCALE, LAMP_SHADE } from "@/components/desk/DeskLamp";
 
 /**
  * The room at night, while she sleeps.
@@ -15,8 +17,9 @@ import { useTime } from "@/components/TimeProvider";
  *  - moonlight through a window out of frame on the left: four panes and
  *    their cross laid across the desk in front of the case, cold and
  *    soft-edged;
- *  - a small warm lamp low in front of the case, whose pool keeps the case
- *    itself readable while the desk falls away from it.
+ *  - the desk lamp behind the flip clock (components/desk/DeskLamp.tsx),
+ *    when it is on: its shade glows and its warm pool spreads from the rim
+ *    across the desk and into the case, falling away to the right.
  *
  * Multiply, like NicheLight, so the tiles and the mahogany go deeper rather
  * than grey; the lit shapes are simply lighter colours in the same layer.
@@ -27,8 +30,8 @@ import { useTime } from "@/components/TimeProvider";
  * whatever she is wearing, rather than only the page round it turning dark.
  * Left on auto, the theme follows the hour and the room follows the edition.
  *
- * And in the dark there is a torch: a warm circle of light that follows the
- * pointer, so the things on the desk are found rather than shown. It waits
+ * With the lamp off there is a torch instead: a warm circle of light that
+ * follows the pointer, so the things on the desk are found rather than shown. It waits
  * for the first move, goes out when the pointer leaves the page, and on touch
  * stays where the last tap put it.
  */
@@ -39,12 +42,14 @@ const H = 745;
 
 export default function NightRoom({ edition }: { edition: string }) {
   const { themePref } = useTime();
+  const { on: lamp } = useLamp();
   const on = !!ON[edition] || themePref === "dark";
+  const torchOn = on && !lamp;
   const svg = useRef<SVGSVGElement>(null);
   const torch = useRef<SVGGElement>(null);
 
   useEffect(() => {
-    if (!on) return;
+    if (!torchOn) return;
     const el = svg.current, t = torch.current;
     if (!el || !t) return;
     let frame = 0;
@@ -75,7 +80,7 @@ export default function NightRoom({ edition }: { edition: string }) {
       document.removeEventListener("pointerout", leave);
       t.style.opacity = "0";
     };
-  }, [on]);
+  }, [torchOn]);
 
   return (
     <svg
@@ -83,16 +88,31 @@ export default function NightRoom({ edition }: { edition: string }) {
       ref={svg}
       className="night-room"
       data-on={on || undefined}
+      data-lamp={lamp ? "on" : "off"}
       viewBox="0 0 1118 745"
       preserveAspectRatio="none"
     >
       <defs>
-        <radialGradient id="nr-pool" cx="553" cy="470" r="600" gradientUnits="userSpaceOnUse"
-          gradientTransform="translate(553 470) scale(1 0.62) translate(-553 -470)">
-          <stop offset="0" stopColor="rgb(236,206,168)" />
-          <stop offset="0.32" stopColor="rgb(200,166,132)" />
-          <stop offset="0.7" stopColor="rgb(120,100,96)" stopOpacity="0.5" />
+        {/* the lamp's pool: from the rim, wide and low, the desk and the
+            case's left half in it, the right half at its edge */}
+        <radialGradient id="nr-pool" cx={LAMP_RIM.x} cy={LAMP_RIM.y + 40} r="900" gradientUnits="userSpaceOnUse"
+          gradientTransform={`translate(${LAMP_RIM.x} ${LAMP_RIM.y + 40}) scale(1 0.55) translate(${-LAMP_RIM.x} ${-(LAMP_RIM.y + 40)})`}>
+          <stop offset="0" stopColor="rgb(255,222,176)" />
+          <stop offset="0.25" stopColor="rgb(226,184,138)" />
+          <stop offset="0.62" stopColor="rgb(150,118,100)" stopOpacity="0.7" />
           <stop offset="1" stopColor="rgb(80,74,90)" stopOpacity="0" />
+        </radialGradient>
+        {/* the shade itself, lit: kept at full strength so the lamp reads on */}
+        <radialGradient id="nr-shade">
+          <stop offset="0" stopColor="#fff" />
+          <stop offset="0.7" stopColor="#fff" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        {/* a little of it reaches the case either way, so she is never lost */}
+        <radialGradient id="nr-fill" cx="553" cy="440" r="420" gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(553 440) scale(1 0.8) translate(-553 -440)">
+          <stop offset="0" stopColor="rgb(150,128,112)" />
+          <stop offset="1" stopColor="rgb(150,128,112)" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="nr-moon-floor" x1="-120" y1="600" x2="420" y2="820" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor="rgb(196,212,240)" />
@@ -111,8 +131,13 @@ export default function NightRoom({ edition }: { edition: string }) {
       {/* the room, out */}
       <rect x="-3000" y="-2000" width="7118" height="6000" fill="rgb(58,62,86)" />
 
-      {/* the lamp's pool */}
-      <rect x="-3000" y="-2000" width="7118" height="6000" fill="url(#nr-pool)" />
+      <rect x="-3000" y="-2000" width="7118" height="6000" fill="url(#nr-fill)" />
+
+      {/* the lamp, when it is on */}
+      <g className="night-room__lamp">
+        <rect x="-3000" y="-2000" width="7118" height="6000" fill="url(#nr-pool)" />
+        <ellipse cx={LAMP_SHADE.x} cy={LAMP_SHADE.y + 10} rx={95 * LAMP_SCALE} ry={78 * LAMP_SCALE} fill="url(#nr-shade)" />
+      </g>
 
       {/* the window, out of frame on the left: its panes and their cross laid
           long across the desk in front of the case. Only the desk: a second

@@ -84,6 +84,8 @@ export default function RootLayout({
   const themeScript = `
     (function () {
       try {
+        // The desk lamp (lib/lamp.ts): on unless it was switched off.
+        document.documentElement.setAttribute('data-lamp', localStorage.getItem('lamp') === 'off' ? 'off' : 'on');
         var saved = localStorage.getItem('theme');
         if (saved === 'light' || saved === 'dark') {
           document.documentElement.setAttribute('data-theme', saved);

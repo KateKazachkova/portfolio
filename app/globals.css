@@ -264,6 +264,11 @@ body > * { position: relative; z-index: 1; }
 :root[data-daytime="day"]     { --ambient: linear-gradient(180deg, rgba(188,214,255,0.16), rgba(255,255,255,0) 42%); }
 :root[data-daytime="evening"] { --ambient: radial-gradient(135% 105% at 18% 112%, rgba(233,138,66,0.38), rgba(233,138,66,0) 55%); }
 :root[data-daytime="night"]   { --ambient: radial-gradient(120% 95% at 50% -12%, rgba(64,96,158,0.40), rgba(30,40,70,0.10) 60%); }
+/* The desk lamp on (lib/lamp.ts), in the dark: the whole site takes its warm
+   light from low on the left, where the lamp stands, instead of the moon. */
+:root[data-theme="dark"][data-lamp="on"]:is([data-daytime="night"], [data-daytime="day"], [data-daytime="morning"]) {
+  --ambient: radial-gradient(120% 100% at 6% 104%, rgba(255,178,102,0.26), rgba(255,178,102,0.05) 55%, rgba(30,24,20,0.06));
+}
 
 body::after {
   content: "";
@@ -374,36 +379,28 @@ body::after {
 [data-theme="dark"] a.underline { color: inherit; }
 
 /* ── Hover labels (components/InkTip.tsx) ──
-   The same frosted panel as KATE™'s conversation (.katetalk): translucent
-   paper, a hairline border, a soft shadow, fading in with a 4px rise. */
+   The paper tag the Recognition ribbons hang under (.award-ribbon::after):
+   an opaque cream slip, square-ish corners, ink-navy mono type. The same
+   slip in both themes — it is a label on a thing, not a piece of the page. */
 .inktip {
   position: absolute;
   left: 50%;
   z-index: 60;
   display: block;
   width: max-content;
-  max-width: 230px;
-  padding: 8px 12px 7px;
+  max-width: 260px;
+  padding: 5px 9px;
   pointer-events: none;           /* never steal hover from the item */
-  text-align: left;
+  text-align: center;
 
-  border: 1px solid color-mix(in srgb, var(--border) 52%, transparent);
-  border-radius: 13px;
-  background: color-mix(in srgb, var(--panel) 64%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(1.08);
-  backdrop-filter: blur(14px) saturate(1.08);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
-    0 4px 14px rgba(44, 38, 63, 0.09);
-  color: var(--fg);
+  border-radius: 3px;
+  background: rgba(250, 248, 243, .95);
+  color: #22283a;
+  font: 500 11px / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .04em;
 
   opacity: 0;
-  transition: opacity 220ms ease, transform 220ms ease;
-}
-[data-theme="dark"] .inktip {
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 9%, transparent),
-    0 4px 14px rgba(0, 0, 0, 0.34);
+  transition: opacity 200ms ease, transform 200ms ease;
 }
 .inktip--top { bottom: 100%; transform: translate(-50%, -6px); }
 .inktip--bottom { top: 100%; transform: translate(-50%, 14px); }
@@ -413,14 +410,19 @@ body::after {
 
 .inktip__name {
   display: block;
+  font: inherit;
   font-weight: 700;
-  color: var(--fg);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: inherit;
   white-space: nowrap;
 }
 .inktip__meta {
   display: block;
-  margin-top: 3px;
-  max-width: 210px;
+  margin-top: 2px;
+  max-width: 240px;
+  font: inherit;
+  color: inherit;
 }
 @media (prefers-reduced-motion: reduce) { .inktip { transition: none; } }
 
@@ -1108,6 +1110,34 @@ body::after {
 }
 .night-room[data-on] { opacity: 1; }
 .night-room__torch { opacity: 0; transition: opacity .5s ease; }
+.night-room__lamp { transition: opacity .35s ease; }
+.night-room[data-lamp="off"] .night-room__lamp { opacity: 0; }
+
+/* The desk lamp (components/desk/DeskLamp.tsx), standing on the desk behind
+   the clock: two aligned stills, the lit one faded over the other. */
+.desk-lamp { position: absolute; display: none; pointer-events: none; transform-origin: 50% 100%; }
+.desk-lamp-switch {
+  position: absolute; display: none; z-index: 45; padding: 0; border: 0; background: none;
+  cursor: pointer; border-radius: 40% 40% 12% 12%;
+}
+@media (min-width: 1024px) { .desk-lamp, .desk-lamp-switch { display: block; } }
+:root[data-desk]:not([data-desk="closed"]) .desk-lamp-switch { display: none; }
+.desk-lamp-switch:focus-visible { outline: 2px solid var(--accent-red, #c33); outline-offset: 4px; }
+/* The title column stands over the lamp's shade on wide screens; let the
+   clicks through its empty space, as the camera's views already do. */
+@media (min-width: 1024px) {
+  .hero-aside-wrap { pointer-events: none; }
+  .hero-aside-wrap :is(a, button, h1, h2, h3, p) { pointer-events: auto; }
+}
+.desk-lamp__img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
+  filter: brightness(.9) drop-shadow(calc(5 * var(--u)) calc(-2 * var(--u)) calc(5 * var(--u)) rgba(10, 8, 6, .4)); }
+.desk-lamp__img--on { opacity: 0; transition: opacity .3s ease; filter: none; }
+.desk-lamp[data-on] .desk-lamp__img--on { opacity: 1; }
+.desk-lamp::before {                             /* its foot on the desk */
+  content: ""; position: absolute; left: 2%; width: 68%; bottom: -1.5%; height: 5%;
+  background: radial-gradient(closest-side, rgba(10, 8, 6, .8), rgba(10, 8, 6, 0));
+  filter: blur(calc(2 * var(--u)));
+}
 /* The labels and Kate's panel live inside the case, under this layer, and
    went down with the room. While one is open the lamp comes up instead. */
 .case-stage:has(.inktip[data-open="true"]) .night-room[data-on],

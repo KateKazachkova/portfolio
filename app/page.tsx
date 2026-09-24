@@ -7,7 +7,6 @@ import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import NicheLight from "@/components/NicheLight";
 import KateTalk from "@/components/KateTalk";
 import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
-import MonoRide, { preloadRide } from "@/components/MonoRide";
 import HeroAside from "@/components/HeroAside";
 // import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
 import { useTime } from "@/components/TimeProvider";
@@ -282,15 +281,6 @@ export default function Home() {
     setHour(Math.floor(t.minutes / 60));
   };
   const clockNow = () => { setForced(null); setClock(null); setNow(); };
-  // The ride: the doll takes the wheel out (components/MonoRide.tsx). While a
-  // clip plays, the niche doll steps aside for her clip and the parked wheel
-  // for the one in her hands.
-  const [riding, setRiding] = useState(false);
-  const [ridePhase, setRidePhase] = useState<string | null>(null);
-  const reduceMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const startRide = () => { if (!riding && !reduceMotion()) setRiding(true); };
-  // The parked wheel is in her hands from the lift until she puts it back.
-  const wheelOut = ridePhase !== null && ridePhase !== "c1_stepout" && ridePhase !== "c1_stepout_r";
   const clockShown: ClockTime = clock ?? (now
     ? { day: now.getDay(), minutes: now.getHours() * 60 + now.getMinutes() }
     : { day: 1, minutes: 10 * 60 });
@@ -1001,24 +991,19 @@ export default function Home() {
             baked into the file like the bike's, so only the shadow is left. */}
         <InkTip
           label="Field kit"
-          meta="The wheel · take it out"
+          meta="The wheel"
           place="bottom"
           className="group"
           style={{ position: "absolute", left: "60.5%", top: "56.4%", width: "11.1%", zIndex: 4 }}
-          onHoverChange={(open) => { if (open) preloadRide(); }}
         >
-          {/* A click sends her out for a ride on it: see MonoRide. */}
-          <button type="button" className="mono-parked" onClick={startRide} onFocus={preloadRide}
-            aria-label="Take the wheel out for a ride" disabled={riding}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/items/mid-mono.webp"
-              alt=""
-              className="w-full h-auto transition-[transform,opacity] duration-300 group-hover:-translate-y-1"
-              style={{ filter: "drop-shadow(0 5px 7px rgba(0,0,0,0.42))", opacity: wheelOut ? 0 : 1 }}
-              draggable={false}
-            />
-          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/items/mid-mono.webp"
+            alt="A miniature electric unicycle parked on the compartment floor under the bike"
+            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            style={{ filter: "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" }}
+            draggable={false}
+          />
         </InkTip>
 
         {/* Beside them, the armour that goes on before the wheel does: knee and
@@ -1073,8 +1058,6 @@ export default function Home() {
 
         {/* Central niche — editions with a generated clip play their video
             sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}
-        <MonoRide run={riding} onPhase={setRidePhase} onEnd={() => setRiding(false)} />
-        <div className={ridePhase ? "niche-away" : undefined} style={{ display: "contents" }}>
         {hasNicheClip(shown) ? (
           <NicheDoll key={shown} edition={shown} />
         ) : (
@@ -1104,7 +1087,6 @@ export default function Home() {
             )}
           </div>
         )}
-        </div>
 
 
         {/* The lamp in the arch, turned down while she sleeps. Over the clip,

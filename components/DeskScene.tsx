@@ -68,6 +68,10 @@ const viewOf = (hash: string) =>
 // in half at 1512px (x is its centre).
 const AWARD = { x: 1240, h: 600, z: -190 };
 const AWARD_W = Math.round(AWARD.h * 1033 / 3590);   // the still's own aspect
+// The latest certificate (Indigo, Women in Design 2026), framed and
+// standing on the desk against the wall at the right end of the awards:
+// 30 × 21 cm, its foot 2 cm off the wall and its top leaning back onto it.
+const CERT = { x: 2200, w: 322, h: 241, z: -250, lean: 5 };
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
 
@@ -92,6 +96,18 @@ export function DeskPlanes() {
       <div className="desk-plane desk-wall desk-wall--hung">
         <AwardRail />
       </div>
+      <a
+        className="desk-cert" href="/artefacts/cert-indigo-women-in-design-2026.webp" target="_blank" rel="noopener noreferrer"
+        tabIndex={-1} aria-label="Indigo Design Award — Women in Design, shortlisted 2026 (certificate)"
+        style={{
+          left: `calc(${CERT.x - CERT.w / 2} * var(--u))`, top: `calc(${656 - CERT.h} * var(--u))`,
+          width: `calc(${CERT.w} * var(--u))`, height: `calc(${CERT.h} * var(--u))`,
+          transform: `translateZ(calc(${CERT.z} * var(--u))) rotateX(${CERT.lean}deg)`,
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/artefacts/cert-indigo-women-in-design-2026.webp" alt="" draggable={false} />
+      </a>
       <div className="desk-plane desk-top desk-ext" aria-hidden />
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top">
@@ -139,9 +155,14 @@ export function DeskPlanes() {
           ))}
         </nav>
       </div>
+      {/* The trophy is a way in too: from home (where it peeks past the case)
+          or the desk, a click takes the camera over to it. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         className="desk-award" src="/items/davey-trophy-v2.webp" alt="" aria-hidden draggable={false}
+        onClick={() => {
+          if (document.documentElement.dataset.desk !== "award") window.dispatchEvent(new Event(AWARD_EVENT));
+        }}
         style={{
           left: `calc(${AWARD.x - AWARD_W / 2} * var(--u))`, top: `calc(${656 - AWARD.h} * var(--u))`,
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
@@ -291,7 +312,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));
-      el.querySelectorAll<HTMLAnchorElement>(".award-ribbon").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
+      el.querySelectorAll<HTMLAnchorElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
     };
 
     // Opened by us, it has a history entry of its own and closing is Back.

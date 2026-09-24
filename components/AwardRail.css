@@ -39,9 +39,18 @@
 .award-ribbon--silver { background-image: url("/items/ribbons/silver.webp"); --ink: rgba(30, 32, 38, .72); }
 .award-ribbon--bronze { background-image: url("/items/ribbons/bronze.webp"); --ink: rgba(40, 20, 10, .72); }
 .award-ribbon--web    { background-image: url("/items/ribbons/web.webp"); --ink: rgba(236, 230, 218, .82); }
+/* a distinction with a badge of its own: the silver satin, dyed the
+   badge's colour (the dye is the ribbon's own shape, so it stays on it) */
+.award-ribbon--tint { background-image: url("/items/ribbons/silver.webp"); --ink: rgba(250, 247, 240, .9); }
+.award-ribbon--tint::before {
+  content: ""; position: absolute; inset: 0; background: var(--tint); mix-blend-mode: multiply; opacity: .92;
+  -webkit-mask: url("/items/ribbons/silver.webp") 0 0 / 100% 100% no-repeat;
+          mask: url("/items/ribbons/silver.webp") 0 0 / 100% 100% no-repeat;
+}
 /* the logo down the satin: laid across, then turned to run bottom to top */
 .award-ribbon__logo, .award-ribbon__name {
-  position: absolute; left: 50%; top: 58%; width: calc(72 * var(--u)); height: calc(16 * var(--u));
+  position: absolute; left: 50%; top: 58%; z-index: 1;
+  width: calc(var(--rh) * .48 * var(--u)); height: calc(var(--rw) * .66 * var(--u));
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 .award-ribbon__logo {
@@ -50,7 +59,7 @@
 }
 .award-ribbon__name {
   display: grid; place-items: center; color: var(--ink); white-space: nowrap;
-  font: 700 calc(6 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  font: 700 calc(var(--rw) * .3 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
   letter-spacing: .14em; text-transform: uppercase;
 }
 [data-desk="award"] .award-ribbon:hover,
@@ -66,3 +75,24 @@
 }
 [data-desk="award"] .award-ribbon:hover::after,
 [data-desk="award"] .award-ribbon:focus-visible::after { opacity: 1; }
+
+/* The framed certificate on the desk against the wall (DeskScene's CERT):
+   a thin black frame with a brass lip and a cream mount, standing on its
+   bottom edge and leaning back, so it pivots there. */
+.desk-cert {
+  position: absolute; display: block; box-sizing: border-box; transform-origin: 50% 100%;
+  padding: calc(16 * var(--u)); background: #efe8d8;
+  border: calc(7 * var(--u)) solid #15120f; border-radius: calc(1.5 * var(--u));
+  box-shadow: inset 0 0 0 calc(1 * var(--u)) rgba(0,0,0,.25), 0 0 0 calc(1 * var(--u)) #9b7a3c,
+              calc(6 * var(--u)) calc(4 * var(--u)) calc(10 * var(--u)) rgba(0,0,0,.6);
+}
+.desk-cert img { display: block; width: 100%; height: 100%; object-fit: cover;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); filter: brightness(.92); }
+.desk-cert::after {                                      /* its foot on the desk */
+  content: ""; position: absolute; left: 2%; right: -2%; bottom: calc(-10 * var(--u)); height: calc(10 * var(--u));
+  background: radial-gradient(closest-side, rgba(10,8,6,.7), rgba(10,8,6,0)); filter: blur(calc(2 * var(--u)));
+}
+
+/* The trophy takes a click from home too, where the room is otherwise inert. */
+.desk-award { pointer-events: auto; cursor: pointer; }
+[data-desk="award"] .desk-award { cursor: default; }

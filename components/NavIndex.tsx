@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import { NAV_LINKS as LINKS, CV_HREF } from "@/lib/nav";
-import { AWARD_EVENT, DESK_EVENT, PROFILE_EVENT, shouldOpenDesk } from "@/components/DeskScene";
+import { AWARD_EVENT, DESK_EVENT, OFFDUTY_EVENT, PROFILE_EVENT, shouldOpenDesk } from "@/components/DeskScene";
 
 /** The index itself: the links, the CV and the theme, set down the page.
  *
@@ -18,7 +18,7 @@ import { AWARD_EVENT, DESK_EVENT, PROFILE_EVENT, shouldOpenDesk } from "@/compon
  *  it. The negative margin pays back the border and the padding exactly, so
  *  the labels sit on the same left edge whether or not one of them is lit.
  */
-const CAMERA: Record<string, string> = { "/work": DESK_EVENT, "/about": PROFILE_EVENT, "/recognition": AWARD_EVENT };
+const CAMERA: Record<string, string> = { "/work": DESK_EVENT, "/about": PROFILE_EVENT, "/recognition": AWARD_EVENT, "/off-duty": OFFDUTY_EVENT };
 
 export default function NavIndex({ className = "mt-14" }: { className?: string }) {
   const pathname = usePathname();

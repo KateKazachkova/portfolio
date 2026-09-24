@@ -1571,6 +1571,59 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
 .desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
+
+/* ── Off Duty: the fourth stop ──
+   Straight down onto the bike computer lying in front of the binder
+   (BikeComputer: desk x 3480, y 700, so z 431), low, 0.56 m up (eye y
+   656 - 600), so the figures on its screen read: translate (-(3420 -
+   1612.5), 226 - 56, 2150 - 431) — the axis 60 px left of it, clear of
+   the index column. */
+[data-desk="offduty"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+[data-desk="offduty"] .desk-world,
+[data-desk="offduty"] .case-world {
+  transform: rotateX(-90deg) translate3d(calc(-1807.5 * var(--u)), calc(170 * var(--u)), calc(1719 * var(--u)));
+}
+[data-desk="offduty"] .desk-world { pointer-events: auto; }
+[data-desk="offduty"] .case-world { opacity: 0; pointer-events: none;
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
+[data-desk="offduty"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
+
+/* The bike computer itself. Its shadow, down and to the right, is baked
+   into the cut-out (no filter on scene objects: see U15File). The screen
+   is a memory LCD: dark segments on pale grey-green, no backlight, so the
+   figures take the desk's light like the plastic around them. */
+.bike { position: absolute; pointer-events: auto; cursor: pointer; }
+.bike img { position: relative; display: block; width: 100%; height: 100%; }
+.bike__lcd { position: absolute; left: 26.3%; top: 24.6%; width: 48.5%; height: 44.1%;
+  box-sizing: border-box; padding: calc(2.4 * var(--u)) calc(2.6 * var(--u)) calc(3 * var(--u));
+  display: flex; flex-direction: column; justify-content: space-between; gap: calc(1.6 * var(--u)); overflow: hidden;
+  border-radius: calc(1.2 * var(--u)); color: rgba(24, 30, 26, .86);
+  font: 700 calc(3 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .04em; text-transform: uppercase; mix-blend-mode: multiply; }
+.bike__bar { display: flex; justify-content: space-between; padding-bottom: calc(1 * var(--u));
+  border-bottom: calc(.5 * var(--u)) solid currentColor; font-size: calc(3 * var(--u)); }
+.bike__field { display: flex; flex-direction: column; gap: calc(.8 * var(--u)); }
+.bike__k { font-size: calc(2.8 * var(--u)); opacity: .7; }
+.bike__v { font-size: calc(7.6 * var(--u)); letter-spacing: -.02em; white-space: nowrap; }
+.bike__v small { font-size: .45em; margin-left: .15em; letter-spacing: 0; }
+.bike__field--big .bike__v { font-size: calc(12.5 * var(--u)); }
+.bike__grid { display: grid; grid-template-columns: 1fr 1fr; gap: calc(1.6 * var(--u)) calc(2 * var(--u));
+  border-top: calc(.3 * var(--u)) solid currentColor; padding-top: calc(1.6 * var(--u)); }
+.bike__field--wide { grid-column: 1 / -1; }
+.bike__wait { margin: auto; text-align: center; font-size: calc(3.6 * var(--u)); line-height: 1.4;
+  animation: bike-blink 1.2s steps(2) infinite; }
+@keyframes bike-blink { 50% { opacity: .25; } }
+.bike__map { flex: 1; min-height: 0; width: 100%; }
+.bike__map path { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; animation: bike-draw 1.6s ease-out forwards; }
+@keyframes bike-draw { to { stroke-dashoffset: 0; } }
+.bike__map ~ .bike__grid .bike__v { font-size: calc(6.4 * var(--u)); }
+.bike__date { font-size: calc(2.8 * var(--u)); opacity: .7; }
+.bike__btn { position: absolute; top: 77.5%; width: 14.8%; height: 7.1%; transform: translate(-50%, -50%);
+  padding: 0; border: 0; background: none; border-radius: calc(3 * var(--u)); cursor: pointer; }
+.bike[data-live] .bike__btn:active { background: rgba(0,0,0,.18); }
+.bike__btn:focus-visible { outline: calc(.6 * var(--u)) solid var(--brand, #F8C662); }
+@media (prefers-reduced-motion: reduce) { .bike__map path { animation: none; stroke-dashoffset: 0; } .bike__wait { animation: none; } }
 /* Once there, the pan is driven frame by frame, so the move's own
    transition must not smear it. Grab cursor: the desk can be dragged. */
 [data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }
@@ -1609,20 +1662,20 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    title, lead and index — stays as it is on every page, inked for the white
    desk (over the dark wall it keeps its own colours). */
 .hero-caption, .hero-contact { transition: opacity .5s ease; }
-[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption, [data-desk="profile"] .hero-caption,
-[data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact, [data-desk="profile"] .hero-contact { opacity: 0; pointer-events: none; }
+[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption, [data-desk="profile"] .hero-caption, [data-desk="offduty"] .hero-caption,
+[data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact, [data-desk="profile"] .hero-contact, [data-desk="offduty"] .hero-contact { opacity: 0; pointer-events: none; }
 /* Over the desk the column's title and lead stay, but only its links take the
    pointer, so what lies under the words can still be picked up. The ink turns
    dark only where the column stands over the white desk (1440px and up);
    under that it sits above the scene, on the page's own ground. */
-[data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { pointer-events: none; }
-[data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
-@media (min-width: 1440px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
-[data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { border-color: transparent !important; }
+[data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap, [data-desk="offduty"] .hero-aside-wrap { pointer-events: none; }
+[data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button), [data-desk="offduty"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
+@media (min-width: 1440px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
+[data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap, [data-desk="offduty"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */
-[data-desk="open"] main, [data-desk="award"] main, [data-desk="profile"] main { min-height: calc(100vh + 56px); }
+[data-desk="open"] main, [data-desk="award"] main, [data-desk="profile"] main, [data-desk="offduty"] main { min-height: calc(100vh + 56px); }
 
 @media (prefers-reduced-motion: reduce) {
   .scene-cam, .desk-world, .case-world, .desk-shadow, .desk-card { transition: none !important; }

@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
+import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -34,6 +35,9 @@ import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
  * Profile is the third: the camera comes down over the yellow binder lying
  * in front of the certificate and looks straight down on it, as it does on
  * the case files. /#profile.
+ *
+ * Off Duty is the fourth: straight down again, lower, onto the bike computer
+ * lying in front of the binder, its screen live from Strava. /#off-duty.
  */
 
 // The case files. Each will be its own kind of object — a zine, a stack, a
@@ -60,11 +64,11 @@ const SPD = 2150 / 860;            // screen px per desk px at the end height (�
 
 export const DESK_EVENT = "kate:case-files";
 export const AWARD_EVENT = "kate:recognition";
-export { PROFILE_EVENT };
-type View = "files" | "award" | "profile";
-const HASH: Record<View, string> = { files: "#case-files", award: "#recognition", profile: "#profile" };
+export { PROFILE_EVENT, OFFDUTY_EVENT };
+type View = "files" | "award" | "profile" | "offduty";
+const HASH: Record<View, string> = { files: "#case-files", award: "#recognition", profile: "#profile", offduty: "#off-duty" };
 // html[data-desk] for each view; "open" is the desk's, from before it had a second
-const STATE: Record<View, string> = { files: "open", award: "award", profile: "profile" };
+const STATE: Record<View, string> = { files: "open", award: "award", profile: "profile", offduty: "offduty" };
 const viewOf = (hash: string) =>
   (Object.keys(HASH) as View[]).find((v) => HASH[v] === hash) ?? null;
 
@@ -170,6 +174,8 @@ export function DeskPlanes() {
         </nav>
         {/* the Profile, filed, in front of the certificate */}
         <DeskBinder />
+        {/* Off Duty: the bike computer, in front of the binder */}
+        <BikeComputer />
       </div>
       {/* The trophy is a way in too: from home (where it peeks past the case)
           or the desk, a click takes the camera over to it. */}
@@ -349,6 +355,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onFiles = () => toggle("files");
     const onAward = () => toggle("award");
     const onProfile = () => toggle("profile");
+    const onOffDuty = () => toggle("offduty");
     const onPop = () => { pushed = false; set(viewOf(location.hash)); };
     // A link to home (the KATE™ wordmark) from the desk or the wall: Next
     // changes the URL with pushState, which fires no popstate, so the camera
@@ -384,6 +391,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener(DESK_EVENT, onFiles);
     window.addEventListener(AWARD_EVENT, onAward);
     window.addEventListener(PROFILE_EVENT, onProfile);
+    window.addEventListener(OFFDUTY_EVENT, onOffDuty);
     window.addEventListener("popstate", onPop);
     document.addEventListener("click", onHomeLink, true);
     window.addEventListener("keydown", onKey);
@@ -402,6 +410,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.removeEventListener(DESK_EVENT, onFiles);
       window.removeEventListener(AWARD_EVENT, onAward);
       window.removeEventListener(PROFILE_EVENT, onProfile);
+      window.removeEventListener(OFFDUTY_EVENT, onOffDuty);
       window.removeEventListener("popstate", onPop);
       document.removeEventListener("click", onHomeLink, true);
       window.removeEventListener("keydown", onKey);

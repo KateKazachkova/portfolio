@@ -77,11 +77,12 @@ const CLIPS: Record<string, ClipSet> = {
   evening: {
     // Re-shot 2026-09-23: the old clips were generated into a niche of their
     // own, so their wood never matched the case's. The intro belongs to the
-    // retired doll and is gone with it; the accent is now a page turn.
-    loop: "evening_read.mp4",
-    accent: "evening_page_turn.mp4",
-    poster: "niche_poster.jpg",
-    accentEveryMs: 120_000,
+    // retired doll and is gone with it.
+    // New pose: back to the left wall, knees up, book on her knees. The page
+    // turn belongs to the cross-legged pose (evening_read / evening_page_turn)
+    // and is off until it's re-shot for this one.
+    loop: "evening_knees_loop.mp4",
+    poster: "evening_knees_poster.jpg",
   },
   // Morning before work
   morn_alarm: {

@@ -1191,16 +1191,16 @@ body::after {
                transition: opacity .6s ease .15s; }
 
 /* The case files, lying on the desk plane: the /work grid's plain cards for
-   now (folders later). Desk-plane px, so from the camera's end height of 1 m
-   one of them is ~2 screen px. They are always there — from the case's
+   now (folders later). Desk-plane px; from the camera's end height of 1.4 m
+   one of them is ~1.4 screen px. They are always there — from the case's
    view they are thin slivers on the desk in front of it, which is the point:
    the files are already on the desk before you look down at them. Out of the
    tab order and click-through until the camera arrives. */
 .desk-cases { position: absolute; inset: 0; }
 .desk-card {
   position: absolute;
-  width: calc(180 * var(--u)); height: calc(126 * var(--u));
-  margin: calc(-63 * var(--u)) 0 0 calc(-90 * var(--u));
+  width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
+  margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
   background: #faf8f3; border: calc(1 * var(--u)) solid #d9d4c8; border-radius: calc(7 * var(--u));
   overflow: hidden; color: #22283a; text-decoration: none;
   box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.18), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.28);
@@ -1212,12 +1212,28 @@ body::after {
 .desk-card__tags { font: calc(5 * var(--u)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
                    letter-spacing: .14em; text-transform: uppercase; color: #8b8577; }
 .desk-card h2 { margin: calc(3 * var(--u)) 0 0; font-size: calc(10 * var(--u)); line-height: 1.15; font-weight: 600; }
+/* A reference picture standing in for the object the project will become. */
+.desk-card--ref { border: 0; border-radius: calc(2 * var(--u)); background: #ddd8cc; }
+.desk-card--ref img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.desk-card__label {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: calc(5 * var(--u)) calc(7 * var(--u));
+  background: rgba(20, 18, 16, .78); color: #f3eee4;
+  font: 600 calc(8 * var(--u)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .08em; text-transform: uppercase;
+}
 
-/* ── The camera move ── */
+/* ── The camera move ──
+   The camera ends 1.4 m above the desk (eye y 656 - 1505 = -849), 42 cm in
+   front of the case (z 450), looking down 84°: the frame then spans the
+   desk from just behind the case's base to its front edge, about 1.0 × 0.65
+   m. The case has faded by then, so the desk it stood on may show. Moving
+   the camera by d is moving the world by -d, then rotating about the
+   original camera point: translate (0, 226 + 849, 2150 - 450). */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-84deg) translate3d(0, calc(645 * var(--u)), calc(1670 * var(--u)));
+  transform: rotateX(-84deg) translate3d(0, calc(1075 * var(--u)), calc(1700 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;

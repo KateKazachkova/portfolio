@@ -13,7 +13,7 @@ import { useEffect, useRef } from "react";
  * plate projected back onto them (delete/render_desk3d.py). Everything is in
  * the box's own px, scaled to its real width through --u (see .scene-cam).
  *
- * Case Files moves the camera instead of the page: it rises to 1 m over the
+ * Case Files moves the camera instead of the page: it rises to 1.4 m over the
  * front of the desk and looks almost straight down (84°), the case leaves
  * past the top of the frame, and the case files — lying on the desk all
  * along, slivers in front of the case — fill the view. The URL
@@ -23,20 +23,19 @@ import { useEffect, useRef } from "react";
  * public/proto/desk.html.
  */
 
-// The /work grid's cards, exactly as it shows them — titles and tags only.
+// The case files. Each will be its own kind of object — a zine, a stack, a
+// folder — so for now each lies there as a reference picture of the object
+// it will become (public/scene/desk3d/placeholders/, Kate's picks), labelled
+// with the project it stands for. Portfolio has no picture yet and stays a
+// plain card. Sizes are desk px (1075 per metre), roughly the real objects.
+// x, y are the centre on the desk plane from its left/back corner.
 const CASES = [
-  { slug: "bulksource", title: "BulkSource", tags: ["UX", "UI"] },
-  { slug: "ukrainska-15", title: "Ukrainska 15", tags: ["2024 — 2026"] },
-  { slug: "my-portfolio2026", title: "Portfolio & My Branding", tags: [] },
-  { slug: "onsisoft", title: "OnsiSoft", tags: [] },
-  { slug: "waypro", title: "WayPro", tags: ["2024"] },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "ukrainska-15", w: 150, h: 200, x: 1450, y: 430, r: -3 },
+  { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1665, y: 410, r: 4 },
+  { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 1885, y: 445, r: -2 },
+  { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 1565, y: 705, r: 2 },
+  { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 1835, y: 725, r: -1.5 },
 ] as const;
-
-// Where each lies on the desk plane (desk px from its left/back corner) and
-// how far it is turned: 3 + 2 around where the camera's axis lands (y 636).
-const SPOTS: [number, number, number][] = [
-  [1507, 563, -2.2], [1712, 556, 1.4], [1917, 566, -0.8], [1610, 712, 1.9], [1815, 706, -1.6],
-];
 
 export const DESK_EVENT = "kate:case-files";
 const HASH = "#case-files";
@@ -48,22 +47,32 @@ export function DeskPlanes() {
       <div className="desk-plane desk-top">
         <div className="desk-shadow" aria-hidden />
         <nav className="desk-cases" aria-label="Case files">
-          {CASES.map((c, i) => (
+          {CASES.map((c) => (
             <Link
               key={c.slug}
               href={`/work/${c.slug}`}
-              className="desk-card"
+              className={c.img ? "desk-card desk-card--ref" : "desk-card"}
               tabIndex={-1}
               style={{
-                left: `calc(${SPOTS[i][0]} * var(--u))`, top: `calc(${SPOTS[i][1]} * var(--u))`,
-                "--r": `${SPOTS[i][2]}deg`,
+                left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
+                "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
               } as React.CSSProperties}
             >
-              <div className="desk-card__cover" />
-              <div className="desk-card__body">
-                <div className="desk-card__tags">{c.tags.length ? c.tags.join(" · ") : " "}</div>
-                <h2>{c.title}</h2>
-              </div>
+              {c.img ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
+                  <span className="desk-card__label">Placeholder · {c.title}</span>
+                </>
+              ) : (
+                <>
+                  <div className="desk-card__cover" />
+                  <div className="desk-card__body">
+                    <div className="desk-card__tags">&nbsp;</div>
+                    <h2>{c.title}</h2>
+                  </div>
+                </>
+              )}
             </Link>
           ))}
         </nav>
@@ -87,8 +96,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
 
     // The lens shift: how far the scene must slide for the camera's principal
     // point (560, 226 of the box) to land in the middle of the window.
+    // Measured on the stage, not on .scene-cam: the camera's own shift is a
+    // transform on .scene-cam, so its rect would include the shift it sets.
     const measure = () => {
-      const r = el.getBoundingClientRect();
+      const r = (el.parentElement ?? el).getBoundingClientRect();
       const u = r.width / 1118;
       el.style.setProperty("--dx", `${innerWidth / 2 - (r.left + 560 * u)}px`);
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);

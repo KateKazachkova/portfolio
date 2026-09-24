@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import { NAV_LINKS as LINKS, CV_HREF } from "@/lib/nav";
-import { DESK_EVENT, shouldOpenDesk } from "@/components/DeskScene";
+import { AWARD_EVENT, DESK_EVENT, shouldOpenDesk } from "@/components/DeskScene";
 
 /** The index itself: the links, the CV and the theme, set down the page.
  *
@@ -18,6 +18,8 @@ import { DESK_EVENT, shouldOpenDesk } from "@/components/DeskScene";
  *  it. The negative margin pays back the border and the padding exactly, so
  *  the labels sit on the same left edge whether or not one of them is lit.
  */
+const CAMERA: Record<string, string> = { "/work": DESK_EVENT, "/recognition": AWARD_EVENT };
+
 export default function NavIndex({ className = "mt-14" }: { className?: string }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
@@ -28,12 +30,13 @@ export default function NavIndex({ className = "mt-14" }: { className?: string }
         <Link
           key={link.href}
           href={link.href}
-          // On home at night, Case Files is a camera move across the desk
-          // rather than a page (components/DeskScene.tsx).
-          onClick={link.href === "/work" && pathname === "/" ? (e) => {
+          // On home, Case Files and Recognition are camera moves — down to
+          // the desk, over to the wall — rather than pages
+          // (components/DeskScene.tsx).
+          onClick={pathname === "/" && CAMERA[link.href] ? (e) => {
             if (!shouldOpenDesk(e)) return;
             e.preventDefault();
-            window.dispatchEvent(new Event(DESK_EVENT));
+            window.dispatchEvent(new Event(CAMERA[link.href]));
           } : undefined}
           className="t-label transition-opacity hover:opacity-60"
           style={{

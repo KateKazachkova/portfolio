@@ -20,6 +20,13 @@ import { useEffect, useRef } from "react";
  * becomes /#case-files, so Back, Escape or Case Files again bring it home.
  * The desk is home's scene in every theme. The prototype this came from is
  * public/proto/desk.html.
+ *
+ * Recognition is the same camera's second stop: it stays at the case's eye
+ * height, dollies in and to the right and tips down 12°, so the frame is the
+ * wall behind the case with a strip of desk under it, the Davey trophy
+ * standing there on the left (the case's edge just in shot beside it) and the
+ * wall to its right for the rest of the recognition. The URL becomes
+ * /#recognition, and it closes the same ways.
  */
 
 // The case files. Each will be its own kind of object — a zine, a stack, a
@@ -45,14 +52,36 @@ const VIEW_X = 1612.5;             // desk x under the camera's axis at pan 0
 const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
 
 export const DESK_EVENT = "kate:case-files";
-const HASH = "#case-files";
+export const AWARD_EVENT = "kate:recognition";
+type View = "files" | "award";
+const HASH: Record<View, string> = { files: "#case-files", award: "#recognition" };
+// html[data-desk] for each view; "open" is the desk's, from before it had a second
+const STATE: Record<View, string> = { files: "open", award: "award" };
+const viewOf = (hash: string) =>
+  (Object.keys(HASH) as View[]).find((v) => HASH[v] === hash) ?? null;
+
+// The Davey trophy, standing on the desk against the wall right of the case:
+// 56 cm tall (600 box px), its front 7 cm off the wall (z -190), and far
+// enough right that from the case's camera the window's edge cuts it about
+// in half at 1512px (x is its centre).
+const AWARD = { x: 1240, h: 600, z: -190 };
+const AWARD_W = Math.round(AWARD.h * 259 / 899);   // the still's own aspect
 
 export function DeskPlanes() {
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall" aria-hidden />
+      <div className="desk-plane desk-wall desk-ext" aria-hidden />
+      <div className="desk-plane desk-top desk-ext" aria-hidden />
+      <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top">
         <div className="desk-shadow" aria-hidden />
+        {/* the trophy's contact shadow, on the desk under its base (desk-top
+            px are box x + 1052.5 across, z + 269 out from the wall) */}
+        <div className="desk-award-shadow" aria-hidden style={{
+          left: `calc(${AWARD.x + 1052.5} * var(--u))`, top: `calc(${AWARD.z + 269} * var(--u))`,
+          "--w": AWARD_W,
+        } as React.CSSProperties} />
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => (
             <Link
@@ -84,6 +113,15 @@ export function DeskPlanes() {
           ))}
         </nav>
       </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="desk-award" src="/items/davey-trophy.webp" alt="" aria-hidden draggable={false}
+        style={{
+          left: `calc(${AWARD.x - AWARD_W / 2} * var(--u))`, top: `calc(${656 - AWARD.h} * var(--u))`,
+          width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
+          transform: `translateZ(calc(${AWARD.z} * var(--u)))`,
+        }}
+      />
       <div className="desk-plane desk-ply" aria-hidden />
       <div className="desk-plane desk-under" aria-hidden />
     </div>
@@ -105,7 +143,7 @@ export function DeskHint() {
 /** Drives the camera: toggles html[data-desk], keeps the lens shift that puts
  *  the camera's axis in the middle of the window, and owns the URL. */
 export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
-  const open = useRef(false);
+  const open = useRef<View | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -152,15 +190,17 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     const go = (v: number) => { target = clamp(v); if (!raf) raf = requestAnimationFrame(tick); };
 
+    // only the desk pans; the wall is one still frame
+    const panning = () => arrived && open.current === "files";
     const onWheel = (e: WheelEvent) => {
-      if (!arrived) return;
+      if (!panning()) return;
       e.preventDefault();
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       go(target + d / (SPD * u()));
     };
     let dragX: number | null = null, dragFrom = 0, dragged = false;
     const onDown = (e: PointerEvent) => {
-      if (!arrived || e.button !== 0) return;
+      if (!panning() || e.button !== 0) return;
       dragX = e.clientX; dragFrom = target; dragged = false;
     };
     const onMove = (e: PointerEvent) => {
@@ -174,7 +214,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onClick = (e: MouseEvent) => { if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; } };
     const onFocus = (e: FocusEvent) => {
       const a = (e.target as HTMLElement).closest?.(".desk-card");
-      if (!a || !arrived) return;
+      if (!a || !panning()) return;
       const i = [...cards()].indexOf(a as HTMLAnchorElement);
       if (i >= 0) go(CASES[i].x - VIEW_X - 120 / SPD);
     };
@@ -184,18 +224,18 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       arrived = true; root.dataset.deskArrived = "1";
     };
     world?.addEventListener("transitionend", onArrive);
-    const set = (on: boolean) => {
-      if (on === open.current) return;
-      if (on) { window.scrollTo({ top: 0 }); measure(); }
-      open.current = on;
-      if (!on) {
-        // back home: the pan unwinds with the rest of the move
-        arrived = false; delete root.dataset.deskArrived;
-        cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
-      }
-      root.dataset.desk = on ? "open" : "closed";
-      document.body.style.overflow = on ? "hidden" : "";
-      cards().forEach((a) => (a.tabIndex = on ? 0 : -1));
+    const set = (v: View | null) => {
+      if (v === open.current) return;
+      if (v && !open.current) window.scrollTo({ top: 0 });
+      if (v) measure();
+      open.current = v;
+      // leaving the desk (home, or on to the wall): the pan unwinds with the
+      // rest of the move
+      arrived = false; delete root.dataset.deskArrived;
+      cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
+      root.dataset.desk = v ? STATE[v] : "closed";
+      document.body.style.overflow = v ? "hidden" : "";
+      cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));
     };
 
     // Opened by us, it has a history entry of its own and closing is Back.
@@ -204,24 +244,30 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let pushed = false;
     const close = () => {
       if (pushed) { pushed = false; history.back(); }
-      else { history.replaceState(null, "", "/"); set(false); }
+      else { history.replaceState(null, "", "/"); set(null); }
     };
-    const onEvent = () => {
-      if (open.current) close();
-      else { history.pushState({ desk: 1 }, "", `/${HASH}`); pushed = true; set(true); }
+    // Its own link again closes a view; the other one's moves straight across,
+    // in the same history entry.
+    const toggle = (v: View) => {
+      if (open.current === v) close();
+      else if (open.current) { history.replaceState({ desk: 1 }, "", `/${HASH[v]}`); set(v); }
+      else { history.pushState({ desk: 1 }, "", `/${HASH[v]}`); pushed = true; set(v); }
     };
-    const onPop = () => { pushed = false; set(location.hash === HASH); };
+    const onFiles = () => toggle("files");
+    const onAward = () => toggle("award");
+    const onPop = () => { pushed = false; set(viewOf(location.hash)); };
     const onKey = (e: KeyboardEvent) => {
       if (!open.current) return;
       if (e.key === "Escape") close();
-      else if (arrived && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+      else if (panning() && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
         e.preventDefault();
         go(target + (e.key === "ArrowRight" ? 1 : -1) * 220);
       }
     };
     const onResize = () => { if (open.current) { measure(); go(target); } };
 
-    window.addEventListener(DESK_EVENT, onEvent);
+    window.addEventListener(DESK_EVENT, onFiles);
+    window.addEventListener(AWARD_EVENT, onAward);
     window.addEventListener("popstate", onPop);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
@@ -231,10 +277,11 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener("pointerup", onUp);
     el.addEventListener("click", onClick, true);
     el.addEventListener("focusin", onFocus);
-    if (location.hash === HASH) set(true);
+    set(viewOf(location.hash));
 
     return () => {
-      window.removeEventListener(DESK_EVENT, onEvent);
+      window.removeEventListener(DESK_EVENT, onFiles);
+      window.removeEventListener(AWARD_EVENT, onAward);
       window.removeEventListener("popstate", onPop);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);

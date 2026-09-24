@@ -1191,6 +1191,13 @@ body::after {
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
               background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(645 * var(--u))); }
+/* The room goes on past the plate's right edge (x 2172), where Recognition
+   looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
+   mirrored, so the seam is its own reflection. */
+.desk-ext { left: calc(2172.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-wall.desk-ext { background-image: url("/scene/desk3d/wall-ext.jpg"); }
+.desk-top.desk-ext  { background-image: url("/scene/desk3d/desk-ext.jpg"); }
+.desk-ply.desk-ext  { background-image: url("/scene/desk3d/ply-ext.jpg"); }
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
               background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
               transform: translateZ(calc(645 * var(--u))); }
@@ -1257,20 +1264,17 @@ body::after {
 [data-desk="open"] .desk-world { pointer-events: auto; }
 
 /* ── Recognition: the camera's second stop ──
-   It keeps the case's eye height, comes 1.1 m in (z 1050) and 0.6 m right
-   (x 1201), and tips down 12°: the trophy (x 1060, 7 cm off the wall) lands
-   right of the index, its base ~20% up the window, with the desk a strip
-   under it and the wall from there to the right edge (x ≈ 1620 at 1440px).
-   The trophy stands behind the case's right door, so from here the case
-   would stand in front of it: it leaves, as it does for the desk. */
+   The trophy is big (56 cm), so the camera barely comes in: 15 cm (z 2000),
+   1 m right (x 1578) and 4° down. The trophy (x 1240, 7 cm off the wall)
+   lands left of centre with its base ~16% up the window, the wall to its
+   right, a strip of desk under it. Nothing leaves: the case slides off to
+   the left (its edge may stay in shot) and the case files stay on the desk. */
 [data-desk="award"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="award"] .desk-world,
 [data-desk="award"] .case-world {
-  transform: rotateX(-12deg) translate3d(calc(-641 * var(--u)), 0, calc(1100 * var(--u)));
+  transform: rotateX(-4deg) translate3d(calc(-1018 * var(--u)), 0, calc(150 * var(--u)));
 }
-[data-desk="award"] .case-world { opacity: 0; pointer-events: none;
-  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .3s; }
-[data-desk="award"] .desk-shadow { opacity: 0; transition: opacity .6s ease .3s; }
+[data-desk="award"] .case-world { pointer-events: none; }
 /* Once there, the pan is driven frame by frame, so the move's own
    transition must not smear it. Grab cursor: the desk can be dragged. */
 [data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }
@@ -1328,13 +1332,13 @@ body::after {
 }
 @media (min-width: 1440px) { .flip-clock-slot { display: block; } }
 .flip-clock-slot::before {                      /* contact on the desk */
-  content: ""; position: absolute; left: -2%; right: -2%; bottom: -9%; height: 20%;
-  background: radial-gradient(closest-side, rgba(10, 8, 6, .7), rgba(10, 8, 6, .3) 60%, rgba(10, 8, 6, 0));
-  filter: blur(4px); z-index: -1;
+  content: ""; position: absolute; left: 1%; right: 1%; bottom: -5%; height: 13%;
+  background: radial-gradient(closest-side, rgba(10, 8, 6, .9), rgba(10, 8, 6, .45) 55%, rgba(10, 8, 6, 0));
+  filter: blur(2px); z-index: -1;
 }
 .flip-clock { position: relative; aspect-ratio: 1400 / 756; container-type: inline-size; user-select: none; }
 .flip-clock__body { position: absolute; inset: 0; width: 100%; height: 100%;
-  filter: brightness(.9); pointer-events: none; }
+  filter: brightness(.9) drop-shadow(0 2.4cqw 2cqw rgba(10, 8, 6, .5)); pointer-events: none; }
 .flip-clock__win { position: absolute; display: flex; border-radius: .6cqw; }
 .flip-clock__win--h { left: 20.9%; top: 25.6%; width: 26.1%; height: 33.7%; }
 .flip-clock__win--m { left: 52.2%; top: 25.6%; width: 26.4%; height: 33.7%; }

@@ -1348,6 +1348,40 @@ body::after {
                    mix-blend-mode: multiply; opacity: .72; }
 .env__stamp--fda b { font-size: calc(5 * var(--eu)); letter-spacing: .1em; margin: calc(1 * var(--eu)) 0; }
 
+/* The flash player beside the folder. The LCD sits over the photographed
+   screen (7.3% / 24.5%, 21.1 × 12.5% of the cut-out): unlit it shows the
+   title faintly; playing, the backlight comes on and the title scrolls. */
+.desk-player {
+  position: absolute; padding: 0; border: 0; background: none; cursor: pointer;
+  width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
+  margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
+  transform: rotate(var(--r)) translateZ(.1px); transition: transform .25s ease;
+}
+.desk-player img { display: block; width: 100%; height: 100%;
+  filter: drop-shadow(0 calc(.8 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.3)); }
+[data-desk="open"] .desk-player:hover, [data-desk="open"] .desk-player:focus-visible {
+  transform: rotate(var(--r)) translateY(calc(-2 * var(--u))) translateZ(.1px); outline: none; }
+.desk-player__lcd {
+  position: absolute; left: 7.3%; top: 24.5%; width: 21.1%; height: 12.5%;
+  display: flex; flex-direction: column; justify-content: center; gap: calc(1 * var(--u));
+  padding: 0 calc(.8 * var(--u)); box-sizing: border-box; overflow: hidden; border-radius: calc(.4 * var(--u));
+  color: rgba(22, 32, 24, .42); background: transparent; transition: background .3s ease, color .3s ease;
+  font: 600 calc(2.1 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  letter-spacing: .06em; text-transform: uppercase; text-align: left;
+}
+.desk-player[data-playing] .desk-player__lcd {
+  color: #13241a; background: rgba(170, 225, 190, .72);
+  box-shadow: 0 0 calc(2 * var(--u)) rgba(170, 225, 190, .5);
+}
+.desk-player__title { display: block; white-space: nowrap; overflow: hidden; }
+.desk-player__title span { display: inline-block; }
+.desk-player[data-playing] .desk-player__title span { padding-left: 100%; animation: lcd-marquee 7s linear infinite; }
+@keyframes lcd-marquee { to { transform: translateX(-100%); } }
+.desk-player__time { display: block; font-size: calc(1.7 * var(--u)); }
+@media (prefers-reduced-motion: reduce) {
+  .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
+}
+
 /* ── The camera move ──
    The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), right over
    the row of case files (desk y 560, z 291), looking straight down — 90°,

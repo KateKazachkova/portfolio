@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -155,6 +155,58 @@ function Envelope() {
   );
 }
 
+// Beside the folder, the song Kate made for the site, on a 2000s flash
+// player (public/artefacts/ukrainska-15/player/). Click plays, click again
+// pauses; the LCD lights up and scrolls the title while it plays. Desk px:
+// the body is ~8 cm (86 px); the cut-out with its earbuds is 58 × 124.
+const PLAYER = { x: 1668, y: 598, w: 58, h: 124, r: 5 };
+const SONG = { title: "Still live in my mind", src: "/artefacts/ukrainska-15/player/still-live-in-my-mind.mp3" };
+const clock = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+
+function DeskPlayer() {
+  const audio = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [time, setTime] = useState(0);
+  // leaving the desk (Back, Escape, Case Files again) stops the song
+  useEffect(() => {
+    const stop = () => { if (location.hash !== "#case-files") audio.current?.pause(); };
+    addEventListener("hashchange", stop);
+    return () => removeEventListener("hashchange", stop);
+  }, []);
+  const toggle = () => {
+    const a = audio.current;
+    if (!a) return;
+    if (a.paused) a.play().catch(() => {}); else a.pause();
+  };
+  return (
+    <button
+      type="button"
+      className="desk-player"
+      data-playing={playing || undefined}
+      tabIndex={-1}
+      aria-label={`${playing ? "Pause" : "Play"} “${SONG.title}”`}
+      aria-pressed={playing}
+      onClick={toggle}
+      style={{
+        left: `calc(${PLAYER.x} * var(--u))`, top: `calc(${PLAYER.y} * var(--u))`,
+        "--w": PLAYER.w, "--h": PLAYER.h, "--r": `${PLAYER.r}deg`,
+      } as React.CSSProperties}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/artefacts/ukrainska-15/player/player.webp" alt="" draggable={false} />
+      <span className="desk-player__lcd" aria-hidden>
+        <span className="desk-player__title"><span>{SONG.title}</span></span>
+        <span className="desk-player__time">{playing ? "▶" : "❚❚"} {clock(time)}</span>
+      </span>
+      <audio
+        ref={audio} src={SONG.src} preload="none"
+        onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setTime(0)}
+        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+      />
+    </button>
+  );
+}
+
 export function DeskPlanes() {
   return (
     <div className="desk-world">
@@ -212,6 +264,7 @@ export function DeskPlanes() {
               )}
             </Link>
           ))}
+          <DeskPlayer />
         </nav>
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -263,7 +316,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);
     };
 
-    const cards = () => el.querySelectorAll<HTMLAnchorElement>(".desk-card");
+    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card, .desk-player");
 
     // ── The pan: the camera slides along the desk (desk px, 0 … max) ──
     // Wheel (either axis), a drag of the desk, arrow keys, and focus all

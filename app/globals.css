@@ -1408,6 +1408,12 @@ body::after {
   .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
 }
 
+/* The stack as home's camera sees it (U15Still): only while the camera is
+   home — gone at once when it moves, back once it has landed again. */
+.u15-still { position: absolute; display: block; max-width: none; pointer-events: none; z-index: 0;
+  transition: opacity .45s ease 1.6s; }
+:root[data-desk]:not([data-desk="closed"]) .u15-still { opacity: 0; transition: opacity .2s ease; }
+
 /* The tablet (248.6 × 179.5 mm, 205.5 × 148.5 units), under the folder
    (turned on its side there, see CLOSED in U15File); its screen plays the
    scroll-through once the folder is open. */

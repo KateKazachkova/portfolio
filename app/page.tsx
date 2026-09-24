@@ -14,6 +14,7 @@ import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/l
 import { mono } from "@/components/ui/type";
 import DaySticky from "@/components/DaySticky";
 import { DeskPlanes, DeskHint, useDeskCamera, shouldOpenDesk, AWARD_EVENT } from "@/components/DeskScene";
+import U15Still from "@/components/desk/U15Still";
 
 // Animated (transparent WebM) doll per edition; falls back to the static cutout.
 // office video disabled for now — it shows the old (pre-v2) doll; regenerate from the v2 cut later.
@@ -476,6 +477,8 @@ export default function Home() {
           </div>
         </DeskPlanes>
         <div className="case-world">
+        {/* Ukrainska 15's stack as this camera sees it, over the live one */}
+        <U15Still />
 
         {/* ── The shadow, in four layers ──────────────────────────────────
             The case does not sit flat on the floor: it stands on the feet at

@@ -1220,11 +1220,22 @@ body::after {
 /* The Davey trophy, standing against the wall right of the case (placed
    in DeskScene.tsx). Its contact shadow lies on the desk-top plane. */
 .desk-award { position: absolute; display: block; max-width: none;
-              filter: brightness(.9) saturate(.92) drop-shadow(calc(-4 * var(--u)) calc(2 * var(--u)) calc(6 * var(--u)) rgba(20,16,12,.25)); }
+              filter: brightness(.86) saturate(.95); }
+/* Its shadows, for a key above, in front and to the left: on the desk, a
+   dark contact along the base that spreads back and to the right, towards
+   the wall; on the wall, its silhouette (the still as a mask) thrown down
+   and to the right and softened by the 8 cm to the wall. */
 .desk-award-shadow {
-  position: absolute; width: calc(var(--w) * 1.5 * var(--u)); height: calc(var(--w) * .7 * var(--u));
-  margin: calc(var(--w) * -.35 * var(--u)) 0 0 calc(var(--w) * -.75 * var(--u));
-  background: radial-gradient(closest-side, rgba(20,16,12,.55), rgba(20,16,12,0)); filter: blur(calc(3 * var(--u)));
+  position: absolute; width: calc(var(--w) * 1.25 * var(--u)); height: calc(var(--w) * .55 * var(--u));
+  margin: calc(var(--w) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
+  background: radial-gradient(closest-side, rgba(10,8,6,.7), rgba(10,8,6,.3) 60%, rgba(10,8,6,0));
+  filter: blur(calc(3 * var(--u)));
+}
+.desk-award-cast {
+  position: absolute; background: rgba(6, 5, 4, .55);
+  -webkit-mask: url("/items/davey-trophy-v2.webp") 0 0 / 100% 100% no-repeat;
+          mask: url("/items/davey-trophy-v2.webp") 0 0 / 100% 100% no-repeat;
+  filter: blur(calc(7 * var(--u)));
 }
 /* The case's shadow, projected onto the desk from the flat plate; its own
    layer so it can leave with the case. */
@@ -1347,14 +1358,18 @@ body::after {
   display: none;
 }
 @media (min-width: 1440px) { .flip-clock-slot { display: block; } }
+/* Its shadows, for the room's key (above, in front, to the left): a tight
+   dark line where the base meets the desk, and the body's shadow falling
+   back and to the right — mostly behind it, showing as a soft edge off its
+   right side and top (the drop-shadow on .flip-clock__body). */
 .flip-clock-slot::before {                      /* contact on the desk */
-  content: ""; position: absolute; left: 1%; right: 1%; bottom: -5%; height: 13%;
-  background: radial-gradient(closest-side, rgba(10, 8, 6, .9), rgba(10, 8, 6, .45) 55%, rgba(10, 8, 6, 0));
-  filter: blur(2px); z-index: -1;
+  content: ""; position: absolute; left: 2%; right: 1%; bottom: -1.2%; height: 5%;
+  background: radial-gradient(closest-side, rgba(10, 8, 6, .85), rgba(10, 8, 6, 0));
+  filter: blur(1.5px); z-index: -1;
 }
 .flip-clock { position: relative; aspect-ratio: 1400 / 756; container-type: inline-size; user-select: none; }
 .flip-clock__body { position: absolute; inset: 0; width: 100%; height: 100%;
-  filter: brightness(.9) drop-shadow(0 2.4cqw 2cqw rgba(10, 8, 6, .5)); pointer-events: none; }
+  filter: brightness(.9) drop-shadow(2.6cqw -1.4cqw 2.4cqw rgba(10, 8, 6, .42)); pointer-events: none; }
 .flip-clock__win { position: absolute; display: flex; border-radius: .6cqw; }
 .flip-clock__win--h { left: 20.9%; top: 25.6%; width: 26.1%; height: 33.7%; }
 .flip-clock__win--m { left: 52.2%; top: 25.6%; width: 26.4%; height: 33.7%; }

@@ -65,12 +65,25 @@ const viewOf = (hash: string) =>
 // enough right that from the case's camera the window's edge cuts it about
 // in half at 1512px (x is its centre).
 const AWARD = { x: 1240, h: 600, z: -190 };
-const AWARD_W = Math.round(AWARD.h * 259 / 899);   // the still's own aspect
+const AWARD_W = Math.round(AWARD.h * 1033 / 3590);   // the still's own aspect
+// how far its shadow falls on the wall, 8 cm behind it (box px)
+const CAST = { x: 34, y: 20 };
 
 export function DeskPlanes() {
   return (
     <div className="desk-world">
-      <div className="desk-plane desk-wall" aria-hidden />
+      <div className="desk-plane desk-wall" aria-hidden>
+        {/* the trophy's shadow thrown back onto the wall behind it: the key
+            is above, in front and to the left, so it lands down and to the
+            right of the trophy, as the case's own does (render_desk.py).
+            Wall px are box x + 1052.5 across, box y + 144 down; the desk
+            line at the wall's foot cuts it off. */}
+        <div className="desk-award-cast" style={{
+          left: `calc(${AWARD.x - AWARD_W / 2 + CAST.x + 1052.5} * var(--u))`,
+          top: `calc(${656 - AWARD.h + CAST.y + 144} * var(--u))`,
+          width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
+        }} />
+      </div>
       <div className="desk-plane desk-wall desk-ext" aria-hidden />
       <div className="desk-plane desk-top desk-ext" aria-hidden />
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
@@ -115,7 +128,7 @@ export function DeskPlanes() {
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        className="desk-award" src="/items/davey-trophy.webp" alt="" aria-hidden draggable={false}
+        className="desk-award" src="/items/davey-trophy-v2.webp" alt="" aria-hidden draggable={false}
         style={{
           left: `calc(${AWARD.x - AWARD_W / 2} * var(--u))`, top: `calc(${656 - AWARD.h} * var(--u))`,
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,

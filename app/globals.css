@@ -373,120 +373,56 @@ body::after {
 [data-theme="dark"] .border-gray-300 { border-color: #3d352d; }
 [data-theme="dark"] a.underline { color: inherit; }
 
-/* ── Marauder's-Map ink tooltips (components/InkTip.tsx) ──
-   Aged-parchment tag revealed on hover; the name "writes on" in old ink. */
+/* ── Hover labels (components/InkTip.tsx) ──
+   The same frosted panel as KATE™'s conversation (.katetalk): translucent
+   paper, a hairline border, a soft shadow, fading in with a 4px rise. */
 .inktip {
-  --tip-ink: #3a2c1a;              /* sepia writing ink */
-  --tip-soft: rgba(58, 44, 26, 0.5);
-  --tip-p1: #efe4c9;              /* aged tag paper (top) */
-  --tip-p2: #e5d7b6;              /* aged tag paper (bottom) */
-  --tip-meta: #8a785a;
   position: absolute;
   left: 50%;
   z-index: 60;
+  display: block;
   width: max-content;
   max-width: 230px;
+  padding: 8px 12px 7px;
   pointer-events: none;           /* never steal hover from the item */
+  text-align: left;
+
+  border: 1px solid color-mix(in srgb, var(--border) 52%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--panel) 64%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.08);
+  backdrop-filter: blur(14px) saturate(1.08);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    0 4px 14px rgba(44, 38, 63, 0.09);
+  color: var(--fg);
+
   opacity: 0;
-  text-align: center;
-  transition: opacity 0.18s ease, transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: opacity 220ms ease, transform 220ms ease;
 }
 [data-theme="dark"] .inktip {
-  --tip-ink: #e7d8bf;
-  --tip-soft: rgba(231, 216, 191, 0.36);
-  --tip-p1: #2c251c;
-  --tip-p2: #241e17;
-  --tip-meta: #b09b7d;
-}
-.inktip--top { bottom: 100%; transform: translate(-50%, 2px); }
-.inktip--bottom { top: 100%; transform: translate(-50%, -2px); }
-.inktip[data-open="true"] { opacity: 1; }
-.inktip--top[data-open="true"] { transform: translate(-50%, -12px); }
-.inktip--bottom[data-open="true"] { transform: translate(-50%, 12px); }
-
-.inktip__paper {
-  position: relative;
-  display: block;
-  padding: 9px 15px 11px;
-  color: var(--tip-ink);
-  background:
-    radial-gradient(120% 90% at 28% 18%, rgba(255, 251, 240, 0.96), rgba(255, 251, 240, 0) 60%),
-    linear-gradient(158deg, var(--tip-p1) 0%, var(--tip-p2) 100%);
-  border: 1px solid var(--tip-soft);
-  border-radius: 11px 9px 13px 8px / 9px 12px 8px 12px;  /* hand-cut edges */
   box-shadow:
-    0 10px 22px rgba(40, 28, 12, 0.28),
-    0 2px 5px rgba(40, 28, 12, 0.2),
-    inset 0 0 22px rgba(120, 92, 48, 0.1);
+    inset 0 1px 0 color-mix(in srgb, #fff 9%, transparent),
+    0 4px 14px rgba(0, 0, 0, 0.34);
 }
-[data-theme="dark"] .inktip__paper {
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5), inset 0 0 22px rgba(0, 0, 0, 0.25);
-}
-/* faint deckled inner stroke */
-.inktip__paper::before {
-  content: "";
-  position: absolute;
-  inset: 2px;
-  border: 1px solid color-mix(in srgb, var(--tip-ink) 14%, transparent);
-  border-radius: 9px 12px 8px 11px / 12px 8px 12px 9px;
-  pointer-events: none;
-}
-/* parchment pointer toward the item */
-.inktip__paper::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  width: 14px;
-  height: 14px;
-  background: linear-gradient(158deg, var(--tip-p1), var(--tip-p2));
-  border-right: 1px solid var(--tip-soft);
-  border-bottom: 1px solid var(--tip-soft);
-}
-.inktip--top .inktip__paper::after { bottom: -8px; transform: translateX(-50%) rotate(45deg); }
-.inktip--bottom .inktip__paper::after { top: -8px; transform: translateX(-50%) rotate(225deg); }
-
-/* footprints emblem — the Marauder's-Map signature, atop the name */
-.inktip__emblem { display: flex; gap: 5px; justify-content: center; margin-bottom: 3px; opacity: 0.5; }
-.inktip__emblem svg { width: 10px; height: 13px; fill: var(--tip-ink); }
-.inktip__emblem svg:last-child { transform: translateY(3px); }
+.inktip--top { bottom: 100%; transform: translate(-50%, -6px); }
+.inktip--bottom { top: 100%; transform: translate(-50%, 14px); }
+.inktip[data-open="true"] { opacity: 1; }
+.inktip--top[data-open="true"] { transform: translate(-50%, -10px); }
+.inktip--bottom[data-open="true"] { transform: translate(-50%, 10px); }
 
 .inktip__name {
   display: block;
-  font-family: var(--font-fell), Georgia, serif;
-  font-style: italic;
-  font-size: 22px;
-  line-height: 1.05;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  color: var(--fg);
   white-space: nowrap;
 }
-.inktip__under { display: block; margin: 3px auto 0; width: 82%; height: 9px; overflow: visible; }
-.inktip__under path { fill: none; stroke: var(--tip-ink); stroke-width: 1.6; stroke-linecap: round; opacity: 0.8; }
 .inktip__meta {
   display: block;
-  margin-top: 5px;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--tip-meta);
+  margin-top: 3px;
   max-width: 210px;
 }
-
-/* ink-write reveal — only while open, and only if motion is welcome */
-@media (prefers-reduced-motion: no-preference) {
-  .inktip[data-open="true"] .inktip__name { animation: inktip-write 0.5s ease-out both; }
-  .inktip[data-open="true"] .inktip__under path {
-    stroke-dasharray: 120; stroke-dashoffset: 120;
-    animation: inktip-draw 0.55s ease-out 0.12s both;
-  }
-  .inktip[data-open="true"] .inktip__emblem { animation: inktip-fade 0.4s ease-out 0.1s both; }
-}
-@keyframes inktip-write {
-  0% { -webkit-clip-path: inset(0 100% 0 0); clip-path: inset(0 100% 0 0); filter: blur(1.6px); }
-  100% { -webkit-clip-path: inset(0 0 0 0); clip-path: inset(0 0 0 0); filter: blur(0); }
-}
-@keyframes inktip-draw { to { stroke-dashoffset: 0; } }
-@keyframes inktip-fade { from { opacity: 0; } to { opacity: 0.5; } }
+@media (prefers-reduced-motion: reduce) { .inktip { transition: none; } }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Disc rack — the Series shelf as a case of real CDs.
@@ -763,10 +699,10 @@ body::after {
 .pd-sticker {
   position: absolute; border: 0; padding: 0; background: none; cursor: pointer;
   filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25));
-  transition: filter 0.2s ease, scale 0.2s ease;
+  transition: filter 300ms ease;
 }
 .pd-sticker img { display: block; width: 100%; height: auto; max-width: none; opacity: 0.97; }
-.pd-sticker:hover, .pd-sticker:focus-visible { filter: drop-shadow(0 3px 4px rgba(0,0,0,0.35)) brightness(1.05); outline: none; scale: 1.06; }
+.pd-sticker:hover, .pd-sticker:focus-visible { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)) brightness(1.05) saturate(1.04); outline: none; }
 
 /* the screen */
 .pd-screen {
@@ -1257,7 +1193,7 @@ body::after {
   overflow: hidden; color: #22283a; text-decoration: none;
   box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.18), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.28);
   transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r));
-  transition: transform .6s cubic-bezier(.65, 0, .2, 1), box-shadow .25s ease, border-color .25s ease;
+  transition: transform .6s cubic-bezier(.65, 0, .2, 1), filter 300ms ease, border-color .25s ease;
 }
 .desk-card__cover { height: calc(64 * var(--u)); background: #ebe6db; border-bottom: calc(1 * var(--u)) solid #e0dbcf; }
 .desk-card__body { padding: calc(7 * var(--u)) calc(9 * var(--u)); }
@@ -1585,8 +1521,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
 [data-desk="open"] .desk-card:hover,
 [data-desk="open"] .desk-card:focus-visible {
-  transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateY(calc(-3 * var(--u))); border-color: #b9b2a3; outline: none;
-  box-shadow: 0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(20,16,12,.16), 0 calc(12 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34);
+  border-color: #b9b2a3; outline: none;
+  filter: brightness(1.05) saturate(1.04);
 }
 /* The folder lifts by its own outline, not the card's box — and not at all
    once it is open (the generic card hover must not reach it either). */
@@ -1806,6 +1742,24 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   -webkit-mask-composite: source-in;
   mask-composite: intersect;
 }
+/* The same reaction for every other thing on the site you can point at: it
+   warms very slightly and stays exactly where it is — no lift, no scale, no
+   coloured ring. An item's resting filter (its shadow, its tone) goes in
+   --rest so the warmth lands on top of it instead of replacing it. */
+.warm, .warm-glow {
+  filter: var(--rest,) brightness(1) saturate(1);
+  transition: filter 300ms ease, background-color 300ms ease;
+}
+.group:hover .warm, .group:focus-within .warm, .warm:hover {
+  filter: var(--rest,) brightness(1.05) saturate(1.04);
+}
+/* A hit area over a printed sticker has no pixels of its own to warm, so it
+   lays down the faintest wash instead. */
+.group:hover .warm-glow, .group:focus-within .warm-glow {
+  background-color: color-mix(in srgb, #fff 10%, transparent);
+}
+@media (prefers-reduced-motion: reduce) { .warm, .warm-glow { transition: none; } }
+
 .case-stage:has(.katetalk__hotspot:hover) .niche-clip,
 .case-stage:has(.katetalk__hotspot:focus-visible) .niche-clip,
 .case-stage:has(.katetalk[data-open="true"]) .niche-clip {

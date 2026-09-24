@@ -55,11 +55,11 @@ export default async function Cycling({
                   const path = a.polyline ? polylineToSvgPath(a.polyline) : null;
                   return (
                     <a key={a.id} href={`https://www.strava.com/activities/${a.id}`} target="_blank" rel="noopener noreferrer"
-                      className="group block border-2 overflow-hidden hover:opacity-90 transition-opacity" style={{ borderColor: "var(--border)" }}>
+                      className="group block border-2 overflow-hidden" style={{ borderColor: "var(--border)" }}>
                       <div className="aspect-square flex items-center justify-center" style={{ background: "var(--inner)" }}>
                         {mapUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={mapUrl} alt={`Route of ${a.name}`} className="w-full h-full object-cover" />
+                          <img src={mapUrl} alt={`Route of ${a.name}`} className="w-full h-full object-cover warm" />
                         ) : path ? (
                           <svg viewBox="0 0 100 100" className="w-full h-full">
                             <path d={path} fill="none" stroke="var(--accent-red)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />

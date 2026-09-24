@@ -790,7 +790,7 @@ export default function Home() {
           >
             <span
               aria-hidden
-              className="block w-full h-full rounded-lg ring-0 transition duration-300 group-hover:-translate-y-0.5 group-hover:ring-2 group-hover:ring-[#A259FF]/70 group-hover:shadow-[0_6px_16px_rgba(162,89,255,0.45)]"
+              className="block w-full h-full rounded-lg warm-glow"
             />
           </a>
         </InkTip>
@@ -851,8 +851,8 @@ export default function Home() {
           <img
             src="/items/left-1-books-a.webp"
             alt="Books standing on a shelf: Sapiens, IT and Animal Farm"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
+            className="w-full h-auto warm"
+            style={{ "--rest": "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" } as React.CSSProperties}
             draggable={false}
           />
         </div>
@@ -865,8 +865,8 @@ export default function Home() {
           <img
             src="/items/left-1-books-b.webp"
             alt="Books standing on a shelf: W.I.T.C.H. volumes one to three and The Little Prince"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" }}
+            className="w-full h-auto warm"
+            style={{ "--rest": "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" } as React.CSSProperties}
             draggable={false}
           />
         </div>
@@ -896,8 +896,8 @@ export default function Home() {
           <img
             src="/items/left-2-vhs.webp"
             alt="A shelf of VHS tapes: The 10th Kingdom, Are You Afraid of the Dark?, Goosebumps, Harry Potter, The Lord of the Rings, The X-Files, Supernatural, Jumanji, IT, The Silence of the Lambs, The Princess Bride, Stargate"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" }}
+            className="w-full h-auto warm"
+            style={{ "--rest": "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" } as React.CSSProperties}
             draggable={false}
           />
         </div>
@@ -905,7 +905,7 @@ export default function Home() {
         {/* The bike's own shadow on the back wall: the same picture again,
             offset down and to the right of the light, flattened to black and
             blurred. A drop-shadow filter could not do this — it would follow
-            the bike when it lifts on hover, and a shadow on a wall does not. */}
+            the bike wherever it went, and a shadow on a wall does not. */}
         <div
           aria-hidden
           style={{ position: "absolute", left: "57.9%", top: "18.5%", width: "17.25%", transform: "rotate(5deg)", transformOrigin: "top center", zIndex: 4, pointerEvents: "none" }}
@@ -947,9 +947,9 @@ export default function Home() {
           <img
             src="/items/mid-bike.webp"
             alt="A miniature gravel bike hung by its front wheel in the niche"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            className="w-full h-auto warm"
             // Colour is baked into the file now, so only the shadow is left.
-            style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" }}
+            style={{ "--rest": "drop-shadow(0 8px 10px rgba(0,0,0,0.4))" } as React.CSSProperties}
             draggable={false}
           />
         </div>
@@ -1000,8 +1000,8 @@ export default function Home() {
           <img
             src="/items/mid-mono.webp"
             alt="A miniature electric unicycle parked on the compartment floor under the bike"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" }}
+            className="w-full h-auto warm"
+            style={{ "--rest": "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" } as React.CSSProperties}
             draggable={false}
           />
         </InkTip>
@@ -1021,11 +1021,11 @@ export default function Home() {
           <img
             src="/items/mid-pads.webp"
             alt="A set of miniature knee and elbow pads stacked on the wardrobe's bottom shelf"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
+            className="w-full h-auto warm"
             // Cut at the wardrobe's side wall: the case is a photograph, so
             // nothing can pass behind it by z-index — the pile is clipped where
             // the wall stands, which reads as pushed into the corner.
-            style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.42))", clipPath: "inset(0 9% 0 0)" }}
+            style={{ "--rest": "drop-shadow(0 4px 5px rgba(0,0,0,0.42))", clipPath: "inset(0 9% 0 0)" } as React.CSSProperties}
             draggable={false}
           />
         </InkTip>
@@ -1044,8 +1044,8 @@ export default function Home() {
           <img
             src="/items/mid-bike-shoes.webp"
             alt="A pair of black canvas high-top sneakers on the wardrobe's bottom shelf"
-            className="w-full h-auto transition-transform duration-300 group-hover:-translate-y-1"
-            style={{ filter: "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" }}
+            className="w-full h-auto warm"
+            style={{ "--rest": "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" } as React.CSSProperties}
             draggable={false}
           />
         </InkTip>
@@ -1072,16 +1072,16 @@ export default function Home() {
                 autoPlay muted loop playsInline
                 onError={() => setVideoFailed(true)}
                 poster={`/dolls/cut/web/${shown}.webp`}
-                className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
-                style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
+                className="h-full w-auto warm"
+                style={{ "--rest": "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" } as React.CSSProperties}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={`/dolls/cut/web/${shown}.webp`}
                 alt={EDITIONS[shown].label}
-                className="h-full w-auto transition-transform duration-500 group-hover:-translate-y-2"
-                style={{ filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" }}
+                className="h-full w-auto warm"
+                style={{ "--rest": "drop-shadow(0 8px 10px rgba(0,0,0,0.35))" } as React.CSSProperties}
                 draggable={false}
               />
             )}

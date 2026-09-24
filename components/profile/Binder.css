@@ -1,0 +1,120 @@
+/* Profile binder — geometry is the photograph's, in per cent of the binder
+   crop (3717 × 2136 at 4k): sleeves 1455 × 2015, 250 px either side of the
+   ring line. --px is one design pixel of a 1200 px wide binder; everything on
+   the sheets is sized in it so a sleeve reads the same at any width. */
+
+.pf { --ink: #2C263F; --paper: #f3ede1; --red: #d8352a; --saffron: #F8C662;
+  display: flex; flex-direction: column; align-items: center; gap: 22px; }
+
+.pf-binder { position: relative; width: min(100%, calc((100svh - 150px) * 3717 / 2136)); aspect-ratio: 3717 / 2136;
+  container-type: inline-size; perspective: 3200px; cursor: pointer;
+  border-radius: .75%; box-shadow: 0 1px 2px rgba(40, 25, 10, .18), 0 18px 40px -14px rgba(40, 25, 10, .35); user-select: none; }
+.pf-binder > * { --px: calc(100cqw / 1200); }
+.pf-binder__base { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pf-binder__spine { position: absolute; top: 0; left: 43.34%; width: 13.45%; height: 100%; z-index: 100; pointer-events: none; }
+
+.pf-leaf { position: absolute; left: 56.79%; top: 2.39%; width: 39.14%; height: 94.33%;
+  transform-origin: -17.18% 50%; transform-style: preserve-3d;
+  transition: transform .9s cubic-bezier(.45, .05, .25, 1); }
+.pf-leaf[data-turned] { transform: rotateY(-180deg); }
+.pf-leaf__face { position: absolute; inset: 0; backface-visibility: hidden;
+  background: url(/profile/binder/sleeve-r.webp) center / 100% 100%; }
+.pf-leaf__face--back { transform: rotateY(180deg); background-image: url(/profile/binder/sleeve-l.webp); }
+/* the plastic over the paper: the sleeve's own wrinkles, soft-lit */
+.pf-leaf__face::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: url(/profile/binder/sheen-r.webp) center / 100% 100%; mix-blend-mode: soft-light; opacity: .95; }
+.pf-leaf__face--back::after { background-image: url(/profile/binder/sheen-l.webp); }
+
+.pf-leaf .pf-sheet { position: absolute; inset: 2.1% 2.4% 2.1% 2.6%; }
+.pf-leaf__face--back .pf-sheet { inset: 2.1% 2.6% 2.1% 2.4%; }
+
+/* ── the paper ── */
+.pf-sheet { background: var(--paper); color: var(--ink); overflow: hidden;
+  box-shadow: 0 0 0 calc(.5 * var(--px)) rgba(60, 40, 20, .08), 0 calc(1 * var(--px)) calc(3 * var(--px)) rgba(60, 40, 20, .12);
+  font: 400 calc(9.6 * var(--px)) / 1.45 var(--font-serif), Georgia, serif; }
+.pf-sheet * { box-sizing: border-box; }
+
+.pf-page { position: absolute; inset: 0; display: flex; flex-direction: column; padding: calc(20 * var(--px)) calc(22 * var(--px)); }
+.pf-mono { font-family: var(--font-typewriter), ui-monospace, monospace; font-size: calc(6.4 * var(--px)); letter-spacing: .08em; text-transform: uppercase; line-height: 1.35; }
+.pf-head { display: flex; justify-content: space-between; align-items: center; gap: calc(8 * var(--px));
+  padding-bottom: calc(6 * var(--px)); border-bottom: calc(.8 * var(--px)) solid var(--ink); margin-bottom: calc(14 * var(--px)); }
+.pf-mark { display: inline-grid; place-items: center; width: calc(20 * var(--px)); height: calc(20 * var(--px)); border-radius: 50%;
+  border: calc(.8 * var(--px)) solid var(--ink); font: 700 calc(5.6 * var(--px)) / 1 var(--font-display), sans-serif; letter-spacing: .02em; }
+.pf-head__l { display: flex; align-items: center; gap: calc(8 * var(--px)); }
+.pf-rule { border-top: calc(.8 * var(--px)) solid var(--ink); }
+.pf-foot { margin-top: auto; display: flex; justify-content: space-between; padding-top: calc(6 * var(--px));
+  border-top: calc(.6 * var(--px)) solid var(--ink); }
+
+/* CV cover — the reference's archive sheet */
+.pf-cv__title { font: 800 calc(44 * var(--px)) / .9 var(--font-display), sans-serif; font-stretch: 78%; letter-spacing: -.01em;
+  text-transform: uppercase; margin: 0 0 calc(12 * var(--px)); }
+.pf-cv__row { display: grid; grid-template-columns: 1fr auto; gap: calc(14 * var(--px)); align-items: start;
+  padding: calc(10 * var(--px)) 0; border-top: calc(.8 * var(--px)) solid var(--ink); }
+.pf-cv__vol { background: var(--saffron); padding: calc(5 * var(--px)) calc(7 * var(--px)); text-align: left; }
+.pf-cv__vol b { display: block; font: 800 calc(24 * var(--px)) / .9 var(--font-display), sans-serif; }
+.pf-x { position: relative; flex: 1; min-height: 0; margin: calc(4 * var(--px)) 0 calc(12 * var(--px)); background: #1f1b24; color: #efe7d8;
+  display: flex; align-items: flex-end; padding: calc(10 * var(--px)); overflow: hidden; }
+.pf-x::before { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to top right, transparent calc(50% - .5px), rgba(239, 231, 216, .55) 50%, transparent calc(50% + .5px)),
+              linear-gradient(to bottom right, transparent calc(50% - .5px), rgba(239, 231, 216, .55) 50%, transparent calc(50% + .5px)); }
+.pf-x > * { position: relative; }
+.pf-cells { display: grid; grid-template-columns: 1fr 1.5fr .8fr 1.6fr; border-top: calc(.8 * var(--px)) solid var(--ink); }
+.pf-cells > div { padding: calc(5 * var(--px)) calc(6 * var(--px)) 0; border-left: calc(.6 * var(--px)) solid var(--ink); }
+.pf-cells > div:first-child { border-left: 0; padding-left: 0; }
+.pf-cells span { display: block; opacity: .6; margin-bottom: calc(2 * var(--px)); }
+
+/* the photograph, with its slip */
+.pf-photo { position: absolute; inset: 0; background: #2a2630; }
+.pf-photo .pf-x { position: absolute; inset: 0; margin: 0; }
+.pf-tag { position: absolute; top: calc(18 * var(--px)); right: calc(16 * var(--px)); width: calc(150 * var(--px));
+  background: var(--paper); padding: calc(9 * var(--px)) calc(10 * var(--px)); box-shadow: 0 calc(2 * var(--px)) calc(6 * var(--px)) rgba(0,0,0,.35); }
+.pf-tag__t { font: 800 calc(15 * var(--px)) / 1 var(--font-display), sans-serif; font-stretch: 80%; text-transform: uppercase; margin-bottom: calc(6 * var(--px)); }
+.pf-tag__clip { position: absolute; top: calc(-12 * var(--px)); right: calc(18 * var(--px)); width: calc(10 * var(--px)); height: calc(34 * var(--px)); color: #9ea2a8; }
+.pf-slip { position: absolute; left: calc(-4 * var(--px)); right: calc(14 * var(--px)); bottom: calc(22 * var(--px));
+  background: #e8e2d2; padding: calc(12 * var(--px)) calc(34 * var(--px)) calc(12 * var(--px)) calc(14 * var(--px));
+  transform: rotate(-.6deg); box-shadow: 0 calc(3 * var(--px)) calc(8 * var(--px)) rgba(0,0,0,.4);
+  background-image: radial-gradient(circle at calc(100% - 14 * var(--px)) 50%, #2a2630 calc(3.2 * var(--px)), transparent calc(3.4 * var(--px)));
+  background-size: 100% calc(17 * var(--px)); background-repeat: repeat-y; }
+.pf-slip__lede { font-family: var(--font-typewriter), monospace; font-size: calc(9.4 * var(--px)); line-height: 1.35; margin: calc(8 * var(--px)) 0 calc(10 * var(--px)); }
+.pf-slip dl { display: grid; grid-template-columns: auto 1fr; margin: 0; }
+.pf-slip dt, .pf-slip dd { margin: 0; padding: calc(3.5 * var(--px)) 0; border-top: calc(.6 * var(--px)) solid var(--ink); }
+.pf-slip dd { text-align: right; font-weight: 700; }
+
+/* content sheets */
+.pf-part { display: flex; align-items: baseline; gap: calc(10 * var(--px)); margin-bottom: calc(14 * var(--px)); }
+.pf-part__n { font: 700 calc(34 * var(--px)) / .8 var(--font-display), sans-serif; color: var(--red); }
+.pf-part__t { font: 800 calc(22 * var(--px)) / .95 var(--font-display), sans-serif; font-stretch: 80%; text-transform: uppercase; }
+.pf-body p { margin: 0 0 calc(8 * var(--px)); }
+.pf-lead { font-size: calc(13 * var(--px)); line-height: 1.35; }
+.pf-job { margin-bottom: calc(12 * var(--px)); }
+.pf-job__h { display: flex; justify-content: space-between; align-items: baseline; gap: calc(8 * var(--px));
+  font: 800 calc(12 * var(--px)) / 1.1 var(--font-display), sans-serif; font-stretch: 85%; text-transform: uppercase;
+  border-top: calc(.8 * var(--px)) solid var(--ink); padding-top: calc(5 * var(--px)); }
+.pf-job__note { font-style: italic; opacity: .75; font-size: calc(8.6 * var(--px)); margin: calc(3 * var(--px)) 0 calc(6 * var(--px)); line-height: 1.35; }
+.pf-role { margin: 0 0 calc(7 * var(--px)); padding-left: calc(8 * var(--px)); border-left: calc(.8 * var(--px)) solid var(--red); }
+.pf-role__h { display: flex; justify-content: space-between; gap: calc(8 * var(--px)); font-weight: 600; font-size: calc(9 * var(--px)); margin-bottom: calc(2 * var(--px)); }
+.pf-role ul { margin: 0; padding: 0; list-style: none; }
+.pf-role li { font-size: calc(8.2 * var(--px)); line-height: 1.36; padding-left: calc(9 * var(--px)); position: relative; margin-bottom: calc(1.5 * var(--px)); }
+.pf-role li::before { content: "✦"; position: absolute; left: 0; color: var(--red); font-size: .8em; top: .15em; }
+.pf-item { padding: calc(7 * var(--px)) 0; border-top: calc(.6 * var(--px)) solid var(--ink); }
+.pf-item__h { display: flex; justify-content: space-between; gap: calc(10 * var(--px)); font-weight: 600; margin-bottom: calc(2 * var(--px)); }
+.pf-chips { display: flex; flex-wrap: wrap; gap: calc(4 * var(--px)); margin: calc(4 * var(--px)) 0 calc(10 * var(--px)); }
+.pf-chips span { border: calc(.7 * var(--px)) solid var(--ink); padding: calc(2 * var(--px)) calc(5 * var(--px)); }
+
+/* ── pager ── */
+.pf-pager { display: flex; align-items: center; gap: 14px; font-family: var(--font-typewriter), monospace; font-size: 12px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.pf-pager ol { display: flex; gap: 18px; margin: 0; padding: 0; list-style: none; }
+.pf-pager button { background: none; border: 0; padding: 4px 0; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.pf-pager button:disabled { opacity: .3; cursor: default; }
+.pf-pager button[aria-current] { color: var(--fg); box-shadow: inset 0 -2px var(--accent); }
+.pf-pager span { color: var(--accent-red); }
+
+.pf-stack { display: none; }
+@media (max-width: 760px) {
+  .pf-binder, .pf-pager { display: none; }
+  .pf { container-type: inline-size; }
+  .pf-stack { display: flex; flex-direction: column; gap: 18px; width: 100%; --px: calc(100cqw / 443); }
+  .pf-stack .pf-sheet { position: relative; width: 100%; aspect-ratio: 1455 / 2015; }
+}
+@media (prefers-reduced-motion: reduce) { .pf-leaf { transition-duration: 0s; } }

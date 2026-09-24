@@ -1280,39 +1280,43 @@ body::after {
    a 150-wide folder; the pocket's cut runs from 16.4% down on the left to
    29.3% on the right, and everything printed sits below it, bar the French
    Design Awards stamp, struck on the back flap above the cut. */
-.desk-card--env { border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
+.desk-card--env { --eu: calc(3 * var(--u)); border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
                   filter: drop-shadow(0 calc(1 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28)); }
-.env { position: absolute; inset: 0; display: block; }
+/* Laid out 3× up and scaled back down: the desk plane is rasterised at its
+   own size before the camera magnifies it ~2.5×, so at 1× the folder's print
+   and stickers go soft. --eu is the desk px inside it. */
+.env { position: absolute; left: 0; top: 0; display: block; width: 300%; height: 300%;
+       transform: scale(calc(1 / 3)); transform-origin: 0 0; }
 .env__layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Dark red ink printed into the card, as on the reference folder. */
 .env__print { position: absolute; inset: 0; color: #6e0d06; mix-blend-mode: multiply; }
 .env__no { position: absolute; left: 9%; top: 33%;
-           font: 700 calc(9 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; }
+           font: 700 calc(9 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; }
 .env__where { position: absolute; left: 9%; top: 38.5%; width: 34%;
-              font: 500 calc(4.4 * var(--u)) / 1.3 var(--font-mono, ui-monospace), ui-monospace, monospace;
+              font: 500 calc(4.4 * var(--eu)) / 1.3 var(--font-mono, ui-monospace), ui-monospace, monospace;
               letter-spacing: .04em; }
 .env__big { position: absolute; left: 7%; bottom: 3%;
             font-family: var(--font-display), system-ui, sans-serif; font-weight: 900; font-stretch: 62%;
-            font-size: calc(118 * var(--u)); line-height: .8; letter-spacing: -.04em; }
+            font-size: calc(118 * var(--eu)); line-height: .8; letter-spacing: -.04em; }
 /* MUSE Gold keeps its foil; the round CSSDA seals are stickers with a white
    die-cut edge and a thin shadow. */
 .env__stamps { position: absolute; inset: 0; }
 .env__stamp, .env__sticker { position: absolute; display: block; }
 .env__stamp--muse { right: 9%; top: 33%; width: 36%; transform: rotate(-4deg); opacity: .92; }
 .env__sticker { transform: rotate(var(--t, 0deg));
-  filter: drop-shadow(0 0 calc(.5 * var(--u)) #fff) drop-shadow(0 0 calc(.5 * var(--u)) #fff)
-          drop-shadow(0 calc(.6 * var(--u)) calc(.6 * var(--u)) rgba(20,16,12,.35)); }
+  filter: drop-shadow(0 0 calc(.5 * var(--eu)) #fff) drop-shadow(0 0 calc(.5 * var(--eu)) #fff)
+          drop-shadow(0 calc(.6 * var(--eu)) calc(.6 * var(--eu)) rgba(20,16,12,.35)); }
 .env__sticker--ui    { right: 6%;  top: 42%; width: 21%; --t: -8deg; }
 .env__sticker--ux    { right: 27%; top: 44%; width: 18%; --t: 6deg; }
 .env__sticker--kudos { right: 5%;  top: 55%; width: 18%; --t: 14deg; }
 .env__sticker--inn   { left: 8%;   top: 3%;  width: 18%; --t: -12deg; }
-.env__stamp--fda { right: 11%; top: 5%; width: calc(28 * var(--u)); height: calc(28 * var(--u));
-                   border: calc(1.2 * var(--u)) double #1d1712; border-radius: 50%; color: #1d1712;
+.env__stamp--fda { right: 11%; top: 5%; width: calc(28 * var(--eu)); height: calc(28 * var(--eu));
+                   border: calc(1.2 * var(--eu)) double #1d1712; border-radius: 50%; color: #1d1712;
                    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-                   font: 600 calc(2.6 * var(--u)) / 1.15 var(--font-mono, ui-monospace), ui-monospace, monospace;
+                   font: 600 calc(2.6 * var(--eu)) / 1.15 var(--font-mono, ui-monospace), ui-monospace, monospace;
                    letter-spacing: .06em; text-transform: uppercase; transform: rotate(-11deg);
                    mix-blend-mode: multiply; opacity: .72; }
-.env__stamp--fda b { font-size: calc(5 * var(--u)); letter-spacing: .1em; margin: calc(1 * var(--u)) 0; }
+.env__stamp--fda b { font-size: calc(5 * var(--eu)); letter-spacing: .1em; margin: calc(1 * var(--eu)) 0; }
 
 /* ── The camera move ──
    The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), 35 cm in

@@ -3,8 +3,8 @@
    ring line. --px is one design pixel of a 1200 px wide binder; everything on
    the sheets is sized in it so a sleeve reads the same at any width. */
 
-.pf { --ink: #2C263F; --paper: #f3ede1; --red: #d8352a; --saffron: #F8C662;
-  display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.pf, .pf-binder { --ink: #2C263F; --paper: #f3ede1; --red: #d8352a; --saffron: #F8C662; }
+.pf { display: flex; flex-direction: column; align-items: center; gap: 22px; }
 
 .pf-binder { position: relative; width: min(100%, calc((100svh - 150px) * 3717 / 2136)); aspect-ratio: 3717 / 2136;
   container-type: inline-size; perspective: 3200px; cursor: pointer;
@@ -100,6 +100,11 @@
 .pf-item__h { display: flex; justify-content: space-between; gap: calc(10 * var(--px)); font-weight: 600; margin-bottom: calc(2 * var(--px)); }
 .pf-chips { display: flex; flex-wrap: wrap; gap: calc(4 * var(--px)); margin: calc(4 * var(--px)) 0 calc(10 * var(--px)); }
 .pf-chips span { border: calc(.7 * var(--px)) solid var(--ink); padding: calc(2 * var(--px)) calc(5 * var(--px)); }
+
+/* on home's desk (DeskBinder): placed and sized in desk px by its style */
+.pf-binder.desk-binder { position: absolute; pointer-events: auto; perspective: calc(1650 * var(--u));
+  border-radius: calc(4 * var(--u));
+  box-shadow: 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(20, 16, 12, .3), 0 calc(12 * var(--u)) calc(22 * var(--u)) calc(-8 * var(--u)) rgba(20, 16, 12, .4); }
 
 /* ── pager ── */
 .pf-pager { display: flex; align-items: center; gap: 14px; font-family: var(--font-typewriter), monospace; font-size: 12px;

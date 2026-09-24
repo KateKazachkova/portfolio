@@ -1540,6 +1540,21 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: rotateX(-4deg) translate3d(calc(-1040 * var(--u)), 0, calc(100 * var(--u)));
 }
 [data-desk="award"] .case-world { pointer-events: none; }
+
+/* ── Profile: the third stop ──
+   Straight down, as over the case files, onto the yellow binder lying in
+   front of the certificate (DeskBinder: desk x 3010, y 290, so z 21). The
+   eye is 1.25 m over the desk (y 656 - 1250), high enough for the whole
+   open binder: translate (-(3010 - 93 - 1612.5), 226 + 594, 2150 - 21) — the axis 93 px left of the binder, so it sits clear of the index column. */
+[data-desk="profile"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+[data-desk="profile"] .desk-world,
+[data-desk="profile"] .case-world {
+  transform: rotateX(-90deg) translate3d(calc(-1304.5 * var(--u)), calc(820 * var(--u)), calc(2129 * var(--u)));
+}
+[data-desk="profile"] .case-world { opacity: 0; pointer-events: none;
+  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
+[data-desk="profile"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
+.desk-binder { cursor: pointer; }
 /* Once there, the pan is driven frame by frame, so the move's own
    transition must not smear it. Grab cursor: the desk can be dragged. */
 [data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }
@@ -1578,20 +1593,20 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    title, lead and index — stays as it is on every page, inked for the white
    desk (over the dark wall it keeps its own colours). */
 .hero-caption, .hero-contact { transition: opacity .5s ease; }
-[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption,
-[data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact { opacity: 0; pointer-events: none; }
+[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption, [data-desk="profile"] .hero-caption,
+[data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact, [data-desk="profile"] .hero-contact { opacity: 0; pointer-events: none; }
 /* Over the desk the column's title and lead stay, but only its links take the
    pointer, so what lies under the words can still be picked up. The ink turns
    dark only where the column stands over the white desk (1440px and up);
    under that it sits above the scene, on the page's own ground. */
-[data-desk="open"] .hero-aside-wrap { pointer-events: none; }
-[data-desk="open"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
-@media (min-width: 1440px) { [data-desk="open"] .hero-aside { --fg: #22283a; --muted: #5b6275; } }
-[data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap { border-color: transparent !important; }
+[data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { pointer-events: none; }
+[data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
+@media (min-width: 1440px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
+[data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */
-[data-desk="open"] main, [data-desk="award"] main { min-height: calc(100vh + 56px); }
+[data-desk="open"] main, [data-desk="award"] main, [data-desk="profile"] main { min-height: calc(100vh + 56px); }
 
 @media (prefers-reduced-motion: reduce) {
   .scene-cam, .desk-world, .case-world, .desk-shadow, .desk-card { transition: none !important; }

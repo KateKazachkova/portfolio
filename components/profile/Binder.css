@@ -46,7 +46,7 @@
   background: url(/profile/binder/leaf-gloss-r.webp) center / 100% 100%; opacity: .9; }
 .pf-face--back .pf-face__full::after { background-image: url(/profile/binder/leaf-gloss-l.webp); }
 /* leaves under the two on show are covered: not drawn at all */
-.pf-leaf[data-hidden]:not([data-flying]) { visibility: hidden; }
+.pf-leaf[data-hidden]:not([data-flying]) > .pf-whole { visibility: hidden; }
 /* the light going off a sleeve as it stands up */
 .pf-face::before { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: rgba(30, 20, 10, .28); opacity: 0; }
 .pf-leaf[data-dir] .pf-face::before { animation: pf-shade 1.15s cubic-bezier(.4, 0, .2, 1) var(--lag, 0s) both; }
@@ -155,6 +155,47 @@
   background: linear-gradient(270deg, #d9a43c, #a8741a); }
 .desk-binder .pf-hoop { display: block; position: absolute; left: calc(50.07% - 30 * var(--u)); width: calc(60 * var(--u)); height: calc(28 * var(--u));
   margin-top: calc(-28 * var(--u)); transform-origin: 50% 100%; transform: translateZ(var(--t)) rotateX(-90deg); overflow: visible; }
+
+/* The divider tab: a clear plastic tab on the sleeve's top edge with the
+   logo slipped into it, standing above the stack on whichever side its
+   sleeve lies (its back face reads the right way round once turned). */
+.pf-tab { position: absolute; left: 58%; width: 24%; top: -5.2%; height: 6.4%; transform-style: preserve-3d; cursor: pointer; z-index: 3; }
+.pf-tab__face { position: absolute; inset: 0; display: block; backface-visibility: hidden;
+  border-radius: calc(5 * var(--px)) calc(5 * var(--px)) 0 0; overflow: hidden;
+  background: rgba(236, 240, 238, .78); box-shadow: inset 0 0 0 calc(.8 * var(--px)) rgba(255, 255, 255, .7), 0 calc(-1 * var(--px)) calc(3 * var(--px)) rgba(40, 30, 10, .18); }
+.pf-tab__face--back { transform: rotateY(180deg); }
+.pf-tab img { position: absolute; left: 7%; right: 7%; top: 12%; width: 86%; height: 88%; object-fit: cover; object-position: 50% 45%; border-radius: calc(2 * var(--px)) calc(2 * var(--px)) 0 0; }
+.pf-tab:hover .pf-tab__face { background: rgba(248, 246, 236, .95); }
+
+/* БУДЬ's sheets */
+.pf-stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: calc(.8 * var(--px)) solid var(--ink); border-bottom: calc(.8 * var(--px)) solid var(--ink); }
+.pf-stats > div { padding: calc(6 * var(--px)) calc(6 * var(--px)) calc(5 * var(--px)); border-left: calc(.6 * var(--px)) solid var(--ink); display: flex; flex-direction: column; gap: calc(2 * var(--px)); }
+.pf-stats > div:first-child { border-left: 0; padding-left: 0; }
+.pf-stats b { font: 800 calc(24 * var(--px)) / .9 var(--font-display), sans-serif; font-stretch: 80%; color: var(--red); }
+.pf-log > div { display: grid; grid-template-columns: calc(38 * var(--px)) 1fr; gap: calc(6 * var(--px)); padding: calc(3.2 * var(--px)) 0;
+  border-top: calc(.5 * var(--px)) solid rgba(44, 38, 63, .45); font-size: calc(8.6 * var(--px)); line-height: 1.3; }
+.pf-cert { display: block; width: 58%; margin: calc(12 * var(--px)) 0 0 auto; transform: rotate(1.4deg);
+  box-shadow: 0 calc(1 * var(--px)) calc(4 * var(--px)) rgba(40, 30, 10, .3); }
+.pf-sheet a { color: inherit; text-decoration: underline; text-decoration-thickness: calc(.5 * var(--px)); text-underline-offset: .2em; }
+.pf-bud { display: grid; grid-template-columns: 40% 1fr; gap: calc(12 * var(--px)); align-items: start; }
+.pf-badge { position: relative; transform: rotate(-2deg); margin-top: calc(6 * var(--px)); }
+.pf-badge img { display: block; width: 100%; box-shadow: 0 calc(1 * var(--px)) calc(5 * var(--px)) rgba(40, 30, 10, .3); }
+.pf-badge .pf-tag__clip { top: calc(-12 * var(--px)); right: calc(22 * var(--px)); z-index: 1; }
+.pf-talks { display: flex; flex-direction: column; gap: calc(7 * var(--px)); }
+.pf-sheet .pf-ticket { display: grid; grid-template-columns: 46% 1fr; gap: calc(6 * var(--px)); align-items: center; text-decoration: none;
+  padding: calc(4 * var(--px)); border: calc(.7 * var(--px)) dashed rgba(44, 38, 63, .6); }
+.pf-ticket img { display: block; width: 100%; }
+.pf-ticket b { display: block; font: 800 calc(9.5 * var(--px)) / 1.05 var(--font-display), sans-serif; font-stretch: 85%; text-transform: uppercase; margin-bottom: calc(3 * var(--px)); }
+.pf-ticket:hover { background: rgba(248, 198, 98, .25); }
+.pf-quote { display: grid; grid-template-columns: 38% 1fr; gap: calc(10 * var(--px)); margin: calc(14 * var(--px)) 0 0; align-items: start; }
+.pf-quote img { display: block; width: 100%; transform: rotate(2deg); border: calc(4 * var(--px)) solid #fff; box-shadow: 0 calc(1 * var(--px)) calc(4 * var(--px)) rgba(40, 30, 10, .3); }
+.pf-quote blockquote { margin: 0; font-style: italic; font-size: calc(9.4 * var(--px)); line-height: 1.4; }
+.pf-quote cite { display: block; font-style: normal; margin-top: calc(6 * var(--px)); }
+
+.pf-card { margin: calc(14 * var(--px)) calc(16 * var(--px)) 0 auto; width: 70%; padding: calc(9 * var(--px)) calc(11 * var(--px));
+  background: #efe3c4; transform: rotate(-1.2deg); box-shadow: 0 calc(1 * var(--px)) calc(4 * var(--px)) rgba(40, 30, 10, .25);
+  background-image: repeating-linear-gradient(transparent 0 calc(13 * var(--px)), rgba(89, 80, 130, .25) calc(13 * var(--px)) calc(13.6 * var(--px))); }
+.pf-card p { margin: 0 0 calc(5 * var(--px)); font-family: var(--font-typewriter), monospace; font-size: calc(9 * var(--px)); line-height: calc(13.6 * var(--px)); }
 
 /* ── pager ── */
 .pf-pager { display: flex; align-items: center; gap: 14px; font-family: var(--font-typewriter), monospace; font-size: 12px;

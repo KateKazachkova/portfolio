@@ -19,7 +19,9 @@ import "./Binder.css";
  *  the camera comes down over it (DeskScene, #profile), and /about, the same
  *  binder flat on the page with a pager under it.
  */
-export type Spread = { label: string; left: React.ReactNode; right?: React.ReactNode };
+/** tab: a divider tab on the sleeve that opens this spread, standing above
+ *  the others (its logo), a click on it goes straight there */
+export type Spread = { label: string; left: React.ReactNode; right?: React.ReactNode; tab?: { src: string; alt: string } };
 
 /** at = turned leaves (1 … spreads.length); spread on show = at - 1 */
 export function useBinder(n: number, live = true) {
@@ -66,6 +68,7 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
   const leaves = Array.from({ length: n + (tail ? 1 : 0) }, (_, i) => ({
     front: i > 0 ? spreads[i - 1].right : null,
     back: i < n ? spreads[i].left : null,
+    tab: i < n ? spreads[i].tab : undefined,
   }));
   // which leaves are in the air, and which way: set when `at` moves, cleared
   // once the turn is over so the next one restarts the bend
@@ -88,6 +91,10 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
       aria-label={`Profile binder, spread ${at} of ${n}: ${spreads[at - 1].label}`}
       onClick={(e) => {
         if (onClick?.()) return;
+        const t = e.target as HTMLElement;
+        if (t.closest("a")) return;                      // a link on a sheet
+        const tab = t.closest<HTMLElement>("[data-tab]");
+        if (tab) { go(Number(tab.dataset.tab) + 1); return; }
         const b = e.currentTarget.getBoundingClientRect();
         go(at + (e.clientX > b.left + b.width / 2 ? 1 : -1));
       }}
@@ -129,6 +136,14 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
               <div className="pf-face pf-face--back"><div className="pf-face__full">{l.back && <div className="pf-sheet">{l.back}</div>}</div></div>
             </div>
             {air && <Band k={0} front={l.front} back={l.back} />}
+            {l.tab && (
+              <span className="pf-tab" data-tab={i} role="button" aria-label={`Open ${l.tab.alt}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <span className="pf-tab__face"><img src={l.tab.src} alt="" draggable={false} /></span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <span className="pf-tab__face pf-tab__face--back"><img src={l.tab.src} alt="" draggable={false} /></span>
+              </span>
+            )}
           </div>
         );
       })}

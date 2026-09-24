@@ -137,8 +137,8 @@ export function TeachingSheet() {
 export function SpecsSheet() {
   return (
     <div className="pf-page">
-      <Head sheet="07" title="Specifications" />
-      <Part n="04" title="Specifications" />
+      <Head sheet="09" title="Specifications" />
+      <Part n="05" title="Specifications" />
       <div className="pf-mono">Capabilities</div>
       <div className="pf-chips pf-mono">{SKILLS.map((s) => <span key={s}>{s}</span>)}</div>
       <p style={{ margin: "0 0 calc(14 * var(--px))" }}>Languages: Ukrainian (native) · Russian (fluent) · English</p>
@@ -149,7 +149,97 @@ export function SpecsSheet() {
           <div style={{ opacity: 0.7 }}>{e.org}</div>
         </div>
       ))}
-      <div className="pf-foot pf-mono"><span>End of file</span><span>07</span></div>
+      <div className="pf-foot pf-mono"><span>End of file</span><span>09</span></div>
+    </div>
+  );
+}
+
+/* ── БУДЬ / BE: the mentorship, filed behind its own divider tab ──
+   Facts from Kate's MC2 evidence note (INSCIENCE, Digitizing.Space). */
+const BUD_LOG = [
+  ["27 Apr", "Applied to mentor"],
+  ["28 Apr", "Welcomed to the mentor team by INSCIENCE"],
+  ["2 Jun", "Booking opens · 28 sessions booked on day one"],
+  ["23 Jun", "Live: Portfolio UI/UX/Product Designer 101"],
+  ["1 Jul", "Live: Working on Products · Q&A / AMA"],
+  ["Jul", "Certificate of Appreciation"],
+] as const;
+
+export function BudSheet() {
+  return (
+    <div className="pf-page">
+      <Head sheet="07" title="Mentorship" />
+      <Part n="04" title="БУДЬ / BE" />
+      <p className="pf-lead" style={{ margin: "0 0 calc(8 * var(--px))" }}>
+        Six weeks in 2025 as a UX/UI mentor for БУДЬ/BE, a programme for Ukrainian women entering IT and the creative industries.
+      </p>
+      <p style={{ margin: "0 0 calc(12 * var(--px))", opacity: 0.8 }}>
+        Run by INSCIENCE with Digitizing.Space, supported by Nova Ukraine. Participants chose their own mentor from the directory
+        and booked directly; I was listed for design leadership, design systems, portfolio reviews and mock interviews.
+      </p>
+      <div className="pf-stats">
+        <div><b>66</b><span className="pf-mono">consultations</span></div>
+        <div><b>53</b><span className="pf-mono">participants</span></div>
+        <div><b>4×</b><span className="pf-mono">the expected 1–15</span></div>
+        <div><b>28</b><span className="pf-mono">booked on day one</span></div>
+      </div>
+      <div className="pf-mono" style={{ margin: "calc(12 * var(--px)) 0 calc(3 * var(--px))" }}>Record · 2025</div>
+      <div className="pf-log">
+        {BUD_LOG.map(([d, t]) => (
+          <div key={t}><span className="pf-mono">{d}</span><span>{t}</span></div>
+        ))}
+      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="pf-cert" src="/profile/bud/certificate.webp" alt="INSCIENCE Certificate of Appreciation for mentoring in БУДЬ/BE, 2025" />
+      <div className="pf-foot pf-mono">
+        <a href="https://inscience.io/en/be/" target="_blank" rel="noopener noreferrer">inscience.io/en/be ↗</a><span>07</span>
+      </div>
+    </div>
+  );
+}
+
+export function BudEvidenceSheet() {
+  return (
+    <div className="pf-page">
+      <Head sheet="08" title="Mentorship" />
+      <div className="pf-bud">
+        <div className="pf-badge">
+          <svg className="pf-tag__clip" viewBox="0 0 12 34" aria-hidden>
+            <path d="M4 30V7a3 3 0 0 1 6 0v21a5 5 0 0 1-10 0V9" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/profile/bud/badge.webp" alt="БУДЬ mentor card: Kateryna Kazachkova, Head of Design Department at Amtoss / BulkSource" />
+        </div>
+        <div className="pf-talks">
+          <div className="pf-mono">Open sessions, for the whole programme</div>
+          {[
+            { img: "portfolio-101", t: "Portfolio UI/UX/Product Designer 101", m: "23 Jun · 1 h 50 · 424 views", href: "https://www.youtube.com/@practicalskillsforrealworld/streams" },
+            { img: "products-qa", t: "Working on Products · Q&A / AMA", m: "1 Jul · 1 h 23 · 259 views", href: "https://youtube.com/live/SmqqurYmXx8" },
+          ].map((s) => (
+            <a key={s.img} className="pf-ticket" href={s.href} target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/profile/bud/${s.img}.webp`} alt="" />
+              <span><b>{s.t}</b><span className="pf-mono">{s.m} · Watch ↗</span></span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <figure className="pf-quote">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/profile/bud/notes.webp" alt="A participant's notes from the portfolio session, the stream on the laptop behind" />
+        <blockquote>
+          “A really informative and constructive lecture. I now understand my own strengths better — and the line I underlined
+          in my notes: not to make it ‘pretty’, but so it gets easier for the user, and the business feels it.”
+          <cite className="pf-mono">
+            <a href="https://www.linkedin.com/posts/nadia-gerasimova-856111225_kateryna-kazachkova-%D1%86%D0%B5-%D0%B1%D1%83%D0%BB%D0%B0-%D0%B4%D1%83%D0%B6%D0%B5-%D1%96%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%B0-activity-7345854543412322306-tfnL" target="_blank" rel="noopener noreferrer">Nadia Gerasimova, UX/UI designer · LinkedIn ↗</a>
+          </cite>
+        </blockquote>
+      </figure>
+      <div className="pf-card">
+        <p>“Thank you for the webinar on product design — so structured and thorough. I’ve decided this is the direction I want to go: it’s more me, in how I think and how deep I want to go into what I work on.”</p>
+        <span className="pf-mono">A participant, in the programme’s Slack</span>
+      </div>
+      <div className="pf-foot pf-mono"><span>Translated from Ukrainian</span><span>08</span></div>
     </div>
   );
 }

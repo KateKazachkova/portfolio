@@ -78,10 +78,10 @@ function Envelope() {
     <span className="env">
       <span className="sr-only">Ukrainska 15</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/back.webp" alt="" draggable={false} />
+      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/back.webp?v=2" alt="" draggable={false} />
       {/* the contents go here, between the back and the pocket */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/pocket.webp" alt="" draggable={false} />
+      <img className="env__layer" src="/artefacts/ukrainska-15/envelope/pocket.webp?v=2" alt="" draggable={false} />
       <span className="env__print" aria-hidden>
         <span className="env__no">01</span>
         <span className="env__where">Ukrainska 15 · Kupiansk</span>

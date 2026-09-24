@@ -1275,12 +1275,13 @@ body::after {
   letter-spacing: .08em; text-transform: uppercase;
 }
 
-/* Ukrainska 15's pocket folder (see Envelope in DeskScene). The layers carry
-   their own contact shadow, so the card itself is bare. Sizes are desk px on
+/* Ukrainska 15's pocket folder (see Envelope in DeskScene). The layers are cut
+   to the card alone, so the shadow is the folder's own outline. Sizes are desk px on
    a 150-wide folder; the pocket's cut runs from 16.4% down on the left to
    29.3% on the right, and everything printed sits below it, bar the French
    Design Awards stamp, struck on the back flap above the cut. */
-.desk-card--env { border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none; }
+.desk-card--env { border: 0; border-radius: 0; background: none; overflow: visible; box-shadow: none;
+                  filter: drop-shadow(0 calc(1 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28)); }
 .env { position: absolute; inset: 0; display: block; }
 .env__layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Dark red ink printed into the card, as on the reference folder. */

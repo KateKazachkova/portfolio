@@ -1027,7 +1027,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 [data-desk="open"] .desk-card--stack[data-side="here"] :is(a.jury-card__row, .jury-tag, .postcard) { pointer-events: auto; cursor: pointer; }
 [data-desk="open"] .desk-card--stack[data-side="here"] a.jury-card__row:hover { background: rgba(179, 49, 42, .1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard:hover { z-index: 5 !important; }
-/* BulkSource's sand under the stack (933 × 624) and the toy truck on it
+/* BulkSource's sand under the stack (720 × 482) and the toy truck on it
    (933 × 428, ~11 cm long). The truck has no shadow of its own: a soft
    blob under it (no filter on scene objects). Fanned, it drives off the
    cards to below them. */

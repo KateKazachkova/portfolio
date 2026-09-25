@@ -46,7 +46,7 @@ const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 export default function AwardStack({ project, title, sub, links = [], picture }: {
   project: string; title: string; sub: string; links?: { label: string; href: string; external?: boolean }[];
   /** a picture postcard of the project itself, on top of the juries' */
-  picture?: { src: string; href: string; alt: string };
+  picture?: { src?: string; href: string; alt: string };
 }) {
   const rows = awardRows(project);
   const urls = hrefs(project);
@@ -89,7 +89,7 @@ export default function AwardStack({ project, title, sub, links = [], picture }:
           <a className="postcard postcard--picture" href={picture.href} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-label={picture.alt}
             style={{ "--ux": ux, "--uy": uy, "--ur": `${ur}deg`, "--fy": -50 + i * 30, "--fr": "-1deg", zIndex: i + 1 } as React.CSSProperties}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={picture.src} alt="" draggable={false} loading="lazy" decoding="async" />
+            <img src={picture.src} alt="" draggable={false} decoding="async" />
             <span className="postcard__greet">Greetings from <b>{title}</b></span>
           </a>
         );

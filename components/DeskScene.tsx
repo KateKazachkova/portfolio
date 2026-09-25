@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
 import AwardStack from "@/components/desk/AwardStack";
+import { useWarm } from "@/components/desk/useWarm";
 import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
@@ -83,6 +84,9 @@ const STACK_LINKS: Record<string, { label: string; href: string; external?: bool
 // The first click brings the camera to a card; then its rows open the
 // winner pages, and a written case its page (content/work/slugs.ts).
 function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" }> }) {
+  // the objects' pictures wait for the room's own first paint (useWarm)
+  const warm = useWarm();
+  const pic = (src: string) => (warm ? src : undefined);
   const links = [...(STACK_LINKS[c.slug] ?? []), ...(isWritten(c.slug) ? [{ label: "Read the case →", href: `/work/${c.slug}` }] : [])];
   return (
     <div
@@ -97,21 +101,21 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
     >
       {c.slug === "bulksource" && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="stack-sand" src="/items/bulksource/sand.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+        <img className="stack-sand" src={pic("/items/bulksource/sand.webp")} alt="" draggable={false} decoding="async" />
       )}
       {c.slug === "onsisoft" && <Payslip />}
       {c.slug === "waypro" && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="stack-mush" src="/items/waypro/mush.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+        <img className="stack-mush" src={pic("/items/waypro/mush.webp")} alt="" draggable={false} decoding="async" />
       )}
       <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} links={links}
-        picture={c.slug === "waypro" ? { src: "/items/waypro/postcard.webp", href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
+        picture={c.slug === "waypro" ? { src: pic("/items/waypro/postcard.webp"), href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
       {c.slug === "waypro" && (
         <span className="stack-moss" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/items/waypro/moss.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+          <img src={pic("/items/waypro/moss.webp")} alt="" draggable={false} decoding="async" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-side" src="/items/waypro/moss-side.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+          <img className="stack-side" src={pic("/items/waypro/moss-side.webp")} alt="" draggable={false} decoding="async" />
         </span>
       )}
       {c.slug === "onsisoft" && <Calculator />}
@@ -120,9 +124,9 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
           {/* its side, standing on the centreline (edge-on from above), and
               its top at the truck's height, so it has a body from the case */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-side" src="/items/bulksource/truck-side.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+          <img className="stack-side" src={pic("/items/bulksource/truck-side.webp")} alt="" draggable={false} decoding="async" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-top" src="/items/bulksource/truck.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+          <img className="stack-top" src={pic("/items/bulksource/truck.webp")} alt="" draggable={false} decoding="async" />
         </span>
       )}
     </div>

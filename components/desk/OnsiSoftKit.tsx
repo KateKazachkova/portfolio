@@ -1,3 +1,5 @@
+import { useWarm } from "./useWarm";
+
 /**
  * What lies with OnsiSoft's awards: it is payroll and compliance software,
  * so a payslip and a desk calculator. The payslip is Kate's own time on the
@@ -72,6 +74,7 @@ const KEYS: [string, number, number, number, number, boolean][] = [
 ];
 
 export function Calculator() {
+  const warm = useWarm();
   return (
     <span className="calc" aria-hidden>
       {/* its body: four walls up to the top, which lies at its height */}
@@ -81,7 +84,7 @@ export function Calculator() {
       <span className="calc__wall calc__wall--right" />
       <span className="calc__top">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/items/onsisoft/calculator.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+        <img src={warm ? "/items/onsisoft/calculator.webp" : undefined} alt="" draggable={false} decoding="async" />
         <span className="calc__lcd">+76%</span>
         {KEYS.map(([k, l, t, r, b, grey]) => (
           <span key={k} className={grey ? "calc__key calc__key--grey" : "calc__key"}

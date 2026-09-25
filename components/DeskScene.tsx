@@ -427,6 +427,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
+      // A wheel listener that can cancel the scroll holds every scroll of the
+      // page until it has run, so it is there only while the desk pans.
+      if (v === "files") window.addEventListener("wheel", onWheel, { passive: false });
+      else window.removeEventListener("wheel", onWheel);
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));
       el.querySelectorAll<HTMLElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
       // with reduced motion there is no move, so no transitionend: the camera
@@ -495,7 +499,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     document.addEventListener("click", onHomeLink, true);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
-    window.addEventListener("wheel", onWheel, { passive: false });
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);

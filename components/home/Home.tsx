@@ -149,7 +149,6 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
             with, so each visitor fetches one of the two files, never both. */}
         <picture>
           <source media="(min-width: 1024px) and (min-resolution: 1.5dppx)" srcSet="/suitcase/open2.webp" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/suitcase/open2-1600.webp"
             alt="Kate's collector suitcase"

@@ -39,8 +39,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * another once the doors have stopped ("clothes").
  *
  * On every visit for now (Kate, 25.09 — may go back to once per visitor).
- * A click or any key lands the whole scene at once; ?nointro and reduced
- * motion skip it.
+ * A click or any key lands the whole scene at once; ?nointro, an anchor
+ * (/#recognition and the like: the camera is off to it at once, and would
+ * leave the opening running behind it) and reduced motion skip it.
  */
 
 const FADE_MS = 300;
@@ -192,7 +193,7 @@ export default function IntroOpen() {
   const gate = (
     <script
       dangerouslySetInnerHTML={{
-        __html: `try{if(location.search.indexOf("nointro")<0&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.setAttribute("data-intro","body");h.setAttribute("data-load","on")}}catch(e){}`,
+        __html: `try{if(location.search.indexOf("nointro")<0&&!location.hash&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.setAttribute("data-intro","body");h.setAttribute("data-load","on")}}catch(e){}`,
       }}
     />
   );

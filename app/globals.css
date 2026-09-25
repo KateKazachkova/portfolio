@@ -1109,6 +1109,17 @@ body::after {
   .hero-aside .t-title { margin-top: calc(19.95vw - 163px); }
   .hero-aside nav { margin-top: calc(7.69vw - 55px); gap: calc(1.442vw - 8.77px); }
 }
+/* From 1280px the scene scales with the window both ways: its 1440px share
+   of the width (1118 / 1440) on big screens, so 1920 gets a bigger case and
+   not just more margin; but never taller than the window allows — the case
+   files at its foot end 0.752 of its width below its top, which is 56px
+   down, and <main> stops 56px short of the bottom, so with 20px to spare
+   the width is (100vh − 132px) / 0.752. */
+@media (min-width: 1280px) {
+  /* html: one step more specific than the 1024–1439 rule above, which the
+     CSS build may otherwise order after this one */
+  html .case-stage { width: min(77.64vw, calc((100vh - 132px) * 1.3294)); }
+}
 
 /* The room at night (components/NightRoom.tsx): one multiply layer over the
    stage in its own px, drawn far past its edges. At rest only — once the
@@ -1974,6 +1985,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    no element's own transitions are overridden; leaving the stop drops it
    and everything is back at once, before the camera starts to move. */
 @keyframes desk-off { to { visibility: hidden; } }
+/* Off Duty's corner is left of the clock, out of home's frame — until the
+   scene scales down to fit a short window, when the player's edge shows
+   under the index. At home it is not there; it is back the moment the
+   camera sets off for any stop. Visibility, not opacity: below 1, opacity
+   would flatten the wallet's halves out of 3D. */
+:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-dvd) { visibility: hidden; }
 [data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
 [data-desk="award"] :is(.desk-extl, .od-wallet, .od-dvd),
 [data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),

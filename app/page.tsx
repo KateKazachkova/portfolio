@@ -324,6 +324,27 @@ export default function Home() {
   const [awardRolling, setAwardRolling] = useState(false);
   // Which hanger is being lifted off the rail, if any.
   const [pulled, setPulled] = useState<string | null>(null);
+  // The hangers overlap almost completely, so hover is decided by the pixels
+  // under the pointer: the topmost garment with cloth there wins. Each PNG's
+  // alpha is sampled once, at a quarter size, into a mask.
+  const railBox = useRef<HTMLDivElement>(null);
+  const hangerImgs = useRef<(HTMLImageElement | null)[]>([]);
+  const hangerMasks = useRef<({ w: number; h: number; a: Uint8ClampedArray } | null)[]>([]);
+  const sampleHanger = (i: number, img: HTMLImageElement) => {
+    if (hangerMasks.current[i] || !img.naturalWidth) return;
+    const w = Math.max(1, Math.round(img.naturalWidth / 4));
+    const h = Math.max(1, Math.round(img.naturalHeight / 4));
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    ctx.drawImage(img, 0, 0, w, h);
+    const d = ctx.getImageData(0, 0, w, h).data;
+    const a = new Uint8ClampedArray(w * h);
+    for (let k = 0; k < a.length; k++) a[k] = d[k * 4 + 3];
+    hangerMasks.current[i] = { w, h, a };
+  };
   const awardClip = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const v = awardClip.current;
@@ -700,6 +721,7 @@ export default function Home() {
             do that, because five overlapping sleeves would otherwise steal each
             other's hover. */}
         <div
+          ref={railBox}
           aria-hidden
           style={{
             position: "absolute",
@@ -720,7 +742,7 @@ export default function Home() {
             pointerEvents: "none",
           }}
         >
-          {OUTFITS.map((o) => {
+          {OUTFITS.map((o, i) => {
             // A percentage of the box's width is 1.5x as much of its height,
             // the box being 3:2 — so this is the hanger's own height in the
             // suitcase box's terms, and `hook` says how far down its PNG the
@@ -733,6 +755,11 @@ export default function Home() {
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={o.key}
+                ref={(el) => {
+                  hangerImgs.current[i] = el;
+                  if (el?.complete) sampleHanger(i, el);
+                }}
+                onLoad={(e) => sampleHanger(i, e.currentTarget)}
                 src={`/items/wardrobe/right-rail-${o.src}.webp`}
                 alt=""
                 style={{
@@ -763,29 +790,71 @@ export default function Home() {
           })}
         </div>
 
-        {/* One narrow hit strip per outfit, touching its neighbours without
-            overlapping them, so the rail can be read left to right. */}
-        {OUTFITS.map((o, i) => {
-          const worn = outfitOf(shown) === o.key;
-          const strip = { l: 76.3 + i * 2.3, w: 2.3, t: 14.5, h: 22.0 };
-          return (
-            <div
-              key={o.key}
-              aria-hidden
-              onMouseEnter={() => setPulled(o.key)}
-              onMouseLeave={() => setPulled((prev) => (prev === o.key ? null : prev))}
-              style={{
-                position: "absolute",
-                left: `${strip.l}%`,
-                top: `${strip.t}%`,
-                width: `${strip.w}%`,
-                height: `${strip.h}%`,
-                zIndex: 4,
-                pointerEvents: worn ? "none" : "auto",
-              }}
-            />
-          );
-        })}
+        {/* One hit area over the upper rail. Which garment it means is read
+            from the masks: walk the hangers from the top layer down, undo each
+            one's resting tilt about its hook, and take the first with cloth
+            under the pointer. Worn outfits are off the rail and are skipped. */}
+        <div
+          aria-hidden
+          onMouseMove={(e) => {
+            const box = railBox.current;
+            if (!box) return;
+            const r = box.getBoundingClientRect();
+            // The scene may be scaled by the desk camera; offset* are unscaled.
+            const s = r.width / box.offsetWidth || 1;
+            const px = (e.clientX - r.left) / s;
+            const py = (e.clientY - r.top) / s;
+            const wornKey = outfitOf(shown);
+            let hit: string | null = null;
+            for (let i = OUTFITS.length - 1; i >= 0; i--) {
+              const o = OUTFITS[i];
+              const img = hangerImgs.current[i];
+              const m = hangerMasks.current[i];
+              if (o.key === wornKey || !img || !m) continue;
+              const ox = img.offsetLeft + img.offsetWidth / 2;
+              const oy = img.offsetTop + img.offsetHeight * o.hook;
+              const t = (-o.tilt * Math.PI) / 180;
+              const dx = px - ox;
+              const dy = py - oy;
+              const lx = dx * Math.cos(t) - dy * Math.sin(t) + img.offsetWidth / 2;
+              const ly = dx * Math.sin(t) + dy * Math.cos(t) + img.offsetHeight * o.hook;
+              const u = Math.floor((lx / img.offsetWidth) * m.w);
+              const v = Math.floor((ly / img.offsetHeight) * m.h);
+              if (u < 0 || v < 0 || u >= m.w || v >= m.h) continue;
+              if (m.a[v * m.w + u] > 60) {
+                hit = o.key;
+                break;
+              }
+            }
+            setPulled((prev) => (prev === hit ? prev : hit));
+          }}
+          onMouseLeave={() => setPulled(null)}
+          style={{
+            position: "absolute",
+            left: `${RAIL_BOX.l}%`,
+            top: "14.5%",
+            width: `${RAIL_BOX.w}%`,
+            height: "22%",
+            zIndex: 4,
+          }}
+        />
+
+        {/* What the lifted hanger is: the ribbons' hover slip, above its hook */}
+        {OUTFITS.map((o) => (
+          <span
+            key={o.key}
+            aria-hidden
+            className="hanger-tag"
+            data-open={pulled === o.key ? "true" : "false"}
+            // Centred over the hook, except near the case's right edge, where
+            // it would run off the page: there it ends flush with the wall.
+            style={o.cx > 83
+              ? { left: `${WARDROBE.l + WARDROBE.w}%`, top: `${railY(o.cx) - 1.2}%`, transform: "translate(-100%, -100%)" }
+              : { left: `${o.cx}%`, top: `${railY(o.cx) - 1.2}%` }}
+          >
+            {o.label} · {o.meta}
+          </span>
+        ))}
 
         {/* Figma sticker on the top drawer → Figma community profile */}
         <InkTip

@@ -31,6 +31,19 @@
         "3215"
       ],
       "port": 3215
+    },
+    {
+      "name": "portfolio-alt",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_DIST_DIR=.next-alt",
+        "npx",
+        "next",
+        "dev",
+        "-p",
+        "3240"
+      ],
+      "port": 3240
     }
   ]
 }

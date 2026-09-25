@@ -425,6 +425,17 @@ body::after {
   color: inherit;
 }
 @media (prefers-reduced-motion: reduce) { .inktip { transition: none; } }
+/* The wardrobe's hangers wear the ribbons' own slip (.award-ribbon::after):
+   one line over the lifted hanger's hook, at the case's own 11px (.inktip). */
+.hanger-tag {
+  position: absolute; z-index: 60; transform: translate(-50%, -100%);
+  width: max-content; max-width: 260px; white-space: nowrap; text-align: center;
+  padding: 5px 9px; border-radius: 3px;
+  background: rgba(250, 248, 243, .95); color: #22283a;
+  font: 500 11px / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .04em;
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+}
+.hanger-tag[data-open="true"] { opacity: 1; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Disc rack — the Series shelf as a case of real CDs.
@@ -1809,8 +1820,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the index has a column of its own to stand under (≥1440px). Positions inside it are percentages of the 1400 × 756 still,
    measured off the file. */
 .flip-clock-slot {
-  position: absolute; left: calc(-169.6 * var(--u)); top: calc(539.4 * var(--u)); width: calc(430.4 * var(--u));
-  transform-origin: 0 0; transform: translateZ(calc(269 * var(--u))) scale(.5); pointer-events: auto;
+  position: absolute; left: calc(-121.1 * var(--u)); top: calc(527.8 * var(--u)); width: calc(430.4 * var(--u));
+  transform-origin: 0 0; transform: translateZ(calc(269 * var(--u))) scale(.55); pointer-events: auto;
   display: none;
 }
 @media (min-width: 1024px) { .flip-clock-slot { display: block; } }

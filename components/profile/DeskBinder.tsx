@@ -10,7 +10,7 @@ export const PROFILE_EVENT = "kate:profile";
 // straight from overhead. An open A4 binder
 // is ~52 × 30 cm, so 560 desk px across (1075 per metre) at the photograph's
 // aspect. x, y are its centre on the desk plane from its left/back corner.
-const BINDER = { x: 3010, y: 290, w: 560, r: 0 };
+const BINDER = { x: 3031, y: 290, w: 560, r: 0 };
 const H = Math.round(BINDER.w * 2136 / 3717);
 
 /** The Profile binder where it lies on home's desk. From anywhere else in

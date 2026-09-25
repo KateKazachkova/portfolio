@@ -21,9 +21,14 @@ import "./Binder.css";
  */
 /** tab: a divider tab on the sleeve that opens this spread, standing above
  *  the others (its logo), a click on it goes straight there */
-/** hang: something hung on the rings over the left-hand sleeve (not in it),
+/** hang: something hung on the rings over the left-hand sleeve (not in it);
+ *  several are turned over one by one,
  *  its holes on the rings — turned with that sleeve */
-export type Spread = { label: string; left: React.ReactNode; right?: React.ReactNode; tab?: { src: string; alt: string }; hang?: React.ReactNode };
+/** over: laid on the sleeve itself rather than on its sheet, so it can run
+ *  past the sleeve's edge (a clip over it):
+ *  left on the sleeve turned to the left, right on the one on the right */
+export type Spread = { label: string; left: React.ReactNode; right?: React.ReactNode; tab?: { src: string; alt: string; bg?: string }; hang?: React.ReactNode | React.ReactNode[];
+  over?: { left?: React.ReactNode; right?: React.ReactNode } };
 
 /** at = turned leaves (1 … spreads.length); spread on show = at - 1 */
 export function useBinder(n: number, live = true) {
@@ -71,17 +76,23 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
     front: i > 0 ? spreads[i - 1].right : null,
     back: i < n ? spreads[i].left : null,
     tab: i < n ? spreads[i].tab : undefined,
-    hang: i < n ? spreads[i].hang : undefined,
+    hang: i < n && spreads[i].hang != null ? ([] as React.ReactNode[]).concat(spreads[i].hang) : [],
+    overFront: i > 0 ? spreads[i - 1].over?.right : undefined,
+    overBack: i < n ? spreads[i].over?.left : undefined,
   }));
   // which leaves are in the air, and which way: set when `at` moves, cleared
   // once the turn is over so the next one restarts the bend
   const prev = useRef(at);
   const [flying, setFlying] = useState<{ dir: "f" | "b"; from: number; to: number } | null>(null);
+  // hung certificates turned over on their own onto the right-hand page,
+  // "leaf.item", in the order they went over (the last lies on top)
+  const [flipped, setFlipped] = useState<string[]>([]);
   useEffect(() => {
     if (at === prev.current) return;
     const f = at > prev.current;
     setFlying({ dir: f ? "f" : "b", from: Math.min(at, prev.current), to: Math.max(at, prev.current) });
     prev.current = at;
+    setFlipped([]);
     const t = setTimeout(() => setFlying(null), TURN + 80 * 4);
     return () => clearTimeout(t);
   }, [at]);
@@ -96,6 +107,9 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
         if (onClick?.()) return;
         const t = e.target as HTMLElement;
         if (t.closest("a")) return;                      // a link on a sheet
+        if (t.closest("[data-drag]")) return;            // prints to pick up
+        const hung = t.closest<HTMLElement>("[data-hang]");
+        if (hung) { const k = hung.dataset.hang!; setFlipped((f) => (f.includes(k) ? f.filter((x) => x !== k) : [...f, k])); return; }
         const tab = t.closest<HTMLElement>("[data-tab]");
         if (tab) { go(Number(tab.dataset.tab) + 1); return; }
         const b = e.currentTarget.getBoundingClientRect();
@@ -128,7 +142,8 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
             data-turned={i < at || undefined}
             data-dir={air ? flying.dir : undefined}
             data-flying={air || undefined}
-            style={{ zIndex: i < at ? i + 1 : leaves.length - i + 1, "--z": i < at ? i + 1 : leaves.length - i + 1, transitionDelay: `${lag}ms`, "--lag": `${lag}ms` } as React.CSSProperties}
+            // a certificate turned over onto the right lies above that stack
+            style={{ zIndex: flipped.some((k) => k.startsWith(`${i}.`)) ? 59 : i < at ? i + 1 : leaves.length - i + 1, "--z": i < at ? i + 1 : leaves.length - i + 1, transitionDelay: `${lag}ms`, "--lag": `${lag}ms` } as React.CSSProperties}
             // drawn: the two on show and the one under each, which a turning
             // leaf uncovers
             data-hidden={(i < at - 2 || i > at + 1) || undefined}
@@ -138,17 +153,35 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
                 the bands take over only while it is in the air */}
             <div className="pf-whole">
               <div className="pf-face"><div className="pf-face__full">{l.front && <div className="pf-sheet">{l.front}</div>}</div></div>
-              <div className="pf-face pf-face--back"><div className="pf-face__full">{l.back && <div className="pf-sheet">{l.back}</div>}{l.hang && <div className="pf-hang">{l.hang}</div>}</div></div>
+              <div className="pf-face pf-face--back"><div className="pf-face__full">{l.back && <div className="pf-sheet">{l.back}</div>}</div></div>
             </div>
             {air && <Band k={0} front={l.front} back={l.back} />}
+            {l.hang.map((h, k) => {
+              // hung on the rings, not in the sleeve: it turns with its sleeve,
+              // and on its own about the rings when clicked; its back is plain
+              // paper, the print showing faintly through
+              const key = `${i}.${k}`, o = flipped.indexOf(key);
+              return (
+                <div key={k} className="pf-hangleaf" data-flipped={o >= 0 || undefined} style={{ "--o": o } as React.CSSProperties}>
+                  <div className="pf-hangleaf__side">
+                    <div className="pf-hang">
+                      <div className="pf-hang__face" data-hang={key} role="button" aria-label="Turn over">{h}</div>
+                      <div className="pf-hang__face pf-hang__face--rev" data-hang={key} aria-hidden>{h}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {l.overFront && <div className="pf-over">{l.overFront}</div>}
+            {l.overBack && <div className="pf-over pf-over--back">{l.overBack}</div>}
             {l.tab && (
               <span className="pf-tab" data-tab={i} role="button" aria-label={`Open ${l.tab.alt}`}
                 // dividers step along the top edge, so each tab shows
-                style={{ left: `${24 + 23 * leaves.slice(0, i).filter((x) => x.tab).length}%` }}>
+                style={{ left: `${40 + 15 * leaves.slice(0, i).filter((x) => x.tab).length}%` }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <span className="pf-tab__face"><img src={l.tab.src} alt="" draggable={false} /></span>
+                <span className="pf-tab__face" style={{ background: l.tab.bg }}><img src={l.tab.src} alt="" draggable={false} /></span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <span className="pf-tab__face pf-tab__face--back"><img src={l.tab.src} alt="" draggable={false} /></span>
+                <span className="pf-tab__face pf-tab__face--back" style={{ background: l.tab.bg }}><img src={l.tab.src} alt="" draggable={false} /></span>
               </span>
             )}
           </div>

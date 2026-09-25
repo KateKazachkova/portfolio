@@ -3,7 +3,7 @@
    ring line. --px is one design pixel of a 1200 px wide binder; everything on
    the sheets is sized in it so a sleeve reads the same at any width. */
 
-.pf, .pf-binder { --ink: #2C263F; --paper: #f3ede1; --red: #d8352a; --saffron: #F8C662; }
+.pf, .pf-binder { --ink: #2C263F; --paper: #f3ede1; --red: #d8352a; --saffron: #F8C662; --grey: #776f8a; }
 .pf { display: flex; flex-direction: column; align-items: center; gap: 22px; }
 
 .pf-binder { position: relative; width: min(100%, calc((100svh - 150px) * 3717 / 2136)); aspect-ratio: 3717 / 2136;
@@ -67,21 +67,22 @@
 .pf-sheet * { box-sizing: border-box; }
 
 .pf-page { position: absolute; inset: 0; display: flex; flex-direction: column; padding: calc(20 * var(--px)) calc(22 * var(--px)); }
-.pf-mono { font-family: var(--font-typewriter), ui-monospace, monospace; font-size: calc(6.4 * var(--px)); letter-spacing: .08em; text-transform: uppercase; line-height: 1.35; }
-.pf-head { display: flex; justify-content: space-between; align-items: center; gap: calc(8 * var(--px));
-  padding-bottom: calc(6 * var(--px)); border-bottom: calc(.8 * var(--px)) solid var(--ink); margin-bottom: calc(14 * var(--px)); }
-.pf-mark { display: inline-grid; place-items: center; width: calc(20 * var(--px)); height: calc(20 * var(--px)); border-radius: 50%;
-  border: calc(.8 * var(--px)) solid var(--ink); font: 700 calc(5.6 * var(--px)) / 1 var(--font-display), sans-serif; letter-spacing: .02em; }
-.pf-head__l { display: flex; align-items: center; gap: calc(8 * var(--px)); }
-.pf-rule { border-top: calc(.8 * var(--px)) solid var(--ink); }
-.pf-foot { margin-top: auto; display: flex; justify-content: space-between; padding-top: calc(6 * var(--px));
-  border-top: calc(.6 * var(--px)) solid var(--ink); }
+.pf-mono { font-family: var(--font-typewriter), ui-monospace, monospace; font-size: calc(9 * var(--px)); letter-spacing: .08em; text-transform: uppercase; line-height: 1.35; }
+.pf-head { display: flex; justify-content: space-between; align-items: baseline; gap: calc(8 * var(--px)); margin-top: calc(-8 * var(--px));
+  padding-bottom: calc(4 * var(--px)); border-bottom: calc(.8 * var(--px)) solid var(--grey); margin-bottom: calc(14 * var(--px)); }
+/* the site's own wordmark, as in the nav: heavy caps, the ™ in red ink */
+.pf-mark { font: 900 calc(9 * var(--px)) / 1 var(--font-geist-sans), sans-serif; letter-spacing: -.02em; text-transform: uppercase; }
+.pf-mark i { font-style: normal; color: var(--red); }
+.pf-head__l { display: flex; align-items: baseline; gap: calc(8 * var(--px)); }
+.pf-rule { border-top: calc(.8 * var(--px)) solid var(--grey); }
+.pf-foot { margin-top: auto; margin-bottom: calc(-8 * var(--px)); display: flex; justify-content: space-between; align-items: baseline; padding-top: calc(4 * var(--px));
+  border-top: calc(.8 * var(--px)) solid var(--grey); }
 
 /* CV cover — the reference's archive sheet */
 .pf-cv__title { font: 800 calc(44 * var(--px)) / .9 var(--font-display), sans-serif; font-stretch: 78%; letter-spacing: -.01em;
   text-transform: uppercase; margin: 0 0 calc(12 * var(--px)); }
 .pf-cv__row { display: grid; grid-template-columns: 1fr auto; gap: calc(14 * var(--px)); align-items: start;
-  padding: calc(10 * var(--px)) 0; border-top: calc(.8 * var(--px)) solid var(--ink); }
+  padding: calc(10 * var(--px)) 0; border-top: calc(.8 * var(--px)) solid var(--grey); }
 .pf-cv__vol { background: var(--saffron); padding: calc(5 * var(--px)) calc(7 * var(--px)); text-align: left; }
 .pf-cv__vol b { display: block; font: 800 calc(24 * var(--px)) / .9 var(--font-display), sans-serif; }
 .pf-x { position: relative; flex: 1; min-height: 0; margin: calc(4 * var(--px)) 0 calc(12 * var(--px)); background: #1f1b24; color: #efe7d8;
@@ -90,8 +91,9 @@
   background: linear-gradient(to top right, transparent calc(50% - .5px), rgba(239, 231, 216, .55) 50%, transparent calc(50% + .5px)),
               linear-gradient(to bottom right, transparent calc(50% - .5px), rgba(239, 231, 216, .55) 50%, transparent calc(50% + .5px)); }
 .pf-x > * { position: relative; }
-.pf-cells { display: grid; grid-template-columns: 1fr 1.5fr .8fr 1.6fr; border-top: calc(.8 * var(--px)) solid var(--ink); }
-.pf-cells > div { padding: calc(5 * var(--px)) calc(6 * var(--px)) 0; border-left: calc(.6 * var(--px)) solid var(--ink); }
+.pf-cv__photo { display: block; flex: 1; min-height: 0; width: 100%; object-fit: cover; object-position: 50% 25%; margin: calc(4 * var(--px)) 0 calc(12 * var(--px)); }
+.pf-cells { display: grid; grid-template-columns: 1fr 1.5fr .8fr 1.6fr; border-top: calc(.8 * var(--px)) solid var(--grey); margin-bottom: calc(-12 * var(--px)); }
+.pf-cells > div { padding: calc(5 * var(--px)) calc(6 * var(--px)) 0; border-left: calc(.8 * var(--px)) solid var(--grey); }
 .pf-cells > div:first-child { border-left: 0; padding-left: 0; }
 .pf-cells span { display: block; opacity: .6; margin-bottom: calc(2 * var(--px)); }
 
@@ -109,29 +111,29 @@
   background-size: 100% calc(17 * var(--px)); background-repeat: repeat-y; }
 .pf-slip__lede { font-family: var(--font-typewriter), monospace; font-size: calc(9.4 * var(--px)); line-height: 1.35; margin: calc(8 * var(--px)) 0 calc(10 * var(--px)); }
 .pf-slip dl { display: grid; grid-template-columns: auto 1fr; margin: 0; }
-.pf-slip dt, .pf-slip dd { margin: 0; padding: calc(3.5 * var(--px)) 0; border-top: calc(.6 * var(--px)) solid var(--ink); }
+.pf-slip dt, .pf-slip dd { margin: 0; padding: calc(3.5 * var(--px)) 0; border-top: calc(.8 * var(--px)) solid var(--grey); }
 .pf-slip dd { text-align: right; font-weight: 700; }
 
 /* content sheets */
 .pf-part { display: flex; align-items: baseline; gap: calc(10 * var(--px)); margin-bottom: calc(14 * var(--px)); }
-.pf-part__n { font: 700 calc(34 * var(--px)) / .8 var(--font-display), sans-serif; color: var(--red); }
-.pf-part__t { font: 800 calc(22 * var(--px)) / .95 var(--font-display), sans-serif; font-stretch: 80%; text-transform: uppercase; }
-.pf-body p { margin: 0 0 calc(8 * var(--px)); }
-.pf-lead { font-size: calc(13 * var(--px)); line-height: 1.35; }
+.pf-part__n { font: 700 calc(28 * var(--px)) / .8 var(--font-display), sans-serif; color: var(--red); }
+.pf-part__t { font: 700 calc(28 * var(--px)) / .8 var(--font-display), sans-serif; font-stretch: 80%; text-transform: uppercase; }
+.pf-body p { margin: 0 0 calc(8 * var(--px)); font-size: calc(12 * var(--px)); line-height: 1.45; }
+.pf-lead { font-size: calc(12 * var(--px)); font-weight: 700; line-height: 1.45; }
 .pf-job { margin-bottom: calc(12 * var(--px)); }
 .pf-job__h { display: flex; justify-content: space-between; align-items: baseline; gap: calc(8 * var(--px));
   font: 800 calc(12 * var(--px)) / 1.1 var(--font-display), sans-serif; font-stretch: 85%; text-transform: uppercase;
-  border-top: calc(.8 * var(--px)) solid var(--ink); padding-top: calc(5 * var(--px)); }
+  border-top: calc(.8 * var(--px)) solid var(--grey); padding-top: calc(5 * var(--px)); }
 .pf-job__note { opacity: .7; font-size: calc(8.6 * var(--px)); margin: calc(3 * var(--px)) 0 calc(6 * var(--px)); line-height: 1.35; }
 .pf-role { margin: 0 0 calc(7 * var(--px)); padding-left: calc(8 * var(--px)); border-left: calc(.8 * var(--px)) solid var(--red); }
 .pf-role__h { display: flex; justify-content: space-between; gap: calc(8 * var(--px)); font-weight: 600; font-size: calc(9 * var(--px)); margin-bottom: calc(2 * var(--px)); }
 .pf-role ul { margin: 0; padding: 0; list-style: none; }
 .pf-role li { font-size: calc(8.2 * var(--px)); line-height: 1.36; padding-left: calc(9 * var(--px)); position: relative; margin-bottom: calc(1.5 * var(--px)); }
 .pf-role li::before { content: "✦"; position: absolute; left: 0; color: var(--red); font-size: .8em; top: .15em; }
-.pf-item { padding: calc(7 * var(--px)) 0; border-top: calc(.6 * var(--px)) solid var(--ink); }
+.pf-item { padding: calc(7 * var(--px)) 0; border-top: calc(.8 * var(--px)) solid var(--grey); }
 .pf-item__h { display: flex; justify-content: space-between; gap: calc(10 * var(--px)); font-weight: 600; margin-bottom: calc(2 * var(--px)); }
 .pf-chips { display: flex; flex-wrap: wrap; gap: calc(4 * var(--px)); margin: calc(4 * var(--px)) 0 calc(10 * var(--px)); }
-.pf-chips span { border: calc(.7 * var(--px)) solid var(--ink); padding: calc(2 * var(--px)) calc(5 * var(--px)); }
+.pf-chips span { border: calc(.8 * var(--px)) solid var(--grey); padding: calc(2 * var(--px)) calc(5 * var(--px)); }
 
 /* on home's desk (DeskBinder): placed and sized in desk px by its style */
 .pf-binder.desk-binder { position: absolute; pointer-events: auto; perspective: calc(1650 * var(--u));
@@ -156,29 +158,48 @@
 .desk-binder .pf-hoop { display: block; position: absolute; left: calc(50.07% - 30 * var(--u)); width: calc(60 * var(--u)); height: calc(28 * var(--u));
   margin-top: calc(-28 * var(--u)); transform-origin: 50% 100%; transform: translateZ(var(--t)) rotateX(-90deg); overflow: visible; }
 
-/* The divider tab: a clear plastic tab on the sleeve's top edge with the
-   logo slipped into it, standing above the stack on whichever side its
-   sleeve lies (its back face reads the right way round once turned). */
-.pf-tab { position: absolute; left: 58%; width: 21%; top: -5.2%; height: 6.4%; transform-style: preserve-3d; cursor: pointer; z-index: 3; }
-.pf-tab__face { position: absolute; inset: 0; display: block; backface-visibility: hidden;
-  border-radius: calc(5 * var(--px)) calc(5 * var(--px)) 0 0; overflow: hidden;
-  background: rgba(236, 240, 238, .78); box-shadow: inset 0 0 0 calc(.8 * var(--px)) rgba(255, 255, 255, .7), 0 calc(-1 * var(--px)) calc(3 * var(--px)) rgba(40, 30, 10, .18); }
+/* The divider tab: a square label stuck to the sleeve's top edge, its lower
+   part pressed onto the sheet, the logo on its own ground; it stands above
+   the stack on whichever side its sleeve lies (its back face reads the
+   right way round once turned). */
+.pf-tab { position: absolute; left: 58%; top: -4.6%; height: 9.3%; aspect-ratio: 1; transform-style: preserve-3d; cursor: pointer; z-index: 3; }
+.pf-tab__face { position: absolute; inset: 0; display: block; backface-visibility: hidden; overflow: hidden;
+  border-radius: calc(3 * var(--px)); background: #fff;
+  box-shadow: 0 calc(.6 * var(--px)) calc(1.6 * var(--px)) rgba(40, 30, 10, .22), inset 0 0 0 calc(.5 * var(--px)) rgba(40, 30, 10, .08); }
 .pf-tab__face--back { transform: rotateY(180deg); }
-.pf-tab img { position: absolute; left: 7%; right: 7%; top: 12%; width: 86%; height: 88%; object-fit: contain; object-position: 50% 55%; border-radius: calc(2 * var(--px)) calc(2 * var(--px)) 0 0; }
-.pf-tab:hover .pf-tab__face { background: rgba(248, 246, 236, .95); }
+/* stuck to the sheet its spread opens on, the leaf's back: seen from the
+   front, only the half standing above the edge shows */
+.pf-tab__face:not(.pf-tab__face--back) { clip-path: inset(-20% -20% 50.5% -20%); }
+.pf-tab img { position: absolute; inset: 6%; width: 88%; height: 88%; object-fit: contain; }
+.pf-tab:hover .pf-tab__face { filter: brightness(1.04); }
 
 /* БУДЬ's sheets */
-.pf-stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: calc(.8 * var(--px)) solid var(--ink); border-bottom: calc(.8 * var(--px)) solid var(--ink); }
-.pf-stats > div { padding: calc(6 * var(--px)) calc(6 * var(--px)) calc(5 * var(--px)); border-left: calc(.6 * var(--px)) solid var(--ink); display: flex; flex-direction: column; gap: calc(2 * var(--px)); }
+.pf-stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: calc(.8 * var(--px)) solid var(--grey); border-bottom: calc(.8 * var(--px)) solid var(--grey); }
+.pf-stats > div { padding: calc(6 * var(--px)) calc(6 * var(--px)) calc(5 * var(--px)); border-left: calc(.8 * var(--px)) solid var(--grey); display: flex; flex-direction: column; gap: calc(2 * var(--px)); }
 .pf-stats > div:first-child { border-left: 0; padding-left: 0; }
 .pf-stats b { font: 800 calc(24 * var(--px)) / .9 var(--font-display), sans-serif; font-stretch: 80%; color: var(--red); }
-.pf-log > div { display: grid; grid-template-columns: calc(38 * var(--px)) 1fr; gap: calc(6 * var(--px)); padding: calc(3.2 * var(--px)) 0;
-  border-top: calc(.5 * var(--px)) solid rgba(44, 38, 63, .45); font-size: calc(8.6 * var(--px)); line-height: 1.3; }
+.pf-log > div { display: grid; grid-template-columns: calc(74 * var(--px)) 1fr; gap: calc(6 * var(--px)); padding: calc(3.2 * var(--px)) 0;
+  border-top: calc(.8 * var(--px)) solid var(--grey); font-size: calc(8.6 * var(--px)); line-height: 1.3; }
 /* Hung on the rings (Spread.hang): over the left-hand sleeve, above its
    gloss, from the page's middle to the punched strip; its right-hand holes
    sit on the lower two rings (face y 48% and 84%, x 96.9%), clear of the record on the page. A punched card:
    holes down both edges, the page seen through them. */
-.pf-hang { position: absolute; left: 55%; right: 1.2%; top: 41.5%; height: 49.5%; z-index: 2; color: var(--ink);
+/* its own leaf on the rings: turned with the sleeve, or over about the ring
+   line by itself, lifted clear of the right-hand stack as it lands there */
+.pf-hangleaf { position: absolute; inset: 0; transform-style: preserve-3d; transform-origin: -9.3% 50%; z-index: 3; pointer-events: none;
+  transition: transform .9s cubic-bezier(.4, 0, .2, 1); }
+.pf-hangleaf[data-flipped] { transform: rotateY(180deg) translateZ(calc((6 + var(--o, 0) * 2) * var(--u, 1px))); }
+.pf-leaf[data-hidden]:not([data-flying]) > :is(.pf-hangleaf, .pf-over) { visibility: hidden; }
+/* a sleeve waiting on the right shows its front; what hangs on its back is out of sight */
+.pf-leaf:not([data-turned]):not([data-flying]) > .pf-hangleaf { visibility: hidden; }
+.pf-hangleaf__side { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateY(180deg); }
+.pf-hang__face { position: absolute; inset: 0; backface-visibility: hidden; }
+/* only the paper itself takes the click, not the box it hangs in */
+.pf-hang__face > * { pointer-events: auto; cursor: pointer; }
+/* the same sheet seen from behind: turned about Y and mirrored back, so the hole and the print lie where they physically are */
+.pf-hang__face--rev { transform: rotateY(180deg) scaleX(-1); }
+.pf-hang { transform-style: preserve-3d; pointer-events: none;
+  position: absolute; left: 55%; right: 1.2%; top: 41.5%; height: 49.5%; z-index: 2; color: var(--ink);
   font: 400 calc(9.2 * var(--px)) / 1.45 var(--font-geist-sans), system-ui, sans-serif; }
 .pf-certcard { position: absolute; inset: 0; background: #dcd8cf; transform: rotate(-.6deg); transform-origin: 96% 50%;
   background-image: radial-gradient(120% 90% at 30% 20%, rgba(255,255,255,.35), transparent 60%);
@@ -189,18 +210,41 @@
 .pf-certcard::before { left: calc(3 * var(--px)); }
 .pf-certcard::after { right: calc(4.5 * var(--px)); }
 .pf-certcard img { display: block; width: 100%; box-shadow: 0 0 0 calc(.5 * var(--px)) rgba(40, 30, 10, .15); }
-.pf-certcard__cap { display: block; margin-top: calc(10 * var(--px)); font-size: calc(8.2 * var(--px)); line-height: 1.4; }
+.pf-certcard__cap { display: block; margin-top: calc(10 * var(--px)); font-size: calc(9 * var(--px)); line-height: 1.4; }
 .pf-certcard__cap b { display: block; font: 800 calc(10 * var(--px)) / 1.1 var(--font-display), sans-serif; font-stretch: 85%; text-transform: uppercase; margin-bottom: calc(3 * var(--px)); }
-.pf-certcard__cap .pf-mono { display: block; margin-top: calc(6 * var(--px)); padding-top: calc(4 * var(--px)); border-top: calc(.6 * var(--px)) solid var(--ink); }
-.pf-certcard__no { position: absolute; left: calc(22 * var(--px)); top: calc(7 * var(--px)); font-size: calc(7 * var(--px)); }
+.pf-certcard__cap .pf-mono { display: block; margin-top: calc(6 * var(--px)); padding-top: calc(4 * var(--px)); border-top: calc(.8 * var(--px)) solid var(--grey); }
+.pf-certcard__no { position: absolute; left: calc(22 * var(--px)); top: calc(7 * var(--px)); font-size: calc(9 * var(--px)); }
+/* big: no card under it; the certificate itself hangs on the rings, wide
+   over the page's lower half, punched once where it hangs (the page shows
+   through the hole) */
+.pf-certcard--big { inset: auto 0 -14% -40%; aspect-ratio: 1100 / 783; padding: 0; display: block; background: none; box-shadow: none; transform-origin: 96.9% var(--hole-y, 58%); filter: none; }
+.pf-certcard--big::before, .pf-certcard--big::after { content: none; }
+.pf-certcard--big img { width: 100%; height: 100%; object-fit: cover; box-shadow: none; }
+.pf-certcard--big {
+  /* one hole, where it hangs on the lower ring (face y 84%) */
+  -webkit-mask: radial-gradient(circle at 96.9% var(--hole-y, 58%), transparent calc(8 * var(--px)), #000 calc(8.4 * var(--px)));
+          mask: radial-gradient(circle at 96.9% var(--hole-y, 58%), transparent calc(8 * var(--px)), #000 calc(8.4 * var(--px))); }
+.pf-hang__face:has(.pf-certcard--big) { filter: drop-shadow(0 calc(1 * var(--px)) calc(1.5 * var(--px)) rgba(40, 30, 10, .3)) drop-shadow(0 calc(6 * var(--px)) calc(6 * var(--px)) rgba(40, 30, 10, .2)); }
+/* its back: plain paper, the print through it faint and mirrored */
+.pf-hang__face--rev .pf-certcard--big { background: #f5f2ea; }
+.pf-hang__face--rev .pf-certcard--big img { opacity: .07; }
 .pf-sheet a { color: inherit; text-decoration: underline; text-decoration-thickness: calc(.5 * var(--px)); text-underline-offset: .2em; }
 .pf-bud { display: grid; grid-template-columns: 40% 1fr; gap: calc(12 * var(--px)); align-items: start; }
 .pf-badge { position: relative; transform: rotate(-2deg); margin-top: calc(6 * var(--px)); }
 .pf-badge img { display: block; width: 100%; box-shadow: 0 calc(1 * var(--px)) calc(5 * var(--px)) rgba(40, 30, 10, .3); }
-.pf-badge .pf-tag__clip { top: calc(-12 * var(--px)); right: calc(22 * var(--px)); z-index: 1; }
+/* a staple through the badge's top edge: the steel crown on top, its legs
+   gone through as two dark dots at the ends */
+.pf-staple { position: absolute; left: 50%; top: calc(7 * var(--px)); width: calc(26 * var(--px)); height: calc(3 * var(--px)); margin-left: calc(-13 * var(--px));
+  z-index: 1; transform: rotate(-6deg); border-radius: calc(.8 * var(--px));
+  background: linear-gradient(180deg, #f4f5f7 0%, #b9bcc2 45%, #8a8d93 60%, #d6d8dc 100%);
+  box-shadow: 0 calc(.6 * var(--px)) calc(.8 * var(--px)) rgba(20, 15, 5, .45), inset 0 0 0 calc(.3 * var(--px)) rgba(60, 60, 70, .35); }
+.pf-staple::before, .pf-staple::after { content: ""; position: absolute; top: 50%; width: calc(2 * var(--px)); height: calc(2 * var(--px)); margin-top: calc(-1 * var(--px));
+  border-radius: 50%; background: rgba(40, 35, 30, .55); }
+.pf-staple::before { left: calc(-.6 * var(--px)); }
+.pf-staple::after { right: calc(-.6 * var(--px)); }
 .pf-talks { display: flex; flex-direction: column; gap: calc(7 * var(--px)); }
 .pf-sheet .pf-ticket { display: grid; grid-template-columns: 46% 1fr; gap: calc(6 * var(--px)); align-items: center; text-decoration: none;
-  padding: calc(4 * var(--px)); border: calc(.7 * var(--px)) dashed rgba(44, 38, 63, .6); }
+  padding: calc(4 * var(--px)); border: calc(.8 * var(--px)) dashed var(--grey); }
 .pf-ticket img { display: block; width: 100%; }
 .pf-ticket b { display: block; font: 800 calc(9.5 * var(--px)) / 1.05 var(--font-display), sans-serif; font-stretch: 85%; text-transform: uppercase; margin-bottom: calc(3 * var(--px)); }
 .pf-ticket:hover { background: rgba(248, 198, 98, .25); }
@@ -217,21 +261,25 @@
 /* a second card hung behind the first, a little lower and turned */
 .pf-certcard--under { transform: translate(calc(-10 * var(--px)), calc(10 * var(--px))) rotate(-3deg); filter: none; }
 .pf-certcard--under .pf-certcard__cap { opacity: .0; }
+/* the letter is taller: its hole sits a little lower on it, still on the ring */
+.pf-certcard--letter { aspect-ratio: 900 / 717; --hole-y: 62.4%; }
+/* two certificates on the one ring: the one behind swings a little off it */
+.pf-certcard--big.pf-certcard--under { transform: rotate(-5deg); filter: brightness(.96); }
 
 /* Kharkiv IT Cluster's sheets */
-.pf-courses { width: 53%; border-top: calc(.8 * var(--px)) solid var(--ink); }
+.pf-courses { width: 100%; border-top: calc(.8 * var(--px)) solid var(--grey); }
 .pf-courses > div { display: grid; grid-template-columns: 1fr auto; gap: calc(6 * var(--px)); align-items: center;
-  padding: calc(5 * var(--px)) 0; border-bottom: calc(.5 * var(--px)) solid rgba(44, 38, 63, .45); }
+  padding: calc(5 * var(--px)) 0; border-bottom: calc(.8 * var(--px)) solid var(--grey); }
 .pf-courses b { display: block; font-weight: 600; font-size: calc(8.8 * var(--px)); line-height: 1.2; margin-bottom: calc(2 * var(--px)); }
-.pf-courses .pf-mono { display: block; font-size: calc(5.8 * var(--px)); }
+.pf-courses .pf-mono { display: block; font-size: calc(9 * var(--px)); }
 .pf-courses__n { font: 800 calc(15 * var(--px)) / 1 var(--font-display), sans-serif; font-stretch: 80%; color: var(--red); white-space: nowrap; }
 .pf-courses__n i { font-style: normal; color: var(--ink); opacity: .5; margin: 0 calc(2 * var(--px)); font-size: .7em; }
-.pf-log--3 > div { grid-template-columns: calc(38 * var(--px)) 1fr auto; }
-.pf-log--3 > div > :last-child { opacity: .65; text-align: right; font-size: calc(5.8 * var(--px)); }
+.pf-log--3 > div { grid-template-columns: calc(74 * var(--px)) 1fr auto; }
+.pf-log--3 > div > :last-child { opacity: .65; text-align: right; font-size: calc(9 * var(--px)); }
 .pf-snaps { display: grid; grid-template-columns: 1fr 1fr; gap: calc(12 * var(--px)); margin-top: calc(16 * var(--px)); }
 .pf-snaps figure, .pf-snap { margin: 0; transform: rotate(var(--t, 0deg)); }
 .pf-snaps img, .pf-snap img { display: block; width: 100%; border: calc(4 * var(--px)) solid #fff; box-shadow: 0 calc(1 * var(--px)) calc(4 * var(--px)) rgba(40, 30, 10, .3); }
-.pf-snaps figcaption, .pf-snap figcaption { margin-top: calc(4 * var(--px)); font-size: calc(5.8 * var(--px)); }
+.pf-snaps figcaption, .pf-snap figcaption { margin-top: calc(4 * var(--px)); font-size: calc(9 * var(--px)); }
 /* IxDF's */
 .pf-ixdf { display: grid; grid-template-columns: 46% 1fr; gap: calc(12 * var(--px)); align-items: start; margin-top: calc(4 * var(--px)); }
 .pf-poster { margin: 0; transform: rotate(-1.5deg); }
@@ -254,3 +302,24 @@
   .pf-stack .pf-sheet { position: relative; width: 100%; aspect-ratio: 1455 / 2015; }
 }
 @media (prefers-reduced-motion: reduce) { .pf-leaf { transition-duration: 0s; } .pf-leaf *, .pf-leaf *::before { animation: none !important; } }
+
+/* A heading is never followed by a rule: whatever comes first under it loses its top line. */
+.pf-part + .pf-item, .pf-part + .pf-job > .pf-job__h, .pf-cv__title + .pf-cv__row, .pf-tag__t + .pf-rule { border-top: 0; padding-top: 0; }
+
+/* the БУДЬ prints: a loose stack in the sheet's empty lower left */
+.pf-prints { position: absolute; left: calc(6 * var(--px)); bottom: calc(40 * var(--px)); width: calc(150 * var(--px)); aspect-ratio: 1; z-index: 1; }
+.pf-print { position: absolute; inset: 0; background: #fbf8f1; padding: calc(5 * var(--px)); cursor: grab; touch-action: none;
+  box-shadow: 0 calc(.6 * var(--px)) calc(1.5 * var(--px)) rgba(40, 30, 10, .3), 0 calc(4 * var(--px)) calc(8 * var(--px)) calc(-3 * var(--px)) rgba(40, 30, 10, .25); }
+.pf-print:active { cursor: grabbing; }
+.pf-print img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
+/* laid on the sleeve, not its sheet (Spread.over), free to run past its edges */
+.pf-over { position: absolute; inset: 0; pointer-events: none; backface-visibility: hidden; z-index: 3; }
+.pf-over--back { transform: rotateY(180deg); }
+/* the red clip over the БУДЬ sleeve's outer edge, holding the prints: its bend
+   off the sleeve on the cover; on the sleeve only the inner loop shows, the
+   outer one runs under the plastic */
+.pf-sleeveclip { position: absolute; left: calc(-33 * var(--px)); top: calc(462 * var(--px)); width: calc(110 * var(--px)); aspect-ratio: 892 / 245;
+  transform: rotate(3deg); transform-origin: 30% 50%;
+  clip-path: polygon(0 0, 30% 0, 30% 16%, 83% 16%, 83% 84%, 30% 84%, 30% 100%, 0 100%);
+  filter: drop-shadow(calc(.8 * var(--px)) calc(1.5 * var(--px)) calc(1.2 * var(--px)) rgba(40, 30, 10, .35)); }

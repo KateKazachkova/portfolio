@@ -1677,7 +1677,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    whole (at 1440 × 900). translate (-(3010 - 70 - 1612.5), 226 + 280,
    2150 - 21) — the axis 70 px left of the binder, so it sits right of
    the window's middle, clear of the index column. */
-[data-desk="profile"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+/* and the shot sits 20 px left, 15 px up, so the desk's grid lines run clear of the index column */
+[data-desk="profile"] .scene-cam { transform: translate(calc(var(--dx, 0px) - 20px), calc(var(--dy, 0px) - 15px)); }
 [data-desk="profile"] .desk-world,
 [data-desk="profile"] .case-world {
   transform: rotateX(-90deg) translate3d(calc(-1327.5 * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));

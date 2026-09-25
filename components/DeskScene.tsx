@@ -114,6 +114,14 @@ type View = "files" | "award" | "profile" | "offduty";
 const HASH: Record<View, string> = { files: "#case-files", award: "#recognition", profile: "#profile", offduty: "#off-duty" };
 // html[data-desk] for each view; "open" is the desk's, from before it had a second
 const STATE: Record<View, string> = { files: "open", award: "award", profile: "profile", offduty: "offduty" };
+// The two stops that look straight down at the desk, and where each is left
+// for and come to from: the camera lifts its eyes (or lowers them) there, at
+// eye height, and does its travelling level, which the browser draws without
+// dropping pieces. Profile's is the wall right in front of it, Recognition;
+// Case Files' is home's view of the case (null).
+const HUB: Partial<Record<View, View | null>> = { profile: "award", files: null };
+/** each leg of a move that goes by a hub: --cam-t under [data-desk-route] plus --cam-wait (globals.css) */
+const LEG_MS = 1300 + 200;
 const viewOf = (hash: string) =>
   (Object.keys(HASH) as View[]).find((v) => HASH[v] === hash) ?? null;
 
@@ -415,7 +423,30 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       arrived = true; root.dataset.deskArrived = "1";
     };
     world?.addEventListener("transitionend", onArrive);
+    // A move from a stop that looks down at the desk to one that does not
+    // (or back) goes by that stop's hub: two legs, the first switching
+    // nothing off at its end.
+    let legTimer = 0;
     const set = (v: View | null) => {
+      clearTimeout(legTimer);
+      if (v === open.current) { delete root.dataset.deskRoute; return; }
+      const from = open.current;
+      const top = (x: View | null) => x !== null && x in HUB;
+      const hub = still || top(from) === top(v) ? undefined
+        : top(from) ? HUB[from!] : HUB[v!];
+      if (hub !== undefined && hub !== from && hub !== v) {
+        root.dataset.deskRoute = "1";
+        go1(hub);
+        legTimer = window.setTimeout(() => {
+          go1(v);
+          legTimer = window.setTimeout(() => { delete root.dataset.deskRoute; }, LEG_MS);
+        }, LEG_MS);
+        return;
+      }
+      delete root.dataset.deskRoute;
+      go1(v);
+    };
+    const go1 = (v: View | null) => {
       if (v === open.current) return;
       if (v && !open.current) window.scrollTo({ top: 0 });
       if (v) measure();
@@ -527,6 +558,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.removeEventListener("focusin", onFocus);
       world?.removeEventListener("transitionend", onArrive);
       cancelAnimationFrame(raf);
+      clearTimeout(legTimer);
+      delete root.dataset.deskRoute;
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;
       delete root.dataset.desk;

@@ -839,6 +839,10 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    click: what the stop it leaves had switched off (the desk-off below) is
    back at once, and gets that beat to be drawn before anything moves. */
 :root { --cam-t: 2.3s; --cam-ease: cubic-bezier(.45, 0, .55, 1); --cam-wait: .2s; }
+/* A move to or from a stop that looks down at the desk goes by that stop's
+   hub in two shorter legs (HUB in components/DeskScene.tsx): the eyes lift
+   or drop at the hub, the travelling is done level. */
+:root[data-desk-route] { --cam-t: 1.3s; }
 
 .scene-cam {
   perspective: calc(2150 * var(--u));
@@ -1603,11 +1607,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
 :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-dvd) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk="award"] :is(.desk-extl, .od-wallet, .od-dvd),
-[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
-[data-desk="profile"] .case-world,
+[data-desk="open"]:not([data-desk-route]) :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
+[data-desk="award"]:not([data-desk-route]) :is(.desk-extl, .od-wallet, .od-dvd),
+[data-desk="profile"]:not([data-desk-route]) :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
+[data-desk="offduty"]:not([data-desk-route]) :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
+[data-desk="profile"]:not([data-desk-route]) .case-world,
 [data-desk="offduty"][data-desk-focus="bike"] .case-world {
   animation: desk-off 0s linear calc(var(--cam-t) + var(--cam-wait)) forwards;
 }

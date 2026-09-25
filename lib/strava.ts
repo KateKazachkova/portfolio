@@ -15,8 +15,11 @@ const API = "https://www.strava.com/api/v3";
  */
 export class StravaError extends Error {}
 
-// The access token, kept until a minute before Strava says it expires. Not
-// in the fetch cache: a cached token could come back after it has expired.
+// The access token, kept until a minute before Strava says it expires. None
+// of the fetches here says how to cache: they are then not cached, and they
+// leave the route static, so it is fetched afresh only when the route's own
+// day is up (app/api/strava). `cache: "no-store"` would say the same about
+// the fetch but make the route dynamic: Strava on every request.
 let tokenCache: { value: string; until: number } | null = null;
 
 const configured = () =>
@@ -36,7 +39,6 @@ async function getAccessToken(): Promise<string> {
       refresh_token: STRAVA_REFRESH_TOKEN,
       grant_type: "refresh_token",
     }),
-    cache: "no-store",
   });
   if (!res.ok) throw new StravaError(`token refresh: ${res.status}`);
   const data = (await res.json()) as { access_token?: string; expires_at?: number; refresh_token?: string };
@@ -53,7 +55,6 @@ async function getAccessToken(): Promise<string> {
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     headers: { Authorization: `Bearer ${await getAccessToken()}` },
-    cache: "no-store",
   });
   if (!res.ok) throw new StravaError(`${path}: ${res.status}`);
   return res.json() as Promise<T>;

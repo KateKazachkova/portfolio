@@ -411,11 +411,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     const world = el.querySelector<HTMLElement>(".desk-world");
     const onArrive = (e: TransitionEvent) => {
-      if (e.target !== world || e.propertyName !== "transform") return;
-      // the camera is still, at a stop or home: the room may be drawn sharp
-      // again (globals.css, "In motion")
-      root.dataset.deskStill = "1";
-      if (!open.current) return;
+      if (e.target !== world || e.propertyName !== "transform" || !open.current) return;
       arrived = true; root.dataset.deskArrived = "1";
     };
     world?.addEventListener("transitionend", onArrive);
@@ -431,7 +427,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       open.current = v;
       // leaving the desk (home, or on to the wall): the pan unwinds with the
       // rest of the move
-      arrived = false; delete root.dataset.deskArrived; delete root.dataset.deskStill;
+      arrived = false; delete root.dataset.deskArrived;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
       cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
       root.dataset.deskFrom = from ?? "closed";
@@ -441,10 +437,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.querySelectorAll<HTMLElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
       // with reduced motion there is no move, so no transitionend: the camera
       // is where it was sent at once
-      if (still) {
-        root.dataset.deskStill = "1";
-        if (v) { arrived = true; root.dataset.deskArrived = "1"; }
-      }
+      if (still && v) { arrived = true; root.dataset.deskArrived = "1"; }
     };
 
     // Opened by us, it has a history entry of its own and closing is Back.
@@ -538,7 +531,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       world?.removeEventListener("transitionend", onArrive);
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
-      delete root.dataset.deskStill;
       delete root.dataset.deskReady;
       delete root.dataset.desk;
       // and forget the view with it, or a remount (React's dev double run,

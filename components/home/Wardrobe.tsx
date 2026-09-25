@@ -236,22 +236,29 @@ function Wardrobe({ edition }: { edition: string }) {
         }}
       />
 
-      {/* The same, from the keyboard: one stop per hanger still on the rail,
-          on its hook. Focus lifts it and shows its slip, as the pointer does. */}
-      {OUTFITS.filter((o) => o.key !== worn).map((o) => (
-        <button
-          key={o.key}
-          type="button"
-          className="scene-hit"
-          aria-label={`On the rail: ${o.label} — ${o.meta}`}
-          onFocus={() => setPulled(o.key)}
-          onBlur={() => setPulled(null)}
-          style={{
-            position: "absolute", left: `${o.cx - 0.9}%`, top: `${railY(o.cx) - 0.9}%`,
-            width: "1.8%", height: "4%", zIndex: 4, pointerEvents: "none",
-          }}
-        />
-      ))}
+      {/* The same, from the keyboard: the rail is one stop, and while it has
+          focus the arrow keys lift one hanger after another, with its slip,
+          as the pointer does. One stop rather than one per hanger: those
+          would be a few pixels wide, too small to be a target at all. */}
+      <button
+        type="button"
+        className="scene-hit"
+        aria-label={`The wardrobe rail: ${OUTFITS.filter((o) => o.key !== worn).map((o) => o.label).join(", ")}. Arrow keys look through the clothes.`}
+        onFocus={() => setPulled(OUTFITS.find((o) => o.key !== worn)?.key ?? null)}
+        onBlur={() => setPulled(null)}
+        onKeyDown={(e) => {
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          e.preventDefault();
+          const on = OUTFITS.filter((o) => o.key !== worn);
+          const i = on.findIndex((o) => o.key === pulled);
+          const n = (i + (e.key === "ArrowRight" ? 1 : -1) + on.length) % on.length;
+          setPulled(on[n]?.key ?? null);
+        }}
+        style={{
+          position: "absolute", left: `${RAIL_BOX.l}%`, top: "14.5%",
+          width: `${RAIL_BOX.w}%`, height: "22%", zIndex: 4, pointerEvents: "none",
+        }}
+      />
 
       {/* What the lifted hanger is: the ribbons' hover slip, above its hook */}
       {OUTFITS.map((o) => (

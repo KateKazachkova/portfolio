@@ -2333,3 +2333,46 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    body, so the body and the doll are the page's own pixels throughout. The
    rectangle is BODY in the clip's keying (inset 3% 27% 11.4% 27%). */
 [data-intro="body"] .case-world { clip-path: inset(3% 27% 11.4% 27%); }
+
+/* ── Loading as a scene (components/IntroOpen.tsx) ─────────────────────────
+   While <html data-load> is on, the room comes in by steps, each a token the
+   timeline adds: the desk, the clock, the trophy and the closed case are
+   there from the first paint; "lamp" switches the lamp on; "text" brings the
+   column in line by line; "files" pushes the case files onto the desk one
+   after another, from the viewer's side of it. The heavier layers load in
+   the meantime. Removing the attribute (the end, or a skip) drops the
+   transitions with it, so a skip lands at once. */
+/* the closed trunk is in the server HTML; without the gate it never shows */
+:root:not([data-intro]):not([data-load]) .intro-open { display: none; }
+[data-load] .desk-lamp[data-on] .desk-lamp__img--on { opacity: 0; } /* beats the lamp's own [data-on] */
+[data-load~="lamp"] .desk-lamp[data-on] .desk-lamp__img--on { opacity: 1; transition: opacity .12s steps(2, jump-none); }
+
+[data-load] :is(.hero-aside > :not(nav), .hero-aside nav > *) {
+  opacity: 0; translate: 0 10px;
+  transition: opacity .5s ease, translate .7s cubic-bezier(.2, .7, .2, 1);
+}
+[data-load~="text"] :is(.hero-aside > :not(nav), .hero-aside nav > *) { opacity: 1; translate: none; }
+[data-load] .hero-aside > :nth-child(2) { transition-delay: .12s; }
+[data-load] .hero-aside > :nth-child(3) { transition-delay: .24s; }
+[data-load] .hero-aside nav > :nth-child(1) { transition-delay: .4s; }
+[data-load] .hero-aside nav > :nth-child(2) { transition-delay: .47s; }
+[data-load] .hero-aside nav > :nth-child(3) { transition-delay: .54s; }
+[data-load] .hero-aside nav > :nth-child(4) { transition-delay: .61s; }
+[data-load] .hero-aside nav > :nth-child(5) { transition-delay: .68s; }
+[data-load] .hero-aside nav > :nth-child(6) { transition-delay: .75s; }
+[data-load] .hero-aside nav > :nth-child(7) { transition-delay: .82s; }
+[data-load] .hero-aside nav > :nth-child(8) { transition-delay: .89s; }
+
+/* In the desk's own plane, so +y is toward the viewer: each file starts off
+   the desk's near edge, below the frame, and is slid back to its place with a
+   little turn, as if pushed across the desk by hand. */
+[data-load] .desk-cases > * {
+  translate: 0 calc(460 * var(--u)); rotate: 5deg; opacity: 0;
+  transition: translate .8s cubic-bezier(.2, .85, .25, 1.04), rotate .8s cubic-bezier(.2, .85, .25, 1), opacity .2s ease;
+}
+[data-load] .desk-cases > :nth-child(even) { rotate: -5deg; }
+[data-load~="files"] .desk-cases > * { translate: none; rotate: none; opacity: 1; }
+[data-load] .desk-cases > :nth-child(2) { transition-delay: .15s; }
+[data-load] .desk-cases > :nth-child(3) { transition-delay: .3s; }
+[data-load] .desk-cases > :nth-child(4) { transition-delay: .45s; }
+[data-load] .desk-cases > :nth-child(5) { transition-delay: .6s; }

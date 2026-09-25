@@ -155,16 +155,22 @@ export default function OffDutyShelf() {
   // as a browser will only start a video by itself that way); a click on
   // the screen gives it sound. It runs only while the camera is here.
   const [atCorner, setAtCorner] = useState(false);
-  const [sound, setSound] = useState(false);
+  // The disc whose clip has sound: another disc, or leaving the corner,
+  // mutes it again.
+  const [soundFor, setSoundFor] = useState<WatchItem | null>(null);
   useEffect(() => {
     const root = document.documentElement;
-    const read = () => setAtCorner(root.dataset.desk === "offduty");
+    const read = () => {
+      const here = root.dataset.desk === "offduty";
+      setAtCorner(here);
+      if (!here) setSoundFor(null);
+    };
     read();
     const mo = new MutationObserver(read);
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
     return () => mo.disconnect();
   }, []);
-  useEffect(() => { setSound(false); }, [picked, atCorner]);
+  const sound = atCorner && picked !== null && soundFor === picked;
   // Sound goes on and off in the running player, through YouTube's iframe
   // API (enablejsapi): it used to reload the whole player with sound on at
   // the second it had reached, scripts, buffering and all. The click on the
@@ -175,7 +181,7 @@ export default function OffDutyShelf() {
   const toggleSound = () => {
     if (sound) tell("mute");
     else { tell("unMute"); tell("setVolume", [100]); tell("playVideo"); }
-    setSound(!sound);
+    setSoundFor(sound ? null : picked);
   };
   const clip = atCorner ? picked?.clip : null;
   const [flight, setFlight] = useState<null | { item: WatchItem; from: DOMRect; to: DOMRect }>(null);

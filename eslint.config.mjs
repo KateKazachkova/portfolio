@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // this repo's own extra build folders (NEXT_DIST_DIR in next.config.ts)
+    ".next-*/**",
+    // source art and render scripts, not the site
+    "design-src/**",
+    "public/**",
   ]),
 ]);
 

@@ -62,6 +62,9 @@ export default function TimeProvider({ children }: { children: React.ReactNode }
   // which would silently drop the edition the home page is previewing.
   const pref = useRef<ThemePref>("auto");
 
+  // The visitor's hour exists only in the browser: read after hydration so the
+  // server's render and the first client one agree.
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from the clock, once
   useEffect(() => { setHourState(new Date().getHours()); }, []);
 
   /** `data-theme` — the page's own light or dark. In auto it follows the mood
@@ -91,6 +94,7 @@ export default function TimeProvider({ children }: { children: React.ReactNode }
     // deliberate choice then and stay one now.
     if (saved !== "light" && saved !== "dark" && saved !== "auto") return;
     pref.current = saved;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage, once
     setThemePref(saved);
     applyTheme();
   }, [applyTheme]);

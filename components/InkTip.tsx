@@ -19,6 +19,7 @@ export default function InkTip({
   className,
   style,
   onHoverChange,
+  focusable,
   children,
 }: {
   label: string;
@@ -28,6 +29,9 @@ export default function InkTip({
   style?: CSSProperties;
   /** Told when the tag opens and closes, for items that also wake up on hover. */
   onHoverChange?: (open: boolean) => void;
+  /** For an item that is only a picture: the wrapper itself takes focus, so
+   *  the keyboard can read its tag too. */
+  focusable?: boolean;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -42,6 +46,7 @@ export default function InkTip({
     <div
       className={className}
       style={wrapperStyle}
+      tabIndex={focusable ? 0 : undefined}
       onMouseEnter={() => set(true)}
       onMouseLeave={() => set(false)}
       onFocus={() => set(true)}

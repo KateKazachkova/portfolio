@@ -198,6 +198,9 @@
 .pf-hang__face > * { pointer-events: auto; cursor: pointer; }
 /* the same sheet seen from behind: turned about Y and mirrored back, so the hole and the print lie where they physically are */
 .pf-hang__face--rev { transform: rotateY(180deg) scaleX(-1); }
+/* the back of a certificate is only ever seen once it is turned over by itself: while its
+   sleeve turns, the sleeve is between it and the eye */
+.pf-hangleaf:not([data-flipped]) .pf-hang__face--rev { visibility: hidden; transition: visibility 0s .45s; }
 .pf-hang { transform-style: preserve-3d; pointer-events: none;
   position: absolute; left: 55%; right: 1.2%; top: 41.5%; height: 49.5%; z-index: 2; color: var(--ink);
   font: 400 calc(9.2 * var(--px)) / 1.45 var(--font-geist-sans), system-ui, sans-serif; }

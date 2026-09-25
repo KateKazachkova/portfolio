@@ -227,12 +227,15 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
         <video
           className="niche-clip"
           key={file}
-          src={V + file}
+          // src after the flags: React sets props in this order, and a src
+          // set before autoplay and muted starts a metadata-only load the
+          // browser then drops and starts again, a second download
           autoPlay
           muted
           playsInline
           loop={phase === "loop"}
           poster={poster}
+          src={V + file}
           onEnded={handleEnded}
           onError={() => setFailed(true)}
           style={{ ...NICHE, zIndex: 3 }}

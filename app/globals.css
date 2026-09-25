@@ -2327,3 +2327,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 @media (prefers-reduced-motion: reduce) {
   .katetalk, .katetalk__opt, .katetalk__opt i, .niche-clip { transition: none; }
 }
+
+/* The opening clip (components/IntroOpen.tsx) plays over the case box and
+   carries only the doors: the live case shows through it, cut to the trunk's
+   body, so the body and the doll are the page's own pixels throughout. The
+   rectangle is BODY in the clip's keying (inset 3% 27% 11.4% 27%). */
+[data-intro="body"] .case-world { clip-path: inset(3% 27% 11.4% 27%); }

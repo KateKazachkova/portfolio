@@ -10,7 +10,7 @@ import DeskLamp, { DeskLampSwitch } from "@/components/desk/DeskLamp";
 import KateTalk from "@/components/KateTalk";
 import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
 import HeroAside from "@/components/HeroAside";
-// import IntroOverlay from "@/components/IntroOverlay"; // opening hidden for now
+import IntroOpen from "@/components/IntroOpen";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 import { mono } from "@/components/ui/type";
@@ -1194,12 +1194,11 @@ export default function Home() {
             panel it opens fills the wall above her head, where the chalked day
             used to be. Nothing else in the hero moves. */}
         <KateTalk edition={shown} />
-
-        {/* First-visit opening sequence — opens the case in place, doors
-            swing apart to reveal the doll in the niche underneath.
-            HIDDEN for now per Kate — re-enable when the concept is reworked. */}
-        {/* <IntroOverlay /> */}
         </div>
+        {/* First visit: the closed trunk opens onto all of this, in place.
+            Beside .case-world, not in it, so the case can be cut to its body
+            while the clip's doors are still swinging. */}
+        <IntroOpen />
         </div>
         {/* The room put out while she sleeps: over the whole stage, the
             desk and the wall as well as the case. */}

@@ -1927,6 +1927,24 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the desk it has to reach the bottom edge. */
 [data-desk="open"] main, [data-desk="award"] main, [data-desk="profile"] main, [data-desk="offduty"] main { min-height: calc(100vh + 56px); }
 
+/* What each stop cannot see is switched off once the camera has arrived.
+   The room's planes are huge (3225 px across) and, close up, the browser
+   rasterises them at 2.5× and again at the screen's density; on a retina
+   Mac that runs past Chrome's tile memory and it leaves holes (the desk
+   under Case Files, the corner under Off Duty) where the dark floor shows
+   through. Hidden layers cost nothing. An animation, not a transition, so
+   no element's own transitions are overridden; leaving the stop drops it
+   and everything is back at once, before the camera starts to move. */
+@keyframes desk-off { to { visibility: hidden; } }
+[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
+[data-desk="award"] :is(.desk-extl, .od-wallet, .od-dvd),
+[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
+[data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
+[data-desk="profile"] .case-world,
+[data-desk="offduty"][data-desk-focus="bike"] .case-world {
+  animation: desk-off 0s linear 1.9s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scene-cam, .desk-world, .case-world, .desk-shadow, .desk-card { transition: none !important; }
 }

@@ -275,8 +275,16 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
 
   return (
     <>
+      {/* the niche is 57 px wide on a phone and 331 on a 2560 screen (13–16%
+          of the window): each screen takes the copy its width needs, the
+          full 648 only at 2× on a wide one */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="niche-clip" src={poster} alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false} />
+      <img
+        className="niche-clip" src={poster}
+        srcSet={`${poster.replace(/\.jpg$/, "-160.jpg")} 160w, ${poster.replace(/\.jpg$/, "-324.jpg")} 324w, ${poster} 648w`}
+        sizes="(max-width: 1023px) 16vw, 13vw"
+        alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false}
+      />
       {live && (
         <video
           ref={loopRef}
@@ -289,7 +297,8 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
           playsInline
           loop
           preload="auto"
-          poster={poster}
+          // no poster of its own: the picture stands under it, in the
+          // size this screen picked, and a poster here would fetch the full one
           src={V + set.loop}
           onEnded={onLoopEnded}
           onError={() => setFailed(true)}

@@ -48,7 +48,7 @@ const STICKERS = [
 // after (public/artefacts/ukrainska-15/family, after — the live site's own
 // sets). First is on top. [file, width, height, tilt]
 const STACKS = [
-  { key: "family", prints: [[1, 547, 378, -2], [2, 532, 378, 3], [4, 500, 400, -5], [5, 500, 400, 6], [3, 336, 400, 4], [6, 273, 378, -3], [7, 1280, 1280, 2]] },
+  { key: "family", prints: [[1, 547, 378, -2], [2, 532, 378, 3], [4, 500, 400, -5], [5, 500, 400, 6], [3, 336, 400, 4], [6, 273, 378, -3]] },
   { key: "after", prints: [[2, 700, 444, 2], [6, 500, 444, -4], [1, 400, 444, 5], [3, 400, 420, -2], [4, 300, 396, 3], [5, 300, 420, -5], [7, 300, 420, 4], [8, 300, 420, -1]] },
 ] as const;
 

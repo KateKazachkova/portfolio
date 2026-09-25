@@ -1110,16 +1110,27 @@ body::after {
   .hero-aside nav { margin-top: calc(7.69vw - 55px); gap: calc(1.442vw - 8.77px); }
 }
 /* From 1280px the scene scales with the window both ways: its 1440px share
-   of the width (1118 / 1440) on big screens, so 1920 gets a bigger case and
-   not just more margin; but never taller than the window allows — the case
-   files at its foot end 0.752 of its width below its top, which is 56px
-   down, and <main> stops 56px short of the bottom, so with 20px to spare
-   the width is (100vh − 132px) / 0.752. */
+   of the width (1118 / 1440 — at which the window's edge cuts the Davey
+   trophy about in half), so 1920 gets a bigger case and not just more
+   margin; but never taller than the window allows — the case files at its
+   foot end 0.72 of its width below its top (measured), which is 56px down,
+   and home's <main> reaches the window's bottom (below), so with 12px to
+   spare, the width is (100vh − 68px) / 0.72. */
 @media (min-width: 1280px) {
   /* html: one step more specific than the 1024–1439 rule above, which the
      CSS build may otherwise order after this one */
-  html .case-stage { width: min(77.64vw, calc((100vh - 132px) * 1.3294)); }
+  html .case-stage { width: min(77.64vw, calc((100vh - 68px) * 1.3889));
+    /* …and when the height is what holds it back, it slides right until the
+       window's edge again halves the trophy: the trophy's middle is 1.06 of
+       the width in from the stage's left, so the shift is 50vw − 0.56 W,
+       never less than the 130px home has always had. !important because the
+       130px is set on the element itself. */
+    --case-x: max(130px, calc(50vw - .778 * (100vh - 68px))) !important; }
 }
+/* <main> starts 56px above the window, under the header, and is one window
+   tall, so on home it stopped 56px short and a dark band ran under the
+   desk. It reaches the bottom now, as it already did over the desk. */
+@media (min-width: 1024px) { main:has(.case-stage) { min-height: calc(100vh + 56px); } }
 
 /* The room at night (components/NightRoom.tsx): one multiply layer over the
    stage in its own px, drawn far past its edges. At rest only — once the
@@ -1687,19 +1698,18 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 
 /* ── The camera move ──
    The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), right over
-   the row of case files (desk y 667.5, z 398.5), looking straight down — 90°,
+   the row of case files (desk y 560, z 291), looking straight down — 90°,
    so the desk is parallel to the screen and is rasterised like a flat
    picture at the right scale (at 84° it went soft). A desk px is then
    2.5 screen px (× --u), so
    the row runs off the right of the window and the camera pans along it:
    --pan, in desk px, set by useDeskCamera once it has arrived. Moving the
    camera by d is moving the world by -d, then rotating about the original
-   camera point: translate (-pan, 226 + 204, 2150 - 398.5) — over the row
-   since it came one tile (107.5) nearer. */
+   camera point: translate (-pan, 226 + 204, 2150 - 291). */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1859 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 
@@ -1970,7 +1980,6 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 @media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
 @media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #efe7d8; --muted: rgba(239, 231, 216, .62); } }
-[data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap, [data-desk="offduty"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */

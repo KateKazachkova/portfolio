@@ -16,8 +16,7 @@ import { openStop } from "@/components/DeskScene";
  *  reads the same way, and reads it from the same component: the rail *is*
  *  HeroAside, at home's own measure and offsets. Wordmark at 56px from the
  *  top, the masthead 124px under it, the index 56px under that, 34ch of
- *  measure, and the hairline down the right edge that home draws once it has
- *  room for it. One column, one set of spacings, six pages.
+ *  measure. One column, one set of spacings, on every page.
  *
  *  Home renders HeroAside itself, inside the hero, so the rail stays off that
  *  route rather than standing a second copy of the column beside the first.
@@ -90,11 +89,9 @@ export default function SideNav() {
       <div
         className="nav-rail hidden min-[1280px]:block shrink-0"
         // The measure and the offsets are home's, read off the hero: 48px in
-        // from the edge, then 34ch of column — home's own cap — then 24px and
-        // a hairline between it and the page, which is the rule home draws
-        // down this same edge once the window is wide enough to stand the
-        // column beside the case. 376 = 48 + 303 + 24 + 1.
-        style={{ width: 376, borderRight: "1px solid var(--hairline)" }}
+        // from the edge, then 34ch of column — home's own cap — then 24px.
+        // No rule down the edge: home dropped its own. 376 = 48 + 303 + 24 + 1.
+        style={{ width: 376 }}
       >
         <div
           className="sticky top-0"

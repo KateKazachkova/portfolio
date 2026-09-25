@@ -58,11 +58,11 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH 
 // they are ~2.5 screen px per desk px — more than fits across the window,
 // which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
-  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 195, h: 270, x: 1340, y: 682.5, r: -3 },
-  { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1609, y: 655.5, r: 3 },
-  { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 1879, y: 677.5, r: -2 },
-  { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2159, y: 659.5, r: 2 },
-  { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 2434, y: 687.5, r: -1.5 },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 195, h: 270, x: 1340, y: 575, r: -3 },
+  { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1609, y: 548, r: 3 },
+  { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 1879, y: 570, r: -2 },
+  { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2159, y: 552, r: 2 },
+  { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 2434, y: 580, r: -1.5 },
 ] as const;
 const ROW_END = 2524 + 70;         // right edge of the last object, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)

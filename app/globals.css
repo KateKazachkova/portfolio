@@ -1612,29 +1612,18 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the desk it has to reach the bottom edge. */
 [data-desk="open"] main, [data-desk="award"] main, [data-desk="profile"] main, [data-desk="offduty"] main { min-height: calc(100vh + 56px); }
 
-/* What each stop cannot see is switched off once the camera has arrived.
-   The room's planes are huge (3225 px across) and, close up, the browser
-   rasterises them at 2.5× and again at the screen's density; on a retina
-   Mac that runs past Chrome's tile memory and it leaves holes (the desk
-   under Case Files, the corner under Off Duty) where the dark floor shows
-   through. Hidden layers cost nothing. An animation, not a transition, so
-   no element's own transitions are overridden; leaving the stop drops it
-   and everything is back at once, before the camera starts to move.
-   Only Case Files, though: a layer Chrome has hidden it throws away, and
-   one that comes back is drawn from nothing while the camera is already
-   moving — the other stops' switching-off was what left the room in holes
-   on the way up to the wall (25.09, found with ?t=noh). Case Files, the
-   desk right under the camera, cannot do without it. */
-@keyframes desk-off { to { visibility: hidden; } }
+/* Nothing is switched off at the stops any more (25.09). Once the room's
+   3225 px planes ran past retina Chrome's tile memory, and each stop hid what
+   it could not see; but a layer Chrome hides it throws away and draws again
+   from nothing on the way out, which left the room in holes and blinks
+   between stops. With the wall gone and the desk the plate's depth, cut
+   into pieces, there is room enough without it. */
 /* Off Duty's corner is left of the clock, out of home's frame — until the
    scene scales down to fit a short window, when the player's edge shows
    under the index. At home it is not there; it is back the moment the
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
 :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-dvd) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp) {
-  animation: desk-off 0s linear 1.9s forwards;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .scene-cam, .desk-world, .case-world, .desk-shadow, .desk-card { transition: none !important; }

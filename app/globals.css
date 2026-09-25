@@ -1112,20 +1112,21 @@ body::after {
 /* From 1280px the scene scales with the window both ways: its 1440px share
    of the width (1118 / 1440 — at which the window's edge cuts the Davey
    trophy about in half), so 1920 gets a bigger case and not just more
-   margin; but never taller than the window allows — the case files at its
-   foot end 0.752 of its width below its top (measured), which is 56px down,
-   and home's <main> reaches the window's bottom (below), so with 12px to
-   spare, the width is (100vh − 68px) / 0.752. */
+   margin; but not so tall that the case files run far off the bottom — their
+   boxes end 0.752 of its width below its top (measured), which is 56px
+   down, and home's <main> reaches the window's bottom (below); the boxes may
+   run 40px past it (the files themselves end a little higher, so they just
+   touch the edge), so the width is (100vh − 16px) / 0.752. */
 @media (min-width: 1280px) {
   /* html: one step more specific than the 1024–1439 rule above, which the
      CSS build may otherwise order after this one */
-  html .case-stage { width: min(77.64vw, calc((100vh - 68px) * 1.3298));
+  html .case-stage { width: min(77.64vw, calc((100vh - 16px) * 1.3298));
     /* …and when the height is what holds it back, it slides right until the
        window's edge again halves the trophy: the trophy's middle is 1.06 of
        the width in from the stage's left, so the shift is 50vw − 0.56 W,
        never less than the 130px home has always had. !important because the
        130px is set on the element itself. */
-    --case-x: max(130px, calc(50vw - .7447 * (100vh - 68px))) !important; }
+    --case-x: max(130px, calc(50vw - .7447 * (100vh - 16px))) !important; }
 }
 /* <main> starts 56px above the window, under the header, and is one window
    tall, so on home it stopped 56px short and a dark band ran under the

@@ -199,7 +199,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
         {/* Central niche — editions with a generated clip play their video
             sequence (opaque, dropped onto the niche 1:1); others show the cutout. */}
         {hasNicheClip(shown) ? (
-          <NicheDoll key={shown} edition={shown} />
+          <NicheDoll key={shown} edition={shown} ready={hour !== null} />
         ) : (
           <div
             className="group"

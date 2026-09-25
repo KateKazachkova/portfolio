@@ -186,7 +186,9 @@ const introSeen: Record<string, boolean> = {};
 
 type Phase = "intro" | "loop" | "accent";
 
-export default function NicheDoll({ edition }: { edition: string }) {
+/** `ready`: the visitor's own hour is known. Until then the edition is only
+ *  the server's placeholder, and its clip would be fetched for nothing. */
+export default function NicheDoll({ edition, ready = true }: { edition: string; ready?: boolean }) {
   const set = CLIPS[edition];
   const accentList = set?.accents ?? (set?.accent ? [set.accent] : []);
   const [phase, setPhase] = useState<Phase>(
@@ -221,7 +223,7 @@ export default function NicheDoll({ edition }: { edition: string }) {
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="niche-clip" src={poster} alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false} />
-      {!set.still && !still && !failed && (
+      {ready && !set.still && !still && !failed && (
         <video
           className="niche-clip"
           key={file}

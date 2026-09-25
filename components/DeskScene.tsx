@@ -298,8 +298,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
 /** The flat caption over the desk while it is in view: how to move along
  *  it, and which of the files is in front of you. Outside the 3D world
  *  (and outside .scene-cam, whose transform would capture position: fixed). */
-/** The camera mask: a flat dark sheet over the scene that html[data-cam-mask]
- *  fades up while the camera flies through the stretch of a move where
+/** The camera mask: a flat dark sheet over the scene that fades up (its own data-on) while the camera flies through the stretch of a move where
  *  Chrome drops tiles (MASK above). One plain layer, opacity only. */
 export function CamMask() {
   return <div className="cam-mask" aria-hidden />;
@@ -470,15 +469,19 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let maskTimers: number[] = [];
     const maskLeg = (from: View | null, to: View | null) => {
       maskTimers.forEach(clearTimeout); maskTimers = [];
-      delete root.dataset.camMask;
+      // the flag is on the sheet itself, not on <html>: every rule keyed to
+      // html's attributes would be matched again at each change
+      const sheet = document.querySelector<HTMLElement>(".cam-mask");
+      if (!sheet) return;
+      delete sheet.dataset.on;
       if (still) return;
       const [a, b] = MASK[`${from ?? "home"}>${to ?? "home"}`] ?? MASK_ANY;
       const cs = getComputedStyle(root);
       const ms = (name: string) => { const v = cs.getPropertyValue(name).trim(); return v.endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000; };
       const t = ms("--cam-t"), wait = ms("--cam-wait"), fade = ms("--mask-fade") || 0;
       maskTimers.push(
-        window.setTimeout(() => { root.dataset.camMask = ""; }, Math.max(0, wait + a * t - fade)),
-        window.setTimeout(() => { delete root.dataset.camMask; }, wait + b * t),
+        window.setTimeout(() => { sheet.dataset.on = ""; }, Math.max(0, wait + a * t - fade)),
+        window.setTimeout(() => { delete sheet.dataset.on; }, wait + b * t),
       );
     };
     const go1 = (v: View | null) => {
@@ -596,7 +599,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       cancelAnimationFrame(raf);
       clearTimeout(legTimer);
       maskTimers.forEach(clearTimeout);
-      delete root.dataset.camMask;
+      document.querySelector<HTMLElement>(".cam-mask")?.removeAttribute("data-on");
       delete root.dataset.deskRoute;
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;

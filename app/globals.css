@@ -1546,7 +1546,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   background: var(--mask-colour); opacity: 0; will-change: opacity;
   transition: opacity var(--mask-fade) linear;
 }
-:root[data-cam-mask] .cam-mask { opacity: var(--mask-opacity); }
+.cam-mask[data-on] { opacity: var(--mask-opacity); }
 @media (min-width: 1024px) { .hero-aside-wrap { z-index: 16; } }
 .desk-hint {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20;

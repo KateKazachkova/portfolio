@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import {
   Geist,
   Geist_Mono,
-  IM_Fell_English,
   Newsreader,
   Archivo,
   Courier_Prime,
@@ -23,28 +22,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Antique press serif for the ink tooltips (Marauder's-Map labels).
-const fell = IM_Fell_English({
-  weight: "400",
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-fell",
-});
-
 // Case-study voices. Newsreader reads as a printed document where Arial
 // cannot; Archivo carries a width axis, so headlines condense without a
 // second family; Courier Prime is a real typewriter letterform, used for
-// every label, numeral and margin note.
+// every label, numeral and margin note. On home they only letter the desk's
+// papers (the U15 folder, the binder), well below the first screen, so none
+// of them is preloaded: each file is fetched when text set in it first shows.
 const serif = Newsreader({
   subsets: ["latin"],
   style: ["normal", "italic"],
   variable: "--font-serif",
+  preload: false,
 });
 
 const display = Archivo({
   subsets: ["latin"],
   axes: ["wdth"],
   variable: "--font-display",
+  preload: false,
 });
 
 const typewriter = Courier_Prime({
@@ -52,6 +47,7 @@ const typewriter = Courier_Prime({
   style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-typewriter",
+  preload: false,
 });
 
 // Kate's own handwriting, drawn from her notes — replaces Caveat everywhere
@@ -102,7 +98,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${fell.variable} ${chalk.variable} ${serif.variable} ${display.variable} ${typewriter.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${chalk.variable} ${serif.variable} ${display.variable} ${typewriter.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

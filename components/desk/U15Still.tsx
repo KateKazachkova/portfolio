@@ -1,12 +1,13 @@
 /**
- * Ukrainska 15's stack as home's camera sees it — the tablet, the folder full
- * of prints on it, the player beside — as one photograph
+ * Ukrainska 15's stack as home's camera sees it — the folder full of prints,
+ * the player beside — as one photograph
  * (public/artefacts/ukrainska-15/envelope/still-home.webp). The live objects
  * are flat planes with their edges stood up; seen this low they read as
  * cut-outs, so at rest a still lies over them: the CSS scene captured
  * headless from this camera, relit and given real thickness and contact
  * shadows by a generation, with the real stickers and print put back over
- * it. It rides on .case-world, the plane at z = 0, so box px map 1:1. It is
+ * it (the tablet it was made with, under the folder, since cut out and its
+ * contact shadow drawn along the folder's own edge). It rides on .case-world, the plane at z = 0, so box px map 1:1. It is
  * right from here only: the moment the camera moves (or the folder opens) it
  * fades and the live objects take over.
  *

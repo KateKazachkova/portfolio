@@ -40,7 +40,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * On every visit for now (Kate, 25.09 — may go back to once per visitor).
  * A click or any key lands the whole scene at once; ?nointro, an anchor
  * (/#recognition and the like: the camera is off to it at once, and would
- * leave the opening running behind it) and reduced motion skip it.
+ * leave the opening running behind it), reduced motion and a screen under
+ * 1024px (the phone's layout has no desk scene to open into) skip it. A clip
+ * that has not started 2.5s in is given up, so a slow line gets the scene
+ * rather than a closed trunk.
  */
 
 const FADE_MS = 300;
@@ -62,7 +65,7 @@ const FILES_MS = 600 + 800 + 150;
 /** how long a step may wait for what it shows before it goes anyway */
 const WAIT_MS = 1500;
 /** a clip that has not started by then is given up, and the scene lands */
-const GIVE_UP_MS = 4000;
+const GIVE_UP_MS = 2500;
 
 const html = () => document.documentElement;
 /** the rail's last hanger done turning (ms after "clothes") */
@@ -192,7 +195,7 @@ export default function IntroOpen() {
   const gate = (
     <script
       dangerouslySetInnerHTML={{
-        __html: `try{if(location.search.indexOf("nointro")<0&&!location.hash&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.setAttribute("data-intro","body");h.setAttribute("data-load","on")}}catch(e){}`,
+        __html: `try{if(location.search.indexOf("nointro")<0&&!location.hash&&matchMedia("(min-width: 1024px)").matches&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.setAttribute("data-intro","body");h.setAttribute("data-load","on")}}catch(e){}`,
       }}
     />
   );

@@ -142,16 +142,24 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
           style={{ position: "absolute", left: 0, top: 0, width: "100%", height: `${(1226 / 1080) * 100}%`, maxWidth: "none", zIndex: 0, pointerEvents: "none" }}
         />
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/suitcase/open2.webp"
-          alt="Kate's collector suitcase"
-          // the page's picture: fetched ahead of everything the room holds
-          fetchPriority="high"
-          className="absolute inset-0 w-full h-full object-contain"
-          style={{ zIndex: 1 }}
-          draggable={false}
-        />
+        {/* The case: the full 3072px picture only where it is drawn over
+            ~1500 device pixels (a wide screen at 1.5x or more), 1600px
+            everywhere else. The same condition picks --case-plate in
+            globals.css, which the award's inlays and the niche's light draw
+            with, so each visitor fetches one of the two files, never both. */}
+        <picture>
+          <source media="(min-width: 1024px) and (min-resolution: 1.5dppx)" srcSet="/suitcase/open2.webp" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/suitcase/open2-1600.webp"
+            alt="Kate's collector suitcase"
+            // the page's picture: fetched ahead of everything the room holds
+            fetchPriority="high"
+            className="absolute inset-0 w-full h-full object-contain"
+            style={{ zIndex: 1 }}
+            draggable={false}
+          />
+        </picture>
 
         {/* The award, in the top-left cubby — and the way in to Recognition */}
         <AwardCubby />

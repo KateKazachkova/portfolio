@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { prefersReducedMotion } from "@/lib/reducedMotion";
 
 /** Where the box can be, in the suitcase box's own percentages. It starts on
  *  the top-left shelf (home, which alone has the shelf lip laid over its base)
@@ -35,7 +36,7 @@ export default function Tardis() {
 
   function trigger() {
     if (phase !== "idle") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       setSpot(nextSpot);
       return;
     }

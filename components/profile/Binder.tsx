@@ -115,6 +115,15 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
         const b = e.currentTarget.getBoundingClientRect();
         go(at + (e.clientX > b.left + b.width / 2 ? 1 : -1));
       }}
+      // the hung sheets and the tabs are buttons in all but name: Enter or
+      // Space on one is a click on it, which the handler above reads
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const t = (e.target as HTMLElement).closest<HTMLElement>('[role="button"]');
+        if (!t) return;
+        e.preventDefault();
+        t.click();
+      }}
     >
       {/* on the desk it has a body: the board's edges, and the rings standing
           up out of the sleeves (edge-on from above, so only seen from the side) */}
@@ -165,7 +174,7 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
                 <div key={k} className="pf-hangleaf" data-flipped={o >= 0 || undefined} style={{ "--o": o } as React.CSSProperties}>
                   <div className="pf-hangleaf__side">
                     <div className="pf-hang">
-                      <div className="pf-hang__face" data-hang={key} role="button" aria-label="Turn over">{h}</div>
+                      <div className="pf-hang__face" data-hang={key} role="button" tabIndex={0} aria-label="Turn over">{h}</div>
                       <div className="pf-hang__face pf-hang__face--rev" data-hang={key} aria-hidden>{h}</div>
                     </div>
                   </div>
@@ -175,7 +184,7 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick }: 
             {l.overFront && <div className="pf-over">{l.overFront}</div>}
             {l.overBack && <div className="pf-over pf-over--back">{l.overBack}</div>}
             {l.tab && (
-              <span className="pf-tab" data-tab={i} role="button" aria-label={`Open ${l.tab.alt}`}
+              <span className="pf-tab" data-tab={i} role="button" tabIndex={0} aria-label={`Open ${l.tab.alt}`}
                 // dividers step along the top edge, so each tab shows
                 style={{ left: `${40 + 15 * leaves.slice(0, i).filter((x) => x.tab).length}%` }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}

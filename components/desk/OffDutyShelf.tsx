@@ -87,8 +87,10 @@ const stack = (n: number, dir: 1 | -1) =>
       `calc(${dir * (k * 3.4 + .8)} * var(--u)) calc(${k * 1.8 + .8} * var(--u)) 0 calc(-.3 * var(--u)) rgba(16, 32, 22, .45)`;
   }).join(", ") || "0 0 transparent";
 
-function Sleeve({ items, out, under = 0, dir = 1, onPick }: {
+function Sleeve({ items, out, under = 0, dir = 1, onPick, live = false }: {
   items: WatchItem[]; out?: string; under?: number; dir?: 1 | -1; onPick: (s: WatchItem, from: DOMRect) => void;
+  /** the camera is at the corner: the discs take focus */
+  live?: boolean;
 }) {
   const track = (e: PointerEvent<HTMLButtonElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -109,7 +111,7 @@ function Sleeve({ items, out, under = 0, dir = 1, onPick }: {
       {Array.from({ length: PER }, (_, i) => items[i]).map((s, i) => (
         <div className="od-sleeve__cell" key={s?.title ?? i}>
           {s && s.title !== out && (
-            <button type="button" className="cd od-disc" tabIndex={-1} aria-label={s.title}
+            <button type="button" className="cd od-disc" tabIndex={live ? 0 : -1} aria-label={`${s.title} — put it in the player`}
               onPointerMove={track} onPointerLeave={untrack}
               onClick={(e) => { if (!here()) return; e.stopPropagation(); onPick(s, e.currentTarget.getBoundingClientRect()); }}>
               <DiscBody poster={s.disc ?? s.poster} title={s.title} />
@@ -292,7 +294,7 @@ export default function OffDutyShelf() {
         ] as const).map(([k, spread, side, turnTo]) => (
           <div key={k} className={`od-hang od-hang--${k}`} style={hang(k)}
             onClick={(e) => { if (here()) { e.stopPropagation(); turnTo(); } }}>
-            <Sleeve items={page(spread, side)} out={out} onPick={pick}
+            <Sleeve items={page(spread, side)} out={out} onPick={pick} live={atCorner && !turn}
               dir={side === 1 ? 1 : -1} under={side === 1 ? spreads - 1 - spread : spread} />
           </div>
         ))}
@@ -318,6 +320,9 @@ export default function OffDutyShelf() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/items/off-duty/dvd-lid.webp" alt="" draggable={false} />
           <div className="od-dvd__screen" aria-live="polite" data-clip={clip ? "" : undefined}
+            role={clip ? "button" : undefined} tabIndex={clip && atCorner ? 0 : -1}
+            aria-label={clip ? (sound ? "Sound off" : "Sound on") : undefined}
+            onKeyDown={(e) => { if (clip && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleSound(); } }}
             onClick={(e) => { if (clip && here()) { e.stopPropagation(); toggleSound(); } }}>
             {picked?.poster && <span className="od-dvd__picture" key={picked.title} style={{ backgroundImage: `url(${picked.poster})` }} />}
             {clip && (

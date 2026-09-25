@@ -128,6 +128,13 @@ body > * { position: relative; z-index: 1; }
 :root {
   --scene-wall: #2C263F;   /* what the wall falls toward */
   --scene-floor: #F8C662;  /* what the floor bounces back */
+  /* The case's picture, for what draws with it (the award's inlays, the
+     niche's light): the same file the <picture> in components/home/Home.tsx
+     picks, on the same condition. */
+  --case-plate: url("/suitcase/open2-1600.webp");
+}
+@media (min-width: 1024px) and (min-resolution: 1.5dppx) {
+  :root { --case-plate: url("/suitcase/open2.webp"); }
 }
 [data-theme="dark"] {
   --scene-wall: #000;

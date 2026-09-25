@@ -56,8 +56,8 @@ export default function NicheLight({ edition }: { edition: string }) {
         opacity: dim * 0.72,
         transition: "opacity 0.9s ease",
         background: "linear-gradient(to bottom, rgba(20,12,7,0.62), rgba(20,12,7,0.52) 60%, rgba(20,12,7,0.48))",
-        WebkitMaskImage: 'url("/suitcase/open2.webp")',
-        maskImage: 'url("/suitcase/open2.webp")',
+        WebkitMaskImage: "var(--case-plate)",   // the case's own picture: see globals.css
+        maskImage: "var(--case-plate)",
         WebkitMaskSize: "contain",
         maskSize: "contain",
         WebkitMaskPosition: "center",

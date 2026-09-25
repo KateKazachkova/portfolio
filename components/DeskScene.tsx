@@ -8,6 +8,7 @@ import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
 import { isWritten } from "@/content/work/slugs";
+import { prefersReducedMotion } from "@/lib/reducedMotion";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -329,8 +330,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
         counter.textContent = `${best + 1} / ${CASES.length}`;
       }
     };
+    // with reduced motion the camera is simply where it is sent
+    const still = prefersReducedMotion();
     const tick = () => {
-      pan += (target - pan) * 0.16;
+      pan = still ? target : pan + (target - pan) * 0.16;
       if (Math.abs(target - pan) < 0.2) pan = target;
       paint();
       raf = pan === target ? 0 : requestAnimationFrame(tick);

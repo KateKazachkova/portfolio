@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useReducedMotion } from "@/lib/reducedMotion";
+import { EDITIONS } from "@/lib/time";
 
 /**
  * The doll living in the suitcase niche, per time-of-day edition.
@@ -192,6 +194,8 @@ export default function NicheDoll({ edition }: { edition: string }) {
   );
   const [accentIdx, setAccentIdx] = useState(0);
   const [failed, setFailed] = useState(false);
+  // With reduced motion she sits still: the poster, no clips.
+  const still = useReducedMotion();
 
   const handleEnded = () => {
     if (phase === "intro") introSeen[edition] = true;
@@ -216,8 +220,8 @@ export default function NicheDoll({ edition }: { edition: string }) {
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="niche-clip" src={poster} alt={`${edition} edition — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false} />
-      {!set.still && !failed && (
+      <img className="niche-clip" src={poster} alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false} />
+      {!set.still && !still && !failed && (
         <video
           className="niche-clip"
           key={file}

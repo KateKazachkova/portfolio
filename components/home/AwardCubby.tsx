@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { prefersReducedMotion } from "@/lib/reducedMotion";
 import Link from "next/link";
 import InkTip from "@/components/InkTip";
 import { shouldOpenDesk, AWARD_EVENT } from "@/components/DeskScene";
@@ -15,7 +16,7 @@ const AWARD_CUBBY = { l: 27.214, t: 11.182, w: 11.686, h: 26.318 };
  *  redraws the woodwork it was given, and a frame or two of drift shows up
  *  exactly where the clip's edge meets the real case. Rather than chase that,
  *  these strips lay the case back over its own borders: the background is
- *  open2 scaled to the whole suitcase box and offset so each strip shows the
+ *  the case's picture (--case-plate, the very file the page shows) scaled to the whole suitcase box and offset so each strip shows the
  *  very pixels it covers, which is why it cannot disagree with what is beneath
  *  it. `l/t/w/h` are the strip's rectangle in the SUITCASE BOX's percentages;
  *  the element is positioned inside the cubby, hence the conversion.
@@ -33,7 +34,7 @@ function CaseInlay({ l, t, w, h }: { l: number; t: number; w: number; h: number 
         top: `${((t - AWARD_CUBBY.t) / AWARD_CUBBY.h) * 100}%`,
         width: `${(w / AWARD_CUBBY.w) * 100}%`,
         height: `${(h / AWARD_CUBBY.h) * 100}%`,
-        backgroundImage: "url(/suitcase/open2.webp)",
+        backgroundImage: "var(--case-plate)",
         backgroundSize: `${10000 / w}% ${10000 / h}%`,
         backgroundPosition: `${(l / (100 - w)) * 100}% ${(t / (100 - h)) * 100}%`,
         pointerEvents: "none",
@@ -63,7 +64,7 @@ export default function AwardCubby() {
   useEffect(() => {
     const v = clip.current;
     if (!v) return;
-    if (awake && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (awake && !prefersReducedMotion()) {
       v.currentTime = 0;
       // A hover that ends before the file is ready aborts this play(), which
       // rejects; that is the normal way out, not an error worth reporting.

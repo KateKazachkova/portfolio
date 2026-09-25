@@ -548,13 +548,26 @@ function Tablet({ live, place, held, onPointerDown, onOpen }: {
 // opened in its own tab. (ukrainska15.com has to allow this page as a frame
 // ancestor in its _headers for the frame to load.)
 function TabletScreen({ onClose }: { onClose: () => void }) {
+  const box = useRef<HTMLDivElement>(null);
+  const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const key = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopImmediatePropagation(); onClose(); } };
+    // a modal dialog: focus goes in on opening, Tab stays inside, and it
+    // goes back to what opened it (the tablet on the desk) on closing
+    const opener = document.activeElement as HTMLElement | null;
+    close.current?.focus();
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.stopImmediatePropagation(); onClose(); return; }
+      if (e.key !== "Tab" || !box.current) return;
+      const stops = [...box.current.querySelectorAll<HTMLElement>("iframe, a[href], button")];
+      const first = stops[0], last = stops[stops.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     addEventListener("keydown", key, true);
-    return () => removeEventListener("keydown", key, true);
+    return () => { removeEventListener("keydown", key, true); opener?.focus?.(); };
   }, [onClose]);
   return createPortal(
-    <div className="u15-raised" role="dialog" aria-modal="true" aria-label="ukrainska15.com" onClick={onClose}>
+    <div className="u15-raised" ref={box} role="dialog" aria-modal="true" aria-label="ukrainska15.com" onClick={onClose}>
       <div className="u15-raised__tablet" onClick={(e) => e.stopPropagation()}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/artefacts/ukrainska-15/tablet/tablet.webp" alt="" draggable={false} />
@@ -562,7 +575,7 @@ function TabletScreen({ onClose }: { onClose: () => void }) {
       </div>
       <div className="u15-raised__bar" onClick={(e) => e.stopPropagation()}>
         <a href={SITE} target="_blank" rel="noopener">Open ukrainska15.com ↗</a>
-        <button type="button" onClick={onClose} aria-label="Put the tablet down">✕</button>
+        <button type="button" ref={close} onClick={onClose} aria-label="Put the tablet down">✕</button>
       </div>
     </div>,
     document.body,

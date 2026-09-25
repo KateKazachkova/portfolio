@@ -227,7 +227,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 
         <span className="env__shadow u15-sleeve u15-item" style={sleeve} aria-hidden />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="env__layer env__back u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src="/artefacts/ukrainska-15/envelope/back.webp?v=3" alt="" draggable={false} />
+        <img className="env__layer env__back u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src="/artefacts/ukrainska-15/envelope/back.webp?v=4" alt="" draggable={false} />
 
         {/* the booklet, behind the prints in the pocket */}
         <Booklet live={open} at={page} held={held === "book"} place={place("book", 11)}
@@ -274,7 +274,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="env__layer u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src="/artefacts/ukrainska-15/envelope/pocket.webp?v=3" alt="" draggable={false} />
+        <img className="env__layer u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src="/artefacts/ukrainska-15/envelope/pocket.webp?v=4" alt="" draggable={false} />
         <span className="env__print u15-sleeve u15-item" {...is("sleeve")} style={sleeve} aria-hidden>
           <span className="env__no">01</span>
           <span className="env__where">Ukrainska 15 · Kupiansk</span>

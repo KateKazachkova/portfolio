@@ -45,3 +45,4 @@ next-env.d.ts
 /public/dolls/v2/
 /public/dolls/*.png
 /public/dolls/cut/*.png
+/design-src/

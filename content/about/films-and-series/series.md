@@ -80,6 +80,12 @@ Why I like it:
 Poster: posters/outlander-blood-of-my-blood.jpeg
 Clip: https://www.youtube.com/watch?v=9hvjJEXoIhs
 
+## Outlander
+Year: 2014
+Why I like it:
+Poster:
+Clip: https://www.youtube.com/watch?v=KAS01FFj1fQ
+
 ## The Mentalist
 Year: 2008
 Why I like it:

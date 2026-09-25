@@ -8,7 +8,34 @@ export type WatchItem = {
   year: number | null;
   /** A YouTube video id, from a `Clip:` line (any youtube.com / youtu.be link). */
   clip?: string | null;
+  /** The disc's own label, a 520 × 520 cut of the poster for the CD wallet
+   *  (public/posters/disc/), if one has been made; otherwise the disc wears
+   *  the full poster. */
+  disc?: string | null;
 };
+
+// A label in public/posters/disc/ named after the title, however it is
+// spelt ("Outlander- Blood of My Blood.png", "sleepy-hollow.png"), with or
+// without a year in brackets, or after the poster's own file; any of the
+// usual formats.
+const DISC_DIR = path.join(process.cwd(), "public/posters/disc");
+const slugOf = (t: string) =>
+  t.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+function discFor(item: WatchItem): string | null {
+  let files: string[];
+  try { files = fs.readdirSync(DISC_DIR); } catch { return null; }
+  const names = [
+    slugOf(item.title),
+    slugOf(item.title.replace(/\s*\([^)]*\)\s*$/, "")),
+    item.poster ? slugOf(path.basename(item.poster).replace(/\.[^.]+$/, "")) : "",
+  ].filter(Boolean);
+  for (const name of names) {
+    const f = files.find((x) => /\.(webp|png|jpe?g)$/i.test(x) && slugOf(x.replace(/\.[^.]+$/, "")) === name);
+    // escaped for CSS too: the disc face puts it in an unquoted url()
+    if (f) return `/posters/disc/${encodeURIComponent(f).replace(/['()]/g, (c) => "%" + c.charCodeAt(0).toString(16))}`;
+  }
+  return null;
+}
 
 // The id out of a YouTube link: watch?v=…, youtu.be/…, /embed/… or /shorts/….
 function youtubeId(url: string): string | null {
@@ -82,7 +109,7 @@ export function getFilms(): WatchItem[] {
 }
 
 export function getSeries(): WatchItem[] {
-  return parseList("series.md");
+  return parseList("series.md").map((s) => ({ ...s, disc: discFor(s) }));
 }
 
 export function getBooks(): WatchItem[] {

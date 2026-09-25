@@ -112,7 +112,7 @@ function Sleeve({ items, out, under = 0, dir = 1, onPick }: {
             <button type="button" className="cd od-disc" tabIndex={-1} aria-label={s.title}
               onPointerMove={track} onPointerLeave={untrack}
               onClick={(e) => { if (!here()) return; e.stopPropagation(); onPick(s, e.currentTarget.getBoundingClientRect()); }}>
-              <DiscBody poster={s.poster} title={s.title} />
+              <DiscBody poster={s.disc ?? s.poster} title={s.title} />
             </button>
           )}
         </div>
@@ -315,7 +315,7 @@ export default function OffDutyShelf() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/items/off-duty/dvd-base.webp" alt="" draggable={false} />
           <span ref={bay} className="od-dvd__bay" style={{ left: `${BAY.x}%`, top: `${BAY.y}%`, width: `${BAY.w}%` }} aria-hidden>
-            {picked && <DiscBody poster={picked.poster} title={picked.title} />}
+            {picked && <DiscBody poster={picked.disc ?? picked.poster} title={picked.title} />}
           </span>
         </div>
         {/* its left end, which the camera sees from where it stands */}
@@ -334,7 +334,7 @@ export default function OffDutyShelf() {
       </div>
       {flight && createPortal(
         <div ref={flyer} className="od-fly" style={{ width: flight.from.width, height: flight.from.height }} aria-hidden>
-          <DiscBody poster={flight.item.poster} title={flight.item.title} />
+          <DiscBody poster={flight.item.disc ?? flight.item.poster} title={flight.item.title} />
         </div>,
         document.body,
       )}

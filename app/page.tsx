@@ -159,7 +159,8 @@ const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; 
   // to sit above it or it lands behind the fleece.
   { left: 84.18, top: 58.0, width: 5.1, z: 5 },
   { left: 56.88, top: 1.0, width: 4.4, behind: true },
-  { left: 15.0, top: 76.5, width: 5.1 },
+  // The foot of the left door, tucked into the corner left of the guitar
+  { left: 10.4, top: 77.8, width: 5.1 },
 ];
 
 /** The model police box. Pointing at it lights a blue glow and the box pulses

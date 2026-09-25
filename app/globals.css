@@ -1746,6 +1746,14 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   opacity: 0; transition: opacity .4s ease;
 }
 [data-desk="open"][data-desk-arrived] .desk-hint { opacity: 1; }
+/* A finger drives the pan too: over the desk, touch goes to the pan (see
+   useDeskCamera) instead of the browser's own scroll and zoom. */
+[data-desk="open"] .scene-cam { touch-action: none; }
+.desk-hint__swipe { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .desk-hint__scroll { display: none; }
+  .desk-hint__swipe { display: inline; }
+}
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }

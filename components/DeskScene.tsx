@@ -208,7 +208,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
 export function DeskHint() {
   return (
     <div className="desk-hint" aria-hidden>
-      <span>← scroll →</span>
+      <span className="desk-hint__scroll">← scroll →</span>
+      <span className="desk-hint__swipe">← swipe →</span>
       <span className="desk-counter">1 / {CASES.length}</span>
     </div>
   );
@@ -289,20 +290,33 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (focus && focus !== U15) setFocus(null);
       go(target + d / (SPD * u()));
     };
+    // A drag with the mouse, or a swipe with a finger (the desk takes touch
+    // for itself while it pans: touch-action in globals.css). A swipe let go
+    // of while still moving carries on, as a flick along the desk would.
     let dragX: number | null = null, dragFrom = 0, dragged = false;
+    let lastX = 0, lastT = 0, vel = 0; // px per ms, screen x
     const onDown = (e: PointerEvent) => {
       if (!panning() || e.button !== 0) return;
       // a print being carried, or a page being turned, is not a pan
       if ((e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
-      dragX = e.clientX; dragFrom = target; dragged = false;
+      dragX = lastX = e.clientX; lastT = e.timeStamp; vel = 0;
+      dragFrom = target; dragged = false;
     };
     const onMove = (e: PointerEvent) => {
       if (dragX === null) return;
       const dx = e.clientX - dragX;
+      const dt = e.timeStamp - lastT;
+      if (dt > 0) { vel = vel * 0.6 + ((e.clientX - lastX) / dt) * 0.4; lastX = e.clientX; lastT = e.timeStamp; }
       if (Math.abs(dx) > 5) dragged = true;
       if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (SPD * u())); }
     };
-    const onUp = () => { dragX = null; };
+    const onUp = (e: PointerEvent) => {
+      if (dragX === null) return;
+      dragX = null;
+      // a finger that stopped before it lifted throws nothing
+      if (dragged && e.pointerType !== "mouse" && e.timeStamp - lastT < 80 && Math.abs(vel) > 0.3)
+        go(target - (vel * 260) / (SPD * u()));
+    };
     // a drag that ends on a card is not a click on it
     const onClick = (e: MouseEvent) => {
       if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; return; }
@@ -407,6 +421,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
     el.addEventListener("click", onClick, true);
     el.addEventListener("focusin", onFocus);
     set(viewOf(location.hash));
@@ -426,6 +441,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
       el.removeEventListener("click", onClick, true);
       el.removeEventListener("focusin", onFocus);
       world?.removeEventListener("transitionend", onArrive);

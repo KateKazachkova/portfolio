@@ -46,7 +46,7 @@ const BRANCHES: Record<string, Node> = {
       "Same reason I redo my own work.",
     ],
     options: [
-      { label: "Show me some of that", href: "/work" },
+      { label: "Show me some of that", href: "/#case-files" },
       { label: "Noted.", close: true },
     ],
   },
@@ -60,14 +60,14 @@ const BRANCHES: Record<string, Node> = {
   about: {
     lines: ["Product design.", "Complicated things, made less complicated."],
     options: [
-      { label: "The long version", href: "/about" },
+      { label: "The long version", href: "/#profile" },
       { label: "Got it.", close: true },
     ],
   },
   working: {
     lines: ["A product with too many screens and not enough decisions in them."],
     options: [
-      { label: "Show me", href: "/work" },
+      { label: "Show me", href: "/#case-files" },
       { label: "Sounds familiar.", close: true },
     ],
   },
@@ -95,7 +95,7 @@ const BRANCHES: Record<string, Node> = {
   out: {
     lines: ["Nowhere in particular.", "Walking is how I get things unstuck."],
     options: [
-      { label: "Show me what got unstuck", href: "/work" },
+      { label: "Show me what got unstuck", href: "/#case-files" },
       { label: "Have a good one.", close: true },
     ],
   },

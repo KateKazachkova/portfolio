@@ -137,7 +137,7 @@ export default function Kit() {
         </p>
         <Sheet raised className="p-6">
           <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mb-4">Button</div>
-          <InkButton href="/recognition">View Verified Work →</InkButton>
+          <InkButton href="/#recognition">View Verified Work →</InkButton>
 
           <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.15em" }} className="text-gray-400 uppercase mt-8 mb-4">Stamps</div>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-6">

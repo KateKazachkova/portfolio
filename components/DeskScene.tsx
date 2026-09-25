@@ -516,6 +516,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;
       delete root.dataset.desk;
+      // and forget the view with it, or a remount (React's dev double run,
+      // or home again on the way in from another page) finds it "already
+      // open" and never puts html[data-desk] back
+      open.current = null;
       document.body.style.overflow = "";
     };
   }, [cam]);
@@ -523,6 +527,21 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
 
 /** Whether a click on Case Files should move the camera instead of leaving:
  *  on home, with a plain left click. */
+/** A link to one of the camera's stops (/#case-files …): on home it moves the
+ *  camera instead of navigating, which a hash on the same page would not do;
+ *  from anywhere else it is an ordinary link home, and the hash opens the stop
+ *  there. Returns whether it took the click. */
+const STOP_EVENTS: Record<string, string> = {
+  "/#case-files": DESK_EVENT, "/#profile": PROFILE_EVENT, "/#recognition": AWARD_EVENT, "/#off-duty": OFFDUTY_EVENT,
+};
+export function openStop(e: React.MouseEvent, href: string) {
+  const ev = STOP_EVENTS[href];
+  if (!ev || location.pathname !== "/" || !shouldOpenDesk(e)) return false;
+  e.preventDefault();
+  window.dispatchEvent(new Event(ev));
+  return true;
+}
+
 export function shouldOpenDesk(e: React.MouseEvent) {
   const root = document.documentElement;
   return (

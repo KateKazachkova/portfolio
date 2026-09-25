@@ -29,20 +29,15 @@ export default function Footer() {
         </div>
 
         {/* spec small print */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
           {[
             ["SERIAL", "PD-001"],
             ["ASSEMBLED", "Ukraine"],
             ["STATUS", "Verified"],
-            ["CONTACT", "Customer Support →"],
           ].map(([k, v]) => (
             <div key={k}>
               <div className="doc-ref mb-1">{k}</div>
-              {k === "CONTACT" ? (
-                <a href="/contact" style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold underline hover:no-underline">{v}</a>
-              ) : (
-                <div style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold">{v}</div>
-              )}
+              <div style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold">{v}</div>
             </div>
           ))}
         </div>

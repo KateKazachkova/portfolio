@@ -377,7 +377,7 @@ export default function NotFound() {
           <div className="mt-7 flex flex-wrap gap-3">
             <InkButton href="/">← Back to collection</InkButton>
             <Link
-              href="/work"
+              href="/#case-files"
               className="uppercase font-bold transition-colors"
               style={{
                 fontFamily: mono, fontSize: 11, letterSpacing: "0.12em",

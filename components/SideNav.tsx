@@ -7,6 +7,7 @@ import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
 import { mono } from "@/components/ui/type";
 import { NAV_LINKS as LINKS, CV_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
+import { openStop } from "@/components/DeskScene";
 
 /** The site's navigation, in the left margin of every page.
  *
@@ -206,8 +207,8 @@ export default function SideNav() {
                 {LINKS.map((link, i) => (
                   <Link
                     key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
+                    href={link.stop}
+                    onClick={(e) => { setOpen(false); openStop(e, link.stop); }}
                     className="flex items-baseline gap-4 uppercase font-bold"
                     style={{
                       fontFamily: mono,

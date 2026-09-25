@@ -6,17 +6,17 @@
  * column — which is two lists to keep in step and one of them to forget.
  *
  * The labels are the case's own vocabulary, not the routes: /work is filed as
- * Case Files, /about as Profile, /kit as the Parts List — the product's own
- * page, what this one is made of. The URLs stay as they were so nothing that
- * already points at them breaks.
+ * Case Files, /about as Profile. Each is a stop of the camera on home's desk;
+ * the old pages are gone, so the links point at the stop (`stop`, the hash
+ * home opens it from); `href` is the old URL, kept as the item's name and
+ * redirected by next.config.ts for anything that still links to it.
+ * (/kit, the Parts List, still exists but is off the menu.)
  */
 export const NAV_LINKS = [
-  { href: "/work", label: "Case Files" },
-  { href: "/about", label: "Profile" },
-  { href: "/off-duty", label: "Off Duty" },
-  { href: "/recognition", label: "Recognition" },
-  { href: "/kit", label: "Parts List" },
-  { href: "/contact", label: "Contact" },
+  { href: "/work", stop: "/#case-files", label: "Case Files" },
+  { href: "/about", stop: "/#profile", label: "Profile" },
+  { href: "/off-duty", stop: "/#off-duty", label: "Off Duty" },
+  { href: "/recognition", stop: "/#recognition", label: "Recognition" },
 ] as const;
 
 export const CV_HREF =

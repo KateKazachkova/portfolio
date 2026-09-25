@@ -5,7 +5,7 @@ import Link from "next/link";
 import InkTip from "@/components/InkTip";
 import NicheDoll, { hasNicheClip } from "@/components/NicheDoll";
 import NicheLight from "@/components/NicheLight";
-import NightRoom from "@/components/NightRoom";
+import NightRoom, { NightCam } from "@/components/NightRoom";
 import DeskLamp, { DeskLampSwitch } from "@/components/desk/DeskLamp";
 import KateTalk from "@/components/KateTalk";
 import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
@@ -14,7 +14,6 @@ import HeroAside from "@/components/HeroAside";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate, daytimeForEdition } from "@/lib/time";
 import { mono } from "@/components/ui/type";
-import DaySticky from "@/components/DaySticky";
 import { DeskPlanes, DeskHint, useDeskCamera, shouldOpenDesk, AWARD_EVENT } from "@/components/DeskScene";
 import U15Still from "@/components/desk/U15Still";
 
@@ -584,7 +583,7 @@ export default function Home() {
           onHoverChange={setAwardAwake}
         >
           <Link
-            href="/recognition"
+            href="/#recognition"
             aria-label="Recognition — the award for Redesigning the Redesign"
             className="block absolute inset-0"
             // like Recognition in the index: over to the wall, not a page
@@ -964,13 +963,6 @@ export default function Home() {
             (see TARDIS_SPOTS); the shelf lip above is its own element. */}
         <TardisModel />
 
-        {/* Today's plan on a sticky note, pressed to the wardrobe wall under
-            the watch — the schedule that used to live in a panel beside the
-            case, now an object in it. Tapping a line jumps the doll to that
-            edition, which is what the old chips did. */}
-        <div style={{ position: "absolute", left: "87.5%", top: "36%", width: "13.65%", zIndex: 5 }}>
-          <DaySticky hour={hour} active={forced} onPick={setForced} />
-        </div>
 
         {/* Left door — middle shelf: the VHS tapes. The row is the width of
             the shelf, like the box sets above it, and its base runs under the
@@ -1214,6 +1206,10 @@ export default function Home() {
         <NightRoom edition={shown} />
         <DeskLampSwitch />
       </div>
+        {/* …and the same night over the camera's other stops. Before the
+            index column in the page, so it goes down under the room and not
+            the words. */}
+        <NightCam edition={shown} />
 
         {/* The title block to the left of the box, the schedule to its right:
             the case itself stays centred and untouched between them. Both are
@@ -1243,22 +1239,6 @@ export default function Home() {
         <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.12em" }} className="text-gray-400 uppercase mt-1">
           {hour !== null ? `${((hour % 12) || 12)}:00 ${hour >= 12 ? "PM" : "AM"} · your local time` : ""}
         </p>
-      </div>
-
-      {/* Have a project? — parked in the bottom-left corner of the page, in the
-          same voice as the line under the title: body type, no accent colour.
-          mt-auto keeps it on the floor of the min-h-screen column. */}
-      <div className="hero-contact w-full mt-auto pt-4">
-        <div className="ml-[6vw] min-[1024px]:ml-6">
-          <p className="t-body" style={{ color: "var(--fg)" }}>Have a project?</p>
-          <Link
-            href="/contact"
-            className="t-body inline-block mt-1 hover:opacity-60 transition-opacity"
-            style={{ color: "var(--fg)" }}
-          >
-            Let&apos;s talk →
-          </Link>
-        </div>
       </div>
 
       {/* Over the desk only: how to move along it, which file is in front. */}

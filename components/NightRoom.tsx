@@ -164,3 +164,67 @@ export default function NightRoom({ edition }: { edition: string }) {
     </svg>
   );
 }
+
+/**
+ * The same night once the camera has left home. NightRoom is drawn in the
+ * box's own px and only fits the rest view, so the other stops had the room
+ * back at noon. This is its twin in screen space, over whatever the camera
+ * looks at: the same multiply ground, and
+ *
+ *  - with the lamp on, its warm pool coming in from wherever the lamp stands
+ *    for that stop (behind the case: above Case Files, off to the left of
+ *    Recognition and Profile, to the right of Off Duty) — globals.css;
+ *  - with it off, the torch, following the pointer as it does at home.
+ *
+ * It fades in as NightRoom fades out, while the camera travels.
+ */
+export function NightCam({ edition }: { edition: string }) {
+  const { themePref } = useTime();
+  const { on: lamp } = useLamp();
+  const on = !!ON[edition] || themePref === "dark";
+  const torchOn = on && !lamp;
+  const torch = useRef<HTMLDivElement>(null);
+
+  // the index's ink turns dark over the white desk (globals.css); at night the
+  // desk is not white
+  useEffect(() => {
+    const root = document.documentElement;
+    if (on) root.dataset.night = ""; else delete root.dataset.night;
+    return () => { delete root.dataset.night; };
+  }, [on]);
+
+  useEffect(() => {
+    const t = torch.current;
+    if (!torchOn || !t) return;
+    let frame = 0, x = 0, y = 0;
+    const paint = () => {
+      frame = 0;
+      t.style.transform = `translate(${x}px, ${y}px)`;
+      t.style.opacity = "1";
+    };
+    const move = (e: PointerEvent) => {
+      x = e.clientX; y = e.clientY;
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" && !e.relatedTarget) t.style.opacity = "0";
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerdown", move, { passive: true });
+    document.addEventListener("pointerout", leave);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", move);
+      document.removeEventListener("pointerout", leave);
+      t.style.opacity = "0";
+    };
+  }, [torchOn]);
+
+  return (
+    <div aria-hidden className="night-cam" data-on={on || undefined} data-lamp={lamp ? "on" : "off"}>
+      <div className="night-cam__lamp" />
+      <div ref={torch} className="night-cam__torch" />
+    </div>
+  );
+}

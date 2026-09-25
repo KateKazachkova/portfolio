@@ -25,7 +25,7 @@ const CASE: Record<string, string> = {
   BulkSource: "/work/bulksource",
   OnsiSoft: "/work/onsisoft",
   // no case file yet: its records are on the old page
-  Agora: "/recognition",
+  Agora: "/#recognition",
 };
 const LOGO: Record<string, string | null> = {
   "MUSE Creative Awards": "muse",

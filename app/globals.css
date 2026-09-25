@@ -1154,6 +1154,38 @@ body::after {
 .case-stage:has(.inktip[data-open="true"]) .night-room[data-on],
 .case-stage:has(.katetalk[data-open="true"]) .night-room[data-on] { opacity: .55; transition-duration: .4s; }
 :root[data-desk]:not([data-desk="closed"]) .night-room { opacity: 0; transition-duration: .6s; }
+/* The same night at the camera's other stops (NightCam in NightRoom.tsx):
+   screen space, over the window. The ground is NightRoom's; the lamp's pool
+   comes in from where the lamp stands for each stop, and without it there is
+   the torch.  */
+.night-cam {
+  position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+  mix-blend-mode: multiply; background: rgb(58, 62, 86);
+  opacity: 0; transition: opacity .9s ease;
+  --pool: 30% -15%; --pool-size: 130% 120%; --pool-k: 1;
+}
+:root[data-desk]:not([data-desk="closed"]) .night-cam[data-on] { opacity: 1; }
+.night-cam__lamp {
+  position: absolute; inset: 0; opacity: var(--pool-k); transition: opacity .35s ease;
+  background: radial-gradient(var(--pool-size) at var(--pool),
+    rgb(255, 224, 180), rgb(236, 196, 150) 30%, rgba(170, 136, 112, .8) 62%, rgba(80, 74, 90, 0));
+}
+.night-cam[data-lamp="off"] .night-cam__lamp { opacity: 0; }
+.night-cam__torch {
+  position: absolute; left: -260px; top: -260px; width: 520px; height: 520px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255, 244, 226), rgba(240, 214, 178, .9) 50%, rgba(236, 208, 170, 0));
+  opacity: 0; transition: opacity .5s ease;
+}
+/* where the lamp is from each stop: behind the case, so over the top of
+   Case Files; off to the left of Recognition, further for Profile; to the
+   right of Off Duty, and ahead of it once the camera is down on the bike */
+:root[data-desk="open"] .night-cam      { --pool: 30% -15%; --pool-size: 130% 120%; }
+:root[data-desk="award"] .night-cam     { --pool: -15% 10%; --pool-size: 110% 130%; }
+:root[data-desk="profile"] .night-cam   { --pool: -40% -10%; --pool-size: 140% 140%; --pool-k: .85; }
+:root[data-desk="offduty"] .night-cam   { --pool: 115% 5%; --pool-size: 110% 130%; }
+:root[data-desk="offduty"][data-desk-focus="bike"] .night-cam { --pool: 95% -20%; --pool-size: 120% 120%; }
+/* a label or the talk panel open: the room comes up, as it does at home */
+main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transition-duration: .4s; }
 /* Multiply needs something to land on. The stage is its own blend group (it
    has a transform), and past the plate's edges the group is empty — there
    the layer showed its own grey-blue as a band down the left. This gives it
@@ -1911,9 +1943,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 /* The page around it: the lines under the case step aside; the column —
    title, lead and index — stays as it is on every page, inked for the white
    desk (over the dark wall it keeps its own colours). */
-.hero-caption, .hero-contact { transition: opacity .5s ease; }
-[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption, [data-desk="profile"] .hero-caption, [data-desk="offduty"] .hero-caption,
-[data-desk="open"] .hero-contact, [data-desk="award"] .hero-contact, [data-desk="profile"] .hero-contact, [data-desk="offduty"] .hero-contact { opacity: 0; pointer-events: none; }
+.hero-caption { transition: opacity .5s ease; }
+[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption, [data-desk="profile"] .hero-caption, [data-desk="offduty"] .hero-caption { opacity: 0; pointer-events: none; }
 /* Over the desk the column's title and lead stay, but only its links take the
    pointer, so what lies under the words can still be picked up. The ink turns
    dark only where the column stands over the white desk (1440px and up);
@@ -1921,6 +1952,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { pointer-events: none; }
 [data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
 @media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
+/* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
+@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #efe7d8; --muted: rgba(239, 231, 216, .62); } }
 [data-desk="open"] .hero-aside-wrap, [data-desk="award"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap, [data-desk="offduty"] .hero-aside-wrap { border-color: transparent !important; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over

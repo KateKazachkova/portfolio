@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { nodeFor, ROOT } from "@/lib/kate-talk";
+import { openStop } from "@/components/DeskScene";
 
 /**
  * A short conversation with the doll in the niche.
@@ -126,7 +127,7 @@ export default function KateTalk({ edition }: { edition: string }) {
           {node.options.map((o) => (
             <li key={o.label}>
               {"href" in o ? (
-                <Link href={o.href} className="katetalk__opt t-body" onClick={close}>
+                <Link href={o.href} className="katetalk__opt t-body" onClick={(e) => { close(); openStop(e, o.href); }}>
                   <span>{o.label}</span>
                   <i aria-hidden="true">→</i>
                 </Link>

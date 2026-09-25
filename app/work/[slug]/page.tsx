@@ -37,7 +37,7 @@ export default async function CaseStudyRoute({ params }: { params: Promise<{ slu
     <main className="min-h-screen px-6 md:px-8 py-16 md:py-24">
       <article className="max-w-3xl mx-auto">
         {/* back */}
-        <Link href="/work" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.18em" }} className="uppercase" >
+        <Link href="/#case-files" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.18em" }} className="uppercase" >
           <span style={{ color: "var(--accent-red)" }}>←</span>{" "}
           <span style={{ color: "var(--muted)" }}>Case Files</span>
         </Link>
@@ -82,7 +82,7 @@ export default async function CaseStudyRoute({ params }: { params: Promise<{ slu
 
         {/* footer nav */}
         <div className="mt-16 pt-6" style={{ borderTop: "1px solid var(--hairline)" }}>
-          <Link href="/work" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.18em" }} className="uppercase">
+          <Link href="/#case-files" style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.18em" }} className="uppercase">
             <span style={{ color: "var(--accent-red)" }}>←</span>{" "}
             <span style={{ color: "var(--muted)" }}>All case files</span>
           </Link>

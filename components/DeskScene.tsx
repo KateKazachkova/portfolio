@@ -419,15 +419,18 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (v === open.current) return;
       if (v && !open.current) window.scrollTo({ top: 0 });
       if (v) measure();
+      // Where the camera is coming from: on the way, what neither end of the
+      // move can see is off at once (globals.css, "On the way"). Sent on
+      // before it arrived, it is still between its last stop and the one it
+      // was heading for, so the move still starts from that last stop.
+      const from = !open.current ? "closed" : arrived ? root.dataset.desk : root.dataset.deskFrom;
       open.current = v;
       // leaving the desk (home, or on to the wall): the pan unwinds with the
       // rest of the move
       arrived = false; delete root.dataset.deskArrived;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
       cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
-      // where the camera is coming from: on the way, what neither end of the
-      // move can see is off at once (globals.css, "On the way")
-      root.dataset.deskFrom = root.dataset.desk ?? "closed";
+      root.dataset.deskFrom = from ?? "closed";
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));

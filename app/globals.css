@@ -1607,19 +1607,18 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    run from one stop to the next, the camera never arriving, keeps it all on,
    past retina Chrome's tile memory: whole planes of desk and wall dropped.
    So between two stops, whatever neither of them can see (in both of their
-   lists above) is off from the start of the move. data-desk-from is the
-   stop the camera left (components/DeskScene.tsx). */
+   lists above) is off from the start of the move. Recognition and Off
+   Duty have nothing off in common, so that pair has no rule.
+   data-desk-from is the stop the camera left (components/DeskScene.tsx). */
 [data-desk-from="open"][data-desk="award"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-extl, .od-wallet, .od-dvd),
 [data-desk-from="open"][data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
 [data-desk-from="open"][data-desk="offduty"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
 [data-desk-from="award"][data-desk="open"] :is(.desk-extl, .od-wallet, .od-dvd):is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
 [data-desk-from="award"][data-desk="profile"] :is(.desk-extl, .od-wallet, .od-dvd):is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="award"][data-desk="offduty"] :is(.desk-extl, .od-wallet, .od-dvd):is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
 [data-desk-from="profile"][data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
 [data-desk-from="profile"][data-desk="award"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-extl, .od-wallet, .od-dvd),
 [data-desk-from="profile"][data-desk="offduty"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
 [data-desk-from="offduty"][data-desk="open"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award):is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="offduty"][data-desk="award"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award):is(.desk-extl, .od-wallet, .od-dvd),
 [data-desk-from="offduty"][data-desk="profile"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award):is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp) {
   visibility: hidden;
 }

@@ -93,7 +93,7 @@ function Wardrobe({ edition }: { edition: string }) {
           little past it, the way a folded fleece actually sits. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/items/right-2-blanket.webp"
+        src="/items/right-2-blanket.sm.webp"
         alt=""
         aria-hidden
         style={{

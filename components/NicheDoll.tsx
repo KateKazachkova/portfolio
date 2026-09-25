@@ -198,6 +198,25 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
   const [failed, setFailed] = useState(false);
   // With reduced motion she sits still: the poster, no clips.
   const still = useReducedMotion();
+  // The clip waits until the page's pictures are in and the browser is idle:
+  // it is the heaviest thing in the case, and fetched alongside them it
+  // holds everything else up. The poster, which is its first frame, stands
+  // in until then.
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    let idle = 0;
+    const go = () => {
+      idle = typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(() => setSettled(true), { timeout: 2000 })
+        : window.setTimeout(() => setSettled(true), 200);
+    };
+    if (document.readyState === "complete") go();
+    else addEventListener("load", go, { once: true });
+    return () => {
+      removeEventListener("load", go);
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle); else clearTimeout(idle);
+    };
+  }, []);
 
   const handleEnded = () => {
     if (phase === "intro") introSeen[edition] = true;
@@ -223,7 +242,7 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="niche-clip" src={poster} alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false} />
-      {ready && !set.still && !still && !failed && (
+      {ready && settled && !set.still && !still && !failed && (
         <video
           className="niche-clip"
           key={file}

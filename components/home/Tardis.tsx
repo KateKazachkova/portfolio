@@ -84,7 +84,7 @@ export default function Tardis() {
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/items/left-1-tardis.webp"
+            src="/items/left-1-tardis.sm.webp"
             alt=""
             className="block w-full h-auto relative"
             style={{ ...imgStyle, zIndex: 1 }}

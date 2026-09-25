@@ -103,7 +103,7 @@ export default function CaseKit() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/mid-mono.webp"
+          src="/items/mid-mono.sm.webp"
           alt="A miniature electric unicycle parked on the compartment floor under the bike"
           className="w-full h-auto warm"
           style={{ "--rest": "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" } as React.CSSProperties}
@@ -125,7 +125,7 @@ export default function CaseKit() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/mid-pads.webp"
+          src="/items/mid-pads.sm.webp"
           alt="A set of miniature knee and elbow pads stacked on the wardrobe's bottom shelf"
           className="w-full h-auto warm"
           // Cut at the wardrobe's side wall: the case is a photograph, so
@@ -149,7 +149,7 @@ export default function CaseKit() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/mid-bike-shoes.webp"
+          src="/items/mid-bike-shoes.sm.webp"
           alt="A pair of black canvas high-top sneakers on the wardrobe's bottom shelf"
           className="w-full h-auto warm"
           style={{ "--rest": "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" } as React.CSSProperties}

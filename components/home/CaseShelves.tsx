@@ -3,7 +3,12 @@ import InkTip from "@/components/InkTip";
 /** The still things on the case's left side: the Figma sticker on the top
  *  drawer, the shelf lips, the books and the tapes. Nothing here changes with
  *  the time of day, so it is rendered on the server and handed to home's
- *  scene as it is (app/page.tsx). Percentages of the suitcase box. */
+ *  scene as it is (app/page.tsx). Percentages of the suitcase box.
+ *
+ *  Things in the case are only ever seen at the case's own size (at most
+ *  1118px wide; the camera's other stops leave it out of shot), so they are
+ *  drawn from `.sm.webp` copies cut to about twice that on screen, for
+ *  retina; the full-size pictures stay beside them as the sources. */
 export default function CaseShelves() {
   return (
     <>
@@ -84,7 +89,7 @@ export default function CaseShelves() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/left-1-books-a.webp"
+          src="/items/left-1-books-a.sm.webp"
           alt="Books standing on a shelf: Sapiens, IT and Animal Farm"
           className="w-full h-auto warm"
           style={{ "--rest": "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" } as React.CSSProperties}
@@ -98,7 +103,7 @@ export default function CaseShelves() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/left-1-books-b.webp"
+          src="/items/left-1-books-b.sm.webp"
           alt="Books standing on a shelf: W.I.T.C.H. volumes one to three and The Little Prince"
           className="w-full h-auto warm"
           style={{ "--rest": "brightness(0.9) saturate(0.95) drop-shadow(0 4px 5px rgba(0,0,0,0.45))" } as React.CSSProperties}
@@ -116,7 +121,7 @@ export default function CaseShelves() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/left-2-vhs.webp"
+          src="/items/left-2-vhs.sm.webp"
           alt="A shelf of VHS tapes: The 10th Kingdom, Are You Afraid of the Dark?, Goosebumps, Harry Potter, The Lord of the Rings, The X-Files, Supernatural, Jumanji, IT, The Silence of the Lambs, The Princess Bride, Stargate"
           className="w-full h-auto warm"
           style={{ "--rest": "drop-shadow(0 5px 6px rgba(0,0,0,0.35))" } as React.CSSProperties}

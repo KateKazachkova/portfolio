@@ -140,7 +140,7 @@ export default function AwardCubby() {
             the dark wood it stands in. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/items/mid-top-trophy.webp"
+          src="/items/mid-top-trophy.sm.webp"
           alt=""
           style={{
             position: "absolute",

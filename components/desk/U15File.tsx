@@ -113,9 +113,14 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   // Files opens first — so they are in the pocket before the camera arrives
   // (loaded on the way, they popped in after it had).
   const [warm, setWarm] = useState(false);
+  // The envelope itself is drawn from a 600px copy while home only shows it
+  // small, and from the full picture from the moment Case Files opens: the
+  // camera takes a couple of seconds to come down over it, time enough to
+  // fetch the full one before it is seen close.
+  const [near, setNear] = useState(false);
   useEffect(() => {
     const root = document.documentElement;
-    const read = () => { if (root.dataset.desk === "open") setWarm(true); };
+    const read = () => { if (root.dataset.desk === "open") { setWarm(true); setNear(true); } };
     read();
     const mo = new MutationObserver(read);
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
@@ -227,7 +232,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 
         <span className="env__shadow u15-sleeve u15-item" style={sleeve} aria-hidden />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="env__layer env__back u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src="/artefacts/ukrainska-15/envelope/back.webp?v=4" alt="" draggable={false} />
+        <img className="env__layer env__back u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src={near ? "/artefacts/ukrainska-15/envelope/back.webp?v=4" : "/artefacts/ukrainska-15/envelope/back.sm.webp"} alt="" draggable={false} />
 
         {/* the booklet, behind the prints in the pocket */}
         <Booklet live={open} at={page} held={held === "book"} place={place("book", 11)}
@@ -274,7 +279,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="env__layer u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src="/artefacts/ukrainska-15/envelope/pocket.webp?v=4" alt="" draggable={false} />
+        <img className="env__layer u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src={near ? "/artefacts/ukrainska-15/envelope/pocket.webp?v=4" : "/artefacts/ukrainska-15/envelope/pocket.sm.webp"} alt="" draggable={false} />
         <span className="env__print u15-sleeve u15-item" {...is("sleeve")} style={sleeve} aria-hidden>
           <span className="env__no">01</span>
           <span className="env__where">Ukrainska 15 · Kupiansk</span>
@@ -282,7 +287,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
         </span>
         <span className="env__stamps u15-sleeve u15-item" {...is("sleeve")} style={sleeve} aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="env__stamp env__stamp--muse" src="/stamps/awards/muse-gold.png" alt="" draggable={false} />
+          <img className="env__stamp env__stamp--muse" src="/stamps/awards/muse-gold.sm.webp" alt="" draggable={false} />
           {STICKERS.map((k) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img key={k.src} className={`env__sticker env__sticker--${k.cls}`} src={`/stamps/awards/${k.src}`} alt="" draggable={false} />

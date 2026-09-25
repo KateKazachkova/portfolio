@@ -192,7 +192,6 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
   return (
     <div className="desk-world">
-      <div className="desk-plane desk-wall desk-skins" aria-hidden><Skin cols={5} /></div>
       <div className="desk-plane desk-wall desk-split" aria-hidden>
         {/* the trophy's shadow thrown back onto the wall behind it: the key
             is above, in front and to the left, so it lands down and to the
@@ -205,8 +204,6 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
         }} />
       </div>
-      <div className="desk-plane desk-wall desk-ext" aria-hidden />
-      <div className="desk-plane desk-wall desk-extl" aria-hidden />
       {/* the wall once more, bare, over both halves of it: what hangs there
           runs across the seam and must not be covered by the extension */}
       <div className="desk-plane desk-wall desk-wall--hung">
@@ -317,10 +314,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const el = cam.current;
     if (!el) return;
     root.dataset.deskReady = "1";
-    // TEMPORARY (25.09): ?t=bf,wc,… switches on experiments for the planes
-    // Chrome drops on the way between stops (globals.css, "Chrome tests")
-    const tests = new URLSearchParams(location.search).get("t");
-    if (tests) root.dataset.deskTest = tests.split(",").join(" ");
 
     // The lens shift: how far the scene must slide for the camera's principal
     // point (560, 226 of the box) to land in the middle of the window.
@@ -549,7 +542,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;
-      delete root.dataset.deskTest;
       delete root.dataset.desk;
       // and forget the view with it, or a remount (React's dev double run,
       // or home again on the way in from another page) finds it "already

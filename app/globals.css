@@ -848,10 +848,17 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   position: absolute; left: calc(-1052.5 * var(--u)); width: calc(3225 * var(--u));
   background-size: 100% 100%; backface-visibility: hidden;
 }
-/* The wall is only 0.74 m tall: any taller and its top passes behind the
-   camera on the way down, which browsers draw as garbage. */
+/* The wall is not drawn: it is home's own background, the wall's colour
+   (--room-wall, on <main> in components/home/Home.tsx), in every theme. Its
+   3225 px planes were the largest thing Chrome had to draw on the way up to
+   Recognition and Off Duty, and dropped in holes there (25.09); a near-black
+   picture was not worth it. The plane stays, bare, where things hang on it
+   or fall on it (the rail, the trophy's cast): 0.74 m tall, since any taller
+   its top passes behind the camera on the way down, which browsers draw as
+   garbage. */
+:root { --room-wall: rgb(18, 16, 14); }
 .desk-wall  { top: calc(-144 * var(--u)); height: calc(800 * var(--u));
-              background-image: url("/scene/desk3d/wall.jpg"); transform: translateZ(calc(-269 * var(--u))); }
+              transform: translateZ(calc(-269 * var(--u))); }
 /* The desk's tiles are drawn, not photographed: desk-clean.jpg is the
    plate's light and shade with its grid lines taken out, and the lines go
    back on top as gradients — 2 px every 107.5 (10 cm), from 53.75 across
@@ -877,7 +884,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
               background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(1145 * var(--u))); }
-/* Cut into pieces. The wall and the desk are 3225 px across, and a plane in
+/* Cut into pieces. The desk is 3225 px across, and a plane in
    3D is drawn whole whatever of it the camera sees: close up on retina that
    ran Chrome out of tile memory (planes dropped in squares and spikes on the
    way between stops) and Safari out of decoded pictures. So their pictures
@@ -899,9 +906,6 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   width: calc(var(--pw) + 1px); height: calc(var(--ph) + 1px);
   transform: translateZ(0); backface-visibility: hidden; pointer-events: none;
 }
-.desk-wall.desk-skins > .desk-skin {
-  background: rgb(18, 16, 14) url("/scene/desk3d/wall.jpg") calc(-1 * var(--px)) 0 / calc(3225 * var(--u)) calc(800 * var(--u)) no-repeat;
-}
 .desk-top.desk-skins > .desk-skin {
   background-color: rgb(208, 204, 196);
   --wy: calc(var(--j) * 1414 * var(--u) / var(--rows));
@@ -922,27 +926,11 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    a second 3225 px plane over the first, hiding the trophy's cast). */
 .desk-wall--hung { background: none; }
 
-/* Chrome tests — TEMPORARY (25.09). Chrome, not Safari, drops whole pieces
-   of wall and desk on the way between stops. Each token of ?t= tries one
-   cause; take the block out once one is settled.
-   bf    backface culling: no backface-visibility on the room
-   wc    each piece a will-change layer of its own for good
-   flat  the pieces no longer lifted into layers (no translateZ)
-   noh   none of the switching-off at stops or on the way */
-[data-desk-test~="bf"] :is(.desk-plane, .desk-skin) { backface-visibility: visible !important; }
-[data-desk-test~="wc"] .desk-skin { will-change: transform; }
-[data-desk-test~="flat"] .desk-skin { transform: none; }
-[data-desk-test~="noh"] :is(.desk-plane, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp, .case-world) {
-  animation: none !important; visibility: visible !important;
-}
-
 /* The room goes on past the plate's right edge (x 2172), where Recognition
-   looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
+   looks: 700 px more of desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */
 .desk-ext { left: calc(2172.5 * var(--u)); width: calc(700 * var(--u)); }
-.desk-wall:is(.desk-ext, .desk-extl) { background-color: rgb(10, 9, 8); }
 .desk-top:is(.desk-ext, .desk-extl) { background-color: rgb(195, 191, 184); }
-.desk-wall.desk-ext { background-image: url("/scene/desk3d/wall-ext.jpg"); }
 .desk-top.desk-ext  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
@@ -952,7 +940,6 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    the plate's first 700 px mirrored. The tiles' lines carry on across the
    seam: 700 px is 6½ tiles, so here they start 0.25 px in. */
 .desk-extl { left: calc(-1752.5 * var(--u)); width: calc(700 * var(--u)); }
-.desk-wall.desk-extl { background-image: url("/scene/desk3d/wall-extl.jpg"); }
 .desk-top.desk-extl  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),

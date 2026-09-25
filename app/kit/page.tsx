@@ -8,6 +8,8 @@ import { STAMP_RATIOS } from "@/components/AwardStamps";
 export const metadata = {
   title: "Parts List – Kate Kazachkova",
   description: "The parts this site is built from: colour, type, paper, ink and the document table.",
+  // A working sheet for building the site, not a page of the portfolio.
+  robots: { index: false, follow: false },
 };
 
 /** The palette, read live from the variables rather than retyped here — so the

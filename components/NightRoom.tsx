@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useTime } from "@/components/TimeProvider";
 import { useLamp } from "@/lib/lamp";
-import { LAMP_RIM, LAMP_SCALE, LAMP_SHADE } from "@/components/desk/DeskLamp";
+import { LAMP_HEAD, LAMP_MOUTH, LID } from "@/components/desk/DeskLamp";
 
 /**
  * The room at night, while she sleeps.
@@ -17,9 +17,9 @@ import { LAMP_RIM, LAMP_SCALE, LAMP_SHADE } from "@/components/desk/DeskLamp";
  *  - moonlight through a window out of frame on the left: four panes and
  *    their cross laid across the desk in front of the case, cold and
  *    soft-edged;
- *  - the desk lamp behind the flip clock (components/desk/DeskLamp.tsx),
- *    when it is on: its shade glows and its warm pool spreads from the rim
- *    across the desk and into the case, falling away to the right.
+ *  - the desk lamp (components/desk/DeskLamp.tsx), when it is on: an
+ *    architect's lamp behind the case's right door, its head over the lid
+ *    throwing warm light down over the case and the whole desk.
  *
  * Multiply, like NicheLight, so the tiles and the mahogany go deeper rather
  * than grey; the lit shapes are simply lighter colours in the same layer.
@@ -39,6 +39,10 @@ import { LAMP_RIM, LAMP_SCALE, LAMP_SHADE } from "@/components/desk/DeskLamp";
 const ON: Record<string, true> = { night: true };
 const W = 1118;
 const H = 745;
+// where the lamp's light lands: its head reaches over the lid from the right
+// and points down, so the pool is on the desk in front of the case, a little
+// left of the head, and wide enough to take in the whole desk
+const POOL = { x: LAMP_MOUTH.x - 120, y: 440 };
 
 export default function NightRoom({ edition }: { edition: string }) {
   const { themePref } = useTime();
@@ -93,13 +97,13 @@ export default function NightRoom({ edition }: { edition: string }) {
       preserveAspectRatio="none"
     >
       <defs>
-        {/* the lamp's pool: from the rim, wide and low, the desk and the
-            case's left half in it, the right half at its edge */}
-        <radialGradient id="nr-pool" cx={LAMP_RIM.x} cy={LAMP_RIM.y + 40} r="900" gradientUnits="userSpaceOnUse"
-          gradientTransform={`translate(${LAMP_RIM.x} ${LAMP_RIM.y + 40}) scale(1 0.55) translate(${-LAMP_RIM.x} ${-(LAMP_RIM.y + 40)})`}>
-          <stop offset="0" stopColor="rgb(255,222,176)" />
-          <stop offset="0.25" stopColor="rgb(226,184,138)" />
-          <stop offset="0.62" stopColor="rgb(150,118,100)" stopOpacity="0.7" />
+        {/* the lamp's pool: thrown down from the head over the lid, over
+            the case and the whole desk */}
+        <radialGradient id="nr-pool" cx={POOL.x} cy={POOL.y} r="1150" gradientUnits="userSpaceOnUse"
+          gradientTransform={`translate(${POOL.x} ${POOL.y}) scale(1 0.7) translate(${-POOL.x} ${-POOL.y})`}>
+          <stop offset="0" stopColor="rgb(255,224,180)" />
+          <stop offset="0.3" stopColor="rgb(236,196,150)" />
+          <stop offset="0.62" stopColor="rgb(170,136,112)" stopOpacity="0.8" />
           <stop offset="1" stopColor="rgb(80,74,90)" stopOpacity="0" />
         </radialGradient>
         {/* the shade itself, lit: kept at full strength so the lamp reads on */}
@@ -123,6 +127,10 @@ export default function NightRoom({ edition }: { edition: string }) {
           <stop offset="0.5" stopColor="rgb(240,214,178)" stopOpacity="0.9" />
           <stop offset="1" stopColor="rgb(236,208,170)" stopOpacity="0" />
         </radialGradient>
+        {/* the head shows only over the lid; below it is the case */}
+        <clipPath id="nr-over-lid">
+          <rect x="-3000" y="-3000" width="7118" height={3000 + LID} />
+        </clipPath>
         <filter id="nr-soft" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3.5" />
         </filter>
@@ -136,7 +144,7 @@ export default function NightRoom({ edition }: { edition: string }) {
       {/* the lamp, when it is on */}
       <g className="night-room__lamp">
         <rect x="-3000" y="-2000" width="7118" height="6000" fill="url(#nr-pool)" />
-        <ellipse cx={LAMP_SHADE.x} cy={LAMP_SHADE.y + 10} rx={95 * LAMP_SCALE} ry={78 * LAMP_SCALE} fill="url(#nr-shade)" />
+        <ellipse cx={LAMP_MOUTH.x} cy={LAMP_MOUTH.y - 0.25 * LAMP_HEAD.h} rx={0.6 * LAMP_HEAD.w} ry={0.75 * LAMP_HEAD.h} fill="url(#nr-shade)" clipPath="url(#nr-over-lid)" />
       </g>
 
       {/* the window, out of frame on the left: its panes and their cross laid

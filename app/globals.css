@@ -1238,20 +1238,25 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    plate's light and shade with its grid lines taken out, and the lines go
    back on top as gradients — 2 px every 107.5 (10 cm), from 53.75 across
    and 58.3 out, measured off the plate — so they stay sharp however close
-   the camera comes. Multiplied, so they darken with the light under them. */
-.desk-top   { top: calc(656 * var(--u)); height: calc(914 * var(--u));
+   the camera comes. Multiplied, so they darken with the light under them.
+   The desk runs 500 px (46 cm) further towards the camera than the plate
+   did — desk-deep.jpg is the plate with its last 500 rows mirrored on — so
+   its front edge, and the dark under it, stay out of frame on the way up to
+   Case Files instead of sweeping across it (the ply and the dark under it
+   stand at its new edge, z 1145). */
+.desk-top   { top: calc(656 * var(--u)); height: calc(1414 * var(--u));
               --tile: calc(107.5 * var(--u)); --line: rgb(58, 60, 74);
               background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-clean.jpg");
+                url("/scene/desk3d/desk-deep.jpg");
               background-size: var(--tile) 100%, 100% var(--tile), 100% 100%;
               background-position: calc(52.75 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0;
               background-repeat: repeat-x, repeat-y, no-repeat;
               background-blend-mode: multiply, multiply, normal;
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
-              background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(645 * var(--u))); }
+              background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(1145 * var(--u))); }
 /* The wall is painted in chalkboard paint: a matt slate, cloudy where chalk
    has been wiped off it. Drawn over the plate's own light, so its falloff
    stays, and under whatever sits on the wall (the trophy's cast, the rail). */
@@ -1285,7 +1290,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .desk-top.desk-ext  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-ext.jpg"); }
+                url("/scene/desk3d/desk-ext-deep.jpg"); }
 .desk-ply.desk-ext  { background-image: url("/scene/desk3d/ply-ext.jpg"); }
 /* …and past its left edge (x -1052.5), where Off Duty looks: 700 px more,
    the plate's first 700 px mirrored. The tiles' lines carry on across the
@@ -1295,12 +1300,12 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .desk-top.desk-extl  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-extl.jpg");
+                url("/scene/desk3d/desk-extl-deep.jpg");
               background-position: calc(.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
 .desk-ply.desk-extl  { background-image: url("/scene/desk3d/ply-extl.jpg"); }
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
               background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
-              transform: translateZ(calc(645 * var(--u))); }
+              transform: translateZ(calc(1145 * var(--u))); }
 /* The Davey trophy, standing against the wall right of the case (placed
    in DeskScene.tsx). Its contact shadow lies on the desk-top plane. */
 .desk-award { position: absolute; display: block; max-width: none;
@@ -1323,7 +1328,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 }
 /* The case's shadow, projected onto the desk from the flat plate; its own
    layer so it can leave with the case. */
-.desk-shadow { position: absolute; inset: 0; background: url("/scene/desk3d/desk-shadow.png") 0 0 / 100% 100%;
+.desk-shadow { position: absolute; inset: 0 0 auto; height: calc(914 * var(--u)); background: url("/scene/desk3d/desk-shadow.png") 0 0 / 100% 100%;
                transition: opacity .6s ease .15s; }
 
 /* The case files, lying on the desk plane: the /work grid's plain cards for

@@ -109,8 +109,9 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const [screen, setScreen] = useState(false);              // the tablet, raised
   const z = useRef(20);
   // The prints in the pocket (about a megabyte) are not fetched with home:
-  // they load once Case Files is open — this folder is the first on the desk
-  // — or the folder itself is, and stay loaded from then on.
+  // they load once home has, when the browser is idle — or at once if Case
+  // Files opens first — so they are in the pocket before the camera arrives
+  // (loaded on the way, they popped in after it had).
   const [warm, setWarm] = useState(false);
   useEffect(() => {
     const root = document.documentElement;
@@ -118,7 +119,11 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     read();
     const mo = new MutationObserver(read);
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
-    return () => mo.disconnect();
+    const idle = () => (typeof window.requestIdleCallback === "function"
+      ? window.requestIdleCallback(() => setWarm(true), { timeout: 4000 })
+      : setTimeout(() => setWarm(true), 400));
+    if (document.readyState === "complete") idle(); else window.addEventListener("load", idle, { once: true });
+    return () => { mo.disconnect(); window.removeEventListener("load", idle); };
   }, []);
 
   useEffect(() => {

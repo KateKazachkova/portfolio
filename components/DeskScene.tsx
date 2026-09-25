@@ -171,11 +171,29 @@ function useStops() {
   return ready;
 }
 
+/** A plane's picture, cut into cols × rows pieces of its own (globals.css,
+ *  "Cut into pieces"): a piece out of the camera's frame is not drawn at
+ *  all, where the whole plane in one piece was drawn whole at every step.
+ *  It lies just before the plane it pictures, so what is on the plane
+ *  (shadows, the case files) is drawn over it. */
+function Skin({ cols, rows = 1 }: { cols: number; rows?: number }) {
+  return (
+    <>
+      {Array.from({ length: cols * rows }, (_, k) => (
+        <span key={k} className="desk-skin" aria-hidden style={{
+          "--i": k % cols, "--j": Math.floor(k / cols), "--cols": cols, "--rows": rows,
+        } as React.CSSProperties} />
+      ))}
+    </>
+  );
+}
+
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
   return (
     <div className="desk-world">
-      <div className="desk-plane desk-wall" aria-hidden>
+      <div className="desk-plane desk-wall desk-skins" aria-hidden><Skin cols={5} /></div>
+      <div className="desk-plane desk-wall desk-split" aria-hidden>
         {/* the trophy's shadow thrown back onto the wall behind it: the key
             is above, in front and to the left, so it lands down and to the
             right of the trophy, as the case's own does (render_desk.py).
@@ -212,7 +230,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top desk-extl" aria-hidden />
       <div className="desk-plane desk-ply desk-extl" aria-hidden />
-      <div className="desk-plane desk-top">
+      <div className="desk-plane desk-top desk-skins" aria-hidden><Skin cols={5} rows={2} /></div>
+      <div className="desk-plane desk-top desk-split">
         <div className="desk-shadow" aria-hidden />
         {/* the trophy's contact shadow, on the desk under its base (desk-top
             px are box x + 1052.5 across, z + 269 out from the wall) */}

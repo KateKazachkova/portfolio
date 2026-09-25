@@ -891,6 +891,69 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   mix-blend-mode: screen;
 }
 
+/* Cut into pieces. The wall and the desk are 3225 px across, and a plane in
+   3D is drawn whole whatever of it the camera sees: close up on retina that
+   ran Chrome out of tile memory (planes dropped in squares and spikes on the
+   way between stops) and Safari out of decoded pictures. So their pictures
+   are laid as cols × rows pieces on a copy of the plane just before it
+   (.desk-skins, <Skin> in DeskScene.tsx), each a layer of its own; a piece
+   out of frame is not drawn. The plane itself (.desk-split) keeps its place,
+   its transform and what lies on it, over the pieces, and paints nothing. A
+   piece is 1 px wider and taller than its share, so no seam shows; every
+   background is sized to the whole plane and offset by the piece's place,
+   so the picture runs on across the cuts. */
+.desk-split { background: none; }
+.desk-skins { background: none; transform-style: preserve-3d; pointer-events: none; }
+.desk-skin {
+  --pw: calc(3225 * var(--u) / var(--cols)); --ph: calc(100% / var(--rows));
+  --px: calc(var(--i) * var(--pw)); --py: calc(var(--j) * var(--ph));
+  position: absolute; left: var(--px); top: var(--py);
+  width: calc(var(--pw) + 1px); height: calc(var(--ph) + 1px);
+  transform: translateZ(0); backface-visibility: hidden; pointer-events: none;
+}
+.desk-wall.desk-skins > .desk-skin {
+  background: url("/scene/desk3d/wall.jpg") calc(-1 * var(--px)) 0 / calc(3225 * var(--u)) calc(800 * var(--u)) no-repeat;
+}
+.desk-top.desk-skins > .desk-skin {
+  --wy: calc(var(--j) * 1414 * var(--u) / var(--rows));
+  top: var(--wy); height: calc(1414 * var(--u) / var(--rows) + 1px);
+  background-image:
+    linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
+    linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
+    url("/scene/desk3d/desk-deep.jpg");
+  background-size: var(--tile) 100%, 100% var(--tile), calc(3225 * var(--u)) calc(1414 * var(--u));
+  background-position:
+    calc(52.75 * var(--u) - var(--px)) 0,
+    0 calc(57.3 * var(--u) - var(--wy)),
+    calc(-1 * var(--px)) calc(-1 * var(--wy));
+  background-repeat: repeat-x, repeat-y, no-repeat;
+  background-blend-mode: multiply, multiply, normal;
+}
+/* The chalk over the wall, per piece like its picture */
+.desk-wall:is(.desk-split, .desk-skins)::before { content: none; }
+.desk-wall.desk-skins > .desk-skin::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(38% 22% at 34% 30%, rgba(236, 232, 220, .075), transparent 70%),
+    radial-gradient(26% 16% at 58% 62%, rgba(236, 232, 220, .06), transparent 70%),
+    radial-gradient(30% 12% at 80% 38%, rgba(236, 232, 220, .05), transparent 70%),
+    radial-gradient(22% 18% at 14% 66%, rgba(236, 232, 220, .045), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .92 0 0 0 0 .88 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    rgba(52, 60, 58, .22);
+  background-size: calc(3225 * var(--u)) calc(800 * var(--u)), calc(3225 * var(--u)) calc(800 * var(--u)),
+    calc(3225 * var(--u)) calc(800 * var(--u)), calc(3225 * var(--u)) calc(800 * var(--u)),
+    calc(240 * var(--u)) calc(240 * var(--u)), auto;
+  background-position: calc(-1 * var(--px)) 0, calc(-1 * var(--px)) 0, calc(-1 * var(--px)) 0,
+    calc(-1 * var(--px)) 0, calc(-1 * var(--px)) 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
+  mix-blend-mode: screen;
+}
+/* The wall the awards hang on is only there to hold them over the seam with
+   the extension: it has no picture of its own (it used to repeat the wall's,
+   a second 3225 px plane over the first, hiding its chalk and the trophy's
+   cast). */
+.desk-wall--hung { background: none; }
+
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */

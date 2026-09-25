@@ -163,12 +163,6 @@ Why I like it:
 Poster: posters/american-horror-story.webp
 Clip: https://www.youtube.com/watch?v=gQf4Vya5PbI
 
-## American Gods
-Year: 2017
-Why I like it:
-Poster: posters/american-gods.jpeg
-Clip: https://www.youtube.com/watch?v=ttm5_6RmVfI
-
 ## Supernatural
 Year: 2005
 Why I like it:
@@ -222,3 +216,21 @@ Year: 1968
 Why I like it:
 Poster: posters/columbo.jpg
 Clip: https://www.youtube.com/watch?v=f8-tBxALvyA
+
+## W.I.T.C.H.
+Year: 2004
+Why I like it:
+Poster:
+Clip: https://www.youtube.com/watch?v=YZPbW0wOLuU
+
+## Charmed
+Year: 1998
+Why I like it:
+Poster:
+Clip: https://www.youtube.com/watch?v=1VHtna4wv6E
+
+## Jackie Chan Adventures
+Year: 2000
+Why I like it:
+Poster:
+Clip: https://www.youtube.com/watch?v=p3RMOO1lP-I

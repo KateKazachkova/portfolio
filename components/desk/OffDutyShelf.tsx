@@ -156,8 +156,6 @@ export default function OffDutyShelf() {
   // the screen gives it sound. It runs only while the camera is here.
   const [atCorner, setAtCorner] = useState(false);
   const [sound, setSound] = useState(false);
-  // when the clip started, so sound can pick it up where it has got to
-  const [from, setFrom] = useState({ at: 0, t: 0 });
   useEffect(() => {
     const root = document.documentElement;
     const read = () => setAtCorner(root.dataset.desk === "offduty");
@@ -166,13 +164,17 @@ export default function OffDutyShelf() {
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
     return () => mo.disconnect();
   }, []);
-  useEffect(() => { setSound(false); setFrom({ at: Date.now(), t: 0 }); }, [picked, atCorner]);
-  // YouTube's player will not take "unmute" from the page around it, so the
-  // screen reloads it with sound on (the click lets it play so), at the
-  // second it had reached
+  useEffect(() => { setSound(false); }, [picked, atCorner]);
+  // Sound goes on and off in the running player, through YouTube's iframe
+  // API (enablejsapi): it used to reload the whole player with sound on at
+  // the second it had reached, scripts, buffering and all. The click on the
+  // screen is the gesture the browser wants before a page may unmute.
+  const tube = useRef<HTMLIFrameElement>(null);
+  const tell = (func: string, args: unknown[] = []) =>
+    tube.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args }), "*");
   const toggleSound = () => {
-    const t = Math.floor(from.t + (Date.now() - from.at) / 1000);
-    setFrom({ at: Date.now(), t });
+    if (sound) tell("mute");
+    else { tell("unMute"); tell("setVolume", [100]); tell("playVideo"); }
     setSound(!sound);
   };
   const clip = atCorner ? picked?.clip : null;
@@ -290,8 +292,8 @@ export default function OffDutyShelf() {
             {picked?.poster && <span className="od-dvd__picture" key={picked.title} style={{ backgroundImage: `url(${picked.poster})` }} />}
             {clip && (
               <iframe
-                key={`${clip}-${sound}`} className="od-dvd__tube" data-sound={sound || undefined} title={`${picked?.title} — clip`}
-                src={`https://www.youtube-nocookie.com/embed/${clip}?autoplay=1&mute=${sound ? 0 : 1}&start=${from.t}&controls=0&playsinline=1&rel=0&iv_load_policy=3&loop=1&playlist=${clip}`}
+                ref={tube} key={clip} className="od-dvd__tube" data-sound={sound || undefined} title={`${picked?.title} — clip`}
+                src={`https://www.youtube-nocookie.com/embed/${clip}?autoplay=1&mute=1&controls=0&playsinline=1&rel=0&iv_load_policy=3&loop=1&playlist=${clip}&enablejsapi=1`}
                 allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin"
               />
             )}

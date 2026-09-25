@@ -214,6 +214,30 @@ export default function OffDutyShelf() {
     return () => { on = false; };
   }, []);
   const { at, turn, go, spreads } = useSpreads(series.length);
+  // Decode the corner's pictures before the camera comes: this is built while
+  // home sits idle (DeskScene's useStops), and a picture is otherwise only
+  // decoded when it first enters the frame — mid-flight, which is where the
+  // move hitched and the wallet showed grey. The wallet and the player are
+  // decoded as the elements they are; the open spread's labels (CSS
+  // backgrounds on the discs) through images of the same files.
+  useEffect(() => {
+    if (!series.length) return;
+    const run = () => {
+      document.querySelectorAll<HTMLImageElement>(".od-wallet img, .od-dvd img").forEach((i) => { i.decode().catch(() => {}); });
+      series.slice(at * PER * 2, at * PER * 2 + PER * 2).forEach((s) => {
+        const src = s.disc ?? s.poster;
+        if (!src) return;
+        const im = new Image();
+        im.src = src;
+        im.decode().catch(() => {});
+      });
+    };
+    const id = typeof window.requestIdleCallback === "function"
+      ? window.requestIdleCallback(run, { timeout: 3000 }) : window.setTimeout(run, 300);
+    return () => {
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(id as number); else clearTimeout(id as number);
+    };
+  }, [series, at]);
   const page = (spread: number, side: 0 | 1) => series.slice(spread * PER * 2 + side * PER, spread * PER * 2 + side * PER + PER);
   // under a turning sleeve the halves already show where it is going on the
   // side it leaves, and where it came from on the side it lands on

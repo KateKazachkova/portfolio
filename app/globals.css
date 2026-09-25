@@ -1836,6 +1836,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: translateZ(calc(6 * var(--u))) rotateX(calc(var(--py) * -14deg)) rotateY(calc(var(--px) * 16deg));
   filter: none; box-shadow: 0 calc(5 * var(--u)) calc(8 * var(--u)) rgba(0,0,0,.4); }
 .od-disc .cd-face--blank { font-size: calc(5 * var(--u)); }
+/* The wallet's discs catch the light in plain alpha, not blend modes: each
+   screen/overlay layer is a surface of its own in video memory, sixteen of
+   them on a spread, and that was what the camera paid for on its way here.
+   The opacities are the blends' look over the labels, near enough. */
+.od-disc .cd-grooves { mix-blend-mode: normal; opacity: .55; }
+.od-disc .cd-sheen { mix-blend-mode: normal; opacity: .5; }
 /* The player: a zero-size group; its planes are placed in the room's
    own px like everything else in it. */
 .od-dvd { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }

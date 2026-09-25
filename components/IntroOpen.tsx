@@ -192,10 +192,13 @@ export default function IntroOpen() {
   }, [src, land]);
 
   // Runs as the HTML is parsed, so nothing shows for a frame before its turn.
+  // It also marks the desk ready before the first paint (useDeskCamera sets
+  // it again once its listeners are on): the first paint is then the desk,
+  // not the old studio sweep over it, and the wall paints without the JS.
   const gate = (
     <script
       dangerouslySetInnerHTML={{
-        __html: `try{if(location.search.indexOf("nointro")<0&&!location.hash&&matchMedia("(min-width: 1024px)").matches&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.setAttribute("data-intro","body");h.setAttribute("data-load","on")}}catch(e){}`,
+        __html: `try{document.documentElement.setAttribute("data-desk-ready","1");if(location.search.indexOf("nointro")<0&&!location.hash&&matchMedia("(min-width: 1024px)").matches&&!matchMedia("(prefers-reduced-motion: reduce)").matches){var h=document.documentElement;h.setAttribute("data-intro","body");h.setAttribute("data-load","on")}}catch(e){}`,
       }}
     />
   );

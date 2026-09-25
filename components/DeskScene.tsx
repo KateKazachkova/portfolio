@@ -425,6 +425,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       arrived = false; delete root.dataset.deskArrived;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
       cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
+      // where the camera is coming from: on the way, what neither end of the
+      // move can see is off at once (globals.css, "On the way")
+      root.dataset.deskFrom = root.dataset.desk ?? "closed";
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));

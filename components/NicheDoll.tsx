@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/lib/reducedMotion";
 import { EDITIONS } from "@/lib/time";
 
@@ -187,7 +187,13 @@ const introSeen: Record<string, boolean> = {};
 type Phase = "intro" | "loop" | "accent";
 
 /** `ready`: the visitor's own hour is known. Until then the edition is only
- *  the server's placeholder, and its clip would be fetched for nothing. */
+ *  the server's placeholder, and its clip would be fetched for nothing.
+ *
+ *  Two <video>s stay mounted for the life of the edition: the loop, and one
+ *  on top of it for the intro or the next accent, fetched while the loop
+ *  plays. A cut is only a change of which one shows — nothing is remounted,
+ *  so the poster never shows through between clips. An accent that falls due
+ *  waits for the loop to come round to its first frame, the one they share. */
 export default function NicheDoll({ edition, ready = true }: { edition: string; ready?: boolean }) {
   const set = CLIPS[edition];
   const accentList = set?.accents ?? (set?.accent ? [set.accent] : []);
@@ -196,6 +202,8 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
   );
   const [accentIdx, setAccentIdx] = useState(0);
   const [failed, setFailed] = useState(false);
+  const loopRef = useRef<HTMLVideoElement>(null);
+  const overRef = useRef<HTMLVideoElement>(null);
   // With reduced motion she sits still: the poster, no clips.
   const still = useReducedMotion();
   // The clip waits until the page's pictures are in and the browser is idle:
@@ -218,46 +226,88 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
     };
   }, []);
 
-  const handleEnded = () => {
-    if (phase === "intro") introSeen[edition] = true;
-    if (phase === "accent") setAccentIdx((i) => i + 1); // advance to next action
-    if (phase !== "loop") setPhase("loop");
-  };
-
+  // The next accent is fetched a little before it falls due (not with the
+  // page: some weigh twice the loop). When it is due the loop plays out its
+  // round instead of wrapping, and its end starts the accent (onLoopEnded).
+  const [warm, setWarm] = useState(false);
   useEffect(() => {
     if (phase !== "loop" || accentList.length === 0) return;
-    const id = window.setTimeout(() => setPhase("accent"), set?.accentEveryMs ?? 120_000);
-    return () => window.clearTimeout(id);
+    const every = set?.accentEveryMs ?? 120_000;
+    const w = window.setTimeout(() => setWarm(true), Math.max(0, every - 15_000));
+    const id = window.setTimeout(() => {
+      if (loopRef.current) loopRef.current.loop = false;
+    }, every);
+    return () => { window.clearTimeout(w); window.clearTimeout(id); };
   }, [phase, edition, set, accentList.length]);
+  // preload turned up from "none" is not always taken as a cue to fetch
+  useEffect(() => {
+    const over = overRef.current;
+    if (warm && over && over.readyState === HTMLMediaElement.HAVE_NOTHING) over.load();
+  }, [warm]);
 
   if (!set) return null;
 
-  const file =
+  const overFile =
     phase === "intro" && set.intro ? set.intro
-    : phase === "accent" && accentList.length ? accentList[accentIdx % accentList.length]
-    : set.loop;
+    : accentList.length ? accentList[accentIdx % accentList.length]
+    : null;
   const poster = V + set.poster;
+  const live = ready && settled && !set.still && !still && !failed;
+
+  const onLoopEnded = () => {
+    const loop = loopRef.current, over = overRef.current;
+    // not in yet: another round of the loop, and the question again at its end
+    if (!over || over.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+      if (loop) { loop.currentTime = 0; loop.play().catch(() => {}); }
+      return;
+    }
+    over.currentTime = 0;
+    over.play().catch(() => {});
+    setPhase("accent");
+  };
+  const onOverEnded = () => {
+    if (phase === "intro") introSeen[edition] = true;
+    if (phase === "accent") { setAccentIdx((i) => i + 1); setWarm(false); } // advance to next action
+    const loop = loopRef.current;
+    if (loop) { loop.loop = true; loop.currentTime = 0; loop.play().catch(() => {}); }
+    setPhase("loop");
+  };
 
   return (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="niche-clip" src={poster} alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false} />
-      {ready && settled && !set.still && !still && !failed && (
+      {live && (
         <video
+          ref={loopRef}
           className="niche-clip"
-          key={file}
           // src after the flags: React sets props in this order, and a src
           // set before autoplay and muted starts a metadata-only load the
           // browser then drops and starts again, a second download
-          autoPlay
+          autoPlay={phase === "loop"}
           muted
           playsInline
-          loop={phase === "loop"}
+          loop
+          preload="auto"
           poster={poster}
-          src={V + file}
-          onEnded={handleEnded}
+          src={V + set.loop}
+          onEnded={onLoopEnded}
           onError={() => setFailed(true)}
           style={{ ...NICHE, zIndex: 3 }}
+        />
+      )}
+      {live && overFile && (
+        <video
+          ref={overRef}
+          className="niche-clip"
+          autoPlay={phase === "intro"}
+          muted
+          playsInline
+          preload={phase === "intro" || warm ? "auto" : "none"}
+          src={V + overFile}
+          onEnded={onOverEnded}
+          onError={() => setFailed(true)}
+          style={{ ...NICHE, zIndex: 4, visibility: phase === "loop" ? "hidden" : "visible" }}
         />
       )}
     </>

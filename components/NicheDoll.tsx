@@ -307,7 +307,9 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
           src={V + overFile}
           onEnded={onOverEnded}
           onError={() => setFailed(true)}
-          style={{ ...NICHE, zIndex: 4, visibility: phase === "loop" ? "hidden" : "visible" }}
+          // the loop's layer, not above it: the bike (4) hangs over the niche's
+          // right edge; coming after the loop in the page is what puts it on top
+          style={{ ...NICHE, zIndex: 3, visibility: phase === "loop" ? "hidden" : "visible" }}
         />
       )}
     </>

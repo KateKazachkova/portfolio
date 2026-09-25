@@ -85,7 +85,7 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
-      <span className="desk-card__label">Placeholder · {c.title}</span>
+      <span className="desk-card__label">{c.title}</span>
       {written && <span className="desk-card__open" aria-hidden>Read the case →</span>}
     </>
   ) : (

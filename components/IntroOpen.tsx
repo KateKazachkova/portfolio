@@ -89,10 +89,6 @@ export default function IntroOpen() {
   // the poster stands in for the clip until it runs, then must go: the clip
   // is transparent between the doors, and the closed trunk would show there
   const [playing, setPlaying] = useState(false);
-  // TESTING (Kate, 25.09): Space pauses the opening, ← → step a frame while
-  // paused, and the clip's time shows in the corner — to find what breaks.
-  // Take out, with the keydown branch below, once the opening is settled.
-  const [paused, setPaused] = useState<number | null>(null);
   const video = useRef<HTMLVideoElement>(null);
   const ended = useRef(false);
   const filed = useRef(false);
@@ -149,29 +145,14 @@ export default function IntroOpen() {
     const id = requestAnimationFrame(() => setSrc(safari ? "/suitcase/intro/open.mov" : "/suitcase/intro/open.webm"));
     later(() => add("lamp"), LAMP_AT);
     later(() => add("text"), TEXT_AT);
-    // not started at all (a pause for testing has currentTime > 0)
+    // not started at all
     later(() => { if (!video.current || video.current.currentTime === 0) land(); }, GIVE_UP_MS);
-    const skip = (e: KeyboardEvent) => {
-      const v = video.current;
-      if (v && (e.code === "Space" || e.code === "ArrowLeft" || e.code === "ArrowRight")) {
-        e.preventDefault();
-        if (e.code === "Space") {
-          if (v.paused && v.currentTime > 0) { v.play(); setPaused(null); }
-          else { v.pause(); setPaused(v.currentTime); }
-        } else if (v.paused) {
-          v.currentTime = Math.max(0, v.currentTime + (e.code === "ArrowRight" ? 1 : -1) / 24);
-          setPaused(v.currentTime);
-        }
-        return;
-      }
-      land();
-    };
-    window.addEventListener("keydown", skip);
+    window.addEventListener("keydown", land);
     const list = timers.current;
     return () => {
       cancelAnimationFrame(id);
       list.forEach(clearTimeout);
-      window.removeEventListener("keydown", skip);
+      window.removeEventListener("keydown", land);
       html().removeAttribute("data-intro");
       html().removeAttribute("data-load");
     };
@@ -241,16 +222,10 @@ export default function IntroOpen() {
             if (t >= END_AT) endClip();
           }}
           onPlaying={() => setPlaying(true)}
-          onSeeked={(e) => setPaused(e.currentTarget.paused ? e.currentTarget.currentTime : null)}
           onEnded={() => { add("shadow"); pushFiles(); endClip(); }}
           onError={land}
           style={{ position: "absolute", left: 0, top: 0, width: "100%", height: CLIP_H, objectFit: "fill", display: "block" }}
         />
-      )}
-      {paused !== null && (
-        <span style={{ position: "absolute", right: 8, top: 8, font: "12px ui-monospace, monospace", color: "#fff", background: "rgba(0,0,0,.6)", padding: "2px 6px", borderRadius: 3, pointerEvents: "none" }}>
-          ❚❚ {paused.toFixed(2)}s · frame {Math.round(paused * 24)} · space / ← →
-        </span>
       )}
     </div>
     </>

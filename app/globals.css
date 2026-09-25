@@ -1540,11 +1540,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the index column and the desk's hint. A flat colour, opacity only, on a
    layer of its own from the start so fading it creates nothing mid-flight.
    Tune the look here; the stretch it covers per leg is MASK in DeskScene. */
-:root { --mask-opacity: .75; --mask-fade: 150ms; --mask-colour: #0d0b0a; }
+/* DIAGNOSTIC (Kate, 26.09): fully opaque and switched at once, no fade, so it
+   adds no work of its own. */
+:root { --mask-opacity: 1; --mask-fade: 0ms; --mask-colour: #000; }
 .cam-mask {
   position: fixed; inset: 0; z-index: 15; pointer-events: none;
   background: var(--mask-colour); opacity: 0; will-change: opacity;
-  transition: opacity var(--mask-fade) linear;
 }
 .cam-mask[data-on] { opacity: var(--mask-opacity); }
 @media (min-width: 1024px) { .hero-aside-wrap { z-index: 16; } }

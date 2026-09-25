@@ -125,13 +125,16 @@ const HUB: Partial<Record<View, View | null>> = { profile: "award", files: null 
  *  start and end of the leg's own motion, 0–1, a little margin either side.
  *  The camera mask (.cam-mask, globals.css) dims the scene over that stretch
  *  and the camera moves on under it. A leg not measured yet takes MASK_ANY. */
+// DIAGNOSTIC (Kate, 26.09): the measured stretch plus ~0.1 of the leg either
+// side, and ?mask=full to cover each leg whole, to tell a flash outside the
+// windows from one in a layer above the mask.
 const MASK: Record<string, [number, number]> = {
-  "profile>award": [0.2, 0.8],
-  "award>offduty": [0.15, 0.72],
-  "offduty>award": [0.2, 0.9],
-  "award>profile": [0.65, 0.9],
+  "profile>award": [0.12, 0.88],   // measured 0.23–0.77
+  "award>offduty": [0.08, 0.8],    // 0.19–0.69
+  "offduty>award": [0.12, 0.98],   // 0.23–0.88
+  "award>profile": [0.58, 0.96],   // 0.69–0.85
 };
-const MASK_ANY: [number, number] = [0.2, 0.85];
+const MASK_ANY: [number, number] = [0.1, 0.95];
 /** each leg of a move that goes by a hub: --cam-t under [data-desk-route] plus --cam-wait (globals.css) */
 const LEG_MS = 1300 + 200;
 const viewOf = (hash: string) =>
@@ -475,7 +478,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (!sheet) return;
       delete sheet.dataset.on;
       if (still) return;
-      const [a, b] = MASK[`${from ?? "home"}>${to ?? "home"}`] ?? MASK_ANY;
+      const [a, b] = location.search.includes("mask=full") ? [0, 1] : MASK[`${from ?? "home"}>${to ?? "home"}`] ?? MASK_ANY;
       const cs = getComputedStyle(root);
       const ms = (name: string) => { const v = cs.getPropertyValue(name).trim(); return v.endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000; };
       const t = ms("--cam-t"), wait = ms("--cam-wait"), fade = ms("--mask-fade") || 0;

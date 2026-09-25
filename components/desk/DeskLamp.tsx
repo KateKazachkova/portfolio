@@ -4,9 +4,8 @@ import { useLamp } from "@/lib/lamp";
 
 /**
  * The desk lamp: a red architect's lamp standing on the desk behind the
- * case's right door, its arm rising in the gap between the case and the
- * Davey trophy and its head reaching back over the lid, pointed down at the
- * desk — the same red lacquer, cream enamel and brass as the flip clock,
+ * case, its arm rising behind the body and its head reaching over the lid,
+ * pointed down at the desk — the same red lacquer, cream enamel and brass as the flip clock,
  * generated from it. It is the light switch: a click turns it on or off
  * (lib/lamp.ts), and in the dark that decides how the room is lit
  * (components/NightRoom.tsx).
@@ -18,10 +17,11 @@ import { useLamp } from "@/lib/lamp";
  */
 
 // 86 cm to the top of its head, against the wall (z -269, 6 cm off it) so
-// the trophy stands in front of its base. x is the base's centre, far enough
-// right that the arm clears the case's right door; tall enough that the head
-// clears the lid.
-export const LAMP = { x: 1070, h: 920, z: -200 };
+// the trophy stands in front of its base. x is the base's centre, behind the
+// case (Kate, 25.09: the foot and the arm hidden by it, only the head over
+// the lid and the elbow past it showing); tall enough that the head clears
+// the lid.
+export const LAMP = { x: 720, h: 920, z: -200 };
 const LAMP_W = Math.round(LAMP.h * 655 / 900);
 
 // Measured off the still's alpha, as fractions of it: the base's centre, the

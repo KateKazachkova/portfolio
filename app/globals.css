@@ -1619,7 +1619,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the index has a column of its own to stand under (≥1440px). Positions inside it are percentages of the 1400 × 756 still,
    measured off the file. */
 .flip-clock-slot {
-  position: absolute; left: calc(-121.1 * var(--u)); top: calc(527.8 * var(--u)); width: calc(430.4 * var(--u));
+  position: absolute; left: calc(-169.6 * var(--u)); top: calc(524.4 * var(--u)); width: calc(430.4 * var(--u));
   transform-origin: 0 0; transform: translateZ(calc(269 * var(--u))) scale(.55); pointer-events: auto;
   display: none;
 }

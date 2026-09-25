@@ -1,0 +1,21 @@
+/* The library card from Ukrainska 15's folder (.env__card in globals.css),
+   in page units: buff card stock, a typed head over a red rule, blue ruled
+   rows with red column lines, the dates stamped in violet ink. Scales with
+   --cu, one unit of the desk card. */
+.award-card { --cu: 4px; width: 100%; max-width: calc(175 * var(--cu)); box-sizing: border-box;
+  padding: calc(3 * var(--cu)) calc(3.5 * var(--cu)) calc(4 * var(--cu)); background: #efe3c4; color: #2a241c;
+  box-shadow: 0 2px 4px rgba(20,16,12,.3); transform: rotate(-.6deg);
+  font: 400 calc(3.2 * var(--cu)) / 1 var(--font-typewriter), "Courier New", monospace; }
+.award-card__head { display: flex; flex-direction: column; gap: calc(1 * var(--cu));
+  padding-bottom: calc(1.8 * var(--cu)); border-bottom: 2px solid #b3312a; }
+.award-card__head span:first-child { font-size: calc(6 * var(--cu)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.award-card__row { display: grid; grid-template-columns: 14% 34% 52%; align-items: end;
+  min-height: calc(6.4 * var(--cu)); border-bottom: 1px solid #9fb3c8; }
+.award-card__row > span { padding: 0 calc(1 * var(--cu)) 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.award-card__row > span + span { border-left: 1px solid #d59a95; }
+.award-card__row--th { font-size: max(8px, calc(2.5 * var(--cu))); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+.award-card__date { color: #5b3f8c; font-weight: 700; font-size: max(8px, calc(2.7 * var(--cu))); transform: rotate(-3deg); }
+@media (max-width: 700px) {
+  .award-card { --cu: 2.8px; }
+  .award-card__row > span { white-space: normal; }
+}

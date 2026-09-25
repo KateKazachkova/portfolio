@@ -17,7 +17,7 @@ const waypro: CaseStudy = {
 
   result: [
     { mark: "Ten driver interviews turned into four shipped features" },
-    " — a logistics app rebuilt around what drivers actually struggle with, recognised with two international awards.",
+    " — a logistics app rebuilt around what drivers actually struggle with, recognised with six international awards, four of them Gold.",
   ],
 
   subtitle:
@@ -28,7 +28,7 @@ const waypro: CaseStudy = {
     { key: "Scope", value: ["Research · IA\nWireframes · Prototyping\nUsability testing"] },
     { key: "Team", value: ["With Alex Broman\nBuilt with developers"] },
     { key: "Duration", value: ["2024"] },
-    { key: "Recognition", value: ["London Design Awards — Gold\nMUSE — Silver"] },
+    { key: "Recognition", value: ["Indigo Design Award — 2× Gold, Silver\nDavey Awards — Gold\nLondon Design Awards — Gold\nMUSE — Silver"] },
   ],
 
   lead: {
@@ -43,9 +43,13 @@ const waypro: CaseStudy = {
       { n: "10", caption: "Drivers interviewed, all actively delivering herbal products" },
       { n: "4", caption: "Field pain points, each turned into a feature" },
       { n: "6", caption: "Stages mapped in the driver's journey, route to report" },
-      { n: "2", sup: "×", caption: "International awards — London Design Awards Gold · MUSE Silver" },
+      { n: "6", sup: "×", caption: "International awards — Indigo 2× Gold + Silver · Davey Gold · London Design Awards Gold · MUSE Silver" },
     ],
     stamps: [
+      { text: "Indigo Design Award · Gold" },
+      { text: "Indigo Design Award · Gold" },
+      { text: "Indigo Design Award · Silver" },
+      { text: "Davey Awards · Gold" },
       { text: "London Design Awards · Gold" },
       { text: "MUSE Creative Awards · Silver" },
     ],
@@ -214,10 +218,10 @@ const waypro: CaseStudy = {
       heading: "What happened to it",
       rule: true,
       notes: [
-        { text: [{ strong: "Two international awards" }, " for a driver's tool most people will never see."] },
+        { text: [{ strong: "Six international awards" }, " for a driver's tool most people will never see."] },
       ],
       body: [
-        ["WayPro took ", { mark: "Gold at the London Design Awards" }, " (UI, Transportation) and ", { mark: "Silver at the MUSE Creative Awards" }, " (Mobile App, Logistics) — recognition for a piece of workwear software, judged on the same terms as consumer apps."],
+        ["WayPro took ", { mark: "two Golds and a Silver at the Indigo Design Award" }, " (Mobile App; Mobile Interaction & Experience), ", { mark: "Gold at the Davey Awards" }, " (Mobile Features — Best UI), ", { mark: "Gold at the London Design Awards" }, " (UI, Transportation) and ", { mark: "Silver at the MUSE Creative Awards" }, " (Mobile App, Logistics) — recognition for a piece of workwear software, judged on the same terms as consumer apps."],
         [{ tk: "any shipped/usage numbers you can share — drivers on it, deliveries handled" }],
       ],
     },

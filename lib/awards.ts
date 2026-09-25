@@ -220,3 +220,21 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "indigo-agora-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Bronze", category: "Website Design", externalUrls: ["https://www.indigoaward.com/winners/2198"], featured: false },
   { id: "indigo-agora-3", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "Agora", year: 2020, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrls: ["https://www.indigoaward.com/winners/2198"], featured: false },
 ];
+
+// One ruled row per award for the library cards (components/AwardCard,
+// components/desk/AwardStack): a record that stands for several (CSSDA's
+// "Best UI · Best UX …") is split into its rows, dated with its year.
+// "Website — Strange & Unusual" → "Strange & Unusual": the card has no room
+// for the medium, and the jury's column already says what kind of prize it is.
+const short = (category: string) => category.split(/\s[—–]\s/).pop()!;
+
+export function awardRows(project: string) {
+  return AWARD_RECORDS.filter((r) => r.project === project).flatMap((r) => {
+    const parts = r.recognition.split(" · ");
+    return parts.map((p) => ({
+      date: r.year ? String(r.year) : "",
+      jury: r.organisation,
+      award: parts.length === 1 && r.category ? `${p} · ${short(r.category)}` : p,
+    }));
+  });
+}

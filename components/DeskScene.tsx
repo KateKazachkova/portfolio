@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
+import AwardStack from "@/components/desk/AwardStack";
+import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
@@ -48,11 +49,10 @@ import { prefersReducedMotion } from "@/lib/reducedMotion";
  * Strava) reads; Escape goes back up. /#off-duty.
  */
 
-// The case files. Each will be its own kind of object — a zine, a stack, a
-// folder — so for now each lies there as a reference picture of the object
-// it will become (public/scene/desk3d/placeholders/, Kate's picks), labelled
-// with the project it stands for. Portfolio has no picture yet and stays a
-// plain card. Sizes are desk px (1075 per metre), roughly the real objects.
+// The case files. Ukrainska 15 is its folder; the rest, until each becomes
+// its own kind of object, lie as their library cards of awards
+// (components/desk/AwardStack). Sizes are desk px (1075 per metre), roughly
+// the real objects.
 // x, y are the centre on the desk plane from its left/back corner.
 //
 // They lie in one row along the desk, laid down by hand rather than on a
@@ -61,49 +61,75 @@ import { prefersReducedMotion } from "@/lib/reducedMotion";
 // which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
   { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 195, h: 270, x: 1340, y: 682.5, r: -3 },
-  { slug: "bulksource", title: "BulkSource", img: "bulksource", w: 210, h: 261, x: 1609, y: 655.5, r: 3 },
-  { slug: "onsisoft", title: "OnsiSoft", img: "onsisoft", w: 190, h: 257, x: 1879, y: 677.5, r: -2 },
-  { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2159, y: 659.5, r: 2 },
-  { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 2434, y: 687.5, r: -1.5 },
+  { slug: "bulksource", title: "BulkSource", img: "stack", w: 180, h: 120, x: 1609, y: 675, r: 3 },
+  { slug: "onsisoft", title: "OnsiSoft", img: "stack", w: 180, h: 120, x: 1879, y: 680, r: -2 },
+  { slug: "waypro", title: "WayPro", img: "stack", w: 180, h: 120, x: 2149, y: 672, r: 2 },
 ] as const;
 
-// A case file opens its page only once the case is written up
-// (content/work/slugs.ts); until then it lies there without a link, and a
-// click still brings the camera to it.
+// Whose awards a stack holds (lib/awards.ts), and what rides along with it
+const PROJECT: Record<string, { name: string; sub: string }> = {
+  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS · K. Kazachkova" },
+  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS · K. Kazachkova" },
+  waypro: { name: "WayPro", sub: "Logistics iOS app · K. Kazachkova" },
+};
+// BulkSource moves sand and gravel: its stack lies in a spill of sand with
+// a toy dump truck parked on top (public/items/bulksource, generated).
+// WayPro delivers herbs from farms: moss and fly agarics on its card, and a
+// picture postcard of the app (board 04 of its Behance) on the juries'.
+const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {
+  waypro: [{ label: "Behance ↗", href: "https://www.behance.net/gallery/209626437/WayPro-UIUX-iOS-App", external: true }],
+};
+
+// The first click brings the camera to a card; then its rows open the
+// winner pages, and a written case its page (content/work/slugs.ts).
 function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" }> }) {
-  const written = isWritten(c.slug);
-  const props = {
-    className: c.img ? "desk-card desk-card--ref" : "desk-card",
-    "data-slug": c.slug,
-    "data-x": c.x,
-    style: {
-      left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
-      "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
-    } as React.CSSProperties,
-  };
-  const inner = c.img ? (
-    <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
-      <span className="desk-card__label">{c.title}</span>
-      {written && <span className="desk-card__open" aria-hidden>Read the case →</span>}
-    </>
-  ) : (
-    <>
-      <div className="desk-card__cover" />
-      <div className="desk-card__body">
-        <div className="desk-card__tags">&nbsp;</div>
-        <h2>{c.title}</h2>
-      </div>
-      {written && <span className="desk-card__open" aria-hidden>Read the case →</span>}
-    </>
+  const links = [...(STACK_LINKS[c.slug] ?? []), ...(isWritten(c.slug) ? [{ label: "Read the case →", href: `/work/${c.slug}` }] : [])];
+  return (
+    <div
+      className="desk-card desk-card--stack"
+      data-slug={c.slug}
+      data-x={c.x}
+      aria-label={`${c.title} — awards`}
+      style={{
+        left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
+        "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
+      } as React.CSSProperties}
+    >
+      {c.slug === "bulksource" && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="stack-sand" src="/items/bulksource/sand.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+      )}
+      {c.slug === "onsisoft" && <Payslip />}
+      {c.slug === "waypro" && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="stack-mush" src="/items/waypro/mush.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+      )}
+      <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} links={links}
+        picture={c.slug === "waypro" ? { src: "/items/waypro/postcard.webp", href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
+      {c.slug === "waypro" && (
+        <span className="stack-moss" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/items/waypro/moss.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="stack-side" src="/items/waypro/moss-side.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+        </span>
+      )}
+      {c.slug === "onsisoft" && <Calculator />}
+      {c.slug === "bulksource" && (
+        <span className="stack-truck" aria-hidden>
+          {/* its side, standing on the centreline (edge-on from above), and
+              its top at the truck's height, so it has a body from the case */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="stack-side" src="/items/bulksource/truck-side.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="stack-top" src="/items/bulksource/truck.webp" alt="" draggable={false} loading="lazy" decoding="async" />
+        </span>
+      )}
+    </div>
   );
-  return written
-    ? <Link href={`/work/${c.slug}`} tabIndex={-1} {...props}>{inner}</Link>
-    : <div {...props} aria-label={`${c.title} — case file coming soon`}>{inner}</div>;
 }
 
-const ROW_END = 2524 + 70;         // right edge of the last object, plus a margin
+const ROW_END = 2149 + 185 + 70;   // right edge of the last stack fanned out, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
 const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
 
@@ -280,10 +306,12 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
  *  (and outside .scene-cam, whose transform would capture position: fixed). */
 export function DeskHint() {
   return (
-    <div className="desk-hint" aria-hidden>
-      <span className="desk-hint__scroll">← scroll →</span>
-      <span className="desk-hint__swipe">← swipe →</span>
-      <span className="desk-counter">1 / {CASES.length}</span>
+    <div className="desk-hint">
+      <span className="desk-hint__scroll" aria-hidden>← scroll →</span>
+      <span className="desk-hint__swipe" aria-hidden>← swipe →</span>
+      <span className="desk-counter" aria-hidden>1 / {CASES.length}</span>
+      {/* With a file spread over the desk, the pill is a way back out of it */}
+      <button type="button" className="desk-hint__close" onClick={() => dispatchEvent(new Event(U15_CLOSE))}>↓ Put the file away</button>
     </div>
   );
 }
@@ -404,10 +432,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       go(Number(a.dataset.x) - VIEW_X);
     };
     const onFocus = (e: FocusEvent) => {
-      const a = (e.target as HTMLElement).closest?.(".desk-card");
+      const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-x]");
       if (!a || !panning()) return;
-      const i = [...cards()].indexOf(a as HTMLAnchorElement);
-      if (i >= 0) go(CASES[i].x - VIEW_X - 120 / SPD);
+      go(Number(a.dataset.x) - VIEW_X - 120 / SPD);
     };
     const world = el.querySelector<HTMLElement>(".desk-world");
     const onArrive = (e: TransitionEvent) => {

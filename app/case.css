@@ -116,6 +116,8 @@
 .case .spread .ghost2 { position:absolute; inset:56px 0 56px 0; column-count:3; column-gap:34px; font-size:13px; line-height:1.45; opacity:.16; user-select:none; pointer-events:none; overflow:hidden }
 .case .marker { position:relative; font-family:var(--hand); font-weight:400; font-size:84px; line-height:1.02; color:var(--ink-red); max-width:900px; letter-spacing:-.1em }
 .case .marker s { text-decoration-thickness:3px }
+/* the project's award card (components/AwardCard) in place of the stamps, for now */
+.case .award-card-slot { margin-top:30px }
 /* award stamps — the juries' marks, pressed from their own badges. Full-colour
    assets keep their own colour (a gold award is a gold seal); juries with no
    colour badge are re-inked impressions; a jury with no asset is typeset. */

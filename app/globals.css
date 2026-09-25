@@ -967,21 +967,172 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r));
   transition: transform .6s cubic-bezier(.65, 0, .2, 1), filter 300ms ease, border-color .25s ease;
 }
-.desk-card__cover { height: calc(64 * var(--u)); background: #ebe6db; border-bottom: calc(1 * var(--u)) solid #e0dbcf; }
-.desk-card__body { padding: calc(7 * var(--u)) calc(9 * var(--u)); }
-.desk-card__tags { font: calc(5 * var(--u)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
-                   letter-spacing: .14em; text-transform: uppercase; color: #8b8577; }
-.desk-card h2 { margin: calc(3 * var(--u)) 0 0; font-size: calc(10 * var(--u)); line-height: 1.15; font-weight: 600; }
-/* A reference picture standing in for the object the project will become. */
-.desk-card--ref { border: 0; border-radius: calc(2 * var(--u)); background: #ddd8cc; }
-.desk-card--ref img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.desk-card__label {
-  position: absolute; left: 0; right: 0; bottom: 0;
-  padding: calc(5 * var(--u)) calc(7 * var(--u));
-  background: rgba(20, 18, 16, .78); color: #f3eee4;
-  font: 600 calc(8 * var(--u)) / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .08em; text-transform: uppercase;
-}
+/* A case file not written up yet (components/desk/AwardStack): its library
+   card of awards over a stack of the juries' postcards. The box is only
+   where it all lies. The card is Ukrainska 15's (.env__card) to the
+   millimetre: --eu is that folder's unit, 1.3 desk px. With the camera on
+   the file the card slides left and the postcards fan out to its right. */
+.desk-card--stack { --eu: calc(1.3 * var(--u)); transform-style: preserve-3d; background: none; border: 0; border-radius: 0; overflow: visible; box-shadow: none; }
+[data-desk="open"] .desk-card--stack:hover, [data-desk="open"] .desk-card--stack:focus-visible { filter: none; }
+[data-desk="open"] .desk-card.desk-card--stack[data-side="here"]:not(.desk-card--env) { box-shadow: none; }
+.jury-card { position: absolute; left: 50%; top: 50%; z-index: 6; width: calc(120 * var(--eu)); display: block; box-sizing: border-box;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace;
+  transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .jury-card { transform: translate(calc(-50% - 94 * var(--u)), -50%) rotate(-1deg); }
+.jury-card__head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
+  padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
+.jury-card__head span:first-child { font-size: calc(6 * var(--eu)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.jury-card__row { display: grid; grid-template-columns: 18% 36% 46%; align-items: end; color: inherit; text-decoration: none;
+  height: calc(6.4 * var(--eu)); border-bottom: calc(.25 * var(--eu)) solid #9fb3c8; }
+.jury-card__row > span { padding-left: calc(1 * var(--eu)); white-space: nowrap; overflow: hidden; }
+.jury-card__row > span + span { border-left: calc(.25 * var(--eu)) solid #d59a95; }
+.jury-card__row--th { font-size: calc(2.5 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+.jury-card__date { color: #5b3f8c; font-weight: 700; font-size: calc(2.7 * var(--eu)); transform: rotate(-3deg); }
+/* The juries' postcards (148 × 105 mm): the back, written on the left,
+   addressed on the right under the jury's logo for a stamp and a postmark
+   with the year. */
+.postcard { position: absolute; left: 50%; top: 50%; width: calc(159 * var(--u)); height: calc(113 * var(--u)); box-sizing: border-box;
+  display: grid; grid-template-columns: 56% 44%; padding: calc(7 * var(--u)) calc(7 * var(--u)) calc(6 * var(--u));
+  background: #f6f0e2; color: #2a241c; text-decoration: none;
+  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.3);
+  transform: translate(calc(-50% + var(--ux) * var(--u)), calc(-50% + var(--uy) * var(--u))) rotate(var(--ur));
+  transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .postcard {
+  transform: translate(calc(-50% + 92 * var(--u)), calc(-50% + var(--fy) * var(--u))) rotate(var(--fr)); }
+.postcard__msg { display: flex; flex-direction: column; gap: calc(3 * var(--u)); padding-right: calc(6 * var(--u)); min-width: 0; position: relative; }
+/* the dividing line starts under the heading, which runs on to the stamp */
+.postcard__msg::after { content: ""; position: absolute; right: 0; top: calc(26 * var(--u)); bottom: 0; border-right: calc(.5 * var(--u)) solid #cfc5b0; }
+.postcard__from { font: 400 calc(4.2 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .14em; text-transform: uppercase; color: #6d6252; }
+.postcard__jury { width: calc(98 * var(--u)); white-space: nowrap; margin-bottom: calc(3 * var(--u));
+  font: 700 calc(6.4 * var(--u)) / 1 var(--font-typewriter), monospace; text-transform: uppercase; }
+.postcard__line { font: 400 calc(5 * var(--u)) / 1.1 var(--font-typewriter), monospace; color: #2c3a86; }
+.postcard__addr { position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: calc(4 * var(--u)); padding-left: calc(6 * var(--u)); }
+.postcard__to { display: block; border-bottom: calc(.4 * var(--u)) solid #cfc5b0; padding-bottom: calc(1 * var(--u));
+  font: 400 calc(5 * var(--u)) / 1 var(--font-typewriter), monospace; color: #2c3a86; white-space: nowrap; overflow: hidden; }
+/* the stamp: a perforated edge, the jury's logo in its ink */
+.postcard__stamp { position: absolute; right: 0; top: 0; width: calc(40 * var(--u)); height: calc(46 * var(--u)); box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center; padding: calc(4 * var(--u));
+  background: #fffaf0; border: calc(1.3 * var(--u)) dotted #d9cfba;
+  box-shadow: inset 0 0 0 calc(1.2 * var(--u)) #fffaf0, inset 0 0 0 calc(1.7 * var(--u)) var(--ink); }
+.postcard__stamp > span { display: block; width: 100%; background: var(--ink);
+  -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+.postcard__postmark { position: absolute; right: calc(26 * var(--u)); top: calc(24 * var(--u)); width: calc(30 * var(--u)); height: calc(30 * var(--u));
+  display: flex; align-items: center; justify-content: center; border-radius: 50%; border: calc(.7 * var(--u)) solid rgba(40, 36, 50, .55);
+  font: 700 calc(6 * var(--u)) / 1 var(--font-typewriter), monospace; color: rgba(40, 36, 50, .6); transform: rotate(-14deg); }
+/* Links only once the camera is on the file: before, a click brings it. */
+a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
+[data-desk="open"] .desk-card--stack[data-side="here"] :is(a.jury-card__row, .jury-tag, .postcard) { pointer-events: auto; cursor: pointer; }
+[data-desk="open"] .desk-card--stack[data-side="here"] a.jury-card__row:hover { background: rgba(179, 49, 42, .1); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .postcard:hover { z-index: 5 !important; }
+/* BulkSource's sand under the stack (933 × 624) and the toy truck on it
+   (933 × 428, ~11 cm long). The truck has no shadow of its own: a soft
+   blob under it (no filter on scene objects). Fanned, it drives off the
+   cards to below them. */
+.stack-sand { position: absolute; left: 50%; top: 50%; width: calc(260 * var(--u)); height: auto; max-width: none;
+  transform: translate(-46%, -56%) rotate(-8deg); pointer-events: none; z-index: 0; }
+.stack-truck { position: absolute; left: 50%; top: 50%; width: calc(118 * var(--u)); aspect-ratio: 933 / 428; z-index: 8; pointer-events: none;
+  transform: translate(calc(-50% + 48 * var(--u)), calc(-50% - 84 * var(--u))) rotate(-14deg);
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1); }
+.stack-truck::before { content: ""; position: absolute; left: -2%; right: -4%; top: 0; bottom: -10%;
+  background: radial-gradient(closest-side, rgba(20,16,12,.42), rgba(20,16,12,.2) 60%, transparent); }
+.stack-truck, .stack-moss, .calc { transform-style: preserve-3d; }
+/* Bodies, as the folder has: seen from the case (the camera low over the
+   desk) a flat photo reads as a sticker, so each of these also has its
+   side view standing up on its centreline — edge-on, and so unseen, from
+   straight above — and its top lifted to its own height. */
+.stack-side { position: absolute; left: 0; bottom: 50%; width: 100%; height: auto; max-width: none; display: block;
+  transform-origin: 50% 100%; transform: rotateX(-90deg); }
+.stack-truck .stack-side { aspect-ratio: 700 / 308; }
+/* straight above, the sides are edge-on but still draw a hairline: they go
+   while the camera is over the desk */
+.stack-side { transition: opacity .4s ease .6s; }
+[data-desk="open"] .stack-side { opacity: 0; transition: opacity .3s ease; }
+.stack-truck .stack-top { position: absolute; inset: 0; display: block; width: 100%; height: 100%; transform: translateZ(calc(44 * var(--u))); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .stack-truck {
+  transform: translate(calc(-50% + 150 * var(--u)), calc(-50% + 118 * var(--u))) rotate(-4deg); }
+/* OnsiSoft's payslip and calculator (components/desk/OnsiSoftKit). Closed,
+   the slip sticks out from under the stack and the calculator lies beside
+   it; with the camera on the file the slip comes out under the card and
+   the calculator moves right of the postcards. */
+.payslip { position: absolute; left: 50%; top: 50%; z-index: 0; width: calc(176 * var(--u)); height: calc(78 * var(--u)); box-sizing: border-box;
+  padding: 0 calc(12 * var(--u)); color: #2a241c;
+  /* the tractor-feed strips: paper with a row of holes down each side */
+  background:
+    radial-gradient(circle, transparent calc(1.6 * var(--u)), #f3f1e8 calc(1.8 * var(--u))) left top / calc(12 * var(--u)) calc(8 * var(--u)) repeat-y,
+    radial-gradient(circle, transparent calc(1.6 * var(--u)), #f3f1e8 calc(1.8 * var(--u))) right top / calc(12 * var(--u)) calc(8 * var(--u)) repeat-y;
+  filter: none; box-shadow: none;
+  transform: translate(calc(-50% - 44 * var(--u)), calc(-50% + 50 * var(--u))) rotate(-9deg);
+  transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+.payslip::before { content: ""; position: absolute; inset: 0; z-index: -1; box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .payslip { transform: translate(calc(-50% - 94 * var(--u)), calc(-50% + 99 * var(--u))) rotate(-2deg); }
+.payslip__paper { height: 100%; box-sizing: border-box; padding: calc(6 * var(--u)) calc(7 * var(--u));
+  border-left: calc(.4 * var(--u)) dashed #b9b4a4; border-right: calc(.4 * var(--u)) dashed #b9b4a4;
+  /* green-bar listing paper */
+  background: repeating-linear-gradient(#f3f1e8 0 calc(8 * var(--u)), #dfeadb calc(8 * var(--u)) calc(16 * var(--u)));
+  font: 400 calc(4.4 * var(--u)) / 1.2 var(--font-typewriter), "Courier New", monospace; }
+.payslip__head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: calc(2 * var(--u));
+  border-bottom: calc(.5 * var(--u)) solid #2a241c; text-transform: uppercase; letter-spacing: .08em; }
+.payslip__head span:first-child { font-size: calc(7 * var(--u)); font-weight: 700; }
+.payslip__grid { display: grid; grid-template-columns: 40% 60%; gap: calc(5 * var(--u)); padding-top: calc(3 * var(--u)); }
+.payslip__col { display: flex; flex-direction: column; min-width: 0; }
+.payslip__k { font-size: calc(3.6 * var(--u)); letter-spacing: .1em; text-transform: uppercase; color: #6d6252; margin-top: calc(2 * var(--u)); }
+.payslip__v { white-space: nowrap; }
+.payslip__th, .payslip__row { display: flex; justify-content: space-between; gap: calc(3 * var(--u)); white-space: nowrap; }
+.payslip__th { font-size: calc(3.6 * var(--u)); letter-spacing: .1em; text-transform: uppercase; color: #6d6252;
+  border-bottom: calc(.3 * var(--u)) solid #9c9684; margin: calc(2 * var(--u)) 0 calc(1 * var(--u)); }
+.payslip__row--net b { color: #1f6b3a; }
+.calc { position: absolute; left: 50%; top: 50%; z-index: 7; width: calc(92 * var(--u)); aspect-ratio: 526 / 800; pointer-events: none;
+  transform: translate(calc(-50% + 112 * var(--u)), calc(-50% + 24 * var(--u))) rotate(11deg);
+  transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+.calc::before { content: ""; position: absolute; left: -4%; right: -8%; top: -2%; bottom: -5%;
+  background: radial-gradient(closest-side, rgba(20,16,12,.4), rgba(20,16,12,.18) 70%, transparent); }
+.calc__top { position: absolute; inset: 0; transform: translateZ(calc(13 * var(--u))); }
+.calc img { position: relative; display: block; width: 100%; height: 100%; }
+/* its walls, 13 desk px (~12 mm) of the body's cream plastic */
+.calc__wall { position: absolute; display: block; background: linear-gradient(#d6d0bf, #b9b2a0); }
+.calc__wall--front { left: 2%; right: 2%; top: 99%; height: calc(13 * var(--u)); transform-origin: 50% 0; transform: rotateX(90deg); }
+.calc__wall--back { left: 2%; right: 2%; bottom: 99%; height: calc(13 * var(--u)); transform-origin: 50% 100%; transform: rotateX(-90deg); }
+.calc__wall--left { top: 1.5%; bottom: 1.5%; right: 98.5%; width: calc(13 * var(--u)); transform-origin: 100% 50%; transform: rotateY(90deg);
+  background: linear-gradient(90deg, #b9b2a0, #d6d0bf); }
+.calc__wall--right { top: 1.5%; bottom: 1.5%; left: 98.5%; width: calc(13 * var(--u)); transform-origin: 0 50%; transform: rotateY(-90deg);
+  background: linear-gradient(90deg, #d6d0bf, #b9b2a0); }
+/* the display (11.5–90.2% across, 16.4–30.3% down) */
+.calc__lcd { position: absolute; left: 11.5%; width: 78.7%; top: 16.4%; height: 13.9%; box-sizing: border-box; padding-right: 6%;
+  display: flex; align-items: center; justify-content: flex-end;
+  font: 400 calc(13 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .06em; color: rgba(28, 34, 26, .82); }
+.calc__key { position: absolute; display: flex; align-items: center; justify-content: center; padding-bottom: .6%;
+  font: 600 calc(6.4 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; color: rgba(42, 38, 32, .82); }
+.calc__key--grey { color: #fbf8f0; font-size: calc(5.6 * var(--u)); font-weight: 700; }
+[data-desk="open"] .desk-card--stack[data-side="here"] .calc { transform: translate(calc(-50% + 226 * var(--u)), calc(-50% - 6 * var(--u))) rotate(6deg); }
+/* A picture postcard: the image full bleed in a thin white border, the
+   greeting set on it. */
+.postcard--picture { display: block; padding: calc(3 * var(--u)); background: #fbf8f1; }
+.postcard--picture img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.postcard__greet { position: absolute; left: calc(7 * var(--u)); bottom: calc(7 * var(--u)); padding: calc(2.4 * var(--u)) calc(4 * var(--u));
+  background: rgba(251, 248, 241, .92); font: 400 calc(4.4 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .1em; text-transform: uppercase; }
+.postcard__greet b { font-weight: 700; }
+/* WayPro's moss (640 × 579, with its fly agarics) on the card's corner and
+   more fly agarics (639 × 640) beside the stack, as on its board 04;
+   fanned, the moss stays on the card. */
+.stack-moss, .stack-mush { position: absolute; left: 50%; top: 50%; height: auto; max-width: none; pointer-events: none;
+  transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+.stack-moss { z-index: 7; display: block; width: calc(84 * var(--u)); transform: translate(calc(-50% + 58 * var(--u)), calc(-50% - 52 * var(--u))) rotate(12deg); }
+.stack-moss > img:first-child { display: block; width: 100%; height: auto; }
+.stack-moss .stack-side { left: 15%; width: 70%; aspect-ratio: 600 / 415; }
+[data-desk="open"] .desk-card--stack[data-side="here"] .stack-moss { transform: translate(calc(-50% - 44 * var(--u)), calc(-50% - 58 * var(--u))) rotate(12deg); }
+.stack-mush { z-index: 0; width: calc(74 * var(--u)); transform: translate(calc(-50% + 136 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-18deg); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .stack-mush { transform: translate(calc(-50% + 214 * var(--u)), calc(-50% + 96 * var(--u))) rotate(-10deg); }
+/* Paper tags under the stack: Behance, the case's own page. */
+.jury-tag { position: absolute; left: 50%; top: 100%; z-index: 9; transform: translate(-50%, calc(50 * var(--u))) rotate(-2deg);
+  padding: calc(3.5 * var(--u)) calc(7 * var(--u)); background: #c21f10; color: #f7f2e6; text-decoration: none; white-space: nowrap;
+  font: 600 calc(5.4 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase;
+  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.3);
+  opacity: 0; transition: opacity .3s ease .35s; }
+.jury-tag + .jury-tag { transform: translate(-50%, calc(68 * var(--u))) rotate(1.5deg); background: #22283a; }
+[data-desk="open"] .desk-card--stack[data-side="here"] .jury-tag { opacity: 1; left: calc(50% - 94 * var(--u)); }
 
 /* Ukrainska 15's pocket folder (see Envelope in DeskScene). The layers are cut
    to the card alone, so the shadow is the folder's own outline. Sizes are desk px on
@@ -1174,6 +1325,9 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .u15-tablet { transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s; }
 .desk-card--env[data-phase="open"] .u15-tablet { z-index: 8 !important; transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .55s; }
 .u15-tablet[data-held] { transition: none; }
+/* Closed, the tablet (turned 91°, a little wider than the folder) showed
+   past its edges as a pale sliver; it is there only while it comes out. */
+.desk-card--env[data-phase="closed"] .u15-tablet { visibility: hidden; }
 .u15-tablet img { display: block; width: 100%; height: 100%; }
 .u15-tablet__screen { position: absolute; display: block; left: 4.08%; top: 3.32%; width: 91.3%; height: 88.6%;
   object-fit: cover; border-radius: calc(4.6 * var(--eu)); background: #111; }
@@ -1287,11 +1441,6 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .desk-card[data-side="here"]:not(.desk-card--env) {
   transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(0deg) translateY(calc(-4 * var(--u)));
   box-shadow: 0 calc(3 * var(--u)) calc(3 * var(--u)) rgba(20,16,12,.14), 0 calc(16 * var(--u)) calc(24 * var(--u)) calc(-8 * var(--u)) rgba(20,16,12,.34); }
-.desk-card__open { position: absolute; right: calc(8 * var(--u)); top: calc(8 * var(--u));
-  padding: calc(4 * var(--u)) calc(7 * var(--u)); border-radius: 999px; background: #c21f10; color: #f7f2e6;
-  font: 600 calc(7 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase;
-  opacity: 0; transform: translateY(calc(-3 * var(--u))); transition: opacity .3s ease .35s, transform .3s ease .35s; pointer-events: none; }
-.desk-card[data-side="here"] .desk-card__open { opacity: 1; transform: none; }
 
 /* ── The camera move ──
    The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), right over
@@ -1550,6 +1699,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   .desk-hint__scroll { display: none; }
   .desk-hint__swipe { display: inline; }
 }
+/* A file open on the desk: the pill turns into its way out. */
+.desk-hint__close { display: none; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;
+  background: none; border: 0; padding: 7px 14px; margin: -7px -14px; cursor: pointer; }
+[data-u15="open"] .desk-hint { pointer-events: auto; }
+[data-u15="open"] .desk-hint > span { display: none; }
+[data-u15="open"] .desk-hint__close { display: inline; }
+[data-u15="open"] .desk-hint:hover { background: #fff; }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }

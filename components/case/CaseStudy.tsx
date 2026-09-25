@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CaseStudy as Case, HandNote, MarginNote, Section } from "@/content/work/types";
 import Spans from "./Spans";
 import Pile from "./Pile";
+import AwardCard from "@/components/AwardCard";
 
 /**
  * A case study rendered as an annotated document: a margin rail of notes, a
@@ -236,27 +237,8 @@ export default function CaseStudyPage({ data }: { data: Case }) {
                 </div>
               ))}
             </div>
-            <div className="award-stamps">
-              {data.outcome.stamps.map((s, i) => {
-                if ("seal" in s)
-                  // eslint-disable-next-line @next/next/no-img-element
-                  return <img key={i} className="seal" src={`/stamps/awards/${s.seal}.png`} alt={s.label} style={{ aspectRatio: s.ratio }} />;
-                if ("mask" in s)
-                  return (
-                    <span
-                      key={i}
-                      className="seal seal--mask"
-                      role="img"
-                      aria-label={s.label}
-                      style={{
-                        aspectRatio: s.ratio,
-                        WebkitMaskImage: `url(/stamps/awards/${s.mask}.webp)`,
-                        maskImage: `url(/stamps/awards/${s.mask}.webp)`,
-                      }}
-                    />
-                  );
-                return <span className="stamp" key={i}>{s.text}</span>;
-              })}
+            <div className="award-card-slot">
+              <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
             </div>
           </div>
         </div>

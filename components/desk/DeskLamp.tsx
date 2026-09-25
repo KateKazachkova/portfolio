@@ -35,7 +35,10 @@ const ARM = { l: 0.76, r: 0.9, t: 0.32, b: 0.92 };
  *  (2150) about its principal point (560, 226) at the lamp's depth. */
 const K = 2150 / (2150 - LAMP.z);
 const LEFT = LAMP.x - BASE * LAMP_W;
-const TOP = 656 - LAMP.h;
+// sunk by the still's clear rows under the base (10 of its 900), so the rim
+// meets the desk; any deeper and the desk's plane cuts the rim off straight
+const SINK = 10;
+const TOP = 656 - LAMP.h + SINK;
 const at = (fx: number, fy: number) => ({
   x: 560 + (LEFT + fx * LAMP_W - 560) * K,
   y: 226 + (TOP + fy * LAMP.h - 226) * K,

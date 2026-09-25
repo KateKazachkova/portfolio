@@ -2,27 +2,21 @@
 [data-desk="award"] .desk-world { pointer-events: auto; }
 
 /* ── The award ribbons (components/AwardRail.tsx) ──
-   On the wall plane, in its px. A brass rail, a short bar per project hung
-   from it with the project's paper tag between, and a ribbon per award:
-   the satin is the level, the competition's logo runs down it (the white
-   logo files as a mask, inked for the satin), shadows fall down-right as
-   everything else's does. */
+   On the wall plane, in its px. A gold lattice of square cells, each
+   project's paper tag tied on its top bars, and a ribbon per award looped
+   over a bar: the satin is the level, the competition's logo runs down it
+   (the white logo files as a mask, inked for the satin), shadows fall
+   down-right as everything else's does. */
 .desk-wall.desk-wall--hung { background: none; }
 .award-rail { position: absolute; inset: 0; }
-.award-rail__bar, .award-rail__sub {
-  position: absolute; height: calc(4 * var(--u)); border-radius: calc(2 * var(--u));
-  background: linear-gradient(#f3d58c, #b8883a 45%, #6e4d1c 80%, #a67b35);
-  box-shadow: calc(3 * var(--u)) calc(3 * var(--u)) calc(4 * var(--u)) rgba(0,0,0,.6);
-}
-.award-rail__sub { height: calc(3 * var(--u)); }
-.award-rail__sub::before, .award-rail__sub::after {         /* its hangers */
-  content: ""; position: absolute; bottom: 100%; width: calc(1 * var(--u)); height: var(--drop);
-  background: linear-gradient(90deg, #6e4d1c, #d9b36a, #6e4d1c);
-}
-.award-rail__sub::before { left: calc(3 * var(--u)); }
-.award-rail__sub::after  { right: calc(3 * var(--u)); }
+/* the lattice and its hooks: stills with their shadows baked in, so
+   nothing here is filtered (a filter this size in 3D flickers in moves) */
+.award-grid { position: absolute; background: url("/items/award-grid.webp") 0 0 / 100% 100% no-repeat; }
+/* behind its ribbon: the curl shows through the ribbon's ring */
+.award-hook { position: absolute; pointer-events: none;
+  background: url("/items/award-hook.webp") 0 0 / 100% 100% no-repeat; }
 .award-tag {
-  position: absolute; transform: translateX(-50%); white-space: nowrap;
+  position: absolute; z-index: 1; transform: translate(-50%, -50%); white-space: nowrap;
   padding: calc(2.5 * var(--u)) calc(6 * var(--u)); border-radius: calc(1.5 * var(--u));
   background: #efe7d6; color: #22283a;
   font: 600 calc(8.5 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;

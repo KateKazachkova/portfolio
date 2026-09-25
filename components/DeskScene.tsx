@@ -89,7 +89,8 @@ const AWARD_W = Math.round(AWARD.h * 1033 / 3590);   // the still's own aspect
 // 43 × 32 cm, leaning back 4° with its top just short of the wall: the foot
 // stands h·sin(lean) + 3 px out from it (the wall is at z -269), so the top
 // edge never passes behind the wall and gets cut off.
-const CERT = { x: 2290, w: 460, h: 339, lean: 4 };
+// x: just clear of Agora's ribbons low on the lattice (AwardRail's SPOT).
+const CERT = { x: 2325, w: 460, h: 339, lean: 4 };
 const CERT_Z = Math.round(-269 + CERT.h * Math.sin(CERT.lean * Math.PI / 180) + 3);
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
@@ -146,11 +147,6 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           top: `calc(${656 - AWARD.h + CAST.y + 144} * var(--u))`,
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
         }} />
-        {/* chalked over the rail (AwardRail's RAIL: x 1362–2022, y 108),
-            centred on it */}
-        <span className="desk-chalk-title" style={{
-          left: `calc(${1692 + 1052.5} * var(--u))`, top: `calc(${104 + 144} * var(--u))`,
-        }}>Recognition</span>
       </div>
       <div className="desk-plane desk-wall desk-ext" aria-hidden />
       <div className="desk-plane desk-wall desk-extl" aria-hidden />

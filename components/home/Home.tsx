@@ -81,8 +81,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
       // it — otherwise that strip is flat --bg while everything below it is the
       // plate, and the join reads as a band across the top of the page. The
       // padding puts the content back where it was.
-      // The room's wall is not drawn (globals.css, .desk-wall): this is it.
-      style={{ background: "var(--room-wall)", marginTop: -56, paddingTop: 56 + 56 }}
+      style={{ background: "var(--bg)", marginTop: -56, paddingTop: 56 + 56 }}
     >
 
       {/* Suitcase + title block. The box stays centred; the title block sits

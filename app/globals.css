@@ -833,16 +833,22 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .case-stage { container-type: inline-size; }
 .scene-cam, .case-world { position: absolute; inset: 0; }
 .scene-cam { --u: calc(100cqw / 1118); }
+/* The camera's move between stops. An even ease-in-out, a little longer, so
+   its middle is ~30% slower than the old steep curve's (.65, 0, .2, 1 over
+   1.9s): the room is drawn at a gentler pace. It sets off a beat after the
+   click: what the stop it leaves had switched off (the desk-off below) is
+   back at once, and gets that beat to be drawn before anything moves. */
+:root { --cam-t: 2.3s; --cam-ease: cubic-bezier(.45, 0, .55, 1); --cam-wait: .2s; }
 
 .scene-cam {
   perspective: calc(2150 * var(--u));
   perspective-origin: calc(560 * var(--u)) calc(226 * var(--u));
-  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1);
+  transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait);
 }
 .desk-world,
 .case-world {
   transform-origin: calc(560 * var(--u)) calc(226 * var(--u)) calc(2150 * var(--u));
-  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .15s;
+  transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .15s;
 }
 .desk-world {
   display: block; position: absolute; inset: 0; z-index: 0;
@@ -1334,7 +1340,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: rotateX(-90deg) translate3d(calc(-1327.5 * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
 }
 [data-desk="profile"] .case-world { opacity: 0; pointer-events: none;
-  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
+  transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .7s; }
 [data-desk="profile"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
 .desk-binder { cursor: pointer; }
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
@@ -1545,7 +1551,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   .desk-hint__swipe { display: inline; }
 }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
-  transition: transform 1.9s cubic-bezier(.65, 0, .2, 1), opacity .6s ease .7s; }
+  transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
 [data-desk="open"] .desk-card:hover,
 [data-desk="open"] .desk-card:focus-visible {
@@ -1603,7 +1609,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
 [data-desk="profile"] .case-world,
 [data-desk="offduty"][data-desk-focus="bike"] .case-world {
-  animation: desk-off 0s linear 1.9s forwards;
+  animation: desk-off 0s linear calc(var(--cam-t) + var(--cam-wait)) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

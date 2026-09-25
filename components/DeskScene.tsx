@@ -139,7 +139,7 @@ const CAST = { x: 34, y: 20 };
  *  each time the browser is idle, the next one joins the room, in the
  *  index's order. The camera setting off for one builds it at once, so a
  *  visitor quick off the mark (or arriving at /#off-duty) never waits for
- *  the queue: its things load during the 1.9 s move. */
+ *  the queue: its things load during the camera's move. */
 type Stop = "profile" | "offduty" | "award";
 const STOP_ORDER: Stop[] = ["profile", "offduty", "award"];
 const STOP_OF: Record<string, Stop> = { profile: "profile", offduty: "offduty", award: "award" };

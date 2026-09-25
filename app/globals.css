@@ -1151,27 +1151,21 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
    own size before the camera magnifies it ~2.5×, so at 1× the folder's print
    and stickers go soft. --eu is the desk px inside it. */
 .env { position: absolute; left: 0; top: 0; display: block; width: 300%; height: 300%;
-       transform: translateZ(calc(var(--tab-t) + var(--env-t))) scale(calc(1 / 3)); transform-origin: 0 0; }
-/* Its thickness, closed: the tablet on the desk (7 mm, --tab-t), turned on
-   its side under the folder and just wider than it, then 6 mm of card and
-   prints (--env-t) on top of it — each an edge cut to its own outline (the
-   folder's is .env__shadow's insets). The player beside it stands as high
-   as the lot. Opened, it all lies flat on the desk. */
-.desk-card--env { transform-style: preserve-3d; --tab-t: calc(7.5 * var(--u)); --env-t: calc(6.5 * var(--u)); }
-.desk-card--env[data-open] { --tab-t: 0px; --env-t: 0px; }
+       transform: translateZ(var(--env-t)) scale(calc(1 / 3)); transform-origin: 0 0; }
+/* Its thickness, closed: 6 mm of card and prints (--env-t), an edge cut to
+   the folder's outline (.env__shadow's insets). The player beside it stands
+   as high. Opened, it all lies flat on the desk. */
+.desk-card--env { transform-style: preserve-3d; --env-t: calc(6.5 * var(--u)); }
+.desk-card--env[data-open] { --env-t: 0px; }
 .env__edge, .env__player { position: absolute; display: block; pointer-events: none; transition: opacity .3s ease; }
-.env__edge--front { left: 1.2%; right: 3.1%; top: 97.9%; height: var(--env-t); transform-origin: 50% 0; transform: translateZ(var(--tab-t)) rotateX(90deg);
+.env__edge--front { left: 1.2%; right: 3.1%; top: 97.9%; height: var(--env-t); transform-origin: 50% 0; transform: rotateX(90deg);
   background: linear-gradient(#a81b0e, #7c1309); }
-.env__edge--right { top: .4%; bottom: 2.1%; left: 96.9%; width: var(--env-t); transform-origin: 0 50%; transform: translateZ(var(--tab-t)) rotateY(-90deg);
+.env__edge--right { top: .4%; bottom: 2.1%; left: 96.9%; width: var(--env-t); transform-origin: 0 50%; transform: rotateY(-90deg);
   background: linear-gradient(90deg, #b01d0f, #86150a); }
-.env__edge--tab-front { left: -.33%; width: 99.6%; top: 98.56%; height: var(--tab-t); transform-origin: 50% 0; transform: rotateX(90deg);
-  background: linear-gradient(#6f84a8, #3e4d6b); }
-.env__edge--tab-right { left: 99.27%; top: -.24%; height: 98.8%; width: var(--tab-t); transform-origin: 0 50%; transform: rotateY(-90deg);
-  background: linear-gradient(90deg, #62779c, #384661); }
 /* the player's body (the pill in player.webp: 1.1–32.5% across, 16.5–67%
    down), turned with it (8° about the cut-out's centre) */
 .env__player { left: calc(151.7 * var(--eu) / 3); top: calc(89.5 * var(--eu) / 3); width: calc(14 * var(--eu) / 3); height: calc(48.2 * var(--eu) / 3);
-  transform-origin: calc(21.8 * var(--eu) / 3) calc(32 * var(--eu) / 3); transform: rotate(8deg); transform-style: preserve-3d; --pl: calc(var(--tab-t) + var(--env-t)); }
+  transform-origin: calc(21.8 * var(--eu) / 3) calc(32 * var(--eu) / 3); transform: rotate(8deg); transform-style: preserve-3d; --pl: var(--env-t); }
 .env__player > span { position: absolute; display: block; background: linear-gradient(90deg, #d4d7db, #9a9ea4); }
 .env__player-l { top: 12%; bottom: 12%; right: 100%; width: var(--pl); transform-origin: 100% 50%; transform: rotateY(90deg); }
 .env__player-r { top: 12%; bottom: 12%; left: 100%; width: var(--pl); transform-origin: 0 50%; transform: rotateY(-90deg); }
@@ -1249,13 +1243,11 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 /* the first step out (and the last one back in): straight up, quick */
 .desk-card--env[data-phase="spill"] .u15-item { transition-duration: .48s; transition-timing-function: cubic-bezier(.3, 0, .2, 1); }
 .desk-card--env[data-open] .u15-item { cursor: grab; }
-.env__stack, .env__card, .u15-book { z-index: 2; pointer-events: none;
+.env__stack, .env__card { z-index: 2; pointer-events: none;
   transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .6s; }
 .desk-card--env[data-open] :is(.env__stack, .env__card) { z-index: 10; pointer-events: auto;
   transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
-.desk-card--env[data-open] .u15-book { z-index: 11; pointer-events: auto;
-  transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
-.env__stack[data-held], .env__card[data-held], .u15-book[data-held] { transition: none; }
+.env__stack[data-held], .env__card[data-held] { transition: none; }
 .env > .u15-sleeve { z-index: 5; }
 .env > .env__back, .env > .env__shadow { z-index: 0; }
 .env__shadow { position: absolute; left: 1.2%; top: .4%; right: 3.1%; bottom: 2.1%; display: block;
@@ -1312,122 +1304,16 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   transition: opacity .45s ease 1.6s; }
 :root[data-desk]:not([data-desk="closed"]) .u15-still { opacity: 0; transition: opacity .2s ease; }
 
-/* The tablet (248.6 × 179.5 mm, 205.5 × 148.5 units), under the folder
-   (turned on its side there, see CLOSED in U15File); its screen plays the
-   scroll-through once the folder is open. */
-.u15-tablet { position: absolute; left: calc(18.5 * var(--eu)); top: calc(95 * var(--eu));
-  width: calc(205.5 * var(--eu)); height: calc(148.5 * var(--eu)); padding: 0; border: 0; background: none;
-  cursor: pointer; z-index: -1 !important; box-shadow: 0 calc(.6 * var(--eu)) calc(1.4 * var(--eu)) rgba(20,16,12,.28);
-  border-radius: calc(6 * var(--eu)); }
-/* It comes up over the folder only once it is out from under it, and goes
-   back under the moment the folder starts to close — else, sliding, it lies
-   across the pocket. */
-.u15-tablet { transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s; }
-.desk-card--env[data-phase="open"] .u15-tablet { z-index: 8 !important; transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .55s; }
-.u15-tablet[data-held] { transition: none; }
-/* Closed, the tablet (turned 91°, a little wider than the folder) showed
-   past its edges as a pale sliver; it is there only while it comes out. */
-.desk-card--env[data-phase="closed"] .u15-tablet { visibility: hidden; }
-.u15-tablet img { display: block; width: 100%; height: 100%; }
-.u15-tablet__screen { position: absolute; display: block; left: 4.08%; top: 3.32%; width: 91.3%; height: 88.6%;
-  object-fit: cover; border-radius: calc(4.6 * var(--eu)); background: #111; }
-
-/* Raised: over the whole window, the live site in the screen. */
-.u15-raised { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 14px; padding: 16px; background: rgba(12, 11, 10, .72); animation: u15-raise .35s ease both; }
-@keyframes u15-raise { from { opacity: 0; } }
-.u15-raised__tablet { position: relative; width: min(94vw, calc((100vh - 90px) * 2183 / 1565)); aspect-ratio: 2183 / 1565;
-  animation: u15-lift .45s cubic-bezier(.2, .8, .2, 1) both; }
-@keyframes u15-lift { from { transform: scale(.6) translateY(20%); opacity: 0; } }
-.u15-raised__tablet img { display: block; width: 100%; height: 100%; }
-.u15-raised__site { position: absolute; left: 4.08%; top: 3.32%; width: 91.3%; height: 88.6%;
-  border: 0; border-radius: 2.4% / 3.3%; background: #fafafa; }
-.u15-raised__bar { display: flex; gap: 12px; align-items: center;
-  font: 500 12px/1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
-.u15-raised__bar a, .u15-raised__bar button { color: #f3eee4; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25);
-  border-radius: 999px; padding: 9px 14px; text-decoration: none; cursor: pointer; font: inherit; }
-@media (prefers-reduced-motion: reduce) { .u15-raised, .u15-raised__tablet { animation: none; } }
-
-/* The booklet: two pages to a spread about the spine at its middle, set
-   like the case page — a left rail with the chapter's big red number, an
-   uppercase heading, serif text, the chapter's question as a red lead.
-   --bu is its geometry (twice the folder's units: a single page is nearly
-   the folder's size, and lies in its pocket behind the prints), --bt its
-   type (1.25×). Closed or finished only one page shows, so the pages shift half
-   a page to keep it centred. */
-.u15-book { --bu: calc(2 * var(--eu)); --bt: calc(1.25 * var(--eu));
-  position: absolute; left: calc(-69 * var(--eu)); top: calc(5 * var(--eu));
-  width: calc(144 * var(--bu)); height: calc(100 * var(--bu)); display: block; }
-.u15-book__inner { position: absolute; inset: 0; display: block; --shift: 0; perspective: calc(420 * var(--bu));
-  transform: translateX(calc(var(--shift) * var(--bu))); transition: transform .7s cubic-bezier(.45, 0, .2, 1); }
-.u15-book__inner[data-at="start"] { --shift: -36; }
-.u15-book__inner[data-at="end"] { --shift: 36; }
-.u15-leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; display: block;
-  transform-origin: 0 50%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.45, 0, .2, 1); }
-.u15-leaf[data-turned] { transform: rotateY(-180deg); }
-.u15-leaf__face { position: absolute; inset: 0; display: block; backface-visibility: hidden; }
-.u15-leaf__face--back { transform: rotateY(180deg); }
-.u15-page-wrap { position: absolute; inset: 0; display: block; }
-.u15-page { position: absolute; inset: 0; display: grid; grid-template-columns: 24% 1fr; grid-template-rows: 1fr auto;
-  column-gap: calc(3 * var(--bu)); box-sizing: border-box;
-  padding: calc(8 * var(--bu)) calc(6 * var(--bu)) calc(5 * var(--bu)); overflow: hidden;
-  background: #efe7d6; color: #29223a;
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1.2 * var(--eu)) rgba(20,16,12,.28);
-  font: 400 calc(3.4 * var(--bt)) / 1.45 var(--font-serif), Georgia, serif; }
-/* the gutter's shade, on whichever edge is the spine */
-.u15-leaf__face:not(.u15-leaf__face--back) .u15-page { background-image: linear-gradient(90deg, rgba(60,40,20,.16), transparent 10%); }
-.u15-leaf__face--back .u15-page { background-image: linear-gradient(270deg, rgba(60,40,20,.16), transparent 10%); }
-.u15-page__rail { display: flex; flex-direction: column; gap: calc(1.5 * var(--bt)); }
-.u15-page__num { font: 700 calc(11 * var(--bt)) / .9 var(--font-display), system-ui, sans-serif; color: #d8352a; letter-spacing: .02em; }
-.u15-page__kick { padding-top: calc(1.4 * var(--bt)); border-top: calc(.4 * var(--bt)) solid #d8352a;
-  font: 500 calc(1.9 * var(--bt)) / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .14em; text-transform: uppercase; color: #6d6252; }
-.u15-page__body { display: block; min-width: 0; }
-.u15-page__heading { display: block; margin: 0 0 calc(4 * var(--bt)); padding-bottom: calc(2.2 * var(--bt));
-  border-bottom: calc(.35 * var(--bt)) solid #29223a;
-  font: 700 calc(6.2 * var(--bt)) / 1.02 var(--font-display), system-ui, sans-serif; text-transform: uppercase; letter-spacing: -.005em; }
-.u15-page__p { display: block; margin-bottom: calc(1.4 * var(--bt)); text-indent: calc(3.4 * var(--bt)); hyphens: auto; }
-.u15-page__heading + .u15-page__p, .u15-page__p[data-cont] { text-indent: 0; }
-/* the case page's annotation layer: Saffron highlighter, and Kate's hand in
-   the rail — red ink, the last lines in dark */
-.u15-mark { background: linear-gradient(180deg, transparent 8%, color-mix(in srgb, var(--brand, #f4b942) 88%, transparent) 8%,
-  color-mix(in srgb, var(--brand, #f4b942) 88%, transparent) 92%, transparent 92%);
-  color: inherit; padding: 0 .12em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
-.u15-hand { display: block; margin-top: calc(6 * var(--bt)); width: 106%;
-  font: 400 calc(6 * var(--bt)) / 1.02 var(--font-chalk), cursive; letter-spacing: -.03em; color: #d8352a;
-  transform: rotate(-3deg); transform-origin: 0 0; }
-.u15-hand > span::after { content: " "; }
-.u15-hand [data-ink] { color: #29223a; }
-/* the chapter's question, as the case page's red lead */
-.u15-page__pull { text-indent: 0; margin: calc(2.4 * var(--bt)) 0; color: #d8352a;
-  font: 700 calc(5.2 * var(--bt)) / 1.12 var(--font-display), system-ui, sans-serif; letter-spacing: -.01em; }
-.u15-page__no { grid-column: 1 / -1; justify-self: end;
-  font: 500 calc(2 * var(--bt)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; color: #8b8577; }
-.u15-leaf__face--back .u15-page__no { justify-self: start; }
-/* a photo pinned to the page with a paper clip, standing out over its top */
-.u15-clip { position: absolute; right: 10%; top: -21%; width: 22%; display: block; box-sizing: border-box;
-  padding: calc(1.4 * var(--bu)); background: #f4f0e6; transform: rotate(var(--t));
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3); }
-.u15-clip[data-n="1"] { right: auto; left: 38%; top: -20%; }
-.u15-clip img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
-.u15-clip__wire { position: absolute; left: 18%; top: calc(-4 * var(--bu)); width: calc(4.4 * var(--bu)); height: calc(12.5 * var(--bu));
-  color: #9aa0a6; }
-/* covers: the site's red */
-.u15-page--cover, .u15-page--back { display: flex; flex-direction: column; background: #c21f10; color: #f7f2e6; }
-.u15-page--cover { padding: calc(8 * var(--bu)); }
-.u15-page--cover::after { /* two staples on the spine */
-  content: ""; position: absolute; left: calc(1.4 * var(--bu)); top: 24%; width: calc(1 * var(--bu)); height: 52%;
-  background: linear-gradient(#bfc3c7 0 12%, transparent 12% 88%, #bfc3c7 88%); }
-.u15-cover__title { font: 800 calc(12 * var(--bt)) / .95 var(--font-display), system-ui, sans-serif; font-stretch: 75%;
-  text-transform: uppercase; letter-spacing: -.01em; }
-.u15-cover__lede { margin-top: calc(4 * var(--bt)); font: 400 calc(4.2 * var(--bt)) / 1.35 var(--font-serif), Georgia, serif; font-style: italic; }
-.u15-cover__big { margin-top: auto; font: 900 calc(48 * var(--bt)) / .8 var(--font-display), system-ui, sans-serif;
-  font-stretch: 62%; letter-spacing: -.04em; color: #6e0d06; }
-.u15-cover__place { margin-top: calc(4 * var(--bt)); font: 500 calc(2.3 * var(--bt)) / 1.5 var(--font-mono, ui-monospace), ui-monospace, monospace;
-  letter-spacing: .1em; text-transform: uppercase; }
-.u15-page--back { justify-content: flex-end; padding: calc(8 * var(--bu)); }
+/* Opened, a paper tag out of the pocket: the case's own page. */
+.u15-tag { position: absolute; left: calc(52 * var(--eu)); top: calc(96 * var(--eu)); z-index: 9; display: block; white-space: nowrap;
+  padding: calc(2.7 * var(--eu)) calc(5.4 * var(--eu)); background: #c21f10; color: #f7f2e6; text-decoration: none;
+  font: 600 calc(4.2 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase;
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  transform: translate(calc(var(--ox) * var(--eu)), calc(var(--oy) * var(--eu))) rotate(var(--rot));
+  opacity: 0; pointer-events: none; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease; }
+.desk-card--env[data-phase="open"] .u15-tag { opacity: 1; pointer-events: auto; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease .5s; }
 @media (prefers-reduced-motion: reduce) {
-  .u15-leaf, .u15-print, .u15-item, .u15-book__inner { transition-duration: 0s !important; }
+  .u15-print, .u15-item { transition-duration: 0s !important; }
 }
 
 /* ── Focus: a case the camera has come to ──

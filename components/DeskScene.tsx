@@ -340,7 +340,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);
     };
 
-    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player, .u15-tablet");
+    const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player");
 
     // ── The pan: the camera slides along the desk (desk px, 0 … max) ──
     // Wheel (either axis), a drag of the desk, arrow keys, and focus all

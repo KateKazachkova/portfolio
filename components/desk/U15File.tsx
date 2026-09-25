@@ -1,8 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { booklet, type BookletChapter, type BookletClip, type BookletNote } from "@/content/work/ukrainska-15-booklet";
 
 /**
  * Ukrainska 15's file on the desk: a red card pocket folder in the live
@@ -13,9 +12,10 @@ import { booklet, type BookletChapter, type BookletClip, type BookletNote } from
  * lies: the folder slides down out of the way, the other files slide off to
  * the right, the two stacks of prints rise up out of the pocket (and can
  * then be dragged anywhere on the desk), the library card of its awards
- * goes to the left, the booklet about the site to the middle, the player to
- * the right. A click on the folder again, or leaving the desk, puts it all
- * back.
+ * goes to the left, the player to the right, and a tag out of the pocket
+ * leads to the case's own page (where the story and the live site are now,
+ * rather than a booklet and a tablet on the desk). A click on the folder
+ * again, or leaving the desk, puts it all back.
  *
  * Everything is laid out in the folder's own units (150 × 208, each K desk
  * px; see .env in globals.css for why it is drawn 3× up), and the open
@@ -27,8 +27,8 @@ export const U15_RESET = "kate:u15-reset";    // ← DeskScene, leaving the desk
 export const U15_CLOSE = "kate:u15-close";    // ← DeskScene: Escape, or another case in focus
 export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 
-// The folder is drawn 1.3× a real A4 pocket so that, opened, the card, the
-// booklet and the prints read at the camera's height without zooming. Inside
+// The folder is drawn 1.3× a real A4 pocket so that, opened, the card and
+// the prints read at the camera's height without zooming. Inside
 // it everything is in folder units (150 × 208); a unit is K desk px.
 const FOLDER = { w: 150, h: 208 };
 const K = 1.3;
@@ -72,30 +72,21 @@ type Pt = { x: number; y: number };
 // Where each thing goes once the folder is open, as an offset from where it
 // lies closed (folder units) and the angle it lands at. The layout is for the
 // camera at pan 0, clear of the nav column on the left (it stays on the desk
-// too): the card left, the booklet to the middle, the stacks up,
-// the player right, the tablet slid out from under it to the bottom right,
-// the folder down.
-// The booklet (nearly the folder's own size, so it lies in the pocket behind
-// the prints) takes the middle of the desk; everything else is laid round
-// its edges, in sight but out of the way, and can be pulled out from under it.
+// too): the card left, the stacks up, the player right, the tag to the
+// case's page between them, the folder down.
 const OPEN: Record<string, Pt & { r: number }> = {
   sleeve: { x: -20, y: 190, r: -2 },
   family: { x: 22.5, y: -63, r: 4 },
   after: { x: 169.5, y: -74.6, r: -3 },
   card: { x: 10, y: 31, r: -4 },
-  book: { x: 85.5, y: -12.5, r: 1 },
   player: { x: 129, y: 20, r: 12 },
-  tablet: { x: 160, y: 95, r: -4 },
+  tag: { x: 132, y: 24, r: -3 },
 };
 // On the way out everything first slides straight up out of the pocket,
 // together, and only then spreads; on the way back it gathers there first.
-const SPILL: Record<string, Pt> = { family: { x: 0, y: -62 }, after: { x: 0, y: -72 }, card: { x: 0, y: -78 }, book: { x: 0, y: -70 } };
+const SPILL: Record<string, Pt> = { family: { x: 0, y: -62 }, after: { x: 0, y: -72 }, card: { x: 0, y: -78 }, tag: { x: 0, y: -70 } };
 const SPILL_MS = 480, GATHER_MS = 820;
-const CLOSED_R: Record<string, number> = { card: -1.5, player: 8, tablet: 91 };
-// Closed, the tablet lies right under the folder, turned on its side so the
-// folder hides it (it is wider than the folder); opened, it slides out to the
-// right and turns back to landscape on the way. Offset from its rule's place.
-const CLOSED: Record<string, Pt> = { tablet: { x: -47.5, y: -67 } };
+const CLOSED_R: Record<string, number> = { card: -1.5, player: 8 };
 
 export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const card = useRef<HTMLDivElement>(null);
@@ -105,8 +96,6 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const [drag, setDrag] = useState<Record<string, Pt>>({});
   const [top, setTop] = useState<Record<string, number>>({});
   const [held, setHeld] = useState<string | null>(null);
-  const [page, setPage] = useState(0);                      // booklet leaves turned
-  const [screen, setScreen] = useState(false);              // the tablet, raised
   const z = useRef(20);
   // The prints in the pocket (about a megabyte) are not fetched with home:
   // they load once home has, when the browser is idle — or at once if Case
@@ -140,9 +129,9 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     clearTimeout(timer.current); setPhase(to);
     timer.current = setTimeout(() => setPhase(then), ms);
   };
-  const putAway = () => { setDrag({}); setTop({}); setPage(0); setScreen(false); go("spill", "closed", GATHER_MS); };
+  const putAway = () => { setDrag({}); setTop({}); go("spill", "closed", GATHER_MS); };
   useEffect(() => {
-    const reset = () => { clearTimeout(timer.current); setDrag({}); setTop({}); setPage(0); setScreen(false); setPhase("closed"); };
+    const reset = () => { clearTimeout(timer.current); setDrag({}); setTop({}); setPhase("closed"); };
     const close = () => document.querySelector<HTMLElement>(".desk-card--env[data-phase=open] .u15-hit")?.click();
     addEventListener(U15_RESET, reset);
     addEventListener(U15_CLOSE, close);
@@ -152,8 +141,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 
   // Anything on the open desk follows the pointer: screen px back to folder
   // units, turned into the folder's own axes (it lies at r°). A press that
-  // does not travel is a click, and does the thing's own job instead — turn
-  // a page, play the song, raise the tablet, put the folder away. Closed,
+  // does not travel is a click, and does the thing's own job instead — play
+  // the song, put the folder away. Closed,
   // nothing moves; only the clicks work.
   const grab = (id: string, click?: (e: PointerEvent) => void) => (e: React.PointerEvent<HTMLElement>) => {
     if (e.button !== 0) return;
@@ -166,7 +155,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     const from = drag[id] ?? { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;
     let moved = false, now = from;
     // while it is carried the element is moved directly (no re-render per
-    // pointer move — the booklet alone is dozens of pages); the state
+    // pointer move); the state
     // catches up once, when it is put down
     const els = [...card.current!.querySelectorAll<HTMLElement>(`[data-item="${id}"]`)];
     const print = el.classList.contains("u15-print");
@@ -195,9 +184,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const place = (id: string, zBase: number) => {
     const o = phase === "open" ? OPEN[id] : undefined, d = drag[id];
     const sp = phase === "spill" ? SPILL[id] : undefined;
-    const c = phase === "open" ? undefined : CLOSED[id];
     return {
-      "--ox": (o?.x ?? sp?.x ?? c?.x ?? 0) + (d?.x ?? 0), "--oy": (o?.y ?? sp?.y ?? c?.y ?? 0) + (d?.y ?? 0),
+      "--ox": (o?.x ?? sp?.x ?? 0) + (d?.x ?? 0), "--oy": (o?.y ?? sp?.y ?? 0) + (d?.y ?? 0),
       "--rot": `${o ? o.r : CLOSED_R[id] ?? 0}deg`,
       zIndex: open ? top[id] ?? zBase : undefined,
     } as React.CSSProperties;
@@ -219,24 +207,18 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
         "--w": FOLDER.w * K, "--h": FOLDER.h * K, "--r": `${r}deg`, "--k": K,
       } as React.CSSProperties}
     >
-      {/* the thickness of what lies here closed — the tablet under the
-          folder, the folder and its prints, the player — as edges standing
-          up off the desk (edge-on from overhead; gone once it opens) */}
-      <span className="env__edge env__edge--tab-front" aria-hidden />
-      <span className="env__edge env__edge--tab-right" aria-hidden />
+      {/* the thickness of what lies here closed — the folder and its
+          prints, the player — as edges standing up off the desk (edge-on
+          from overhead; gone once it opens) */}
       <span className="env__edge env__edge--front" aria-hidden />
       <span className="env__edge env__edge--right" aria-hidden />
       <span className="env__player" aria-hidden><span className="env__player-l" /><span className="env__player-r" /><span className="env__player-b" /></span>
       <span className="env">
-        <Tablet live={open} place={place("tablet", 8)} held={held === "tablet"} onPointerDown={(e) => grab("tablet", () => setScreen(true))(e)} onOpen={() => setScreen(true)} />
-
         <span className="env__shadow u15-sleeve u15-item" style={sleeve} aria-hidden />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="env__layer env__back u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src={near ? "/artefacts/ukrainska-15/envelope/back.webp?v=4" : "/artefacts/ukrainska-15/envelope/back.sm.webp"} alt="" draggable={false} />
 
-        {/* the booklet, behind the prints in the pocket */}
-        <Booklet live={open} at={page} held={held === "book"} place={place("book", 11)}
-          onGrab={(e, turn) => grab("book", turn)(e)} onTurn={setPage} />
+        <Link className="u15-tag" href="/work/ukrainska-15" style={place("tag", 9)} tabIndex={open ? 0 : -1} aria-hidden={!open}>Read the case →</Link>
 
         {STACKS.map((st) => (
           <span key={st.key} className={`env__stack env__stack--${st.key} u15-item`} data-item={st.key} style={place(st.key, 10)}>
@@ -308,150 +290,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 
         <DeskPlayer place={place("player", 12)} held={held === "player"} onGrab={(e, play) => grab("player", play)(e)} />
       </span>
-      {screen && <TabletScreen onClose={() => setScreen(false)} />}
     </div>
-  );
-}
-
-// The booklet's pages: each chapter's paragraphs poured into pages of about
-// LINES lines of CHARS characters (the page's measure at its type size),
-// a chapter's first page shorter by its heading; a paragraph that will not fit is
-// broken at a sentence and carried over. Deliberately a little short of
-// full, so nothing is ever cut off.
-type Para = { t: string; pull?: boolean };
-type Page = { head?: { label: string; kicker?: string; heading: string }; paras: Para[]; cont?: boolean; clips: BookletClip[]; notes: BookletNote[] };
-const CHARS = 44, LINES = 29;
-// the heading (≈19 capitals to a line, each 1.3 text lines) and the rule under it
-const headLines = (h: string) => 1.8 + Math.ceil(h.length / 19) * 1.3;
-const linesOf = (t: string) => Math.ceil(t.length / CHARS) + 0.5;
-function paginate(chapters: BookletChapter[]): Page[] {
-  const out: Page[] = [];
-  for (const ch of chapters) {
-    let page: Page = { head: { label: ch.label, kicker: ch.kicker, heading: ch.heading }, paras: [], clips: [], notes: [] };
-    let room = LINES - headLines(ch.heading);
-    const turn = (cont: boolean) => { out.push(page); page = { paras: [], cont, clips: [], notes: [] }; room = LINES; };
-    ch.paragraphs.forEach((para, i) => {
-      if (room < 2) turn(false);
-      const clip = ch.clips?.[i];
-      if (clip) page.clips.push(clip);
-      const note = ch.notes?.[i];
-      if (note) page.notes.push(note);
-      const pull = ch.pull === i;
-      const cost = (t: string) => linesOf(t) * (pull ? 1.4 : 1);
-      let rest = para;
-      while (rest) {
-        if (cost(rest) <= room) { page.paras.push({ t: rest, pull }); room -= cost(rest); rest = ""; break; }
-        // as many whole sentences as fit
-        const sentences = rest.match(/[^.!?]+[.!?]+[”’"]?\s*|.+$/g) ?? [rest];
-        let fit = "";
-        for (const sn of sentences) { if (cost(fit + sn) <= room) fit += sn; else break; }
-        if (!fit && page.paras.length === 0) { page.paras.push({ t: rest, pull }); room = 0; rest = ""; break; }  // one huge sentence
-        if (!fit) { turn(false); continue; }
-        page.paras.push({ t: fit.trim(), pull }); rest = rest.slice(fit.length).trim();
-        turn(true);
-      }
-    });
-    out.push(page);
-  }
-  return out;
-}
-
-/**
- * The mini booklet: a stapled A6 book that turns its pages. Leaves hinge on
- * the spine and turn in 3D (the camera looks straight down, so the booklet's
- * own perspective reads true); a click on the right half turns forward, on
- * the left half back. Closed or finished, the book shifts half a page so
- * the single cover sits in the middle.
- */
-const PAGES = paginate(booklet.chapters);
-// ==phrase== → the highlighter
-const marked = (t: string) => t.split(/==(.+?)==/).map((x, i) => (i % 2 ? <mark key={i} className="u15-mark">{x}</mark> : x));
-
-function Booklet({ live, at, held, place, onGrab, onTurn }: {
-  live: boolean; at: number; held: boolean; place: React.CSSProperties;
-  onGrab: (e: React.PointerEvent<HTMLElement>, turn: (e: PointerEvent) => void) => void;
-  onTurn: (n: number) => void;
-}) {
-  const faces: React.ReactNode[] = [
-    <span key="cover" className="u15-page u15-page--cover">
-      <span className="u15-cover__title">{booklet.title}</span>
-      <span className="u15-cover__lede">{booklet.lede}</span>
-      <span className="u15-cover__big">15</span>
-      <span className="u15-cover__place">{booklet.tags}<br />{booklet.years}</span>
-    </span>,
-    ...PAGES.map((pg, i) => (
-      <span key={i} className="u15-page-wrap">
-        <span className="u15-page">
-          <span className="u15-page__rail">
-            {pg.head && <>
-              <span className="u15-page__num">{pg.head.label}</span>
-              {pg.head.kicker && <span className="u15-page__kick">{pg.head.kicker}</span>}
-            </>}
-            {pg.notes.map((n) => (
-              <span key={n.lines[0]} className="u15-hand">
-                {n.lines.map((l, k) => <span key={k} data-ink={(n.inkFrom !== undefined && k >= n.inkFrom) || undefined}>{l}</span>)}
-              </span>
-            ))}
-          </span>
-          <span className="u15-page__body">
-            {pg.head && <span className="u15-page__heading">{pg.head.heading}</span>}
-            {pg.paras.map((p, j) => (
-              <span key={j} className={p.pull ? "u15-page__p u15-page__pull" : "u15-page__p"} data-cont={(j === 0 && pg.cont) || undefined}>{marked(p.t)}</span>
-            ))}
-          </span>
-          <span className="u15-page__no">{i + 1}</span>
-        </span>
-        {pg.clips.map((c, k) => (
-          <span key={c.src} className="u15-clip" data-n={k} style={{ "--t": `${c.tilt}deg` } as React.CSSProperties}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={c.src} alt={c.alt} draggable={false} />
-            <svg className="u15-clip__wire" viewBox="0 0 12 34" aria-hidden>
-              <path d="M4 30V7a3 3 0 0 1 6 0v21a5 5 0 0 1-10 0V9" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-            </svg>
-          </span>
-        ))}
-      </span>
-    )),
-  ];
-  if (faces.length % 2 === 0) faces.push(<span key="blank" className="u15-page u15-page--blank" />);
-  faces.push(
-    <span key="back" className="u15-page u15-page--back">
-      <span className="u15-cover__place">{booklet.url}</span>
-    </span>,
-  );
-  const leaves = Math.ceil(faces.length / 2);
-  const inner = useRef<HTMLSpanElement>(null);
-  // forward on the right half of what shows, back on the left
-  const turn = (e: PointerEvent) => {
-    if (!live || !inner.current) return;
-    const b = inner.current.getBoundingClientRect();
-    const fwd = e.clientX > b.left + b.width / 2;
-    onTurn(Math.max(0, Math.min(leaves, at + (fwd ? 1 : -1))));
-  };
-  return (
-    <span
-      className="u15-book u15-item"
-      data-item="book"
-      data-held={held || undefined}
-      style={place}
-      role={live ? "button" : undefined}
-      aria-label={live ? `Booklet: ${booklet.title}, spread ${at} of ${leaves}` : undefined}
-      onPointerDown={(e) => onGrab(e, turn)}
-    >
-     <span ref={inner} className="u15-book__inner" data-at={at === 0 ? "start" : at === leaves ? "end" : undefined}>
-      {Array.from({ length: leaves }, (_, i) => (
-        <span
-          key={i}
-          className="u15-leaf"
-          data-turned={i < at || undefined}
-          style={{ zIndex: i < at ? i + 1 : leaves - i } as React.CSSProperties}
-        >
-          <span className="u15-leaf__face">{faces[2 * i]}</span>
-          <span className="u15-leaf__face u15-leaf__face--back">{faces[2 * i + 1]}</span>
-        </span>
-      ))}
-     </span>
-    </span>
   );
 }
 
@@ -506,83 +345,5 @@ function DeskPlayer({ place, held, onGrab }: {
         onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
       />
     </button>
-  );
-}
-
-// The live site, on Kate's own blue 10th-generation tablet (landscape,
-// 248.6 × 179.5 mm). On the desk its screen plays a scroll through the
-// story (public/artefacts/ukrainska-15/tablet/site-scroll.mp4, recorded off
-// the live site); a click raises it to the camera with the real site inside.
-// The screen is 4.08% / 3.32% in, 91.3 × 88.6% of the cut-out (2360 × 1640).
-const SITE = "https://ukrainska15.com/";
-
-function Tablet({ live, place, held, onPointerDown, onOpen }: {
-  live: boolean;
-  place: React.CSSProperties; held: boolean;
-  onPointerDown: (e: React.PointerEvent<HTMLElement>) => void; onOpen: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className="u15-tablet u15-item"
-      data-item="tablet"
-      data-held={held || undefined}
-      style={place}
-      tabIndex={-1}
-      aria-label="Open the live site, ukrainska15.com"
-      aria-haspopup="dialog"
-      onPointerDown={onPointerDown}
-      onClick={(e) => { if (e.detail === 0) onOpen(); }}   // keyboard
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/artefacts/ukrainska-15/tablet/tablet.webp" alt="" draggable={false} />
-      {/* Switched off until the folder is open: a dark screen, and the
-          recording only loads once there is a case on the desk to show. The
-          video goes when the folder closes — dropping its src alone would
-          leave the last frame lit. */}
-      {live ? (
-        <video className="u15-tablet__screen" src="/artefacts/ukrainska-15/tablet/site-scroll.mp4"
-          poster="/artefacts/ukrainska-15/tablet/site-poster.jpg" muted loop playsInline autoPlay preload="metadata" />
-      ) : <span className="u15-tablet__screen" aria-hidden />}
-    </button>
-  );
-}
-
-// Raised: the tablet over the whole window, the real site running in its
-// screen. Escape, the backdrop or ✕ put it back; the site can also be
-// opened in its own tab. (ukrainska15.com has to allow this page as a frame
-// ancestor in its _headers for the frame to load.)
-function TabletScreen({ onClose }: { onClose: () => void }) {
-  const box = useRef<HTMLDivElement>(null);
-  const close = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    // a modal dialog: focus goes in on opening, Tab stays inside, and it
-    // goes back to what opened it (the tablet on the desk) on closing
-    const opener = document.activeElement as HTMLElement | null;
-    close.current?.focus();
-    const key = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { e.stopImmediatePropagation(); onClose(); return; }
-      if (e.key !== "Tab" || !box.current) return;
-      const stops = [...box.current.querySelectorAll<HTMLElement>("iframe, a[href], button")];
-      const first = stops[0], last = stops[stops.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    };
-    addEventListener("keydown", key, true);
-    return () => { removeEventListener("keydown", key, true); opener?.focus?.(); };
-  }, [onClose]);
-  return createPortal(
-    <div className="u15-raised" ref={box} role="dialog" aria-modal="true" aria-label="ukrainska15.com" onClick={onClose}>
-      <div className="u15-raised__tablet" onClick={(e) => e.stopPropagation()}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/artefacts/ukrainska-15/tablet/tablet.webp" alt="" draggable={false} />
-        <iframe className="u15-raised__site" src={SITE} title="Ukrainska 15 — Voice from the Basement" allow="autoplay" />
-      </div>
-      <div className="u15-raised__bar" onClick={(e) => e.stopPropagation()}>
-        <a href={SITE} target="_blank" rel="noopener">Open ukrainska15.com ↗</a>
-        <button type="button" ref={close} onClick={onClose} aria-label="Put the tablet down">✕</button>
-      </div>
-    </div>,
-    document.body,
   );
 }

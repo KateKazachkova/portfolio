@@ -1639,18 +1639,19 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 
 /* ── The camera move ──
    The camera ends 0.8 m above the desk (eye y 656 - 860 = -204), right over
-   the row of case files (desk y 560, z 291), looking straight down — 90°,
+   the row of case files (desk y 667.5, z 398.5), looking straight down — 90°,
    so the desk is parallel to the screen and is rasterised like a flat
    picture at the right scale (at 84° it went soft). A desk px is then
    2.5 screen px (× --u), so
    the row runs off the right of the window and the camera pans along it:
    --pan, in desk px, set by useDeskCamera once it has arrived. Moving the
    camera by d is moving the world by -d, then rotating about the original
-   camera point: translate (-pan, 226 + 204, 2150 - 291). */
+   camera point: translate (-pan, 226 + 204, 2150 - 398.5) — over the row
+   since it came one tile (107.5) nearer. */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1859 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 

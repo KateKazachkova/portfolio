@@ -160,7 +160,8 @@ const TARDIS_SPOTS: { left: number; top: number; width: number; home?: boolean; 
   { left: 84.18, top: 58.0, width: 5.1, z: 5 },
   { left: 56.88, top: 1.0, width: 4.4, behind: true },
   // The foot of the left door, tucked into the corner left of the guitar
-  { left: 10.4, top: 77.8, width: 5.1 },
+  // a touch smaller: the corner is narrower than the box, and it must clear the body
+  { left: 10.25, top: 78.56, width: 4.8 },
 ];
 
 /** The model police box. Pointing at it lights a blue glow and the box pulses
@@ -997,7 +998,7 @@ export default function Home() {
           src="/items/left-3-guitar.webp"
           alt="A blue classical guitar leaning in the bottom of the left door"
           style={{
-            position: "absolute", left: "12.272%", top: "45.215%", width: "10.905%", height: "auto", maxWidth: "none",
+            position: "absolute", left: "13.4%", top: "45.215%", width: "10.905%", height: "auto", maxWidth: "none",
             zIndex: 2, pointerEvents: "none",
             opacity: shown === "evening_guitar" ? 0 : 1, transition: "opacity 320ms linear",
           }}

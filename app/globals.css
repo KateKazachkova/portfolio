@@ -926,6 +926,15 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    a second 3225 px plane over the first, hiding the trophy's cast). */
 .desk-wall--hung { background: none; }
 
+/* EXPERIMENT (?t=img, useImgTiles in DeskScene.tsx): the piece is a flat
+   holder and its <img> is the layer, a plain picture Chrome can composite as
+   a texture instead of rasterising the piece at the camera's scale. */
+.desk-top.desk-skins > .desk-skin--img { background: none; transform: none; transform-style: preserve-3d; }
+.desk-skin--img > img {
+  position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; display: block;
+  transform: translateZ(0); backface-visibility: hidden;
+}
+
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */

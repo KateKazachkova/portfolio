@@ -176,20 +176,37 @@ function useStops() {
  *  all, where the whole plane in one piece was drawn whole at every step.
  *  It lies just before the plane it pictures, so what is on the plane
  *  (shadows, the case files) is drawn over it. */
-function Skin({ cols, rows = 1 }: { cols: number; rows?: number }) {
+function Skin({ cols, rows = 1, tiles }: { cols: number; rows?: number; tiles?: string }) {
   return (
     <>
       {Array.from({ length: cols * rows }, (_, k) => (
-        <span key={k} className="desk-skin" aria-hidden style={{
+        <span key={k} className={tiles ? "desk-skin desk-skin--img" : "desk-skin"} aria-hidden style={{
           "--i": k % cols, "--j": Math.floor(k / cols), "--cols": cols, "--rows": rows,
-        } as React.CSSProperties} />
+        } as React.CSSProperties}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {tiles && <img src={`${tiles}-${Math.floor(k / cols)}-${k % cols}.jpg`} alt="" draggable={false} />}
+        </span>
       ))}
     </>
   );
 }
 
+// EXPERIMENT (25.09, ?t=img): the desk's pieces as plain pictures with the
+// grid baked in at 2× (public/scene/desk3d/tiles), each <img> a layer of its
+// own, so Chrome can hand them to the GPU as textures and scale them, not
+// draw them again at every step of the camera. Off unless asked for.
+function useImgTiles() {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading the address, once
+    setOn((new URLSearchParams(location.search).get("t") ?? "").split(",").includes("img"));
+  }, []);
+  return on;
+}
+
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
+  const imgTiles = useImgTiles();
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall desk-split" aria-hidden>
@@ -227,7 +244,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top desk-extl" aria-hidden />
       <div className="desk-plane desk-ply desk-extl" aria-hidden />
-      <div className="desk-plane desk-top desk-skins" aria-hidden><Skin cols={5} rows={2} /></div>
+      <div className="desk-plane desk-top desk-skins" aria-hidden><Skin cols={5} rows={2} tiles={imgTiles ? "/scene/desk3d/tiles/desk" : undefined} /></div>
       <div className="desk-plane desk-top desk-split">
         <div className="desk-shadow" aria-hidden />
         {/* the trophy's contact shadow, on the desk under its base (desk-top

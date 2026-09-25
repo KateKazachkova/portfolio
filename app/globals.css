@@ -1536,6 +1536,18 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk-arrived] .desk-world, [data-desk-arrived] .case-world { transition: none; }
 [data-desk="open"][data-desk-arrived] .desk-world { cursor: grab; }
 [data-desk="open"][data-desk-arrived] .desk-world:active { cursor: grabbing; }
+/* The camera mask (CamMask, components/DeskScene.tsx): over the scene, under
+   the index column and the desk's hint. A flat colour, opacity only, on a
+   layer of its own from the start so fading it creates nothing mid-flight.
+   Tune the look here; the stretch it covers per leg is MASK in DeskScene. */
+:root { --mask-opacity: .75; --mask-fade: 150ms; --mask-colour: #0d0b0a; }
+.cam-mask {
+  position: fixed; inset: 0; z-index: 15; pointer-events: none;
+  background: var(--mask-colour); opacity: 0; will-change: opacity;
+  transition: opacity var(--mask-fade) linear;
+}
+:root[data-cam-mask] .cam-mask { opacity: var(--mask-opacity); }
+@media (min-width: 1024px) { .hero-aside-wrap { z-index: 16; } }
 .desk-hint {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20;
   display: flex; gap: 18px; align-items: center; pointer-events: none;

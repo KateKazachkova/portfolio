@@ -12,7 +12,7 @@ import IntroOpen from "@/components/IntroOpen";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
 import { mono } from "@/components/ui/type";
-import { DeskPlanes, DeskHint, useDeskCamera } from "@/components/DeskScene";
+import { DeskPlanes, DeskHint, CamMask, useDeskCamera } from "@/components/DeskScene";
 import U15Still from "@/components/desk/U15Still";
 import Tardis from "./Tardis";
 import AwardCubby from "./AwardCubby";
@@ -259,6 +259,8 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
         </p>
       </div>
 
+      {/* Over the scene while the camera flies the heaviest stretch of a move */}
+      <CamMask />
       {/* Over the desk only: how to move along it, which file is in front. */}
       <DeskHint />
     </main>

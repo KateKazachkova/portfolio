@@ -120,6 +120,18 @@ const STATE: Record<View, string> = { files: "open", award: "award", profile: "p
 // dropping pieces. Profile's is the wall right in front of it, Recognition;
 // Case Files' is home's view of the case (null).
 const HUB: Partial<Record<View, View | null>> = { profile: "award", files: null };
+/** Where in each leg of a move Chrome drops tiles (measured: DPR 2, headless
+ *  Chrome's trace, TileBasedLayerImpl::AppendQuads checkerboard), as the
+ *  start and end of the leg's own motion, 0–1, a little margin either side.
+ *  The camera mask (.cam-mask, globals.css) dims the scene over that stretch
+ *  and the camera moves on under it. A leg not measured yet takes MASK_ANY. */
+const MASK: Record<string, [number, number]> = {
+  "profile>award": [0.2, 0.8],
+  "award>offduty": [0.15, 0.72],
+  "offduty>award": [0.2, 0.9],
+  "award>profile": [0.65, 0.9],
+};
+const MASK_ANY: [number, number] = [0.2, 0.85];
 /** each leg of a move that goes by a hub: --cam-t under [data-desk-route] plus --cam-wait (globals.css) */
 const LEG_MS = 1300 + 200;
 const viewOf = (hash: string) =>
@@ -286,6 +298,13 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
 /** The flat caption over the desk while it is in view: how to move along
  *  it, and which of the files is in front of you. Outside the 3D world
  *  (and outside .scene-cam, whose transform would capture position: fixed). */
+/** The camera mask: a flat dark sheet over the scene that html[data-cam-mask]
+ *  fades up while the camera flies through the stretch of a move where
+ *  Chrome drops tiles (MASK above). One plain layer, opacity only. */
+export function CamMask() {
+  return <div className="cam-mask" aria-hidden />;
+}
+
 export function DeskHint() {
   return (
     <div className="desk-hint" aria-hidden>
@@ -446,8 +465,25 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       delete root.dataset.deskRoute;
       go1(v);
     };
+    // The camera mask over the leg about to start: read the leg's timing off
+    // the CSS (--cam-t, --cam-wait, --mask-fade) so it follows any retune.
+    let maskTimers: number[] = [];
+    const maskLeg = (from: View | null, to: View | null) => {
+      maskTimers.forEach(clearTimeout); maskTimers = [];
+      delete root.dataset.camMask;
+      if (still) return;
+      const [a, b] = MASK[`${from ?? "home"}>${to ?? "home"}`] ?? MASK_ANY;
+      const cs = getComputedStyle(root);
+      const ms = (name: string) => { const v = cs.getPropertyValue(name).trim(); return v.endsWith("ms") ? parseFloat(v) : parseFloat(v) * 1000; };
+      const t = ms("--cam-t"), wait = ms("--cam-wait"), fade = ms("--mask-fade") || 0;
+      maskTimers.push(
+        window.setTimeout(() => { root.dataset.camMask = ""; }, Math.max(0, wait + a * t - fade)),
+        window.setTimeout(() => { delete root.dataset.camMask; }, wait + b * t),
+      );
+    };
     const go1 = (v: View | null) => {
       if (v === open.current) return;
+      maskLeg(open.current, v);
       if (v && !open.current) window.scrollTo({ top: 0 });
       if (v) measure();
       open.current = v;
@@ -559,6 +595,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       world?.removeEventListener("transitionend", onArrive);
       cancelAnimationFrame(raf);
       clearTimeout(legTimer);
+      maskTimers.forEach(clearTimeout);
+      delete root.dataset.camMask;
       delete root.dataset.deskRoute;
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;

@@ -6,7 +6,15 @@ export type WatchItem = {
   why: string;
   poster: string | null;
   year: number | null;
+  /** A YouTube video id, from a `Clip:` line (any youtube.com / youtu.be link). */
+  clip?: string | null;
 };
+
+// The id out of a YouTube link: watch?v=…, youtu.be/…, /embed/… or /shorts/….
+function youtubeId(url: string): string | null {
+  const m = url.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
 
 function parseList(filename: string): WatchItem[] {
   const filePath = path.join(process.cwd(), "content/about/films-and-series", filename);
@@ -46,6 +54,8 @@ function parseList(filename: string): WatchItem[] {
     } else if (current && /^poster:/i.test(trimmed)) {
       const p = trimmed.replace(/^poster:/i, "").trim();
       current.poster = p ? "/" + p.replace(/^\/?posters\//, "posters/") : null;
+    } else if (current && /^clip:/i.test(trimmed)) {
+      current.clip = youtubeId(trimmed.replace(/^clip:/i, "").trim());
     } else if (current && /^year:/i.test(trimmed)) {
       const y = parseInt(trimmed.replace(/^year:/i, "").trim(), 10);
       current.year = Number.isFinite(y) ? y : null;

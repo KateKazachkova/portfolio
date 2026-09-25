@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 
 export const OFFDUTY_EVENT = "kate:off-duty";
 
-// Off Duty, on home's desk: the bike computer lying in front of the flip
-// clock and a little left of it, left of the case, its screen showing Strava live (app/api/strava). A worn head unit
+// Off Duty, on home's desk: the bike computer lying in front of the CD
+// wallet and the player in the room's far left corner, its screen showing
+// Strava live (app/api/strava). A worn head unit
 // with a saffron bumper, cut out of a Higgsfield shot and mirrored so its
 // own shadow side matches the desk's light (above, front, left). Real ones
 // are ~5 × 8 cm; this one is a touch bigger (8 × 11.5 cm) so the figures
 // read from the camera's stop. Its shadow is baked into the cut-out, which
 // is why the picture is wider than the unit (the unit is 78% of it across).
 // x, y are its centre on the desk plane; w is the picture's width.
-export const BIKE = { x: 852, y: 689, w: 110, r: -8 };
+export const BIKE = { x: 292, y: 529, w: 110, r: -8 };
 const H = Math.round(BIKE.w * 1590 / 1200);
 
 type Ride = { id: number; name: string; distanceKm: number; movingMin: number; date: string; path: string | null };
@@ -25,7 +26,7 @@ const day = (iso: string) =>
   iso ? new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase() : "";
 
 /** The head unit. From elsewhere in the room a click turns the camera to
- *  the clock's corner (Off Duty in the index does the same); a click there
+ *  the Off Duty corner (Off Duty in the index does the same); a click there
  *  brings it down over the unit (html[data-desk-focus="bike"]), and from
  *  then on its buttons page through the screens — the totals, then the
  *  three longest rides — and a click on the screen does too. */

@@ -6,6 +6,7 @@ import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15F
 import AwardRail from "@/components/AwardRail";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
+import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -36,11 +37,13 @@ import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
  * in front of the certificate and looks straight down on it, as it does on
  * the case files. /#profile.
  *
- * Off Duty is the fourth, the other way: the camera turns left to the flip
- * clock's corner of the desk, tipped down a little, where the bike computer
- * lies beside the clock. A click on the unit brings it down over it,
- * straight down and low, so its screen (live from Strava) reads; Escape
- * goes back up to the corner. /#off-duty.
+ * Off Duty is the fourth, Recognition the other way: the camera stays at
+ * the case's eye height, slides left past the clock to the room's far left
+ * end and tips down 8°, onto the wall there with a strip of desk: the CD
+ * wallet standing open against it, the cream PD-001 to its right, the bike
+ * computer lying on the desk in front. A click on the unit brings the
+ * camera down over it, straight down and low, so its screen (live from
+ * Strava) reads; Escape goes back up. /#off-duty.
  */
 
 // The case files. Each will be its own kind of object — a zine, a stack, a
@@ -112,6 +115,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
         }}>Recognition</span>
       </div>
       <div className="desk-plane desk-wall desk-ext" aria-hidden />
+      <div className="desk-plane desk-wall desk-extl" aria-hidden />
       {/* the wall once more, bare, over both halves of it: what hangs there
           runs across the seam and must not be covered by the extension */}
       <div className="desk-plane desk-wall desk-wall--hung">
@@ -131,6 +135,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       </a>
       <div className="desk-plane desk-top desk-ext" aria-hidden />
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
+      <div className="desk-plane desk-top desk-extl" aria-hidden />
+      <div className="desk-plane desk-ply desk-extl" aria-hidden />
       <div className="desk-plane desk-top">
         <div className="desk-shadow" aria-hidden />
         {/* the trophy's contact shadow, on the desk under its base (desk-top
@@ -177,7 +183,24 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
         </nav>
         {/* the Profile, filed, in front of the certificate */}
         <DeskBinder />
-        {/* Off Duty: the bike computer, beside the flip clock */}
+        {/* Off Duty: the contact shadows of the wallet and the player standing
+            on the desk (desk-top px: box x + 1052.5, z + 269), and the bike
+            computer lying in front of them */}
+        <div className="od-shadow" aria-hidden style={{
+          left: `calc(${WALLET.x + 1052.5} * var(--u))`, top: `calc(${WALLET.z + 85 + 269} * var(--u))`, "--w": 470, "--h": 150,
+        } as React.CSSProperties} />
+        {/* where each half's zip meets the desk: a dark line from the spine
+            out along its foot, swung as far as the half is */}
+        {([["l", -1], ["r", 1]] as const).map(([k, side]) => (
+          <div key={k} className="od-foot" aria-hidden style={{
+            left: `calc(${WALLET.x + 1052.5} * var(--u))`, top: `calc(${WALLET.z + 269} * var(--u))`,
+            width: `calc(${(k === "l" ? WALLET_L : WALLET_R) + WALLET_SPINE / 2} * var(--u))`,
+            transform: `rotate(${side === 1 ? WALLET.open : 180 - WALLET.open}deg)`,
+          }} />
+        ))}
+        <div className="od-shadow" aria-hidden style={{
+          left: `calc(${DVD.x + 1052.5 + 12} * var(--u))`, top: `calc(${DVD.z + DVD_DEPTH / 2 + 10 + 269} * var(--u))`, "--w": DVD.w * 1.15, "--h": DVD_DEPTH * 1.2,
+        } as React.CSSProperties} />
         <BikeComputer />
       </div>
       {/* The trophy is a way in too: from home (where it peeks past the case)
@@ -196,6 +219,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       />
       <div className="desk-plane desk-ply" aria-hidden />
       <div className="desk-plane desk-under" aria-hidden />
+      {/* Off Duty's corner, left of everything */}
+      <OffDutyShelf />
       {/* what home stands in the room itself: the flip clock */}
       {children}
     </div>

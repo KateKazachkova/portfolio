@@ -51,3 +51,18 @@ Poster: posters/bridget-joness-diary.jpg
 Year: 1999
 Why I like it:
 Poster: posters/the-mummy.jpg
+
+## Raiders of the Lost Ark
+Year: 1981
+Why I like it:
+Poster: posters/raiders-of-the-lost-ark.jpeg
+
+## Indiana Jones and the Temple of Doom
+Year: 1984
+Why I like it:
+Poster: posters/indiana-jones-temple-of-doom.jpg
+
+## Indiana Jones and the Last Crusade
+Year: 1989
+Why I like it:
+Poster: posters/indiana-jones-last-crusade.jpeg

@@ -24,15 +24,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * (`data-intro="body"`, globals.css): the body, the niche and whichever doll
  * is on are the page's own pixels from the first crack of light, so they
  * cannot change size or place. The keying also registers the clip onto the
- * page's case (scale 1.026 for this take) and moves each door onto the page's own
+ * page's case (scale 1.017 for this take) and moves each door onto the page's own
  * while it is still swinging; once both have stopped (END_AT) the clip fades
  * off the whole live case, which covers what still differs on the doors (the
  * rail, the night dimming).
  *
- * The shadow on the desk is worked out from each frame's own silhouette, by
- * the recipe that made the desk's desk-shadow.png, and baked into the clip
- * below the case; the desk's own (and the case's floor shadows) wait hidden
- * and take over at SHADOW_AT, when the doors are all but where it has them.
+ * The shadow on the desk is worked out from each frame's own silhouette and
+ * baked into the clip below the case; its last frame, kept as
+ * rest_shadow.webp, is the case's shadow at rest, and comes in at SHADOW_AT.
  * The handle is the page's own throughout: it is the same closed and open.
  * The clip's wardrobe is empty (the model could not keep the clothes whole
  * through the swing); the page's hangers turn out to face the room one after
@@ -49,15 +48,15 @@ const FADE_MS = 300;
 const LAMP_AT = 250;
 const TEXT_AT = 300;
 const OPEN_AT = 700;
-/** the clip's own shadow hands over to the desk's (clip seconds; the keying
- *  fades it out over the same 0.3s) */
-const SHADOW_AT = 3.1;
+/** the clip keeps its own shadow to the end; the page's copy of its last frame
+ *  (rest_shadow.webp) comes in under it as it fades (clip seconds) */
+const SHADOW_AT = 4.95;
 /** the clip runs below the case box by its shadow: 146 of its 1226 rows */
 const CLIP_H = `${(1226 / 1080) * 100}%`;
 /** the doors are all but still: the files set off (clip seconds) */
-const FILES_AT = 3.4;
+const FILES_AT = 4.5;
 /** the doors have stopped: the live case takes over (clip seconds) */
-const END_AT = 3.8;
+const END_AT = 4.95;
 /** the files' own run: the last one's delay plus its slide, and a margin */
 const FILES_MS = 600 + 800 + 150;
 /** how long a step may wait for what it shows before it goes anyway */

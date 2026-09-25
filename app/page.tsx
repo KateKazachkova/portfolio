@@ -534,13 +534,31 @@ export default function Home() {
         {/* <Shadow cx={11.6} bottom={6.3} w={10} h={1.9} rgb="26,20,40" a={0.62} blur={4} stop={62} />
         <Shadow cx={90.4} bottom={5.9} w={15} h={2.3} rgb="26,20,40" a={0.62} blur={4} stop={62} /> */}
 
-        {/* 2. The trunk's base — a long edge further back, so a wider penumbra
-               and less of it. */}
-        <Shadow cx={50} bottom={10.4} w={52} h={3.0} rgb="44,38,63" a={0.34} blur={11} stop={70} />
+        {/* The case's shadow at rest is the opening clip's last frame's (Kate,
+            25.09: the one it casts while it opens, kept once it stands still),
+            laid on the case's own plane the way the clip is, running below
+            the box by the clip's 146 of 1226 rows. It stands in for the
+            layers below and for the desk's desk-shadow.png (hidden in
+            globals.css). */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="case-shadow"
+          src="/suitcase/intro/rest_shadow.webp"
+          alt=""
+          aria-hidden
+          draggable={false}
+          style={{ position: "absolute", left: 0, top: 0, width: "100%", height: `${(1226 / 1080) * 100}%`, maxWidth: "none", zIndex: 0, pointerEvents: "none" }}
+        />
 
-        {/* 3. Ambient occlusion under the whole lifted mass, plus the cast that
-               carries onto the floor past the right-hand door. */}
-        <Shadow cx={54} bottom={1.0} w={124} h={13} rgb="44,38,63" a={0.22} blur={34} stop={64} />
+        {/* 2. The trunk's base — off with the rest (25.09), now in the clip's
+               shadow above. */}
+        {/* <Shadow cx={50} bottom={10.4} w={52} h={3.0} rgb="44,38,63" a={0.34} blur={11} stop={70} /> */}
+
+        {/* 3. The ambient pool — off (25.09): set 4% right of centre and wider
+               than the case, it left a grey patch past the right door's foot.
+               The case's shadow is now the opening clip's own, kept at rest
+               (above). */}
+        {/* <Shadow cx={54} bottom={1.0} w={124} h={13} rgb="44,38,63" a={0.22} blur={34} stop={64} /> */}
 
         {/* No drop-shadow on the case itself. A drop-shadow offsets the whole
             outline uniformly, so it traces the sides and the top as well as

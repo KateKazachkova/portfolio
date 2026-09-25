@@ -2352,8 +2352,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 :root:not([data-intro]):not([data-load]) .intro-open { display: none; }
 /* the clip carries the case's shadow while the doors swing; the desk's own
    and the case's floor shadows wait, then take over from it at "shadow" */
-[data-load] :is(.desk-shadow, .case-shadow) { opacity: 0; transition: opacity .3s linear; }
-[data-load~="shadow"] :is(.desk-shadow, .case-shadow) { opacity: 1; }
+[data-load] .case-shadow { opacity: 0; transition: opacity .3s linear; }
+[data-load~="shadow"] .case-shadow { opacity: 1; }
+/* the desk's pre-rendered shadow of the case is off: the case's shadow is the
+   opening clip's own, kept at rest (app/page.tsx, rest_shadow.webp) */
+.desk-shadow { display: none; }
 [data-load] .desk-lamp[data-on] .desk-lamp__img--on { opacity: 0; } /* beats the lamp's own [data-on] */
 [data-load~="lamp"] .desk-lamp[data-on] .desk-lamp__img--on { opacity: 1; transition: opacity .12s steps(2, jump-none); }
 

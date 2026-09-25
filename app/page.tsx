@@ -525,10 +525,14 @@ export default function Home() {
             Layers, hardest to softest. The key light on the backdrop plate
             comes from the upper left, so every layer leans down and right. */}
 
-        {/* 1. The two feet. Real contact, nearest the camera: tightest blur,
-               darkest value, and the only layer with a visible edge. */}
-        <Shadow cx={11.6} bottom={6.3} w={10} h={1.9} rgb="26,20,40" a={0.62} blur={4} stop={62} />
-        <Shadow cx={90.4} bottom={5.9} w={15} h={2.3} rgb="26,20,40" a={0.62} blur={4} stop={62} />
+        {/* 1. The two feet — off (25.09): the desk's own shadow
+               (desk-shadow.png) already has the contact under each foot, and
+               these ellipses sat a little below and beside it, leaving a pale
+               gap between the foot and its shadow. The opening clip draws the
+               desk's shadow and the two layers below exactly as the page
+               does, so it hands over to them without a step. */}
+        {/* <Shadow cx={11.6} bottom={6.3} w={10} h={1.9} rgb="26,20,40" a={0.62} blur={4} stop={62} />
+        <Shadow cx={90.4} bottom={5.9} w={15} h={2.3} rgb="26,20,40" a={0.62} blur={4} stop={62} /> */}
 
         {/* 2. The trunk's base — a long edge further back, so a wider penumbra
                and less of it. */}

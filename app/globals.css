@@ -2350,6 +2350,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    transitions with it, so a skip lands at once. */
 /* the closed trunk is in the server HTML; without the gate it never shows */
 :root:not([data-intro]):not([data-load]) .intro-open { display: none; }
+/* the clip carries the case's shadow while the doors swing; the desk's own
+   and the case's floor shadows wait, then take over from it at "shadow" */
+[data-load] :is(.desk-shadow, .case-shadow) { opacity: 0; transition: opacity .3s linear; }
+[data-load~="shadow"] :is(.desk-shadow, .case-shadow) { opacity: 1; }
 [data-load] .desk-lamp[data-on] .desk-lamp__img--on { opacity: 0; } /* beats the lamp's own [data-on] */
 [data-load~="lamp"] .desk-lamp[data-on] .desk-lamp__img--on { opacity: 1; transition: opacity .12s steps(2, jump-none); }
 

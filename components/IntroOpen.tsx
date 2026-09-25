@@ -29,6 +29,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * off the whole live case, which covers what still differs on the doors (the
  * rail, the night dimming).
  *
+ * The shadow on the desk is worked out from each frame's own silhouette, by
+ * the recipe that made the desk's desk-shadow.png, and baked into the clip
+ * below the case; the desk's own (and the case's floor shadows) wait hidden
+ * and take over at SHADOW_AT, when the doors are all but where it has them.
+ * The handle is the page's own throughout: it is the same closed and open.
+ *
  * On every visit for now (Kate, 25.09 — may go back to once per visitor).
  * A click or any key lands the whole scene at once; ?nointro and reduced
  * motion skip it.
@@ -39,6 +45,11 @@ const FADE_MS = 300;
 const LAMP_AT = 250;
 const TEXT_AT = 300;
 const OPEN_AT = 700;
+/** the clip's own shadow hands over to the desk's (clip seconds; the keying
+ *  fades it out over the same 0.3s) */
+const SHADOW_AT = 3.1;
+/** the clip runs below the case box by its shadow: 146 of its 1226 rows */
+const CLIP_H = `${(1226 / 1080) * 100}%`;
 /** the doors are all but still: the files set off (clip seconds) */
 const FILES_AT = 3.4;
 /** the doors have stopped: the live case takes over (clip seconds) */
@@ -173,7 +184,7 @@ export default function IntroOpen() {
         alt=""
         fetchPriority="high"
         draggable={false}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill", visibility: playing ? "hidden" : "visible" }}
+        style={{ position: "absolute", left: 0, top: 0, width: "100%", height: CLIP_H, objectFit: "fill", visibility: playing ? "hidden" : "visible" }}
       />
       {src && (
         <video
@@ -184,13 +195,14 @@ export default function IntroOpen() {
           src={src}
           onTimeUpdate={(e) => {
             const t = e.currentTarget.currentTime;
+            if (t >= SHADOW_AT) add("shadow");
             if (t >= FILES_AT) pushFiles();
             if (t >= END_AT) endClip();
           }}
           onPlaying={() => setPlaying(true)}
-          onEnded={() => { pushFiles(); endClip(); }}
+          onEnded={() => { add("shadow"); pushFiles(); endClip(); }}
           onError={land}
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "fill", display: "block" }}
+          style={{ position: "absolute", left: 0, top: 0, width: "100%", height: CLIP_H, objectFit: "fill", display: "block" }}
         />
       )}
     </div>

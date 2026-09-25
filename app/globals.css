@@ -1632,7 +1632,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    under Case Files, the corner under Off Duty) where the dark floor shows
    through. Hidden layers cost nothing. An animation, not a transition, so
    no element's own transitions are overridden; leaving the stop drops it
-   and everything is back at once, before the camera starts to move. */
+   and everything is back at once, before the camera starts to move.
+   Only Case Files, though: a layer Chrome has hidden it throws away, and
+   one that comes back is drawn from nothing while the camera is already
+   moving — the other stops' switching-off was what left the room in holes
+   on the way up to the wall (25.09, found with ?t=noh). Case Files, the
+   desk right under the camera, cannot do without it. */
 @keyframes desk-off { to { visibility: hidden; } }
 /* Off Duty's corner is left of the clock, out of home's frame — until the
    scene scales down to fit a short window, when the player's edge shows
@@ -1640,34 +1645,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
 :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-dvd) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk="award"] :is(.desk-extl, .od-wallet, .od-dvd),
-[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
-[data-desk="profile"] .case-world,
-[data-desk="offduty"][data-desk-focus="bike"] .case-world {
+[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp) {
   animation: desk-off 0s linear 1.9s forwards;
-}
-
-/* On the way. The stops above only switch off what they cannot see once the
-   camera has arrived, so during a move the whole room is on — and a quick
-   run from one stop to the next, the camera never arriving, keeps it all on,
-   past retina Chrome's tile memory: whole planes of desk and wall dropped.
-   So between two stops, whatever neither of them can see (in both of their
-   lists above) is off from the start of the move. Recognition and Off
-   Duty have nothing off in common, so that pair has no rule.
-   data-desk-from is the stop the camera left (components/DeskScene.tsx). */
-[data-desk-from="open"][data-desk="award"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-extl, .od-wallet, .od-dvd),
-[data-desk-from="open"][data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="open"][data-desk="offduty"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
-[data-desk-from="award"][data-desk="open"] :is(.desk-extl, .od-wallet, .od-dvd):is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="award"][data-desk="profile"] :is(.desk-extl, .od-wallet, .od-dvd):is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="profile"][data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="profile"][data-desk="award"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-extl, .od-wallet, .od-dvd),
-[data-desk-from="profile"][data-desk="offduty"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp):is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
-[data-desk-from="offduty"][data-desk="open"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award):is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk-from="offduty"][data-desk="profile"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award):is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp) {
-  visibility: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {

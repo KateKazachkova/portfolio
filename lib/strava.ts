@@ -1,36 +1,62 @@
+import "server-only";
+
 const TOKEN_URL = "https://www.strava.com/oauth/token";
 const API = "https://www.strava.com/api/v3";
 
-// One token per render pass, and one refresh per half hour across renders:
-// the old no-store call meant every page view spent a round trip on OAuth
-// before it could ask for a single ride.
+/**
+ * Strava for the bike computer, read once a day (app/api/strava).
+ *
+ * Every failure throws rather than coming back empty: a revalidation that
+ * throws keeps the last good answer in the cache, so a Strava outage, a rate
+ * limit or an expired token leaves yesterday's figures on the unit instead
+ * of blanking it for a day. Only Strava not being configured at all is an
+ * empty answer, and so is a failure while the site is being built, so a
+ * deploy never waits on Strava.
+ */
+export class StravaError extends Error {}
+
+// The access token, kept until a minute before Strava says it expires. Not
+// in the fetch cache: a cached token could come back after it has expired.
 let tokenCache: { value: string; until: number } | null = null;
 
-async function getAccessToken(): Promise<string | null> {
+const configured = () =>
+  Boolean(process.env.STRAVA_CLIENT_ID && process.env.STRAVA_CLIENT_SECRET
+    && process.env.STRAVA_REFRESH_TOKEN && process.env.STRAVA_ATHLETE_ID);
+
+async function getAccessToken(): Promise<string> {
   if (tokenCache && tokenCache.until > Date.now()) return tokenCache.value;
   const { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } = process.env;
-  if (!STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_REFRESH_TOKEN) return null;
 
-  try {
-    const res = await fetch(TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_id: STRAVA_CLIENT_ID,
-        client_secret: STRAVA_CLIENT_SECRET,
-        refresh_token: STRAVA_REFRESH_TOKEN,
-        grant_type: "refresh_token",
-      }),
-      next: { revalidate: 1800 },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const token = data.access_token ?? null;
-    if (token) tokenCache = { value: token, until: Date.now() + 30 * 60 * 1000 };
-    return token;
-  } catch {
-    return null;
-  }
+  const res = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client_id: STRAVA_CLIENT_ID,
+      client_secret: STRAVA_CLIENT_SECRET,
+      refresh_token: STRAVA_REFRESH_TOKEN,
+      grant_type: "refresh_token",
+    }),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new StravaError(`token refresh: ${res.status}`);
+  const data = (await res.json()) as { access_token?: string; expires_at?: number; refresh_token?: string };
+  if (!data.access_token) throw new StravaError("token refresh: no access_token");
+  // Strava may hand back a new refresh token; the old one then stops working
+  // once this access token expires, and STRAVA_REFRESH_TOKEN has to be updated.
+  if (data.refresh_token && data.refresh_token !== STRAVA_REFRESH_TOKEN)
+    console.warn("[strava] Strava issued a new refresh token: update STRAVA_REFRESH_TOKEN");
+  const until = (data.expires_at ? data.expires_at * 1000 : Date.now() + 30 * 60_000) - 60_000;
+  tokenCache = { value: data.access_token, until };
+  return data.access_token;
+}
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${API}${path}`, {
+    headers: { Authorization: `Bearer ${await getAccessToken()}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new StravaError(`${path}: ${res.status}`);
+  return res.json() as Promise<T>;
 }
 
 export type StravaStats = {
@@ -38,7 +64,7 @@ export type StravaStats = {
   distanceKm: number;
   timeHours: number;
   elevationM: number;
-} | null;
+};
 
 export type StravaActivity = {
   id: number;
@@ -50,57 +76,40 @@ export type StravaActivity = {
   polyline: string | null;
 };
 
-export async function getRideStats(): Promise<StravaStats> {
-  const token = await getAccessToken();
-  const id = process.env.STRAVA_ATHLETE_ID;
-  if (!token || !id) return null;
+type RawTotals = { count?: number; distance?: number; moving_time?: number; elevation_gain?: number };
+type RawActivity = {
+  id: number; name: string; type?: string; distance?: number; moving_time?: number;
+  start_date_local?: string; map?: { summary_polyline?: string | null };
+};
 
-  try {
-    const res = await fetch(`${API}/athletes/${id}/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    const d = await res.json();
-    const ride = d.all_ride_totals ?? {};
-    return {
-      rides: ride.count ?? 0,
-      distanceKm: Math.round((ride.distance ?? 0) / 1000),
-      timeHours: Math.round((ride.moving_time ?? 0) / 3600),
-      elevationM: Math.round(ride.elevation_gain ?? 0),
-    };
-  } catch {
-    return null;
-  }
+const RIDE_TYPES = new Set(["Ride", "VirtualRide", "EBikeRide"]);
+
+async function getRideStats(): Promise<StravaStats> {
+  const d = await get<{ all_ride_totals?: RawTotals }>(`/athletes/${process.env.STRAVA_ATHLETE_ID}/stats`);
+  const ride = d.all_ride_totals;
+  if (!ride) throw new StravaError("stats: no all_ride_totals");
+  return {
+    rides: ride.count ?? 0,
+    distanceKm: Math.round((ride.distance ?? 0) / 1000),
+    timeHours: Math.round((ride.moving_time ?? 0) / 3600),
+    elevationM: Math.round(ride.elevation_gain ?? 0),
+  };
 }
 
-export async function getLongestRides(limit = 3): Promise<StravaActivity[]> {
-  const token = await getAccessToken();
-  if (!token) return [];
-
-  const rides: any[] = [];
-  try {
-    // Two pages is 400 activities — enough to hold the longest rides, and it
-    // costs two round trips instead of five.
-    for (let page = 1; page <= 2; page++) {
-      const res = await fetch(`${API}/athlete/activities?per_page=200&page=${page}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        next: { revalidate: 3600 },
-      });
-      if (!res.ok) break;
-      const list = await res.json();
-      if (!Array.isArray(list) || list.length === 0) break;
-      rides.push(...list.filter((a: any) => a.type === "Ride" || a.type === "VirtualRide" || a.type === "EBikeRide"));
-      if (list.length < 200) break;
-    }
-  } catch {
-    return [];
+async function getLongestRides(limit: number): Promise<StravaActivity[]> {
+  // Two pages is 400 activities — enough to hold the longest rides, and it
+  // costs two round trips instead of five.
+  const rides: RawActivity[] = [];
+  for (let page = 1; page <= 2; page++) {
+    const list = await get<RawActivity[]>(`/athlete/activities?per_page=200&page=${page}`);
+    if (!Array.isArray(list)) throw new StravaError("activities: not a list");
+    rides.push(...list.filter((a) => a.type && RIDE_TYPES.has(a.type)));
+    if (list.length < 200) break;
   }
-
   return rides
     .sort((a, b) => (b.distance ?? 0) - (a.distance ?? 0))
     .slice(0, limit)
-    .map((a: any) => ({
+    .map((a) => ({
       id: a.id,
       name: a.name,
       distanceKm: Math.round((a.distance ?? 0) / 100) / 10,
@@ -111,31 +120,18 @@ export async function getLongestRides(limit = 3): Promise<StravaActivity[]> {
     }));
 }
 
-export async function getRecentActivities(limit = 3): Promise<StravaActivity[]> {
-  const token = await getAccessToken();
-  if (!token) return [];
-
+/** The totals and the longest rides, or nothing when Strava isn't set up
+ *  (or is failing during a build). Throws on any other failure. */
+export async function getRides(limit = 3): Promise<{ stats: StravaStats | null; rides: StravaActivity[] }> {
+  if (!configured()) return { stats: null, rides: [] };
   try {
-    const res = await fetch(`${API}/athlete/activities?per_page=30`, {
-      headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const list = await res.json();
-    if (!Array.isArray(list)) return [];
-    return list
-      .filter((a: any) => a.type === "Ride" || a.type === "VirtualRide" || a.type === "EBikeRide")
-      .slice(0, limit)
-      .map((a: any) => ({
-        id: a.id,
-        name: a.name,
-        distanceKm: Math.round((a.distance ?? 0) / 100) / 10,
-        movingMin: Math.round((a.moving_time ?? 0) / 60),
-        date: a.start_date_local ?? "",
-        type: a.type ?? "",
-        polyline: a.map?.summary_polyline || null,
-      }));
-  } catch {
-    return [];
+    const [stats, rides] = await Promise.all([getRideStats(), getLongestRides(limit)]);
+    return { stats, rides };
+  } catch (e) {
+    if (process.env.NEXT_PHASE === "phase-production-build") {
+      console.warn("[strava] skipped during build:", e);
+      return { stats: null, rides: [] };
+    }
+    throw e;
   }
 }

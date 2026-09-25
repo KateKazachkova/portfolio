@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./AwardRail.css";
 import { AWARD_RECORDS, type AwardRecord } from "@/lib/awards";
+import { isWritten } from "@/content/work/slugs";
 
 /**
  * The awards as ribbons on a gold lattice, on the wall right of the Davey
@@ -19,14 +20,17 @@ import { AWARD_RECORDS, type AwardRecord } from "@/lib/awards";
 
 // left to right, as in the approved sketch
 const ORDER = ["Ukrainska 15", "WayPro", "BulkSource", "OnsiSoft", "Agora"];
-const CASE: Record<string, string> = {
-  "Ukrainska 15": "/work/ukrainska-15",
-  WayPro: "/work/waypro",
-  BulkSource: "/work/bulksource",
-  OnsiSoft: "/work/onsisoft",
-  // no case file yet: its records are on the old page
-  Agora: "/#recognition",
+const SLUG: Record<string, string> = {
+  "Ukrainska 15": "ukrainska-15",
+  WayPro: "waypro",
+  BulkSource: "bulksource",
+  OnsiSoft: "onsisoft",
 };
+// A ribbon opens its project's case file once that is written
+// (content/work/slugs.ts); Agora has none, and its records are on the old page.
+const caseOf = (project: string): string | null =>
+  project === "Agora" ? "/#recognition"
+    : SLUG[project] && isWritten(SLUG[project]) ? `/work/${SLUG[project]}` : null;
 const LOGO: Record<string, string | null> = {
   "MUSE Creative Awards": "muse",
   "CSS Design Awards": "cssda",
@@ -148,9 +152,8 @@ export default function AwardRail() {
                   left: wx(cx - HOOK.cx * HK), top: wy(rod(r1) - HOOK.top * HK),
                   width: `calc(${HOOK.px[2] * HK} * var(--u))`, height: `calc(${HOOK.px[3] * HK} * var(--u))`,
                 }} />
-                <Link
-                  href={CASE[g.project]}
-                  tabIndex={-1}
+                <Ribbon
+                  href={caseOf(g.project)}
                   className={`award-ribbon award-ribbon--${r.level}${r.tint ? " award-ribbon--tint" : ""}`}
                   style={{
                     left: wx(cx - RIB.w / 2), top: wy(hangs(r1)),
@@ -163,7 +166,7 @@ export default function AwardRail() {
                   {logo
                     ? <span className="award-ribbon__logo" style={{ "--logo": `url(/stamps/awards/${logo}.webp)` } as React.CSSProperties} />
                     : <span className="award-ribbon__name">{r.organisation.replace(/ Awards?$/, "")}</span>}
-                </Link>
+                </Ribbon>
                 </div>
               );
             })}
@@ -172,4 +175,12 @@ export default function AwardRail() {
       })}
     </div>
   );
+}
+
+// A ribbon is a link to its case file, or, while there is none, just the
+// ribbon: it still shows its label on hover and focus.
+function Ribbon({ href, ...rest }: { href: string | null } & React.HTMLAttributes<HTMLElement>) {
+  return href
+    ? <Link href={href} tabIndex={-1} {...rest} />
+    : <span tabIndex={-1} {...rest} />;
 }

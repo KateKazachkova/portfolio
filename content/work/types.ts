@@ -1,10 +1,8 @@
 /**
  * The shape of a case study.
  *
- * Case studies live here rather than in Notion because the page is an
- * annotated document: a margin note has to be anchored to the section it
- * argues with, and a Notion block list has nowhere to say that. Notion still
- * drives the project list and any case that hasn't been written up yet.
+ * Case studies live here, as code, because the page is an annotated
+ * document: a margin note has to be anchored to the section it argues with.
  */
 
 /** Anything still waiting on Kate. Renders as a visible hatched chip, never as fact. */

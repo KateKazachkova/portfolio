@@ -46,3 +46,11 @@ next-env.d.ts
 /public/dolls/*.png
 /public/dolls/cut/*.png
 /design-src/
+
+# source art and generation scratch — never served, never committed
+/public/dolls/gen/
+/public/player/gen/
+*.psd
+*.aep
+*.npy
+*_raw.mp4

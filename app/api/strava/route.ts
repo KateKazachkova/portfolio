@@ -1,14 +1,15 @@
-import { getRideStats, getLongestRides } from "@/lib/strava";
+import { getRides } from "@/lib/strava";
 import { polylineToSvgPath } from "@/lib/polyline";
 
 /** What the bike computer on home's desk shows: the ride totals and the
  *  three longest rides, each with its track already drawn as a path.
- *  Home is a client page, so it asks here rather than calling Strava; the
- *  answer is kept for an hour, as on Off Duty. */
-export const revalidate = 3600;
+ *  Home is a client page, so it asks here rather than calling Strava. The
+ *  answer is kept for a day; when Strava fails, getRides throws and the
+ *  last good answer stays in the cache (lib/strava.ts). */
+export const revalidate = 86400;
 
 export async function GET() {
-  const [stats, rides] = await Promise.all([getRideStats(), getLongestRides(3)]);
+  const { stats, rides } = await getRides(3);
   return Response.json({
     stats,
     rides: rides.map((r) => ({

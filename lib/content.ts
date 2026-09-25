@@ -104,14 +104,6 @@ function parseList(filename: string): WatchItem[] {
   });
 }
 
-export function getFilms(): WatchItem[] {
-  return parseList("films.md");
-}
-
 export function getSeries(): WatchItem[] {
   return parseList("series.md").map((s) => ({ ...s, disc: discFor(s) }));
-}
-
-export function getBooks(): WatchItem[] {
-  return parseList("books.md");
 }

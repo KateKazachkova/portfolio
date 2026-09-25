@@ -7,6 +7,7 @@ import AwardRail from "@/components/AwardRail";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
+import { isWritten } from "@/content/work/slugs";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -64,6 +65,43 @@ const CASES = [
   { slug: "waypro", title: "WayPro · VerDistro", img: "waypro", w: 230, h: 230, x: 2159, y: 659.5, r: 2 },
   { slug: "my-portfolio2026", title: "Portfolio & My Branding", img: null, w: 180, h: 126, x: 2434, y: 687.5, r: -1.5 },
 ] as const;
+
+// A case file opens its page only once the case is written up
+// (content/work/slugs.ts); until then it lies there without a link, and a
+// click still brings the camera to it.
+function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" }> }) {
+  const written = isWritten(c.slug);
+  const props = {
+    className: c.img ? "desk-card desk-card--ref" : "desk-card",
+    "data-slug": c.slug,
+    "data-x": c.x,
+    style: {
+      left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
+      "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
+    } as React.CSSProperties,
+  };
+  const inner = c.img ? (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
+      <span className="desk-card__label">Placeholder · {c.title}</span>
+      {written && <span className="desk-card__open" aria-hidden>Read the case →</span>}
+    </>
+  ) : (
+    <>
+      <div className="desk-card__cover" />
+      <div className="desk-card__body">
+        <div className="desk-card__tags">&nbsp;</div>
+        <h2>{c.title}</h2>
+      </div>
+      {written && <span className="desk-card__open" aria-hidden>Read the case →</span>}
+    </>
+  );
+  return written
+    ? <Link href={`/work/${c.slug}`} tabIndex={-1} {...props}>{inner}</Link>
+    : <div {...props} aria-label={`${c.title} — case file coming soon`}>{inner}</div>;
+}
+
 const ROW_END = 2524 + 70;         // right edge of the last object, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
 const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
@@ -127,7 +165,7 @@ function useStops() {
   // tab stops the camera hands out on arrival.
   useEffect(() => {
     if (document.documentElement.dataset.desk === "award")
-      document.querySelectorAll<HTMLAnchorElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = 0));
+      document.querySelectorAll<HTMLElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = 0));
   }, [ready]);
   return ready;
 }
@@ -185,36 +223,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />
           ) : (
-            <Link
-              key={c.slug}
-              href={`/work/${c.slug}`}
-              className={c.img ? "desk-card desk-card--ref" : "desk-card"}
-              data-slug={c.slug}
-              data-x={c.x}
-              tabIndex={-1}
-              style={{
-                left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
-                "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
-              } as React.CSSProperties}
-            >
-              {c.img ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/scene/desk3d/placeholders/${c.img}.webp`} alt="" draggable={false} />
-                  <span className="desk-card__label">Placeholder · {c.title}</span>
-                  <span className="desk-card__open" aria-hidden>Read the case →</span>
-                </>
-              ) : (
-                <>
-                  <div className="desk-card__cover" />
-                  <div className="desk-card__body">
-                    <div className="desk-card__tags">&nbsp;</div>
-                    <h2>{c.title}</h2>
-                  </div>
-                  <span className="desk-card__open" aria-hidden>Read the case →</span>
-                </>
-              )}
-            </Link>
+            <CaseCard key={c.slug} c={c} />
           ))}
         </nav>
         {/* the Profile, filed, in front of the certificate */}
@@ -416,7 +425,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));
-      el.querySelectorAll<HTMLAnchorElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
+      el.querySelectorAll<HTMLElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
     };
 
     // Opened by us, it has a history entry of its own and closing is Back.

@@ -856,14 +856,17 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    plate's light and shade with its grid lines taken out, and the lines go
    back on top as gradients — 2 px every 107.5 (10 cm), from 53.75 across
    and 58.3 out, measured off the plate — so they stay sharp however close
-   the camera comes. Multiplied, so they darken with the light under them.
+   the camera comes. A dark glaze at 76.5%, not a multiply: it darkens with
+   the light under them just the same (the plate's shade shows through by
+   the same share), and a blend mode made every piece of the desk several
+   times dearer to draw on the way between stops.
    The desk runs 500 px (46 cm) further towards the camera than the plate
    did — desk-deep.jpg is the plate with its last 500 rows mirrored on — so
    its front edge, and the dark under it, stay out of frame on the way up to
    Case Files instead of sweeping across it (the ply and the dark under it
    stand at its new edge, z 1145). */
 .desk-top   { top: calc(656 * var(--u)); height: calc(1414 * var(--u));
-              --tile: calc(107.5 * var(--u)); --line: rgb(58, 60, 74);
+              --tile: calc(107.5 * var(--u)); --line: rgba(0, 0, 15, .765);
               background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
@@ -871,26 +874,9 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
               background-size: var(--tile) 100%, 100% var(--tile), 100% 100%;
               background-position: calc(52.75 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0;
               background-repeat: repeat-x, repeat-y, no-repeat;
-              background-blend-mode: multiply, multiply, normal;
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
               background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(1145 * var(--u))); }
-/* The wall is painted in chalkboard paint: a matt slate, cloudy where chalk
-   has been wiped off it. Drawn over the plate's own light, so its falloff
-   stays, and under whatever sits on the wall (the trophy's cast, the rail). */
-.desk-wall:not(.desk-wall--hung)::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(38% 22% at 34% 30%, rgba(236, 232, 220, .075), transparent 70%),
-    radial-gradient(26% 16% at 58% 62%, rgba(236, 232, 220, .06), transparent 70%),
-    radial-gradient(30% 12% at 80% 38%, rgba(236, 232, 220, .05), transparent 70%),
-    radial-gradient(22% 18% at 14% 66%, rgba(236, 232, 220, .045), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .92 0 0 0 0 .88 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    rgba(52, 60, 58, .22);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, calc(240 * var(--u)) calc(240 * var(--u)), auto;
-  mix-blend-mode: screen;
-}
-
 /* Cut into pieces. The wall and the desk are 3225 px across, and a plane in
    3D is drawn whole whatever of it the camera sees: close up on retina that
    ran Chrome out of tile memory (planes dropped in squares and spikes on the
@@ -901,7 +887,9 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    its transform and what lies on it, over the pieces, and paints nothing. A
    piece is 1 px wider and taller than its share, so no seam shows; every
    background is sized to the whole plane and offset by the piece's place,
-   so the picture runs on across the cuts. */
+   so the picture runs on across the cuts. Each piece has the mean colour of
+   its picture under it: a piece the browser has not drawn yet, coming into
+   frame on a quick move, shows as that flat tone for a moment, not a hole. */
 .desk-split { background: none; }
 .desk-skins { background: none; transform-style: preserve-3d; pointer-events: none; }
 .desk-skin {
@@ -912,9 +900,10 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   transform: translateZ(0); backface-visibility: hidden; pointer-events: none;
 }
 .desk-wall.desk-skins > .desk-skin {
-  background: url("/scene/desk3d/wall.jpg") calc(-1 * var(--px)) 0 / calc(3225 * var(--u)) calc(800 * var(--u)) no-repeat;
+  background: rgb(18, 16, 14) url("/scene/desk3d/wall.jpg") calc(-1 * var(--px)) 0 / calc(3225 * var(--u)) calc(800 * var(--u)) no-repeat;
 }
 .desk-top.desk-skins > .desk-skin {
+  background-color: rgb(208, 204, 196);
   --wy: calc(var(--j) * 1414 * var(--u) / var(--rows));
   top: var(--wy); height: calc(1414 * var(--u) / var(--rows) + 1px);
   background-image:
@@ -927,37 +916,18 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
     0 calc(57.3 * var(--u) - var(--wy)),
     calc(-1 * var(--px)) calc(-1 * var(--wy));
   background-repeat: repeat-x, repeat-y, no-repeat;
-  background-blend-mode: multiply, multiply, normal;
-}
-/* The chalk over the wall, per piece like its picture */
-.desk-wall:is(.desk-split, .desk-skins)::before { content: none; }
-.desk-wall.desk-skins > .desk-skin::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(38% 22% at 34% 30%, rgba(236, 232, 220, .075), transparent 70%),
-    radial-gradient(26% 16% at 58% 62%, rgba(236, 232, 220, .06), transparent 70%),
-    radial-gradient(30% 12% at 80% 38%, rgba(236, 232, 220, .05), transparent 70%),
-    radial-gradient(22% 18% at 14% 66%, rgba(236, 232, 220, .045), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .92 0 0 0 0 .88 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
-    rgba(52, 60, 58, .22);
-  background-size: calc(3225 * var(--u)) calc(800 * var(--u)), calc(3225 * var(--u)) calc(800 * var(--u)),
-    calc(3225 * var(--u)) calc(800 * var(--u)), calc(3225 * var(--u)) calc(800 * var(--u)),
-    calc(240 * var(--u)) calc(240 * var(--u)), auto;
-  background-position: calc(-1 * var(--px)) 0, calc(-1 * var(--px)) 0, calc(-1 * var(--px)) 0,
-    calc(-1 * var(--px)) 0, calc(-1 * var(--px)) 0, 0 0;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat;
-  mix-blend-mode: screen;
 }
 /* The wall the awards hang on is only there to hold them over the seam with
    the extension: it has no picture of its own (it used to repeat the wall's,
-   a second 3225 px plane over the first, hiding its chalk and the trophy's
-   cast). */
+   a second 3225 px plane over the first, hiding the trophy's cast). */
 .desk-wall--hung { background: none; }
 
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */
 .desk-ext { left: calc(2172.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-wall:is(.desk-ext, .desk-extl) { background-color: rgb(10, 9, 8); }
+.desk-top:is(.desk-ext, .desk-extl) { background-color: rgb(195, 191, 184); }
 .desk-wall.desk-ext { background-image: url("/scene/desk3d/wall-ext.jpg"); }
 .desk-top.desk-ext  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),

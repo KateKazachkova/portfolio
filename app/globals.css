@@ -776,6 +776,16 @@ body::after {
 .case-stage:has(.inktip[data-open="true"]) .night-room[data-on],
 .case-stage:has(.katetalk[data-open="true"]) .night-room[data-on] { opacity: .55; transition-duration: .4s; }
 :root[data-desk]:not([data-desk="closed"]) .night-room { opacity: 0; transition-duration: .6s; }
+/* Away from home the night overlay and the ground under its blend
+   (.case-stage::before) are out of the render altogether once the overlay has
+   faded: at 7910 × 6671 and 7242 × 4828 px they were two thirds of what the
+   browser had to keep drawn while the camera flew, and it ran out of tile
+   memory mid-flight. Back home both are there at once, before the overlay
+   fades in. */
+:root[data-desk]:not([data-desk="closed"]) .night-room,
+:root[data-desk]:not([data-desk="closed"]) .case-stage::before {
+  visibility: hidden; transition: opacity .6s ease, visibility 0s .6s;
+}
 /* The same night at the camera's other stops (NightCam in NightRoom.tsx):
    screen space, over the window. The ground is NightRoom's; the lamp's pool
    comes in from where the lamp stands for each stop, and without it there is

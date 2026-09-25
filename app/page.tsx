@@ -986,6 +986,23 @@ export default function Home() {
           />
         </div>
 
+        {/* Left door — bottom compartment: the guitar, leaning on the bare
+            velvet. Generated into this very compartment (public/items/gen/
+            guitar/) and cut out against the case; its shadow is kept as plain
+            darkening, so none of the old pocket's velvet comes with it. Like the clothes on the rail, it is
+            gone while the doll has it in her hands. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/items/left-3-guitar.webp"
+          alt="A blue classical guitar leaning in the bottom of the left door"
+          style={{
+            position: "absolute", left: "12.272%", top: "45.215%", width: "10.905%", height: "auto", maxWidth: "none",
+            zIndex: 2, pointerEvents: "none",
+            opacity: shown === "evening_guitar" ? 0 : 1, transition: "opacity 320ms linear",
+          }}
+          draggable={false}
+        />
+
         {/* The bike's own shadow on the back wall: the same picture again,
             offset down and to the right of the light, flattened to black and
             blurred. A drop-shadow filter could not do this — it would follow

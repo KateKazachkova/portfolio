@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
@@ -94,7 +94,45 @@ const CERT_Z = Math.round(-269 + CERT.h * Math.sin(CERT.lean * Math.PI / 180) + 
 // how far its shadow falls on the wall, 8 cm behind it (box px)
 const CAST = { x: 34, y: 20 };
 
+/** The stops home cannot see — Profile's binder, Off Duty's corner, the
+ *  awards on the wall — are not built with the page. Home loads first; then,
+ *  each time the browser is idle, the next one joins the room, in the
+ *  index's order. The camera setting off for one builds it at once, so a
+ *  visitor quick off the mark (or arriving at /#off-duty) never waits for
+ *  the queue: its things load during the 1.9 s move. */
+type Stop = "profile" | "offduty" | "award";
+const STOP_ORDER: Stop[] = ["profile", "offduty", "award"];
+const STOP_OF: Record<string, Stop> = { profile: "profile", offduty: "offduty", award: "award" };
+function useStops() {
+  const [ready, setReady] = useState<ReadonlySet<Stop>>(() => new Set());
+  useEffect(() => {
+    const add = (s: Stop) => setReady((r) => (r.has(s) ? r : new Set(r).add(s)));
+    const root = document.documentElement;
+    const now = () => { const s = STOP_OF[root.dataset.desk ?? ""]; if (s) add(s); };
+    now();
+    const mo = new MutationObserver(now);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
+    const idle = (cb: () => void) => typeof window.requestIdleCallback === "function"
+      ? window.requestIdleCallback(cb, { timeout: 4000 })
+      : setTimeout(cb, 400);
+    let i = 0;
+    let alive = true;
+    const next = () => { if (!alive || i >= STOP_ORDER.length) return; add(STOP_ORDER[i++]); idle(next); };
+    const start = () => idle(next);
+    if (document.readyState === "complete") start(); else window.addEventListener("load", start, { once: true });
+    return () => { alive = false; mo.disconnect(); window.removeEventListener("load", start); };
+  }, []);
+  // Built while the camera is already at the wall, the ribbons missed the
+  // tab stops the camera hands out on arrival.
+  useEffect(() => {
+    if (document.documentElement.dataset.desk === "award")
+      document.querySelectorAll<HTMLAnchorElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = 0));
+  }, [ready]);
+  return ready;
+}
+
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
+  const ready = useStops();
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall" aria-hidden>
@@ -119,8 +157,9 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       {/* the wall once more, bare, over both halves of it: what hangs there
           runs across the seam and must not be covered by the extension */}
       <div className="desk-plane desk-wall desk-wall--hung">
-        <AwardRail />
+        {ready.has("award") && <AwardRail />}
       </div>
+      {ready.has("award") && (
       <a
         className="desk-cert" href="/artefacts/cert-indigo-women-in-design-2026.webp" target="_blank" rel="noopener noreferrer"
         tabIndex={-1} aria-label="Indigo Design Award — Women in Design, shortlisted 2026 (certificate)"
@@ -133,6 +172,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/artefacts/cert-indigo-women-in-design-2026.webp" alt="" draggable={false} />
       </a>
+      )}
       <div className="desk-plane desk-top desk-ext" aria-hidden />
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top desk-extl" aria-hidden />
@@ -182,10 +222,11 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           ))}
         </nav>
         {/* the Profile, filed, in front of the certificate */}
-        <DeskBinder />
+        {ready.has("profile") && <DeskBinder />}
         {/* Off Duty: the contact shadows of the wallet and the player standing
             on the desk (desk-top px: box x + 1052.5, z + 269), and the bike
             computer lying in front of them */}
+        {ready.has("offduty") && (<>
         <div className="od-shadow" aria-hidden style={{
           left: `calc(${WALLET.x + 1052.5} * var(--u))`, top: `calc(${WALLET.z + 85 + 269} * var(--u))`, "--w": 470, "--h": 150,
         } as React.CSSProperties} />
@@ -202,6 +243,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           left: `calc(${DVD.x + 1052.5 + 12} * var(--u))`, top: `calc(${DVD.z + DVD_DEPTH / 2 + 10 + 269} * var(--u))`, "--w": DVD.w * 1.15, "--h": DVD_DEPTH * 1.2,
         } as React.CSSProperties} />
         <BikeComputer />
+        </>)}
       </div>
       {/* The trophy is a way in too: from home (where it peeks past the case)
           or the desk, a click takes the camera over to it. */}
@@ -220,7 +262,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       <div className="desk-plane desk-ply" aria-hidden />
       <div className="desk-plane desk-under" aria-hidden />
       {/* Off Duty's corner, left of everything */}
-      <OffDutyShelf />
+      {ready.has("offduty") && <OffDutyShelf />}
       {/* what home stands in the room itself: the flip clock */}
       {children}
     </div>

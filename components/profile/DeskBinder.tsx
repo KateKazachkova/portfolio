@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BinderBook, useBinder } from "./Binder";
+import { BinderBook, useBinder, type Spread } from "./Binder";
 import { SPREADS } from "./spreads";
 
 export const PROFILE_EVENT = "kate:profile";
@@ -13,14 +13,28 @@ export const PROFILE_EVENT = "kate:profile";
 const BINDER = { x: 3031, y: 290, w: 560, r: 0 };
 const H = Math.round(BINDER.w * 2136 / 3717);
 
+// The sheets as they are before anyone asks for Profile: the same leaves and
+// divider tabs, nothing on them. The CV, the certificates and the prints on
+// the rings (about a megabyte) load when the camera sets off for the binder,
+// and are on the pages by the time it arrives.
+const BLANK: Spread[] = SPREADS.map((s) => ({
+  label: s.label, tab: s.tab,
+  left: s.left != null ? <></> : s.left,
+  right: s.right != null ? <></> : s.right,
+}));
+
 /** The Profile binder where it lies on home's desk. From anywhere else in
  *  the room a click brings the camera down over it (Profile in the index does
  *  the same); once the camera is there, clicks and the arrow keys turn it. */
 export default function DeskBinder() {
   const [live, setLive] = useState(false);
+  const [warm, setWarm] = useState(false);
   useEffect(() => {
     const root = document.documentElement;
-    const read = () => setLive(root.dataset.desk === "profile" && root.dataset.deskArrived === "1");
+    const read = () => {
+      setLive(root.dataset.desk === "profile" && root.dataset.deskArrived === "1");
+      if (root.dataset.desk === "profile") setWarm(true);
+    };
     read();
     const mo = new MutationObserver(read);
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-arrived"] });
@@ -29,7 +43,7 @@ export default function DeskBinder() {
   const { at, go } = useBinder(SPREADS.length, live);
   return (
     <BinderBook
-      spreads={SPREADS} at={at} go={go}
+      spreads={warm ? SPREADS : BLANK} at={at} go={go}
       className="desk-binder"
       style={{
         left: `calc(${BINDER.x - BINDER.w / 2} * var(--u))`, top: `calc(${BINDER.y - H / 2} * var(--u))`,

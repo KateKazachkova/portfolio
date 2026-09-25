@@ -108,6 +108,18 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const [page, setPage] = useState(0);                      // booklet leaves turned
   const [screen, setScreen] = useState(false);              // the tablet, raised
   const z = useRef(20);
+  // The prints in the pocket (about a megabyte) are not fetched with home:
+  // they load once Case Files is open — this folder is the first on the desk
+  // — or the folder itself is, and stay loaded from then on.
+  const [warm, setWarm] = useState(false);
+  useEffect(() => {
+    const root = document.documentElement;
+    const read = () => { if (root.dataset.desk === "open") setWarm(true); };
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
+    return () => mo.disconnect();
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -235,7 +247,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
                   } as React.CSSProperties}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/artefacts/ukrainska-15/${st.key}/${String(n).padStart(2, "0")}.webp`} alt="" draggable={false} />
+                  <img src={warm || open ? `/artefacts/ukrainska-15/${st.key}/${String(n).padStart(2, "0")}.webp` : undefined} alt="" draggable={false} />
                 </span>
               );
             })}

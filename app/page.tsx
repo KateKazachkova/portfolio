@@ -555,6 +555,8 @@ export default function Home() {
         <img
           src="/suitcase/open2.webp"
           alt="Kate's collector suitcase"
+          // the page's picture: fetched ahead of everything the room holds
+          fetchPriority="high"
           className="absolute inset-0 w-full h-full object-contain"
           style={{ zIndex: 1 }}
           draggable={false}

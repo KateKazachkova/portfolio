@@ -2386,3 +2386,20 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-load] .desk-cases > :nth-child(3) { transition-delay: .3s; }
 [data-load] .desk-cases > :nth-child(4) { transition-delay: .45s; }
 [data-load] .desk-cases > :nth-child(5) { transition-delay: .6s; }
+
+/* The clip's wardrobe is empty: once the doors have stopped, the page's
+   hangers turn out on their hooks to face the room, one after another
+   (IntroOpen's "clothes"). */
+/* !important: each hanger carries its own transition and opacity inline (the
+   one being worn stays at 0, and keeps to it once they have turned) */
+[data-load]:not([data-load~="clothes"]) img[src*="/items/wardrobe/right-rail-"] { scale: .06 1; opacity: 0 !important; }
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"] {
+  scale: none;
+  transition: scale .55s cubic-bezier(.25, .8, .3, 1.12), opacity .15s linear !important;
+}
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(2) { transition-delay: .11s !important; }
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(3) { transition-delay: .22s !important; }
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(4) { transition-delay: .33s !important; }
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(5) { transition-delay: .44s !important; }
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(6) { transition-delay: .55s !important; }
+[data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(7) { transition-delay: .66s !important; }

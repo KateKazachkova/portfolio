@@ -18,13 +18,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
  *
  * Only the doors are the clip's. Its body is only the model's guess at the
  * case (and its niche is empty — the doll changes with the edition), so the
- * keying makes the clip transparent wherever the body shows between the
- * doors, frame by frame, and over the whole body once they have cleared it
- * (2.45s). Under it the live case is shown cut to the body's rectangle
+ * model was given the body as flat magenta, so the keying makes the clip
+ * transparent wherever it shows between the doors, frame by frame, and over
+ * the whole body once they have cleared it (2.7s). Under it the live case is shown cut to the body's rectangle
  * (`data-intro="body"`, globals.css): the body, the niche and whichever doll
  * is on are the page's own pixels from the first crack of light, so they
- * cannot change size or place. The keying also scales the clip by 1.031 —
- * the model drew the case 3% small — and moves each door onto the page's own
+ * cannot change size or place. The keying also registers the clip onto the
+ * page's case (scale 1.026 for this take) and moves each door onto the page's own
  * while it is still swinging; once both have stopped (END_AT) the clip fades
  * off the whole live case, which covers what still differs on the doors (the
  * rail, the night dimming).
@@ -34,6 +34,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * below the case; the desk's own (and the case's floor shadows) wait hidden
  * and take over at SHADOW_AT, when the doors are all but where it has them.
  * The handle is the page's own throughout: it is the same closed and open.
+ * The clip's wardrobe is empty (the model could not keep the clothes whole
+ * through the swing); the page's hangers turn out to face the room one after
+ * another once the doors have stopped ("clothes").
  *
  * On every visit for now (Kate, 25.09 — may go back to once per visitor).
  * A click or any key lands the whole scene at once; ?nointro and reduced
@@ -62,6 +65,8 @@ const WAIT_MS = 1500;
 const GIVE_UP_MS = 4000;
 
 const html = () => document.documentElement;
+/** the rail's last hanger done turning (ms after "clothes") */
+const CLOTHES_MS = 6 * 110 + 550 + 150;
 const add = (token: string) => {
   const now = html().getAttribute("data-load");
   if (now !== null && !now.split(" ").includes(token)) html().setAttribute("data-load", `${now} ${token}`);
@@ -89,16 +94,27 @@ export default function IntroOpen() {
   const ended = useRef(false);
   const filed = useRef(false);
   const timers = useRef<number[]>([]);
+  const lastStep = useRef(0);
   const later = useCallback((fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
+
+  /** data-load goes once the last of the steps still running is done */
+  const doneIn = useCallback((ms: number) => {
+    const at = performance.now() + ms;
+    if (at <= lastStep.current) return;
+    lastStep.current = at;
+    later(() => { if (performance.now() >= lastStep.current - 20) html().removeAttribute("data-load"); }, ms);
+  }, [later]);
 
   /** the clip is done: the live case takes over under a short fade */
   const endClip = useCallback(() => {
     if (ended.current) return;
     ended.current = true;
     html().removeAttribute("data-intro");
+    add("clothes");
+    doneIn(CLOTHES_MS);
     setFading(true);
     window.setTimeout(() => setOn(false), FADE_MS);
-  }, []);
+  }, [doneIn]);
 
   /** everything at once: the end, or a skip */
   const land = useCallback(() => {
@@ -113,9 +129,9 @@ export default function IntroOpen() {
     const imgs = [...document.querySelectorAll<HTMLImageElement>(".desk-cases img")];
     ready(imgs).then(() => {
       add("files");
-      later(() => html().removeAttribute("data-load"), FILES_MS);
+      doneIn(FILES_MS);
     });
-  }, [later]);
+  }, [doneIn]);
 
   useEffect(() => {
     // the inline script below has already decided, before the first paint

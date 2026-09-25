@@ -690,6 +690,10 @@ body::after {
   transform: translate(var(--case-x), var(--case-y)) scale(var(--case-scale));
   transform-origin: center top;
 }
+/* Home's 130px shift (set on the element) makes room for the column beside
+   the case. Under 1024px the column stands above it instead, and the shift
+   only pushed the case off the right of the screen. */
+@media (max-width: 1023px) { .case-stage { --case-x: 0px !important; } }
 /* Landscape tablets and small laptops (1024–1439px) get the desktop scene
    itself, just smaller: the case keeps its 1440px share of the width
    (1118 / 1440), so the column beside it and everything on the desk scale

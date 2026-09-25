@@ -867,23 +867,23 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    the light under them just the same (the plate's shade shows through by
    the same share), and a blend mode made every piece of the desk several
    times dearer to draw on the way between stops.
-   The desk runs 500 px (46 cm) further towards the camera than the plate
-   did — desk-deep.jpg is the plate with its last 500 rows mirrored on — so
-   its front edge, and the dark under it, stay out of frame on the way up to
-   Case Files instead of sweeping across it (the ply and the dark under it
-   stand at its new edge, z 1145). */
-.desk-top   { top: calc(656 * var(--u)); height: calc(1414 * var(--u));
+   The desk is the plate's own depth (914 px, its front edge at z 645). It
+   ran 500 px further for a while (desk-deep.jpg), so its front edge would
+   not sweep across the frame on the way up to Case Files; with the wall
+   gone and the room's background the dark under the desk, the edge now
+   simply runs into that dark, and the desk is a third smaller to draw. */
+.desk-top   { top: calc(656 * var(--u)); height: calc(914 * var(--u));
               --tile: calc(107.5 * var(--u)); --line: rgba(0, 0, 15, .765);
               background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-deep.jpg");
+                url("/scene/desk3d/desk-clean.jpg");
               background-size: var(--tile) 100%, 100% var(--tile), 100% 100%;
               background-position: calc(52.75 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0;
               background-repeat: repeat-x, repeat-y, no-repeat;
               transform-origin: 50% 0; transform: translateZ(calc(-269 * var(--u))) rotateX(90deg); }
 .desk-ply   { top: calc(656 * var(--u)); height: calc(27 * var(--u));
-              background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(1145 * var(--u))); }
+              background-image: url("/scene/desk3d/ply.jpg"); transform: translateZ(calc(645 * var(--u))); }
 /* Cut into pieces. The desk is 3225 px across, and a plane in
    3D is drawn whole whatever of it the camera sees: close up on retina that
    ran Chrome out of tile memory (planes dropped in squares and spikes on the
@@ -908,13 +908,13 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 }
 .desk-top.desk-skins > .desk-skin {
   background-color: rgb(208, 204, 196);
-  --wy: calc(var(--j) * 1414 * var(--u) / var(--rows));
-  top: var(--wy); height: calc(1414 * var(--u) / var(--rows) + 1px);
+  --wy: calc(var(--j) * 914 * var(--u) / var(--rows));
+  top: var(--wy); height: calc(914 * var(--u) / var(--rows) + 1px);
   background-image:
     linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
     linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-    url("/scene/desk3d/desk-deep.jpg");
-  background-size: var(--tile) 100%, 100% var(--tile), calc(3225 * var(--u)) calc(1414 * var(--u));
+    url("/scene/desk3d/desk-clean.jpg");
+  background-size: var(--tile) 100%, 100% var(--tile), calc(3225 * var(--u)) calc(914 * var(--u));
   background-position:
     calc(52.75 * var(--u) - var(--px)) 0,
     0 calc(57.3 * var(--u) - var(--wy)),
@@ -934,7 +934,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .desk-top.desk-ext  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-ext-deep.jpg"); }
+                url("/scene/desk3d/desk-ext.jpg"); }
 .desk-ply.desk-ext  { background-image: url("/scene/desk3d/ply-ext.jpg"); }
 /* …and past its left edge (x -1052.5), where Off Duty looks: 700 px more,
    the plate's first 700 px mirrored. The tiles' lines carry on across the
@@ -943,12 +943,12 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .desk-top.desk-extl  { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-extl-deep.jpg");
+                url("/scene/desk3d/desk-extl.jpg");
               background-position: calc(.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
 .desk-ply.desk-extl  { background-image: url("/scene/desk3d/ply-extl.jpg"); }
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
-              background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
-              transform: translateZ(calc(1145 * var(--u))); }
+              background: linear-gradient(#1e1a16, var(--room-wall) calc(60 * var(--u)));
+              transform: translateZ(calc(645 * var(--u))); }
 /* The Davey trophy, standing against the wall right of the case (placed
    in DeskScene.tsx). Its contact shadow lies on the desk-top plane. */
 .desk-award { position: absolute; display: block; max-width: none;

@@ -134,6 +134,8 @@ const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (t
 const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
 
 export const DESK_EVENT = "kate:case-files";
+/** The desk hint's "Put the file away": the case in focus goes back. */
+const PUT_AWAY = "kate:desk-put-away";
 export const AWARD_EVENT = "kate:recognition";
 export { PROFILE_EVENT, OFFDUTY_EVENT };
 type View = "files" | "award" | "profile" | "offduty";
@@ -311,7 +313,7 @@ export function DeskHint() {
       <span className="desk-hint__swipe" aria-hidden>← swipe →</span>
       <span className="desk-counter" aria-hidden>1 / {CASES.length}</span>
       {/* With a file spread over the desk, the pill is a way back out of it */}
-      <button type="button" className="desk-hint__close" onClick={() => dispatchEvent(new Event(U15_CLOSE))}>↓ Put the file away</button>
+      <button type="button" className="desk-hint__close" onClick={() => dispatchEvent(new Event(PUT_AWAY))}>↓ Put the file away</button>
     </div>
   );
 }
@@ -516,6 +518,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // opening Ukrainska 15's folder lays it out for the camera at pan 0
     const onU15 = () => { if (panning()) { setFocus(U15); go(0); } };
     const onU15Closed = () => { if (focus === U15) setFocus(null); };
+    const onPutAway = () => { if (focus === U15) dispatchEvent(new Event(U15_CLOSE)); else if (focus) setFocus(null); };
+    window.addEventListener(PUT_AWAY, onPutAway);
     window.addEventListener(U15_OPEN, onU15);
     window.addEventListener(U15_CLOSED, onU15Closed);
     window.addEventListener(DESK_EVENT, onFiles);
@@ -537,6 +541,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     return () => {
       window.removeEventListener(U15_OPEN, onU15);
       window.removeEventListener(U15_CLOSED, onU15Closed);
+      window.removeEventListener(PUT_AWAY, onPutAway);
     window.removeEventListener(DESK_EVENT, onFiles);
       window.removeEventListener(AWARD_EVENT, onAward);
       window.removeEventListener(PROFILE_EVENT, onProfile);

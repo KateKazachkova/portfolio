@@ -1699,13 +1699,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   .desk-hint__scroll { display: none; }
   .desk-hint__swipe { display: inline; }
 }
-/* A file open on the desk: the pill turns into its way out. */
+/* A file open or in focus on the desk: the pill turns into its way out. */
 .desk-hint__close { display: none; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;
   background: none; border: 0; padding: 7px 14px; margin: -7px -14px; cursor: pointer; }
-[data-u15="open"] .desk-hint { pointer-events: auto; }
-[data-u15="open"] .desk-hint > span { display: none; }
-[data-u15="open"] .desk-hint__close { display: inline; }
-[data-u15="open"] .desk-hint:hover { background: #fff; }
+:is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint { pointer-events: auto; }
+:is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint > span { display: none; }
+:is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint__close { display: inline; }
+:is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint:hover { background: #fff; }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }

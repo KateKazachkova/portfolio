@@ -317,6 +317,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const el = cam.current;
     if (!el) return;
     root.dataset.deskReady = "1";
+    // TEMPORARY (25.09): ?t=bf,wc,… switches on experiments for the planes
+    // Chrome drops on the way between stops (globals.css, "Chrome tests")
+    const tests = new URLSearchParams(location.search).get("t");
+    if (tests) root.dataset.deskTest = tests.split(",").join(" ");
 
     // The lens shift: how far the scene must slide for the camera's principal
     // point (560, 226 of the box) to land in the middle of the window.
@@ -551,6 +555,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;
+      delete root.dataset.deskTest;
       delete root.dataset.desk;
       // and forget the view with it, or a remount (React's dev double run,
       // or home again on the way in from another page) finds it "already

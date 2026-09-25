@@ -922,6 +922,20 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    a second 3225 px plane over the first, hiding the trophy's cast). */
 .desk-wall--hung { background: none; }
 
+/* Chrome tests — TEMPORARY (25.09). Chrome, not Safari, drops whole pieces
+   of wall and desk on the way between stops. Each token of ?t= tries one
+   cause; take the block out once one is settled.
+   bf    backface culling: no backface-visibility on the room
+   wc    each piece a will-change layer of its own for good
+   flat  the pieces no longer lifted into layers (no translateZ)
+   noh   none of the switching-off at stops or on the way */
+[data-desk-test~="bf"] :is(.desk-plane, .desk-skin) { backface-visibility: visible !important; }
+[data-desk-test~="wc"] .desk-skin { will-change: transform; }
+[data-desk-test~="flat"] .desk-skin { transform: none; }
+[data-desk-test~="noh"] :is(.desk-plane, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp, .case-world) {
+  animation: none !important; visibility: visible !important;
+}
+
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */

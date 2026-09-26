@@ -13,6 +13,17 @@ export const PROFILE_EVENT = "kate:profile";
 const BINDER = { x: 3031, y: 290, w: 560, r: 0 };
 const H = Math.round(BINDER.w * 2136 / 3717);
 
+// The sheet of paper under the index column at Profile, slipped in over the
+// board and under the first sheet (globals.css .desk-paper--tucked). An img,
+// not a background, so the WebGL room's flat binder decodes it with its
+// pictures before the panel's first paint.
+export const TUCKED = (
+  <>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img className="desk-paper--tucked" src="/items/desk-paper.webp" alt="" draggable={false} />
+  </>
+);
+
 // The sheets as they are before anyone asks for Profile: the same leaves and
 // divider tabs, nothing on them. The CV, the certificates and the prints on
 // the rings (about a megabyte) load when the camera sets off for the binder,
@@ -45,6 +56,7 @@ export default function DeskBinder() {
     <BinderBook
       spreads={warm ? SPREADS : BLANK} at={at} go={go}
       className="desk-binder"
+      tucked={TUCKED}
       style={{
         left: `calc(${BINDER.x - BINDER.w / 2} * var(--u))`, top: `calc(${BINDER.y - H / 2} * var(--u))`,
         width: `calc(${BINDER.w} * var(--u))`, transform: `rotate(${BINDER.r}deg) translateZ(.1px)`,

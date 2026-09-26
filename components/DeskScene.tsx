@@ -259,9 +259,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
             measured from the column's box at 1440 × 900. */}
         {warm && <div className="desk-paper" aria-hidden style={{ left: "calc(1211 * var(--u))", top: "calc(611 * var(--u))", "--r": "-1.5deg", "--w": 155, "--h": 225 } as React.CSSProperties} />}
         {/* the Profile one is slipped into the binder, over its board and
-            under its first sheet, and runs 56 desk px (~100 screen px)
-            wider to reach in under the sheet */}
-        {ready.has("profile") && <div className="desk-paper desk-paper--tucked" aria-hidden style={{ left: "calc(2719 * var(--u))", top: "calc(257 * var(--u))", "--r": "1.2deg", "--w": 191 } as React.CSSProperties} />}
+            under its first sheet (DeskBinder: it is the binder's, so the
+            flat binder of the WebGL room has it in the same place) */}
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />

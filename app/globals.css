@@ -720,6 +720,9 @@ body::after {
   .desk-paper { translate: 0 calc(21 * var(--u)); }
   /* the Profile binder 5% smaller in this range, about its centre */
   .pf-binder.desk-binder { scale: .95 .95 1; }   /* not in depth: the sheet under its first leaf keeps its place */
+  /* the sheet tucked into it stays where it lay on the desk, 21 down and
+     full size: its box inside the smaller binder, ÷ .95 about its centre */
+  .pf-binder.desk-binder .desk-paper--tucked { left: -26.598%; top: 6.855%; width: 35.902%; height: 78.506%; }
 }
 /* From 1280px the scene scales with the window both ways: its 1440px share
    of the width (1118 / 1440 — at which the window's edge cuts the Davey
@@ -1401,7 +1404,17 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    sheet sits halfway, at 4.9. The binder's u is half the desk's (its --u is
    read against a container half as wide), hence 2.45 here. */
 .pf-binder.desk-binder .pf-leaf { --lift: calc(var(--t) + .6 * var(--u)); }
-.desk-paper.desk-paper--tucked { transform: rotate(var(--r, 0deg)) translateZ(calc(2.45 * var(--u) + .1px)); }
+/* The tucked sheet is the binder's own img (DeskBinder TUCKED), after its
+   board and before its leaves: 191 × 240 desk px, its centre 32 left of the
+   binder's edge and 128 down, as a share of the binder's box; in its u (half
+   the desk's) the shadow is .desk-paper's doubled. Laid flat (RoomBinder)
+   its place in the book is its place in the stack. */
+.desk-paper--tucked {
+  position: absolute; left: -22.768%; top: 2.486%; width: 34.107%; height: 74.58%; max-width: none;
+  transform: rotate(1.2deg) translateZ(calc(var(--t, 0px) + .4 * var(--u))); pointer-events: none;
+  box-shadow: calc(2 * var(--u)) calc(3 * var(--u)) calc(4 * var(--u)) rgba(20, 16, 12, .16),
+    calc(6 * var(--u)) calc(12 * var(--u)) calc(20 * var(--u)) calc(-6 * var(--u)) rgba(20, 16, 12, .2);
+}
 /* the sheets under the index column (DeskScene): 135 × 240 desk px unless
    set, the generated sheet stretched a little taller than A-size to hold the
    column (the camera over the case files is lower: its sheet is smaller) */

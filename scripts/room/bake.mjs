@@ -51,6 +51,13 @@ html.bk .bk-on.bk-psb::after, html.bk .bk-on.bk-psa::before { display: none !imp
 html.bk .bk-on.bk-psb::before, html.bk .bk-on.bk-psa::after { mix-blend-mode: normal !important; }
 html.bk .bk-on.bk-nops::before, html.bk .bk-on.bk-nops::after { display: none !important; }
 html.bk .bike__lcd, html.bk .bike__lcd * { visibility: hidden !important; }
+html.bk .od-dvd__screen, html.bk .od-dvd__screen * { visibility: hidden !important; }
+html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
+html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
+html.bk .od-sleeve { --stack: 0 0 transparent !important; }
+html.bk.bk-film .od-sleeve, html.bk.bk-step .od-sleeve { background: none !important; }
+html.bk.bk-film .od-sleeve { box-shadow: none !important; }
+html.bk.bk-film .od-sleeve__strip, html.bk.bk-step .od-sleeve__strip { visibility: hidden !important; }
 html.bk .bk-anc { opacity: 1 !important; mix-blend-mode: normal !important; }
 html.bk, html.bk body, html.bk main { background: transparent !important; }
 html.bk::before, html.bk::after, html.bk body::before, html.bk body::after { display: none !important; }
@@ -203,6 +210,84 @@ if (OPT.only !== "flat") for (const it of units) {
   });
   out.items.push(item);
   if (n % 10 === 0) log("baked", n);
+}
+
+// ── Off Duty (M6): the wallet's sleeves in layers, the discs apart ────────
+// The sleeves above are baked without their discs, their film or the stack
+// of sleeves under them (BAKE_CSS). WebGL draws the discs of whatever spread
+// is open between a sleeve and its film (engine: wallet), from these layers
+// and the series' own labels at runtime; and one step of the stack per
+// sleeve left to turn, a plane each, painted as the page's box-shadow is
+// (the last under the first, none inside the sleeve's box).
+const STEPS_N = 6;
+const stepShadow = (j, dir) => { const k = j + 1; return `calc(${dir * k * 3.4} * var(--u)) calc(${k * 1.8} * var(--u)) 0 calc(-.3 * var(--u)) rgba(232, 240, 234, ${(0.78 - j * 0.1).toFixed(2)}), calc(${dir * (k * 3.4 + .8)} * var(--u)) calc(${k * 1.8 + .8} * var(--u)) 0 calc(-.3 * var(--u)) rgba(16, 32, 22, .45)`; };
+// one more picture of plane `it`, the page set up for it by `setup` (and put back)
+async function bakeAs(it, name, setup, undo) {
+  await b.ev(setup);
+  await b.ev(`window.__bk.pose(${it.i}, "all")`);
+  const r = await b.ev(`window.__bk.bounds(${it.i})`);
+  if (!r) { await b.ev(undo); return null; }
+  const grow = Math.ceil(Math.max(8, Math.min(60, Math.max(r.w, r.h) * 0.08)));
+  const box = { x: Math.floor(r.x - grow), y: Math.floor(r.y - grow), w: Math.ceil(r.w + 2 * grow), h: Math.ceil(r.h + 2 * grow) };
+  const png = await capture({ i: `${it.i}-${name}` }, box, it.rho);
+  const res = JSON.parse(execFileSync("python3", [pyStitch, "trim", png, path.join(MASTER, "png", name + ".png"), path.join(OUT, "tex", name + ".webp"), String(it.rho)]).toString());
+  await b.ev(undo);
+  if (!res.w) return null;
+  const ox = box.x + res.x / it.rho, oy = box.y + res.y / it.rho;
+  return { ox, oy, src: `/room/tex/${name}.webp`, px: [res.w, res.h], rho: it.rho, w: res.w / it.rho / u, h: res.h / it.rho / u };
+}
+// (a pose leaves the world turned for the last plane: geometry is read
+// with it put back, as collect() read everything else)
+const unpose = () => b.ev("document.querySelector('.desk-world').style.removeProperty('transform'); document.querySelector('.case-stage').style.removeProperty('translate'); 1");
+if (OPT.only !== "flat") {
+  const wallet = { hangs: {}, discs: [], layers: {}, steps: STEPS_N };
+  for (const side of ["l", "r"]) {
+    const it = units.find((x) => x.cls === `od-hang od-hang--${side}`);
+    const at = out.items.findIndex((x) => x.i === it?.i);
+    if (!it || at < 0) { log("no sleeve", side); continue; }
+    const hang = out.items[at];
+    const like = (extra, cls) => ({ ...hang, cls, type: "tex", src: extra.src, px: extra.px, rho: extra.rho, w: extra.w, h: extra.h, off: [extra.ox, extra.oy], m: toU(mulLocal(it.m, extra.ox, extra.oy), u), _diff: hang._diff });
+    const sel = `document.querySelector('.od-hang--${side} .od-sleeve')`;
+    const film = await bakeAs(it, `od-film-${side}`, "document.documentElement.classList.add('bk-film')", "document.documentElement.classList.remove('bk-film')");
+    const steps = [];
+    for (let j = 0; j < STEPS_N; j++) {
+      const s = await bakeAs(it, `od-step-${side}${j}`,
+        `document.documentElement.classList.add('bk-step'); ${sel}.style.setProperty('box-shadow', ${JSON.stringify(stepShadow(j, side === "r" ? 1 : -1))}, 'important'); 1`,
+        `document.documentElement.classList.remove('bk-step'); ${sel}.style.removeProperty('box-shadow'); 1`);
+      if (s) steps.push(like(s, `od-step od-step--${side} od-step-${j}`));
+    }
+    // paint order: the deepest step first, the sleeve, (its discs,) its film
+    out.items.splice(at, 1, ...steps.reverse(), hang, ...(film ? [like(film, `od-film od-film--${side}`)] : []));
+    // the sleeve's own frame, for the turn (it folds about its pegs)
+    await unpose();
+    const hs = await b.ev(`JSON.stringify(window.__bkSize(document.querySelector('.od-hang--${side}')))`).then(JSON.parse);
+    wallet.hangs[side] = { m: toU(it.m, u), w: hs[0] / u, h: hs[1] / u };
+    // the four pockets' discs, as spread 0 lies (pocket 0–3 left, 4–7 right)
+    const ds = JSON.parse(await b.ev(`JSON.stringify([...document.querySelectorAll('.od-hang--${side}:not(.od-hang--fold):not(.od-hang--unfold) .od-sleeve__cell')].map((c) => { const e = c.querySelector('.cd-body'); return e ? { m: window.__bkWorld(e), s: window.__bkSize(e) } : null; }))`));
+    ds.forEach((d, k) => { if (d) wallet.discs.push({ side, i: (side === "l" ? 0 : 4) + k, m: toU(d.m, u), w: d.s[0] / u, h: d.s[1] / u }); });
+  }
+  // a disc's layers over its label, each on its own at full strength (the
+  // engine lays them in the wallet's plain alpha, or the player's blends)
+  const layer0 = ".od-hang--l .od-sleeve__cell .cd-body";
+  await unpose();
+  const bodyBox = JSON.parse(await b.ev(`JSON.stringify(window.__bkSize(document.querySelector('${layer0}')))`));
+  for (const [k, cls] of [["grooves", "cd-grooves"], ["sheen", "cd-sheen"], ["hub", "cd-hub"], ["edge", "cd-edge"]]) {
+    const i = 9000 + Object.keys(wallet.layers).length;
+    await b.ev(`(()=>{const e=document.querySelector('${layer0} .${cls}');e.dataset.bk=${i};e.style.setProperty('opacity','1','important');e.style.setProperty('mix-blend-mode','normal','important');return 1})()`);
+    const rho = 4;
+    const got = await bakeAs({ i, rho }, `disc-${k}`, "document.documentElement.classList.add('bk-disc'); 1", "document.documentElement.classList.remove('bk-disc'); 1");
+    const bx = JSON.parse(await b.ev(`(()=>{window.__bk.pose(${i}, "all");return JSON.stringify(window.__bk.bounds(${i}))})()`));
+    await b.ev(`(()=>{const e=document.querySelector('${layer0} .${cls}');delete e.dataset.bk;e.style.removeProperty('opacity');e.style.removeProperty('mix-blend-mode');return 1})()`);
+    if (got) wallet.layers[k] = { src: got.src, px: got.px, x: (got.ox - bx.ex) / bodyBox[0], y: (got.oy - bx.ey) / bodyBox[1], w: got.w * u / bodyBox[0], h: got.h * u / bodyBox[1] };
+  }
+  // the spindle's disc-sized square on the player's base, and the screen
+  await unpose();
+  const one = async (s) => JSON.parse(await b.ev(`(()=>{const e=document.querySelector('${s}');return JSON.stringify({m:window.__bkWorld(e),s:window.__bkSize(e)})})()`));
+  const bay = await one(".od-dvd__bay"), scr = await one(".od-dvd__screen");
+  wallet.bay = { m: toU(bay.m, u), w: bay.s[0] / u, h: bay.s[1] / u };
+  wallet.screen = { m: toU(scr.m, u), w: scr.s[0] / u, h: scr.s[1] / u };
+  out.wallet = wallet;
+  log("wallet", wallet.discs.length, "discs,", Object.keys(wallet.layers).length, "layers,", out.items.filter((x) => /^od-(step|film)/.test(x.cls)).length, "sleeve layers");
 }
 
 // ── the flat groups: their non-picture paint, by signature ─────────────────

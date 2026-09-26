@@ -19,6 +19,7 @@ import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
 import { makeLcd, type Lcd } from "./lcd";
 import { makeNight, POOL } from "./night";
+import { makeWallet, type Host, type WalletData } from "./wallet";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -34,7 +35,7 @@ type Item = {
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[] };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -411,6 +412,23 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     lcd.onChange(() => { tex.needsUpdate = true; dirty = true; kick(); });
     lives.push({ mesh, host, lcd, tex });
   }
+  // Off Duty's wallet and player: the open spread's discs, the turn, the
+  // disc's flight to the spindle (wallet.ts), laid from the room's state
+  const hostOf = (cls: string): Host | null => {
+    const p = room.find((q) => q.item.cls === cls);
+    if (!p) return null;
+    const ud = p.meshes[0].userData;
+    return { meshes: p.meshes, shown: () => ud.vis !== false && !ud.away && p.op.value(performance.now()) > 0.001, m: p.item.m, w: p.item.w, h: p.item.h, k: p.k, tex: () => p.slot.tex, watch: (mat) => { p.slot.mats.add(mat); if (p.slot.state === 2) mat.uniforms.map.value = p.slot.tex; } };
+  };
+  const hosts = ["od-hang od-hang--l", "od-hang od-hang--r", "od-film od-film--l", "od-film od-film--r", "od-dvd__base"].map(hostOf);
+  const stepsOf = (side: string) => Array.from({ length: data.wallet?.steps ?? 0 }, (_, j) => hostOf(`od-step od-step--${side} od-step-${j}`)).filter((h): h is Host => !!h);
+  const wallet = data.wallet && hosts.every(Boolean) ? makeWallet({
+    scene, data: data.wallet,
+    under: { l: hosts[0]!, r: hosts[1]! }, film: { l: hosts[2]!, r: hosts[3]! }, steps: { l: stepsOf("l"), r: stepsOf("r") }, base: hosts[4]!,
+    material, lifted, liftCount,
+    redraw: () => { dirty = true; kick(); },
+    upload: (t) => renderer.initTexture(t),
+  }) : null;
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
@@ -816,8 +834,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     const nightMoving = nightActive();
     homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
-    if (moving || dirty || video || arrivedNow || nightMoving) { draw(now); dirty = false; }
-    if (moving || video || view !== "home" || pending > 0 || nightMoving) raf = requestAnimationFrame(loop);
+    // (the wallet's own movements neither hide the controls nor count as the camera's)
+    const walletMoving = wallet ? wallet.frame(now) : false;
+    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving) { draw(now); dirty = false; }
+    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
   };
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
@@ -987,6 +1007,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
+      wallet?.dispose();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

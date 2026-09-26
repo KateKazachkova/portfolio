@@ -21,8 +21,14 @@ export type RoomState = {
   series: Series[];
   /** the spread it is open at, eight discs to one */
   spread: number;
+  /** a sleeve turning over the spine (OffDutyShelf's TURN_MS): which way,
+   *  to which spread, since when (performance.now()) */
+  turn: { dir: 1 | -1; to: number; t0: number } | null;
   /** the disc in the player */
   picked: Series | null;
+  /** a disc on its way from pocket `from` of spread `spread` to the player
+   *  (FLY_MS); the player is empty meanwhile */
+  flying: { item: Series; from: number; spread: number; t0: number } | null;
   /** its clip has sound (only while the camera is at the corner) */
   sound: boolean;
   /** Ukrainska 15's folder is open on the desk, and its song playing */
@@ -30,7 +36,7 @@ export type RoomState = {
   playing: boolean;
 };
 
-const state: RoomState = { bikePage: 0, strava: null, series: [], spread: 0, picked: null, sound: false, u15: false, playing: false };
+const state: RoomState = { bikePage: 0, strava: null, series: [], spread: 0, turn: null, picked: null, flying: null, sound: false, u15: false, playing: false };
 const listeners = new Set<(s: RoomState) => void>();
 
 export const roomState = () => state;
@@ -88,8 +94,24 @@ export function loadSeries() {
 export const spreads = (s = state) => Math.max(1, Math.ceil(s.series.length / PER_SPREAD));
 /** the series in pocket i (0–3 the left sleeve, 4–7 the right) of the open spread */
 export const discAt = (i: number, s = state) => s.series[s.spread * PER_SPREAD + i] ?? null;
+// OffDutyShelf's timings: a sleeve folds flat to the pegs and opens on the
+// other side (.32 s + .32 s); a disc flies to the spindle in .9 s
+export const TURN_MS = 640;
+export const FLY_MS = 900;
 export const turnSpread = (d: 1 | -1) => {
+  if (state.turn) return;
   const to = state.spread + d;
-  if (to >= 0 && to < spreads()) setRoom({ spread: to });
+  if (to < 0 || to >= spreads()) return;
+  setRoom({ turn: { dir: d, to, t0: performance.now() } });
+  setTimeout(() => setRoom({ spread: to, turn: null }), TURN_MS);
 };
-export const pickDisc = (item: Series) => setRoom({ picked: item, sound: false });
+/** the disc in pocket i of the open spread goes into the player: the one in
+ *  it goes back at once, this one flies over and is in when it lands */
+export const pickDisc = (i: number) => {
+  const item = discAt(i);
+  if (!item || state.flying) return;
+  setRoom({ picked: null, sound: false, flying: { item, from: i, spread: state.spread, t0: performance.now() } });
+  setTimeout(() => setRoom({ picked: item, flying: null }), FLY_MS);
+};
+/** the disc out of its pocket: in the player, or on its way there */
+export const discOut = (s = state) => (s.flying?.item ?? s.picked)?.title;

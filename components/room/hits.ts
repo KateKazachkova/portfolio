@@ -23,7 +23,7 @@ import { projectToStage, type Pose, type View } from "@/lib/room/pose";
 import { makeDvd } from "./dvd";
 import { SONG_TITLE, startU15, toggleSong, toggleU15 } from "./u15";
 import {
-  bikeWords, discAt, loadSeries, loadStrava, onRoom, pickDisc, roomState, stepBike, stravaHref, turnSpread, type RoomState,
+  bikeWords, discAt, discOut, loadSeries, loadStrava, onRoom, pickDisc, roomState, stepBike, stravaHref, turnSpread, type RoomState,
 } from "./state";
 
 export type Hit = {
@@ -61,7 +61,7 @@ const ACTIONS: Record<string, (h: Hit) => void> = {
   "bike-prev": () => stepBike(-1),
   // the wallet: a disc into the player; a click on a sleeve's margin turns
   // the spread that way (the left sleeve back, the right one on)
-  "disc-pick": (h) => { const d = discAt(h.of.i); if (d) pickDisc(d); },
+  "disc-pick": (h) => pickDisc(h.of.i),
   "sleeve-turn": (h) => turnSpread(h.of.i === 0 ? -1 : 1),
   // Case Files: a case into focus (useDeskCamera lays it out and pans to
   // it); Ukrainska 15's folder opened or put away; its song
@@ -80,7 +80,8 @@ const BIND: Record<string, (el: HTMLElement, s: RoomState, h: Hit) => void> = {
 };
 // whether the room's state has it there at all
 const SHOWN: Record<string, (s: RoomState, h: Hit) => boolean> = {
-  disc: (s, h) => { const d = discAt(h.of.i, s); return !!d && d.title !== s.picked?.title; },
+  // (not while a sleeve turns, as OffDutyShelf's `live`)
+  disc: (s, h) => { const d = discAt(h.of.i, s); return !!d && d.title !== discOut(s) && !s.turn; },
   dvd: (s) => !!s.picked,
 };
 // what a stop says, as its screen changes (polite: after what is being read)
@@ -167,6 +168,17 @@ export function startHits(o: {
       e.preventDefault();
       o.navigate!(h.href!);
     });
+    // a disc lifts toward the pointer (OffDutyShelf's --px / --py), drawn by
+    // WebGL (wallet.ts)
+    if (h.type === "disc") {
+      const tell = (d: object) => dispatchEvent(new CustomEvent("room:disc-tilt", { detail: { i: h.of.i, ...d } }));
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        tell({ px: +(((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3), py: +(((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3) });
+      });
+      el.addEventListener("pointerleave", () => tell({ off: true }));
+      el.addEventListener("click", () => tell({ off: true }));
+    }
     // a silhouette is hit-tested by the ray, not by the box
     if (h.mask) el.style.pointerEvents = "none";
     layer.appendChild(el);

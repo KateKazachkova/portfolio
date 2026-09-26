@@ -304,7 +304,8 @@ if (run("wallet")) {
   // a click on Star City: out of its pocket, into the player
   const sc = HITS.find((h) => h.type === "disc" && h.of.i === d0.indexOf("Star City"));
   const r = await rect(sc.id);
-  await click(r.x + r.w / 2, r.y + r.h / 2); await sleep(400);
+  // (it flies to the player first, FLY_MS; it is in once it lands)
+  await click(r.x + r.w / 2, r.y + r.h / 2); await sleep(1100);
   const d1 = await discs();
   ok(!d1.includes("Star City") && d1.length === 7, "wallet: the disc picked is out of its pocket", d1.length + "");
   const dv = JSON.parse(await b.ev(`(()=>{const e=document.querySelector('[data-hit=dvd]');const r=e.getBoundingClientRect();return JSON.stringify({on:!e.hidden,x:r.x,y:r.y,w:r.width,h:r.height,text:e.textContent,label:e.getAttribute('aria-label'),role:e.getAttribute('role'),tube:e.querySelector('iframe')?.src??null})})()`));
@@ -324,7 +325,7 @@ if (run("wallet")) {
   // the keyboard: Enter on a disc puts it in, and focus goes on to the next disc
   const wb = HITS.find((h) => h.type === "disc" && h.of.i === d0.indexOf("Widow's Bay"));
   await b.ev(`document.querySelector('[data-hit="${wb.id}"]').focus()`); await sleep(100);
-  await key("Enter"); await sleep(400);
+  await key("Enter"); await sleep(1100);
   const s1 = await st();
   const nowIn = await b.ev("document.querySelector('[data-hit=dvd]').textContent");
   ok(nowIn.includes("Widow's Bay") && (await discs()).includes("Star City"), "wallet: Enter on another disc swaps them, Star City back in its pocket", nowIn);
@@ -334,14 +335,15 @@ if (run("wallet")) {
   const margin = (id) => b.ev(`(()=>{const e=document.querySelector('[data-hit="${id}"]');const r=e.getBoundingClientRect();
     for(let fy=0.5;fy<0.95;fy+=0.05)for(let fx=${id === "sleeve-1" ? "0.95;fx>0.05;fx-=0.03" : "0.05;fx<0.95;fx+=0.03"}){const x=r.x+r.width*fx,y=r.y+r.height*fy;if(document.elementFromPoint(x,y)===e)return JSON.stringify([x,y])}return null})()`).then(JSON.parse);
   const sl = await margin("sleeve-1");
-  await click(sl[0], sl[1]); await sleep(300);
+  // (a sleeve turns in TURN_MS; another turn waits for it, as the page's)
+  await click(sl[0], sl[1]); await sleep(800);
   ok((await discs()).join("|") === series.slice(8, 16).map((x) => x.title).join("|"), "wallet: a click on the right sleeve's margin turns to the next spread", (await discs())[0]);
-  await key("ArrowRight"); await sleep(200);
+  await key("ArrowRight"); await sleep(800);
   ok((await discs())[0] === series[16].title, "wallet: → turns on", (await discs())[0]);
-  await key("ArrowLeft"); await key("ArrowLeft"); await sleep(200);
+  await key("ArrowLeft"); await sleep(800); await key("ArrowLeft"); await sleep(800);
   ok((await discs())[0] === series[0].title && !(await discs()).includes("Widow's Bay"), "wallet: ← back to the first, the disc in the player still out of it");
   const sl0 = await margin("sleeve-0");
-  await click(sl0[0], sl0[1]); await sleep(300);
+  await click(sl0[0], sl0[1]); await sleep(800);
   ok((await discs())[0] === series[0].title, "wallet: the left sleeve at the first spread turns no further");
   const ax = await b.send("Accessibility.getFullAXTree");
   const nodes = (ax.result?.nodes ?? []).filter((x) => !x.ignored).map((x) => `${x.role?.value}: ${x.name?.value ?? ""}`);

@@ -16,6 +16,7 @@ import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
 import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
+import { startHits, type Hit, type HitLayer } from "./hits";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -667,6 +668,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
   };
   let posterGone = false;
+  let placedKey = "";
 
   let raf = 0;
   const loop = (now: number) => {
@@ -692,6 +694,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (groupsShown && !forced) setGroupsShown(false);
       for (const p of room) { const ud = p.meshes[0].userData; if (ud.hideAtHome) { ud.hideAtHome = false; ud.vis = false; ud.dirty = true; dirty = true; } }
       if (dirty) settle(now);
+    }
+    // the controls: laid over the room when the camera is still, gone while it moves
+    if (hitLayer) {
+      if (moving || hold) { if (placedKey !== "moving") { hitLayer.place(null); placedKey = "moving"; } }
+      else {
+        const s = shift.value(now), p = pose.to;
+        const key = `${view}|${p.rx}|${p.t.join()}|${s.join()}|${geom.u}|${geom.cx}|${geom.cy}`;
+        if (key !== placedKey) { placedKey = key; hitLayer.place({ view, pose: p, shift: [s[0] + p.sx, s[1] + p.sy], u: geom.u }); }
+      }
     }
     const video = groupsShown && [...(groupMeshes.get("case") ?? [])].some((m) => m.visible && (m.material as THREE.ShaderMaterial).uniforms.map.value instanceof THREE.VideoTexture);
     if (moving || dirty || video || arrivedNow) { draw(now); dirty = false; }
@@ -763,6 +774,13 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   idle(warm);
   kick();
 
+  // what can be clicked (M3 spike: public/room/hits.json)
+  let hitLayer: HitLayer | null = null;
+  fetch("/room/hits.json").then((r) => r.json()).then((d: { hits: Hit[] }) => {
+    hitLayer = startHits({ host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {} });
+    placedKey = "";
+    kick();
+  }).catch(() => {});
 
   return {
     renderer, scene,
@@ -820,6 +838,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect();
+      hitLayer?.dispose();
       removeEventListener("resize", onResize);
       setGroupsShown(false);
       for (const t of texCache.values()) t.dispose();

@@ -241,6 +241,9 @@ export function collect(SIG) {
     measure();
     return res;
   };
+  // for scripts/room/hits.mjs: any element's matrix in the room, now
+  window.__bkWorld = (el) => { measure(); const m = worldOf(el, world); return m ? Array.from(m.toFloat64Array()) : null; };
+  window.__bkSize = (el) => size.get(el) ?? [el.offsetWidth, el.offsetHeight];
   const groupM = {};
   for (const [k, sel] of [["clock", ".flip-clock-slot"], ["lamp", ".desk-lamp"]]) { const g = document.querySelector(sel); if (g) groupM[k] = Array.from(worldOf(g, world).toFloat64Array()); }
   return { groupM, u, stage: { left: S.left, top: S.top, width: S.width, height: S.height }, world: { left: W.left, top: W.top }, units, flat };

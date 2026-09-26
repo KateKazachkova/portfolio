@@ -108,6 +108,9 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
             Files moves the camera through it; everything the case holds
             rides in .case-world, the one plane at z = 0, so it moves with the
             desk. In daylight both are inert and the scene is flat as ever. */}
+        {/* the WebGL room's still (?gl=1 only: display none, and so never
+            fetched, without the flag), until WebGL has drawn the room */}
+        <div className="room-poster" aria-hidden />
         {gl && (
           <div className="room-home" ref={roomHome}>
             <div className="flip-clock-slot">

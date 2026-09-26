@@ -12,7 +12,8 @@
  * and still again, the DOM comes back in the same way.
  */
 import * as THREE from "three";
-import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
+import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 
@@ -22,6 +23,11 @@ type Item = {
   op: number; vis?: boolean; blend: string; order: number; grid?: number[]; back?: boolean; rho?: number; px?: [number, number];
   /** how it lies at each stop, where that differs from home */
   states?: Partial<Record<View, State>>;
+  need: number;
+  /** the GPU's copy (scripts/room/textures.mjs) */
+  k2?: string; k2px?: [number, number]; k2mode?: string; k2bytes?: number;
+  /** a preview, a few KB, drawn until the texture is in */
+  lo?: string;
 };
 type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]> };
 
@@ -32,6 +38,8 @@ export type RoomOptions = {
   groups: { case: HTMLElement | null; clock: HTMLElement | null; lamp: HTMLElement | null };
   onArrive: () => void;
   sceneUrl?: string;
+  /** the room at home as a still, shown until WebGL has drawn it */
+  poster?: HTMLElement | null;
 };
 
 // ── transitions, as CSS runs them ──────────────────────────────────────────
@@ -152,6 +160,9 @@ export type Room = {
   scene: THREE.Scene;
   redraw(): void;
   quads(): Record<string, unknown[]>;
+  /** the room at home, without the case, clock and lamp, over (x, y, w, h)
+   *  of the stage in u, as a W × H PNG (scripts/room/poster.mjs) */
+  renderRegion(x: number, y: number, w: number, h: number, W: number, H: number): string;
 };
 
 export async function startRoom(o: RoomOptions): Promise<Room> {
@@ -178,24 +189,96 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   camera.matrixWorldAutoUpdate = false;
 
   // ── textures ──
+  // The room's pictures are KTX2 (?tex=webp: the bake's WebP, to compare),
+  // each in a slot its materials read from: a transparent pixel until it is
+  // in, then the texture, uploaded to the GPU the moment it arrives. They
+  // load by zone — what home shows first, then the other stops while the
+  // browser is idle — and a flight waits (a beat at most) until what it
+  // will see is on the GPU.
   const texCache = new Map<string | Element, THREE.Texture>();
   let pending = 0;
-  const loaded = new Set<THREE.Texture>();
-  const imageTexture = (src: string) => {
-    let t = texCache.get(src);
-    if (t) return t;
-    const tex = new THREE.Texture();
-    t = tex;
-    tex.colorSpace = THREE.NoColorSpace; tex.premultiplyAlpha = true; tex.anisotropy = aniso;
-    tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true;
+  const useK2 = params.get("tex") !== "webp";
+  const ktx2 = new KTX2Loader().setTranscoderPath("/room/basis/").detectSupport(renderer);
+  const EMPTY = new THREE.DataTexture(new Uint8Array(4), 1, 1);
+  EMPTY.needsUpdate = true;
+  type Slot = { src: string; tex: THREE.Texture; mats: Set<THREE.ShaderMaterial>; state: 0 | 1 | 2; prio: number; bytes: number; wait: (() => void)[]; zone: string; lo?: string; loTex?: THREE.Texture };
+  const slots = new Map<string, Slot>();
+  const bytesOf = (t: THREE.Texture) => {
+    const c = t as THREE.CompressedTexture;
+    if (c.isCompressedTexture) return (c.mipmaps as { data: ArrayBufferView }[]).reduce((a, m) => a + m.data.byteLength, 0);
+    const im = t.image as { width?: number; height?: number; videoWidth?: number; videoHeight?: number } | undefined;
+    const w = im?.videoWidth || im?.width || 0, h = im?.videoHeight || im?.height || 0;
+    return w * h * 4 * (t.generateMipmaps ? 4 / 3 : 1);
+  };
+  const slotOf = (src: string) => {
+    let sl = slots.get(src);
+    if (!sl) { sl = { src, tex: EMPTY, mats: new Set(), state: 0, prio: 9, bytes: 0, wait: [], zone: "" }; slots.set(src, sl); }
+    return sl;
+  };
+  // the previews: all of them first (a few KB each), each drawn until its
+  // texture is in, so a flight that cannot wait never shows a hole
+  const previews = (list: Slot[]) => Promise.all(list.filter((sl) => sl.lo && !sl.loTex && sl.state !== 2).map((sl) => new Promise<void>((res) => {
     const img = new Image();
     img.decoding = "async";
-    pending++;
-    img.onload = () => { tex.image = img; tex.needsUpdate = true; loaded.add(tex); pending--; renderer.initTexture(tex); dirty = true; };
-    img.onerror = () => { pending--; };
-    img.src = src;
-    texCache.set(src, tex);
-    return tex;
+    img.onload = () => {
+      if (sl.state !== 2) {
+        const t = new THREE.Texture(img);
+        t.colorSpace = THREE.NoColorSpace; t.premultiplyAlpha = true; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter;
+        t.needsUpdate = true; renderer.initTexture(t);
+        sl.loTex = t; sl.tex = t;
+        for (const m of sl.mats) m.uniforms.map.value = t;
+        dirty = true; kick();
+      }
+      res();
+    };
+    img.onerror = () => res();
+    img.src = sl.lo!;
+  })));
+  const arrive = (sl: Slot, tex: THREE.Texture) => {
+    tex.colorSpace = THREE.NoColorSpace; tex.anisotropy = aniso;
+    if ((tex as THREE.CompressedTexture).isCompressedTexture) { tex.premultiplyAlpha = false; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = false; }
+    else { tex.premultiplyAlpha = true; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true; }
+    tex.needsUpdate = true;
+    renderer.initTexture(tex);
+    sl.tex = tex; sl.state = 2; sl.bytes = bytesOf(tex);
+    for (const m of sl.mats) m.uniforms.map.value = tex;
+    if (sl.loTex) { sl.loTex.dispose(); sl.loTex = undefined; }
+    for (const f of sl.wait.splice(0)) f();
+    dirty = true; kick();
+  };
+  let inflight = 0;
+  const pump = () => {
+    while (inflight < 6) {
+      let next: Slot | null = null;
+      for (const sl of slots.values()) if (sl.state === 0 && sl.prio < 9 && (!next || sl.prio < next.prio)) next = sl;
+      if (!next) return;
+      const sl = next;
+      sl.state = 1; inflight++; pending++;
+      const done = () => { inflight--; pending--; pump(); };
+      if (sl.src.endsWith(".ktx2")) ktx2.load(sl.src, (t) => { arrive(sl, t); done(); }, undefined, () => { sl.state = 2; for (const f of sl.wait.splice(0)) f(); done(); });
+      else {
+        const img = new Image();
+        img.decoding = "async";
+        img.onload = () => img.decode().catch(() => {}).then(() => { const t = new THREE.Texture(img); arrive(sl, t); done(); });
+        img.onerror = () => { sl.state = 2; for (const f of sl.wait.splice(0)) f(); done(); };
+        img.src = sl.src;
+      }
+    }
+  };
+  /** load these now (or sooner than planned); resolves once all are in */
+  const want = (list: Slot[], prio: number) => new Promise<void>((res) => {
+    let left = 0;
+    for (const sl of list) {
+      if (sl.prio > prio) sl.prio = prio;
+      if (sl.state !== 2) { left++; sl.wait.push(() => { if (--left === 0) res(); }); }
+    }
+    if (!left) res();
+    pump();
+  });
+  const imageTexture = (src: string) => {
+    const sl = slotOf(src);
+    if (sl.state === 0) { sl.prio = Math.min(sl.prio, 1); pump(); }
+    return sl.tex;
   };
   const elementTexture = (el: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement) => {
     let t = texCache.get(el);
@@ -255,13 +338,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // back to front without writing depth — so a film of plastic in front of
   // a page never hides the page behind it.
   const SOLID = 0.95;
-  type Placed = { meshes: THREE.Mesh[]; item: Item; k: number; m: Channel<number[]>; op: Channel<number>; mats: THREE.ShaderMaterial[] };
+  type Placed = { meshes: THREE.Mesh[]; item: Item; k: number; slot: Slot; m: Channel<number[]>; op: Channel<number>; mats: THREE.ShaderMaterial[] };
   const room: Placed[] = [];
   for (const it of data.items) {
     if (!it.src) continue;
     const opaque = /\.(jpe?g)$/i.test(it.src) || it.type === "grid";
     const mats: THREE.ShaderMaterial[] = [];
-    const map = imageTexture(it.src);
+    const slot = slotOf(useK2 && it.k2 ? it.k2 : it.src);
+    if (it.lo) slot.lo = it.lo;
+    const map = slot.tex;
     if (it.type === "grid") {
       const g = it.grid!;
       mats.push(new THREE.ShaderMaterial({
@@ -281,6 +366,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       }
       mats.push(material(map, { opacity: it.op, blend: it.blend, back: it.back, alphaTest: 0.004, alphaMax: soft ? 2 : SOLID, depthWrite: false }));
     }
+    for (const m of mats) slot.mats.add(m);
+    if (slot.state === 2) for (const m of mats) m.uniforms.map.value = slot.tex;
     const k = liftCount(it.m);
     const meshes = mats.map((mat) => {
       const mesh = new THREE.Mesh(geo, mat);
@@ -291,7 +378,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       scene.add(mesh);
       return mesh;
     });
-    room.push({ meshes, item: it, k, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
+    room.push({ meshes, item: it, k, slot, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
   }
   // each plane where the stop puts it
   const arrange = (v: View, rule: Rule, now: number) => {
@@ -404,7 +491,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
         map = elementTexture(q.el as HTMLImageElement | HTMLVideoElement);
         const e = q.el as HTMLImageElement & HTMLVideoElement;
         srcW = e.naturalWidth || e.videoWidth; srcH = e.naturalHeight || e.videoHeight;
-      } else if (q.kind === "tex") map = imageTexture(q.src!);
+      } else if (q.kind === "tex") map = imageTexture(useK2 && q.k2 ? q.k2 : q.src!);
       else { const c = drawText(q, u); const t = elementTexture(c); t.needsUpdate = true; map = t; }
       const whole = q.uv[0] === 0 && q.uv[1] === 0 && q.uv[2] === 1 && q.uv[3] === 1;
       // its drop-shadows, under it: its alpha, blurred, in the shadow's colour
@@ -459,10 +546,64 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   let dirty = true;
   let forced = false;
   let first = true;
+  let waits = 0;
   const readVar = (name: string) => parseFloat(o.cam.style.getPropertyValue(name)) || 0;
+
+  // ── what each stop sees, for loading and for the flights' wait ──
+  const seenAt = (it: Item, p: Pose, home: boolean) => {
+    const { u, cx, cy, cw, ch } = geom;
+    // the window in stage u: the canvas at home, centred on the lens elsewhere
+    const W = innerWidth / u, H = innerHeight / u;
+    const r = home ? [cx, cy, cx + cw, cy + ch] : [560 + p.sx / u - W * 0.6, 226 + p.sy / u - H * 0.6, 560 + p.sx / u + W * 0.6, 226 + p.sy / u + H * 0.6];
+    const m = it.m;
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, any = false;
+    for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1], [0.5, 0.5]]) {
+      const x = a * it.w, y = b * it.h;
+      const q = projectToStage(p, [m[0] * x + m[4] * y + m[12], m[1] * x + m[5] * y + m[13], m[2] * x + m[6] * y + m[14]]);
+      if (!q) continue;
+      any = true; x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]);
+    }
+    return any && x1 >= r[0] && x0 <= r[2] && y1 >= r[1] && y0 <= r[3];
+  };
+  const ZONES: [View, number[]][] = [["home", [0]], ["files", [0, 450, 900]], ["profile", [0]], ["offduty", [0]], ["award", [0]], ["bike", [0]]];
+  const zoneSlots = new Map<View, Set<Slot>>();
+  const zones = () => {
+    for (const [v, pans] of ZONES) {
+      const set = new Set<Slot>();
+      for (const p of room) if (p.item.vis !== false || p.item.states) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan), v === "home")) { set.add(p.slot); break; }
+      zoneSlots.set(v, set);
+    }
+  };
+  const zoneReady = (v: View) => [...(zoneSlots.get(v) ?? [])].every((sl) => sl.state === 2);
+  /** what a flight from the camera's pose now to `to` will show */
+  const flightSlots = (to: Pose, now: number) => {
+    const from = pose.value(now), need = new Set<Slot>();
+    for (const k of [0, 0.25, 0.5, 0.75, 1]) {
+      const pp = lerpPose(from, to, k);
+      for (const p of room) if (!need.has(p.slot) && seenAt(p.item, pp, false)) need.add(p.slot);
+    }
+    return [...need];
+  };
+  let hold = false, waited = false;
   const evaluate = (now: number) => {
     const desk = root.dataset.desk, focus = root.dataset.deskFocus, arrived = root.dataset.deskArrived !== undefined;
     const v = viewOfState(desk, focus);
+    // a move to a stop whose pictures are not on the GPU yet waits for them
+    // (at most 1.5 s), as the CSS camera waits its 0.2 s beat
+    if (!first && v !== view && !hold && !waited) {
+      const missing = flightSlots(stopPose(v, v === "files" ? readVar("--pan") : 0), now).filter((sl) => sl.state !== 2);
+      if (missing.length) {
+        hold = true;
+        // once waited, it goes, whatever is still missing (previews stand in)
+        const go = () => { if (!hold) return; hold = false; waited = true; evaluate(performance.now()); waited = false; };
+        want(missing, 0).then(go);
+        setTimeout(go, 1500);
+        waits++;
+        if (view === "home" && !groupsShown) { buildGroups(); setGroupsShown(true); }
+        return;
+      }
+    }
+    if (hold) return;
     const leaving = view === "home" && v !== "home";
     if (leaving && !groupsShown) { buildGroups(); setGroupsShown(true); }
     view = v;
@@ -504,6 +645,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     dirty = true;
   };
   layout();
+  zones();
 
   const V = new THREE.Matrix4(), P = new THREE.Matrix4();
   const frameTimes: number[] = [];
@@ -521,7 +663,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     caseOpacity = caseOp.value(now);
     applyGroupOpacity();
     renderer.render(scene, camera);
+    // the still of the room goes the frame WebGL has drawn it all
+    if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
   };
+  let posterGone = false;
 
   let raf = 0;
   const loop = (now: number) => {
@@ -578,29 +723,109 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     setTimeout(() => o.onArrive(), 0);
   }
   evaluate(performance.now());
+  // A texture uploaded is not yet drawn: the GPU may still place it the
+  // first time it is sampled (a one-off frame of 70–230 ms, measured on the
+  // first arrival at Profile). So each stop, once its pictures are in, is
+  // drawn once, small and unseen, from where its camera will be.
+  const warmRT = new THREE.WebGLRenderTarget(64, 64, { depthBuffer: true });
+  const warmCam = new THREE.PerspectiveCamera();
+  warmCam.matrixAutoUpdate = false; warmCam.matrixWorldAutoUpdate = false;
+  const prewarm = (v: View) => {
+    const p = stopPose(v, 0);
+    warmCam.matrixWorldInverse.fromArray(viewMatrix(p)); warmCam.matrixWorld.copy(warmCam.matrixWorldInverse).invert();
+    const { u } = geom;
+    const W = innerWidth / u, H = innerHeight / u;
+    warmCam.projectionMatrix.fromArray(projectionMatrix(560 - W / 2, 226 - H / 2, W, H, 560 + p.sx / u, 226 + p.sy / u)); warmCam.projectionMatrixInverse.copy(warmCam.projectionMatrix).invert();
+    const prev = renderer.getRenderTarget();
+    renderer.setRenderTarget(warmRT);
+    renderer.render(scene, warmCam);
+    renderer.setRenderTarget(prev);
+  };
+  // what the first view shows, now; the rest once it is in, while idle
+  const t0 = performance.now();
+  let homeAt = 0;
+  previews([...slots.values()]).then(() => { root.dataset.glPreviews = "1"; });
+  want([...(zoneSlots.get(view) ?? [])], 0).then(() => {
+    homeAt = performance.now() - t0;
+    root.dataset.glZone = "1";
+    let prio = 2;
+    const later = ZONES.map(([v]) => v).filter((v) => v !== view);
+    const nextZone = () => {
+      const v = later.shift();
+      if (!v) return;
+      want([...(zoneSlots.get(v) ?? [])], prio++).then(() => idle(() => { prewarm(v); idle(nextZone); }));
+    };
+    idle(nextZone);
+  });
   // the flat groups' pictures to the GPU before the first move
   const warm = () => { if (!groupsShown) { buildGroups(); for (const ms of groupMeshes.values()) for (const m of ms) { const t = (m.material as THREE.ShaderMaterial).uniforms.map.value; if (t) renderer.initTexture(t); } } };
   const idle = (cb: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 500));
   idle(warm);
   kick();
 
+
   return {
     renderer, scene,
     redraw() { dirty = true; kick(); },
     quads: () => lastQuads,
+    renderRegion(x, y, w, h, W, H) {
+      const rt = new THREE.WebGLRenderTarget(W, H, { depthBuffer: true, colorSpace: THREE.NoColorSpace, samples: 4 });
+      const cam2 = new THREE.PerspectiveCamera();
+      cam2.matrixAutoUpdate = false; cam2.matrixWorldAutoUpdate = false;
+      const hp = stopPose("home");
+      cam2.matrixWorldInverse.fromArray(viewMatrix(hp)); cam2.matrixWorld.copy(cam2.matrixWorldInverse).invert();
+      cam2.projectionMatrix.fromArray(projectionMatrix(x, y, w, h, 560, 226)); cam2.projectionMatrixInverse.copy(cam2.projectionMatrix).invert();
+      const shown = groupRoot.visible;
+      groupRoot.visible = false;
+      renderer.setRenderTarget(rt);
+      renderer.clear();
+      renderer.render(scene, cam2);
+      const px = new Uint8Array(W * H * 4);
+      renderer.readRenderTargetPixels(rt, 0, 0, W, H, px);
+      renderer.setRenderTarget(null);
+      groupRoot.visible = shown;
+      rt.dispose();
+      const c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      const ctx = c.getContext("2d")!;
+      const img = ctx.createImageData(W, H);
+      // rows bottom up, and premultiplied: back to a plain picture
+      for (let r = 0; r < H; r++) {
+        const src = (H - 1 - r) * W * 4, dst = r * W * 4;
+        for (let i = 0; i < W * 4; i += 4) {
+          const a = px[src + i + 3];
+          img.data[dst + i + 3] = a;
+          for (let k = 0; k < 3; k++) img.data[dst + i + k] = a ? Math.min(255, Math.round((px[src + i + k] * 255) / a)) : 0;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+      dirty = true; kick();
+      return c.toDataURL("image/png");
+    },
     forceGroups(on) { forced = on; if (on) buildGroups(); setGroupsShown(on); dirty = true; kick(); },
     stats() {
       const ft = frameTimes.slice();
       const sorted = [...ft].sort((a, b) => a - b);
       return { frames: ft.length, pending, textures: renderer.info.memory.textures, calls: renderer.info.render.calls, tris: renderer.info.render.triangles,
-        p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0, max: sorted[sorted.length - 1] ?? 0, gpu: gl.getParameter(gl.RENDERER), pr: renderer.getPixelRatio(), view, groupsShown };
+        p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0, max: sorted[sorted.length - 1] ?? 0, gpu: gl.getParameter(gl.RENDERER), pr: renderer.getPixelRatio(), view, groupsShown,
+        k2: useK2, slots: slots.size, loaded: [...slots.values()].filter((sl) => sl.state === 2).length,
+        // pictures nothing shows (a binder's leaves under the open spread)
+        hidden: [...slots.values()].filter((sl) => sl.state === 0 && sl.prio === 9).length,
+        roomMB: +([...slots.values()].reduce((a, sl) => a + sl.bytes, 0) / 2 ** 20).toFixed(1),
+        groupMB: +([...texCache.values()].reduce((a, t) => a + bytesOf(t), 0) / 2 ** 20).toFixed(1),
+        zones: Object.fromEntries([...zoneSlots].map(([v, set]) => [v, { n: set.size, ready: zoneReady(v), MB: +([...set].reduce((a, sl) => a + sl.bytes, 0) / 2 ** 20).toFixed(1) }])),
+        homeMs: Math.round(homeAt), waits, poster: posterGone, previews: [...slots.values()].filter((sl) => sl.loTex).length };
     },
     dispose() {
-      cancelAnimationFrame(raf);
+      if (raf > 0) cancelAnimationFrame(raf);
+      raf = -2;
       mo.disconnect(); ro.disconnect();
       removeEventListener("resize", onResize);
       setGroupsShown(false);
       for (const t of texCache.values()) t.dispose();
+      for (const sl of slots.values()) sl.tex.dispose();
+      warmRT.dispose();
+      ktx2.dispose();
       renderer.dispose();
       canvas.remove();
     },

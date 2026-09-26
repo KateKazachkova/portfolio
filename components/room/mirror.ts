@@ -23,6 +23,7 @@ export type Quad = {
   /** the part of the source it shows (object-fit), 0…1 */
   uv: [number, number, number, number];
   src?: string;
+  k2?: string;
   opacity: number;
   blend: string;
   look: Look;
@@ -32,7 +33,7 @@ export type Quad = {
   clip?: [number, number, number, number];
 };
 export type TextRun = { text: string; font: string; color: string; letterSpacing: string; x: number; y: number; w: number; h: number; asc: number };
-export type Baked = { sig: string; group: string; src: string; x: number; y: number; w: number; h: number; ew: number; eh: number };
+export type Baked = { sig: string; group: string; src: string; k2?: string; x: number; y: number; w: number; h: number; ew: number; eh: number };
 
 const px = (v: string) => parseFloat(v) || 0;
 
@@ -213,7 +214,7 @@ export function mirror(root: HTMLElement, group: string, baked: Baked[], u: numb
     if (hit.length) {
       const bw = w / u, bh = h / u;
       const bk = hit.reduce((p, q) => (Math.abs(q.ew - bw) + Math.abs(q.eh - bh) < Math.abs(p.ew - bw) + Math.abs(p.eh - bh) ? q : p));
-      out.push({ kind: "tex", el, m: toU(m, bk.x, bk.y), w: bk.w, h: bk.h, uv: [0, 0, 1, 1], src: bk.src, opacity, blend, look: { brightness: 1, saturate: 1, blur: 0, shadows: [] }, order, clip });
+      out.push({ kind: "tex", el, m: toU(m, bk.x, bk.y), w: bk.w, h: bk.h, uv: [0, 0, 1, 1], src: bk.src, k2: bk.k2, opacity, blend, look: { brightness: 1, saturate: 1, blur: 0, shadows: [] }, order, clip });
     }
     // its own text, as the page lays it out
     const runs: TextRun[] = [];

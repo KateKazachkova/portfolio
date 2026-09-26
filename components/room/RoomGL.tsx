@@ -27,6 +27,7 @@ export function RoomGL({ cam, home }: { cam: React.RefObject<HTMLDivElement | nu
         stage, cam: el, before: h,
         groups: { case: stage.querySelector<HTMLElement>(".case-world"), clock: h.querySelector<HTMLElement>(".flip-clock-slot"), lamp: h.querySelector<HTMLElement>(".desk-lamp") },
         onArrive: () => dispatchEvent(new Event("room:arrive")),
+        poster: stage.querySelector<HTMLElement>(".room-poster"),
       }),
     ).then((r) => {
       if (dead) r.dispose(); else { room = r; (window as unknown as { __room: unknown }).__room = r; document.documentElement.dataset.glReady = "1"; }

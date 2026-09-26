@@ -20,8 +20,8 @@
   --side: 300px;   /* annotation field */
 
   font-family: var(--serif);
-  font-size: 17.5px;
-  line-height: 1.62;
+  font-size: 14px;
+  line-height: 20px;
   font-optical-sizing: auto;
   color: var(--fg);
 }
@@ -73,8 +73,8 @@
 .case .label--red { color:var(--ink-red) }
 .case .num { font-family:var(--mono); font-weight:700; color:var(--ink-red); font-size:42px; line-height:.86; letter-spacing:-.02em; }
 .case h1, .case h2, .case h3 { font-family:var(--grot); margin:0 }
-.case h1 { font-variation-settings:"wdth" 88,"wght" 800; font-size:78px; line-height:.92; letter-spacing:-.015em; text-transform:uppercase }
-.case h2 { font-variation-settings:"wdth" 92,"wght" 700; font-size:29px; line-height:1.06; letter-spacing:-.01em; text-transform:uppercase }
+.case h1 { font-variation-settings:"wdth" 88,"wght" 800; font-size:64px; line-height:.92; letter-spacing:-.015em; text-transform:uppercase }
+.case h2 { font-variation-settings:"wdth" 92,"wght" 700; font-size:32px; line-height:1.06; letter-spacing:-.01em; text-transform:uppercase }
 .case h3 { font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500 }
 .case p { margin:0 0 1.05em }
 .case a { color:var(--ink-red) }
@@ -99,9 +99,9 @@
 .case .title-block { margin-top:56px; padding-top:14px }
 .case .kicker { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:26px }
 .case .result { font-family:var(--grot); font-variation-settings:"wdth" 92,"wght" 600; font-size:19px; line-height:1.34; margin-top:20px; max-width:640px }
-.case .subtitle { font-family:var(--serif); font-size:19px; line-height:1.4; font-style:italic; color:var(--muted); max-width:620px; margin-top:14px }
+.case .subtitle { font-family:var(--serif); font-size:19px; line-height:1.4; color:var(--muted); max-width:620px; margin-top:14px }
 /* ruled field grid — from the bottle-label reference */
-.case .fields { display:grid; grid-template-columns:0.85fr 1.5fr 0.9fr 0.85fr 1.1fr; border-top:1px solid var(--hairline); margin-top:40px }
+.case .fields { display:grid; grid-template-columns:repeat(var(--n, 5), minmax(0, 1fr)); border-top:1px solid var(--hairline); margin-top:40px }
 .case .fields > div { border-right:1px solid var(--hairline); padding:10px 14px 14px }
 .case .fields > div:first-child { padding-left:0 }
 .case .fields > div:last-child { border-right:0 }
@@ -142,8 +142,15 @@
 /* decision card */
 .case .decision { border-top:1px solid var(--hairline); padding-top:12px; margin-top:34px }
 .case .decision .d-label { font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-red); margin-bottom:8px }
-.case .decision h4 { font-family:var(--grot); font-variation-settings:"wdth" 90,"wght" 700; font-size:21px; line-height:1.12; margin:0 0 10px; text-transform:none }
+.case .decision h4 { font-family:var(--grot); font-variation-settings:"wdth" 90,"wght" 700; font-size:24px; line-height:1.12; margin:0 0 10px; text-transform:none }
 .case .tradeoff { font-family:var(--mono); font-size:11.5px; line-height:1.55; color:var(--muted); letter-spacing:0; border-left:1px solid var(--hairline); padding-left:12px; margin-top:14px }
+.case .tradeoff p { margin:0 0 .6em }
+.case .tradeoff p:last-child { margin-bottom:0 }
+/* the last word: the title again, one line, the way out to the live site */
+.case .closing { margin-top:110px }
+.case .closing h2 { font-size:44px }
+.case .closing__line { font-family:var(--grot); font-variation-settings:"wdth" 92,"wght" 600; font-size:21px; line-height:1.3; margin-top:12px }
+.case .closing__cta { display:inline-block; margin-top:6px; font-family:var(--mono); font-weight:700; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-red); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:2px }
 /* the marker spread (ref 2) */
 .case .spread { margin:104px 0 0; padding:56px 0; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); position:relative }
 .case .spread .ghost2 { position:absolute; inset:56px 0 56px 0; column-count:3; column-gap:34px; font-size:13px; line-height:1.45; opacity:.16; user-select:none; pointer-events:none; overflow:hidden }
@@ -211,7 +218,6 @@
 /* ─────────────────────────── responsive ─────────────────────────── */
 @media (max-width:1180px) {
   .case { --rail:170px; --col:520px; --side:220px }
-  .case h1 { font-size:62px }
   .case .marker { font-size:62px }
 }
 @media (max-width:900px) {

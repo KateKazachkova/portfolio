@@ -61,7 +61,7 @@ import { prefersReducedMotion } from "@/lib/reducedMotion";
 // they are ~2.5 screen px per desk px — more than fits across the window,
 // which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
-  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 195, h: 270, x: 1340, y: 682.5, r: -3 },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 172.5, h: 239, x: 1370, y: 682.5, r: -3 },
   { slug: "bulksource", title: "BulkSource", img: "stack", w: 180, h: 120, x: 1609, y: 675, r: 3 },
   { slug: "onsisoft", title: "OnsiSoft", img: "stack", w: 180, h: 120, x: 1879, y: 680, r: -2 },
   { slug: "waypro", title: "WayPro", img: "stack", w: 180, h: 120, x: 2149, y: 672, r: 2 },

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { CaseStudy as Case, HandNote, MarginNote, Section } from "@/content/work/types";
+import type { CaseStudy as Case, HandNote, MarginNote, Para, Section } from "@/content/work/types";
 import Spans from "./Spans";
 import Pile from "./Pile";
 import AwardCard from "@/components/AwardCard";
@@ -40,21 +40,21 @@ function Hand({ hand }: { hand?: HandNote }) {
 
 /** The margin rail: the numeral, the label, and the notes that argue with the
  *  section beside them — one grid cell, not three. */
-function Rail({ n, label, notes }: { n: string; label: string; notes?: MarginNote[] }) {
+function Rail({ n, label, notes }: { n: string; label?: string; notes?: MarginNote[] }) {
   return (
     <div className="rail">
       <div className="num">{n}</div>
-      <div className="label" style={{ marginTop: 10 }}>{label}</div>
+      {label && <div className="label" style={{ marginTop: 10 }}>{label}</div>}
       <Notes notes={notes} />
     </div>
   );
 }
 
-function Body({ section }: { section: Extract<Section, { kind: "prose" | "spec" }> }) {
+function Body({ section }: { section: { heading: string; body?: Para[] } }) {
   return (
     <>
       <h2>{section.heading}</h2>
-      {section.body.map((p, i) => (
+      {section.body?.map((p, i) => (
         <p key={i} style={i === 0 ? { marginTop: 14 } : undefined}>
           <Spans spans={p} />
         </p>
@@ -63,7 +63,16 @@ function Body({ section }: { section: Extract<Section, { kind: "prose" | "spec" 
   );
 }
 
-function Block({ section }: { section: Section }) {
+/** The case's own award card: the outcome row, or a section that carries it. */
+function CaseAwards({ data }: { data: Case }) {
+  return (
+    <div className="award-card-slot">
+      <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
+    </div>
+  );
+}
+
+function Block({ section, data }: { section: Section; data: Case }) {
   switch (section.kind) {
     case "prose":
       return (
@@ -71,6 +80,7 @@ function Block({ section }: { section: Section }) {
           <Rail n={section.n} label={section.label} notes={section.notes} />
           <div className={section.rule ? "body rule" : "body"}>
             <Body section={section} />
+            {section.awards && <CaseAwards data={data} />}
           </div>
           <div className="side"><Hand hand={section.hand} /></div>
         </section>
@@ -99,14 +109,18 @@ function Block({ section }: { section: Section }) {
       return (
         <section className="row">
           <Rail n={section.n} label={section.label} notes={section.notes} />
-          <div className="body">
-            <h2>{section.heading}</h2>
+          <div className={section.rule ? "body rule" : "body"}>
+            <Body section={section} />
             {section.items.map((d) => (
               <div className="decision" key={d.label}>
                 <div className="d-label">{d.label}</div>
                 <h4>{d.title}</h4>
                 {d.body.map((p, i) => <p key={i}><Spans spans={p} /></p>)}
-                <div className="tradeoff"><Spans spans={d.tradeoff} /></div>
+                {d.tradeoff && (
+                  <div className="tradeoff">
+                    {d.tradeoff.map((p, i) => <p key={i}><Spans spans={p} /></p>)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -185,7 +199,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
           </div>
           <div className="body wide">
             <h1>{data.title}</h1>
-            <p className="result"><Spans spans={data.result} /></p>
+            {data.result && <p className="result"><Spans spans={data.result} /></p>}
             <p className="subtitle">{data.subtitle}</p>
           </div>
         </div>
@@ -193,19 +207,11 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         <div className="row">
           <div className="rail" />
           <div className="body wide">
-            <div className="fields">
+            <div className="fields" style={{ "--n": data.fields.length } as React.CSSProperties}>
               {data.fields.map((f) => (
                 <div key={f.key}>
                   <span className="k">{f.key}</span>
-                  <span className="v">
-                    {f.key === "Live" ? (
-                      <a href="https://ukrainska15.com" target="_blank" rel="noopener noreferrer">
-                        <Spans spans={f.value} />
-                      </a>
-                    ) : (
-                      <Spans spans={f.value} />
-                    )}
-                  </span>
+                  <span className="v"><Spans spans={f.value} /></span>
                 </div>
               ))}
             </div>
@@ -213,6 +219,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         </div>
 
         {/* The lead, overprinted on the argument it summarises. */}
+        {data.lead && (
         <div className="row lead-wrap">
           <div className="rail">
             <div className="note"><strong>The short version</strong> — read this, then stop if you like.</div>
@@ -225,7 +232,9 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             </p>
           </div>
         </div>
+        )}
 
+        {data.outcome && (
         <div className="row">
           <div className="rail"><div className="label label--ink" style={{ paddingTop: 24 }}>Outcome</div></div>
           <div className="body outcome wide">
@@ -237,13 +246,25 @@ export default function CaseStudyPage({ data }: { data: Case }) {
                 </div>
               ))}
             </div>
-            <div className="award-card-slot">
-              <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
-            </div>
+            <CaseAwards data={data} />
           </div>
         </div>
+        )}
 
-        {data.sections.map((s, i) => <Block key={i} section={s} />)}
+        {data.sections.map((s, i) => <Block key={i} section={s} data={data} />)}
+
+        {data.closing && (
+          <div className="row closing">
+            <div className="rail" />
+            <div className="body wide">
+              <h2>{data.title}</h2>
+              <p className="closing__line">{data.closing.line}</p>
+              <a className="closing__cta" href={data.closing.cta.href} target="_blank" rel="noopener noreferrer">
+                {data.closing.cta.label}
+              </a>
+            </div>
+          </div>
+        )}
 
         <div className="row">
           <div className="rail" />

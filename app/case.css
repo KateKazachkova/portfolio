@@ -87,7 +87,7 @@
 /* margin note — the ▸ aside */
 .case .note { font-family:var(--mono); font-size:11.5px; line-height:1.52; letter-spacing:0; color:var(--ink-red); margin-bottom:22px; padding-top:4px; border-top:2px solid var(--ink-red); }
 .case .note b { font-weight:500 }
-.case .note--ink { color:var(--fg); border-color:var(--fg) }
+.case .note--ink { color:var(--fg); border-color:var(--hairline) }
 .case .note--quiet { color:var(--muted); border-color:var(--hairline); font-size:11.5px }
 /* handwriting */
 .case .hand { font-family:var(--hand); font-size:30px; line-height:1.05; letter-spacing:0; color:var(--ink-red); }
@@ -101,8 +101,9 @@
 .case .result { font-family:var(--grot); font-variation-settings:"wdth" 92,"wght" 600; font-size:19px; line-height:1.34; margin-top:20px; max-width:640px }
 .case .subtitle { font-family:var(--serif); font-size:19px; line-height:1.4; font-style:italic; color:var(--muted); max-width:620px; margin-top:14px }
 /* ruled field grid — from the bottle-label reference */
-.case .fields { display:grid; grid-template-columns:0.85fr 1.5fr 0.9fr 0.85fr 1.1fr; border-top:1px solid var(--fg); margin-top:40px }
-.case .fields > div { border-right:1px solid var(--hairline); padding:10px 14px 14px 0 }
+.case .fields { display:grid; grid-template-columns:0.85fr 1.5fr 0.9fr 0.85fr 1.1fr; border-top:1px solid var(--hairline); margin-top:40px }
+.case .fields > div { border-right:1px solid var(--hairline); padding:10px 14px 14px }
+.case .fields > div:first-child { padding-left:0 }
 .case .fields > div:last-child { border-right:0 }
 .case .fields .k { font-family:var(--mono); font-weight:700; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px }
 .case .fields .v { font-family:var(--grot); font-variation-settings:"wdth" 86,"wght" 600; font-size:14px; line-height:1.35; text-transform:uppercase; letter-spacing:.01em }
@@ -113,7 +114,7 @@
 .case .lead { position:relative; font-family:var(--grot); font-variation-settings:"wdth" 86,"wght" 700; font-size:39px; line-height:1.06; letter-spacing:-.012em; color:var(--ink-red); max-width:560px }
 .case .lead .q { color:var(--fg) }
 /* ─────────────────────────── outcome strip ─────────────────────────── */
-.case .outcome { margin-top:52px; border-top:2px solid var(--fg); border-bottom:2px solid var(--fg); padding:22px 0 }
+.case .outcome { margin-top:52px; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); padding:22px 0 }
 .case .outcome .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:26px }
 .case .stat .n { font-family:var(--grot); font-variation-settings:"wdth" 82,"wght" 800; font-size:52px; line-height:.86; letter-spacing:-.02em }
 .case .stat .n small { font-size:22px; vertical-align:top; line-height:1 }
@@ -121,7 +122,7 @@
 /* ─────────────────────────── sections ─────────────────────────── */
 .case section { margin-top:96px }
 .case .sec-head { display:flex; gap:14px; align-items:flex-start; margin-bottom:6px }
-.case .rule { border-top:1px solid var(--fg); padding-top:12px }
+.case .rule { border-top:1px solid var(--hairline); padding-top:12px }
 /* plates */
 .case figure { margin:34px 0 0 }
 .case .plate { display:block; width:100%; height:auto; border:1px solid var(--fg) }
@@ -139,10 +140,10 @@
 .case .arrow { position:absolute; overflow:visible; pointer-events:none }
 .case .arrow path { fill:none; stroke:var(--ink-red); stroke-width:1.6; stroke-linecap:round }
 /* decision card */
-.case .decision { border-top:2px solid var(--fg); padding-top:12px; margin-top:34px }
+.case .decision { border-top:1px solid var(--hairline); padding-top:12px; margin-top:34px }
 .case .decision .d-label { font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-red); margin-bottom:8px }
 .case .decision h4 { font-family:var(--grot); font-variation-settings:"wdth" 90,"wght" 700; font-size:21px; line-height:1.12; margin:0 0 10px; text-transform:none }
-.case .tradeoff { font-family:var(--mono); font-size:11.5px; line-height:1.55; color:var(--muted); letter-spacing:0; border-left:2px solid var(--hairline); padding-left:12px; margin-top:14px }
+.case .tradeoff { font-family:var(--mono); font-size:11.5px; line-height:1.55; color:var(--muted); letter-spacing:0; border-left:1px solid var(--hairline); padding-left:12px; margin-top:14px }
 /* the marker spread (ref 2) */
 .case .spread { margin:104px 0 0; padding:56px 0; border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); position:relative }
 .case .spread .ghost2 { position:absolute; inset:56px 0 56px 0; column-count:3; column-gap:34px; font-size:13px; line-height:1.45; opacity:.16; user-select:none; pointer-events:none; overflow:hidden }
@@ -166,13 +167,13 @@
 /* TK — anything not yet confirmed by Kate, visibly flagged, never invented */
 .case .tk { font-family:var(--mono); font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; background:repeating-linear-gradient(45deg,var(--inner),var(--inner) 6px,#d5c9ae 6px,#d5c9ae 12px); border:1px dashed var(--violet); color:var(--violet); padding:1px 7px; -webkit-box-decoration-break:clone; box-decoration-break:clone }
 /* technical spec list */
-.case .spec { border-top:2px solid var(--fg); margin-top:30px; padding-top:0 }
+.case .spec { border-top:1px solid var(--hairline); margin-top:30px; padding-top:0 }
 .case .spec div { display:grid; grid-template-columns:96px 1fr; gap:14px; padding:8px 0; border-bottom:1px solid var(--hairline) }
 .case .spec dt, .case .spec .k { font-family:var(--mono); font-weight:700; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding-top:3px }
 .case .spec .v { font-family:var(--grot); font-variation-settings:"wdth" 92,"wght" 500; font-size:13.5px; line-height:1.45 }
 /* ── The table: the archive laid out, and you can push it around ── */
 .case .pile { margin-top:36px }
-.case .pile__head { display:flex; justify-content:space-between; align-items:baseline; gap:20px; border-top:2px solid var(--fg); padding-top:10px; margin-bottom:18px }
+.case .pile__head { display:flex; justify-content:space-between; align-items:baseline; gap:20px; border-top:1px solid var(--hairline); padding-top:10px; margin-bottom:18px }
 .case .pile__count { font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted) }
 .case .pile__count b { color:var(--ink-red); font-weight:500 }
 /* Default — and the permanent state on narrow screens: a plain contact sheet. */
@@ -202,7 +203,7 @@
   .case .pcard img { height:170px }
 }
 /* ── The site footer, ported from components/Footer.tsx ── */
-.casenav { margin-top:110px; border-top:1px solid var(--fg); padding:14px 0 0; display:flex; justify-content:space-between; gap:20px; font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase }
+.casenav { margin-top:110px; border-top:1px solid var(--hairline); padding:14px 0 0; display:flex; justify-content:space-between; gap:20px; font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase }
 .casenav a { text-decoration:none; color:var(--muted) }
 .casenav a:hover { color:var(--fg) }
 .casenav a span { color:var(--ink-red) }
@@ -228,6 +229,8 @@
   .case .marker { font-size:42px }
   .case .fields { grid-template-columns:1fr 1fr }
   .case .fields > div { border-bottom:1px solid var(--hairline) }
+  .case .fields > div:nth-child(odd) { padding-left:0 }
+  .case .fields > div:nth-child(even) { border-right:0 }
   .case .outcome .grid { grid-template-columns:1fr 1fr; gap:22px }
   .case .ghost, .case .ghost2 { display:none }
   .case .annot .hand { position:static; max-width:none; margin-top:10px; display:block }

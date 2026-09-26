@@ -22,6 +22,7 @@ import { makeNight, POOL } from "./night";
 import { makeWallet, type Host, type WalletData } from "./wallet";
 import { makeScreen } from "./screen";
 import { makeU15 } from "./u15gl";
+import { makeBud, type BudData } from "./budgl";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -36,10 +37,12 @@ type Item = {
   lo?: string;
   /** a part of Ukrainska 15's folder (bake.mjs, u15gl.ts) */
   u15?: { sel: string; key: string; q: [number, number]; chain: { cls: "env" | "stack" | "item"; dx: number; dy: number }[] };
+  /** one of the БУДЬ prints, or their sleeve's plastic (bake.mjs, budgl.ts) */
+  bud?: { n?: number; gloss?: boolean; q: [number, number] };
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } } };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -170,6 +173,8 @@ export type Room = {
   forceGroups(on: boolean): void;
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
+  /** debugging: the camera the room is drawn with */
+  camera: THREE.Camera;
   redraw(): void;
   quads(): Record<string, unknown[]>;
   /** the room at home, without the case, clock and lamp, over (x, y, w, h)
@@ -386,7 +391,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     for (const m of mats) slot.mats.add(m);
     if (slot.state === 2) for (const m of mats) m.uniforms.map.value = slot.tex;
-    const k = liftCount(it.m);
+    // (the БУДЬ prints lie on their sheet as budgl.ts lays them: no lift of their own)
+    const k = it.bud ? 0 : liftCount(it.m);
     const meshes = mats.map((mat) => {
       const mesh = new THREE.Mesh(geo, mat);
       mesh.matrixAutoUpdate = false;
@@ -444,6 +450,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     card: () => (u15Hit ? u15Card.value(performance.now()) : null),
     lcd: data.u15.lcd, material, liftTop,
     shown: (p) => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
+  }) : null;
+  // the БУДЬ prints, where the page's store has them (budgl.ts)
+  const budFace = data.bud ? room.find((p) => p.item.i === data.bud!.face && !p.item.bud) : undefined;
+  const budOf = (p: Placed) => ({ meshes: p.meshes, mats: p.mats, w: p.item.w, h: p.item.h, q: p.item.bud!.q });
+  const bud = data.bud && budFace ? makeBud({
+    face: { meshes: budFace.meshes, w: budFace.item.w, h: budFace.item.h },
+    prints: room.filter((p) => p.item.bud && !p.item.bud.gloss).map((p) => ({ ...budOf(p), n: p.item.bud!.n! })),
+    gloss: ((p) => (p ? budOf(p) : null))(room.find((p) => p.item.bud?.gloss)),
+    data: data.bud,
+    redraw: () => { dirty = true; kick(); },
   }) : null;
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
@@ -889,6 +905,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     u15Card.tick(now);
     // (only while the panel is out of sight: at rest at Case Files it is the folder)
     if (u15 && document.querySelector(".room-hit--u15panel[data-away]")) u15.frame();
+    // (after the controls are laid: the binder's panel may have just taken over, or given back)
+    bud?.frame();
     if (moving || dirty || video || arrivedNow || nightMoving || walletMoving) { draw(now); dirty = false; }
     if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
@@ -1024,7 +1042,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   }).catch(() => {});
 
   return {
-    renderer, scene,
+    renderer, scene, camera,
     redraw() { dirty = true; kick(); },
     quads: () => lastQuads,
     renderRegion(x, y, w, h, W, H) {
@@ -1079,7 +1097,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
-      wallet?.dispose(); screen?.dispose(); u15?.dispose();
+      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

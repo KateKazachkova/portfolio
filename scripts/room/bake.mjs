@@ -61,6 +61,14 @@ html.bk .od-sleeve { --stack: 0 0 transparent !important; }
 html.bk.bk-film .od-sleeve, html.bk.bk-step .od-sleeve { background: none !important; }
 html.bk.bk-film .od-sleeve { box-shadow: none !important; }
 html.bk.bk-film .od-sleeve__strip, html.bk.bk-step .od-sleeve__strip { visibility: hidden !important; }
+/* the БУДЬ sheet's prints are baked on their own, the sheet without them,
+   and its sleeve's plastic, which lies over them, on its own too */
+html.bk:not(.bk-bud) .desk-binder .pf-print, html.bk:not(.bk-bud) .desk-binder .pf-print * { visibility: hidden !important; }
+html.bk:not(.bk-gloss) .desk-binder .pf-face__full:has(.pf-prints)::after { display: none !important; }
+html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) { background: none !important; }
+html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) > .pf-sheet, html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) > .pf-sheet * { visibility: hidden !important; }
+html.bk.bk-bud .desk-binder :is(.pf-face, .pf-face__full, .pf-sheet):has(.pf-prints) { overflow: visible !important; }
+html.bk.bk-bud .desk-binder .pf-print { transform: none !important; }
 html.bk .bk-anc { opacity: 1 !important; mix-blend-mode: normal !important; }
 html.bk, html.bk body, html.bk main { background: transparent !important; }
 html.bk::before, html.bk::after, html.bk body::before, html.bk body::after { display: none !important; }
@@ -407,6 +415,57 @@ if (OPT.only !== "flat") {
     const card = JSON.parse(await b.ev("JSON.stringify(window.__bkWorld(document.querySelector('.desk-card--env')))"));
     out.u15 = { card: toU(card, u), lcd };
     log("u15", items.length, "parts");
+  }
+}
+
+// ── the БУДЬ prints (M6): the Profile binder's loose prints apart ──────────
+// Any of the sheet's sixteen prints can be dragged (PhotoStack.tsx), so the
+// sheet is baked above without them and without its sleeve's plastic, and
+// here each print on its own (in its own frame, untransformed: its shadow
+// in full) and the plastic on its own (soft, at a lower density). The
+// engine (components/room/budgl.ts) lays them on the sheet where the page's
+// store has them (translate in % of the stack, rotate, the one on top by
+// z-index), cut to the sheet as its overflow is, the plastic over them.
+// scene.json's `bud`: the sheet's plane (item i), the stack's box and the
+// sheet's in the face's own frame (u), the face picture's offset in it.
+if (OPT.only !== "flat") {
+  const faceI = +(await b.ev("+(document.querySelector('.desk-binder .pf-prints')?.closest('.pf-face')?.dataset.bk ?? -1)"));
+  const fu = units.find((x) => x.i === faceI);
+  const at = out.items.findIndex((x) => x.i === faceI);
+  if (!fu || at < 0) log("no БУДЬ sheet");
+  else {
+    const face = out.items[at];
+    const N = await b.ev("document.querySelectorAll('.desk-binder .pf-print').length");
+    await b.ev("document.documentElement.classList.add('bk-bud') || 1");
+    const prints = [];
+    for (let n = 0; n < N; n++) {
+      const i = 9400 + n;
+      await b.ev(`(()=>{document.querySelectorAll('.desk-binder .pf-print')[${n}].dataset.bk=${i};return 1})()`);
+      const got = await bakeAs({ i, rho: fu.rho }, `bud-print-${String(n).padStart(2, "0")}`, "1", "1");
+      await b.ev(`(()=>{delete document.querySelectorAll('.desk-binder .pf-print')[${n}].dataset.bk;return 1})()`);
+      if (!got) { log("bud empty print", n); continue; }
+      prints.push({ n, i, got });
+    }
+    await b.ev("document.documentElement.classList.remove('bk-bud') || 1");
+    const gloss = await bakeAs({ i: faceI, rho: 2 }, "bud-gloss", "document.documentElement.classList.add('bk-gloss') || 1", "document.documentElement.classList.remove('bk-gloss') || 1");
+    await unpose();
+    // the stack's and the sheet's boxes in the face's frame, every transform off
+    const geo = JSON.parse(await b.ev(`(()=>{
+      const st=document.createElement('style');st.textContent='html.bk-budflat *, html.bk-budflat *::before, html.bk-budflat *::after{transform:none!important;translate:none!important;rotate:none!important;scale:none!important;transition:none!important}';document.head.appendChild(st);
+      document.documentElement.classList.add('bk-budflat');void document.body.offsetHeight;
+      const u=document.querySelector('.case-stage').getBoundingClientRect().width/1118;
+      const f=document.querySelector('[data-bk="${faceI}"]').getBoundingClientRect(), s=document.querySelector('.desk-binder .pf-prints').closest('.pf-sheet').getBoundingClientRect(), p=document.querySelector('.desk-binder .pf-print').getBoundingClientRect();
+      const out={box:[(p.left-f.left)/u,(p.top-f.top)/u,p.width/u,p.height/u],sheet:[(s.left-f.left)/u,(s.top-f.top)/u,(s.right-f.left)/u,(s.bottom-f.top)/u]};
+      document.documentElement.classList.remove('bk-budflat');st.remove();void document.body.offsetHeight;
+      return JSON.stringify(out)})()`));
+    const [bx, by] = geo.box;
+    const like = (g, cls, i, bud, dx = 0, dy = 0) => ({ ...face, i, cls, type: "tex", src: g.src, px: g.px, rho: g.rho, w: g.w, h: g.h,
+      off: [dx * u + g.ox, dy * u + g.oy], m: toU(mulLocal(fu.m, dx * u + g.ox, dy * u + g.oy), u), _diff: face._diff, bud });
+    const items = prints.map(({ n, i, got }) => like(got, `pf-print bud-print-${n}`, i, { n, q: [got.ox / u, got.oy / u] }, bx, by));
+    if (gloss) items.push(like(gloss, "pf-face__full::after bud-gloss", 9399, { gloss: true, q: [gloss.ox / u, gloss.oy / u] }));
+    out.items.splice(at + 1, 0, ...items);
+    out.bud = { face: faceI, off: [face.off[0] / u, face.off[1] / u], box: geo.box, sheet: geo.sheet };
+    log("bud", prints.length, "prints,", gloss ? "gloss" : "no gloss", JSON.stringify(out.bud));
   }
 }
 

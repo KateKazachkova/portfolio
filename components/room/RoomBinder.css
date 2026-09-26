@@ -8,6 +8,9 @@
 /* its text is text (Binder.css keeps the book itself from selecting) */
 .room-binder .pf-sheet { user-select: text; -webkit-user-select: text; cursor: text; }
 .room-binder .pf-sheet a { cursor: pointer; }
+/* …but not its loose prints: they are picked up, and a drag must not select
+   them (the selection's tint is the page's own, WebGL's prints have none) */
+.room-binder .pf-prints { user-select: none; -webkit-user-select: none; }
 .room-binder, .room-binder * { transform-style: flat !important; backface-visibility: visible !important; }
 .room-binder .pf-leaf { transform: none; transition: none; }
 .room-binder .pf-leaf[data-turned] { transform: scaleX(-1); }

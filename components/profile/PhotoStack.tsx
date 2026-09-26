@@ -26,6 +26,9 @@ const set = (i: number, p: Partial<Print>) => {
   subs.forEach((f) => f());
 };
 const subscribe = (f: () => void) => { subs.add(f); return () => { subs.delete(f); }; };
+/** for the WebGL room (components/room/budgl.ts): where they lie now, and when that changes */
+export const budPrints = () => prints;
+export const onBudPrints = subscribe;
 
 export default function PhotoStack() {
   const list = useSyncExternalStore(subscribe, () => prints, () => prints);

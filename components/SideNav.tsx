@@ -116,7 +116,8 @@ export default function SideNav() {
           background: barPainted ? "color-mix(in srgb, var(--bg) 70%, transparent)" : "transparent",
           backdropFilter: barPainted ? "blur(12px) saturate(140%)" : "none",
           WebkitBackdropFilter: barPainted ? "blur(12px) saturate(140%)" : "none",
-          borderBottom: barPainted ? "2px solid var(--border)" : "2px solid transparent",
+          // A case file's bar carries no ink rule under it — the page is a notebook.
+          borderBottom: barPainted && !inCaseFile ? "2px solid var(--border)" : "2px solid transparent",
           transition: "background 0.3s, border-color 0.3s",
         }}
       >

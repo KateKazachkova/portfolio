@@ -5,8 +5,8 @@ import {
   Newsreader,
   Archivo,
   Courier_Prime,
+  Nanum_Pen_Script,
 } from "next/font/google";
-import localFont from "next/font/local";
 import "./globals.css";
 import SideNav from "@/components/SideNav";
 import Footer from "@/components/Footer";
@@ -50,12 +50,13 @@ const typewriter = Courier_Prime({
   preload: false,
 });
 
-// Kate's own handwriting, drawn from her notes — replaces Caveat everywhere
-// the site writes by hand (chalk to-do, case-study margin notes).
-const chalk = localFont({
-  src: "./fonts/Kate2-Regular.otf",
+// The hand the site writes in (case-study margin notes, the marker spread):
+// a felt-tip pen, the kind a notebook page is annotated with.
+const chalk = Nanum_Pen_Script({
+  weight: "400",
+  subsets: ["latin"],
   variable: "--font-chalk",
-  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

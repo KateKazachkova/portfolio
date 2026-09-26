@@ -1,5 +1,3 @@
-import InkTip from "@/components/InkTip";
-
 /** The still things in the case's middle and right: the bike on the wall with
  *  its shadows, and the field kit — the wheel, the pads, the Converse.
  *  Rendered on the server like CaseShelves. Percentages of the suitcase box. */
@@ -93,11 +91,7 @@ export default function CaseKit() {
       {/* The other way she gets around, parked on the compartment floor
           under the hung bike — the bike hangs, the wheel stands. Colour is
           baked into the file like the bike's, so only the shadow is left. */}
-      <InkTip
-        label="Field kit"
-        meta="The wheel"
-        place="bottom"
-        focusable
+      <div
         className="group"
         style={{ position: "absolute", left: "60.5%", top: "56.4%", width: "11.1%", zIndex: 4 }}
       >
@@ -109,17 +103,13 @@ export default function CaseKit() {
           style={{ "--rest": "drop-shadow(0 5px 7px rgba(0,0,0,0.42))" } as React.CSSProperties}
           draggable={false}
         />
-      </InkTip>
+      </div>
 
       {/* Beside them, the armour that goes on before the wheel does: knee and
           elbow pads stacked at the front of the shelf, overlapping the shoes
           the way a pile of kit dumped on a shelf overlaps whatever is behind
           it. Same baked colour and shadow as the rest of the compartment. */}
-      <InkTip
-        label="Field kit"
-        meta="The armour"
-        place="bottom"
-        focusable
+      <div
         className="group"
         style={{ position: "absolute", left: "78.96%", top: "70.6%", width: "10.8%", zIndex: 6 }}
       >
@@ -134,16 +124,12 @@ export default function CaseKit() {
           style={{ "--rest": "drop-shadow(0 4px 5px rgba(0,0,0,0.42))", clipPath: "inset(0 9% 0 0)" } as React.CSSProperties}
           draggable={false}
         />
-      </InkTip>
+      </div>
 
       {/* The Converse she rides in, paired on the wardrobe's bottom shelf
           under the folded blankets — the floor below the bike is the wheel's
           now, and shoes on a shelf read as put away rather than dropped. */}
-      <InkTip
-        label="Field kit"
-        meta="The Converse"
-        place="bottom"
-        focusable
+      <div
         className="group"
         style={{ position: "absolute", left: "75.1%", top: "72.96%", width: "8.1%", zIndex: 5 }}
       >
@@ -155,7 +141,7 @@ export default function CaseKit() {
           style={{ "--rest": "drop-shadow(0 4px 5px rgba(0,0,0,0.4))" } as React.CSSProperties}
           draggable={false}
         />
-      </InkTip>
+      </div>
     </>
   );
 }

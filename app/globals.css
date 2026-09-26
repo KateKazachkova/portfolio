@@ -445,18 +445,6 @@ body::after {
 .scene-hit:focus-visible, .case-world [tabindex="0"]:focus-visible {
   outline: 2px solid var(--accent-red, #e8212e); outline-offset: 2px; border-radius: 4px;
 }
-/* The wardrobe's hangers wear the ribbons' own slip (.award-ribbon::after):
-   one line over the lifted hanger's hook, at the case's own 11px (.inktip). */
-.hanger-tag {
-  position: absolute; z-index: 60; transform: translate(-50%, -100%);
-  width: max-content; max-width: 260px; white-space: nowrap; text-align: center;
-  padding: 5px 9px; border-radius: 3px;
-  background: rgba(250, 248, 243, .95); color: #22283a;
-  font: 500 11px / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .04em;
-  opacity: 0; pointer-events: none; transition: opacity .2s ease;
-}
-.hanger-tag[data-open="true"] { opacity: 1; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    The disc (components/DiscBody.tsx, in the Off Duty wallet and the player).
    Each disc is a stack of circular layers (printed label → fine grooves →

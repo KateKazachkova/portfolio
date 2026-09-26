@@ -13,7 +13,6 @@ import { memo, useRef, useState } from "react";
  *  line, not a guess: fitted to the brass in the plate (183 samples), it passes
  *  through (76.50, 16.62) and climbs to the right at -0.0631 %y per %x, because
  *  the right-hand side of the wardrobe is nearer the camera. */
-const WARDROBE = { l: 73.38, t: 9.8, w: 15.625, h: 71.387 };
 const RAIL = { x: 75.88, y: 16.62, k: -0.0631 };
 const railY = (x: number) => RAIL.y + (x - RAIL.x) * RAIL.k;
 
@@ -260,22 +259,6 @@ function Wardrobe({ edition }: { edition: string }) {
         }}
       />
 
-      {/* What the lifted hanger is: the ribbons' hover slip, above its hook */}
-      {OUTFITS.map((o) => (
-        <span
-          key={o.key}
-          aria-hidden
-          className="hanger-tag"
-          data-open={pulled === o.key ? "true" : "false"}
-          // Centred over the hook, except near the case's right edge, where
-          // it would run off the page: there it ends flush with the wall.
-          style={o.cx > 83
-            ? { left: `${WARDROBE.l + WARDROBE.w}%`, top: `${railY(o.cx) - 1.2}%`, transform: "translate(-100%, -100%)" }
-            : { left: `${o.cx}%`, top: `${railY(o.cx) - 1.2}%` }}
-        >
-          {o.label} · {o.meta}
-        </span>
-      ))}
     </>
   );
 }

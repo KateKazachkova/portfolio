@@ -984,7 +984,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .jury-card { position: absolute; left: 50%; top: 50%; z-index: 6; width: calc(120 * var(--eu)); display: block; box-sizing: border-box;
   transform: translate(-50%, -50%) rotate(-2deg);
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24);
   font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace;
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .jury-card { transform: translate(calc(-50% - 94 * var(--u)), -50%) rotate(-1deg); }
@@ -1003,7 +1003,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .postcard { position: absolute; left: 50%; top: 50%; width: calc(159 * var(--u)); height: calc(113 * var(--u)); box-sizing: border-box;
   display: grid; grid-template-columns: 56% 44%; padding: calc(7 * var(--u)) calc(7 * var(--u)) calc(6 * var(--u));
   background: #f6f0e2; color: #2a241c; text-decoration: none;
-  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.3);
+  box-shadow: inset 0 calc(.35 * var(--u)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--u)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24);
   transform: translate(calc(-50% + var(--ux) * var(--u)), calc(-50% + var(--uy) * var(--u))) rotate(var(--ur));
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard {
@@ -1089,7 +1089,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   filter: none; box-shadow: none;
   transform: translate(calc(-50% - 44 * var(--u)), calc(-50% + 50 * var(--u))) rotate(-9deg);
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
-.payslip::before { content: ""; position: absolute; inset: 0; z-index: -1; box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28); }
+.payslip::before { content: ""; position: absolute; inset: 0; z-index: -1; box-shadow: 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .payslip { transform: translate(calc(-50% - 94 * var(--u)), calc(-50% + 99 * var(--u))) rotate(-2deg); }
 .payslip__paper { height: 100%; box-sizing: border-box; padding: calc(6 * var(--u)) calc(7 * var(--u));
   border-left: calc(.4 * var(--u)) dashed #b9b4a4; border-right: calc(.4 * var(--u)) dashed #b9b4a4;
@@ -1202,13 +1202,13 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env__stack--after  { left: 43%; top: 8%; width: 47%; }
 .env__print-photo { position: absolute; left: 0; top: 0; width: 100%; display: block; box-sizing: border-box;
   padding: calc(2.2 * var(--eu)); background: #f4f0e6; transform: rotate(var(--t)); transform-origin: 50% 0;
-  box-shadow: 0 calc(.4 * var(--eu)) calc(.8 * var(--eu)) rgba(20,16,12,.3); }
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24); }
 .env__print-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* The library card, in front of the prints: buff card stock, a typed head,
    ruled rows, date stamps in violet ink. */
 .env__card { position: absolute; left: 10%; top: 14%; width: 80%; display: block; box-sizing: border-box;
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24);
   font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
 .env__card-head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
   padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
@@ -1443,8 +1443,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
   background: url(/items/desk-paper.webp) center / 100% 100% no-repeat;
   transform: rotate(var(--r, 0deg)) translateZ(.1px); pointer-events: none;
-  box-shadow: calc(1 * var(--u)) calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(20, 16, 12, .16),
-    calc(3 * var(--u)) calc(6 * var(--u)) calc(10 * var(--u)) calc(-3 * var(--u)) rgba(20, 16, 12, .2);
+  box-shadow: inset 0 calc(.35 * var(--u)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--u)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24);
 }
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
@@ -1907,9 +1906,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 }
 .flip-clock__half--am { top: 33.8%; }
 .flip-clock__half--pm { top: 42.6%; }
+/* on the printed sockets (flip-clock.webp: AM 18.2 / 37.7 %, PM 18.2 / 46.3 %) */
+.flip-clock__half--pm .flip-clock__lamp { top: 52.7%; }
 .flip-clock__half:hover, .flip-clock__half:focus-visible { background: rgba(45, 41, 36, .07); outline: none; }
 .flip-clock__lamp {
-  position: absolute; left: 70.5%; top: 50%; width: 1.7cqw; aspect-ratio: 1; border-radius: 50%;
+  position: absolute; left: 77.5%; top: 56%; width: 1.7cqw; aspect-ratio: 1; border-radius: 50%;
   transform: translate(-50%, -50%); background: transparent; transition: background .2s ease, box-shadow .2s ease;
 }
 .flip-clock__half.is-on .flip-clock__lamp { background: #d8352a; box-shadow: 0 0 .8cqw rgba(216, 53, 42, .75); }

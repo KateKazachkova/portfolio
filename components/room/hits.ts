@@ -74,7 +74,7 @@ const ACTIONS: Record<string, (h: Hit) => void> = {
 // the ride on screen; a pocket's disc is the open spread's
 const BIND: Record<string, (el: HTMLElement, s: RoomState, h: Hit) => void> = {
   "bike-strava": (el, s) => { (el as HTMLAnchorElement).href = stravaHref(s); },
-  disc: (el, s, h) => { const d = discAt(h.of.i, s); if (d) el.setAttribute("aria-label", `${d.title} — put it in the player`); },
+  disc: (el, s, h) => { const d = discAt(h.of.i, s); if (d) el.setAttribute("aria-label", `${d.title} – put it in the player`); },
   u15: (el, s) => { el.setAttribute("aria-label", s.u15 ? "Put Ukrainska 15 away" : "Open Ukrainska 15"); el.setAttribute("aria-expanded", String(s.u15)); },
   player: (el, s) => { el.setAttribute("aria-label", `${s.playing ? "Pause" : "Play"} “${SONG_TITLE}”`); el.setAttribute("aria-pressed", String(s.playing)); },
 };

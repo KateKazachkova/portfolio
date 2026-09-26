@@ -65,7 +65,7 @@ export function makeDvd(el: HTMLElement) {
       tube.className = "od-dvd__tube";
       tube.dataset.src = want;
       tube.src = want;
-      tube.title = `${p!.title} — clip`;
+      tube.title = `${p!.title} – clip`;
       tube.allow = "autoplay; encrypted-media; picture-in-picture";
       tube.referrerPolicy = "strict-origin-when-cross-origin";
       el.insertBefore(tube, osd);

@@ -175,7 +175,7 @@ if (run("award")) {
   const ax = await b.send("Accessibility.getFullAXTree");
   const nodes = (ax.result?.nodes ?? []).filter((n) => !n.ignored).map((n) => `${n.role?.value}: ${n.name?.value ?? ""}`);
   fs.writeFileSync(path.join(OUT, "ax-award.txt"), nodes.join("\n"));
-  ok(nodes.some((n) => n === "link: Indigo Design Award — Women in Design, shortlisted 2026 (certificate)"), "award: screen reader gets the certificate");
+  ok(nodes.some((n) => n === "link: Indigo Design Award – Women in Design, shortlisted 2026 (certificate)"), "award: screen reader gets the certificate");
   const named = ribbons.filter((h) => h.kind === "link" && nodes.includes(`link: ${h.label}`)).length;
   ok(named === ribbons.filter((h) => h.kind === "link").length, "award: screen reader gets every ribbon link by its name", `${named}`);
   // Enter on the certificate opens it in a new tab
@@ -297,7 +297,7 @@ if (run("wallet")) {
   await sleep(2500);
   await b.shot(path.join(OUT, "dvd-legacy.png"), { x: lr.x - 20, y: lr.y - 20, width: lr.width + 40, height: lr.height + 40, scale: 1 });
   await goto(1, "offduty");
-  const discs = () => b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit--disc')].filter(e=>!e.hidden&&e.tabIndex===0).map(e=>e.getAttribute('aria-label').replace(' — put it in the player','')))`).then(JSON.parse);
+  const discs = () => b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit--disc')].filter(e=>!e.hidden&&e.tabIndex===0).map(e=>e.getAttribute('aria-label').replace(' – put it in the player','')))`).then(JSON.parse);
   const d0 = await discs();
   ok(d0.join("|") === series.slice(0, 8).map((x) => x.title).join("|"), "wallet: the open spread's eight discs, in the wallet's order, each a button by its title", d0.length + "");
   ok(!(await b.ev(shown("dvd"))), "wallet: no disc in, no panel over the player's screen (WebGL's NO DISC)");
@@ -346,7 +346,7 @@ if (run("wallet")) {
   const ax = await b.send("Accessibility.getFullAXTree");
   const nodes = (ax.result?.nodes ?? []).filter((x) => !x.ignored).map((x) => `${x.role?.value}: ${x.name?.value ?? ""}`);
   fs.writeFileSync(path.join(OUT, "ax-offduty.txt"), nodes.join("\n"));
-  ok(nodes.includes("button: Star City — put it in the player") && nodes.includes("button: Sound on"), "wallet: screen reader gets the discs and the screen's button");
+  ok(nodes.includes("button: Star City – put it in the player") && nodes.includes("button: Sound on"), "wallet: screen reader gets the discs and the screen's button");
   // leaving the corner: the clip goes, the disc stays in
   await key("Escape"); await arrive("closed");
   ok(!(await b.ev("!!document.querySelector('[data-hit=dvd] iframe')")), "wallet: away from the corner the clip stops");

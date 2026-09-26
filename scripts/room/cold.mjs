@@ -62,6 +62,8 @@ for (let i = 0; i < 1200; i++) {
 times.lcp = await b.ev(`new Promise(r=>{let v=0;try{new PerformanceObserver(l=>{for(const e of l.getEntries())v=e.startTime}).observe({type:'largest-contentful-paint',buffered:true})}catch(e){};setTimeout(()=>r(Math.round(v)),100)})`);
 await sleep(500);
 log("times", JSON.stringify(times));
+// CSS=…: a rule laid over the page first (to see what one costs)
+if (process.env.CSS) await b.ev(`(()=>{const s=document.createElement('style');s.textContent=${JSON.stringify(process.env.CSS)};document.head.appendChild(s);return 1})()`);
 // the first flight straight away
 await b.ev(`(()=>{window.__ft=[];let l=performance.now();const f=(t)=>{window.__ft.push(t-l);l=t;requestAnimationFrame(f)};requestAnimationFrame(f);return 1})()`);
 await b.ev(`dispatchEvent(new Event("kate:off-duty"))`);
@@ -109,7 +111,7 @@ const net = {
   roomOrder: list.filter((r) => r.url.includes("/room/")).sort((a, b) => a.end - b.end).map((r) => `${Math.round((r.end - list[0].start) * 1000)}ms ${r.url.split("/room/")[1]} ${kb(r.bytes)}KB`),
 };
 const res = { mode: MODE, dpr: DPR, extra: EXTRA, slow: !!process.env.SLOW, times, first, stats: { roomMB: stats.roomMB, groupMB: stats.groupMB, zones: stats.zones, loaded: stats.loaded, slots: stats.slots, homeMs: stats.homeMs, waits: stats.waits }, gpuMem, net };
-const file = path.join(OUT, `cold-${MODE}-pr${DPR}${EXTRA.replace(/[^a-z0-9]/gi, "")}${process.env.SLOW ? "-slow" : ""}.json`);
+const file = path.join(OUT, `cold-${MODE}-pr${DPR}${EXTRA.replace(/[^a-z0-9]/gi, "")}${process.env.SLOW ? "-slow" : ""}${process.env.CSS ? `-${process.env.TAG ?? "css"}` : ""}.json`);
 fs.writeFileSync(file, JSON.stringify(res, null, 1));
 log("net", net.totalKB, "KB in", net.requests, "requests;", JSON.stringify(net.byKind));
 log("gpu", JSON.stringify(gpuMem));

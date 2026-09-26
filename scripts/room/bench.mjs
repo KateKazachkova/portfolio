@@ -18,6 +18,13 @@ const OUT = path.join(process.env.HOME, "Documents/portfolio-offload/webgl-m1/be
 fs.mkdirSync(OUT, { recursive: true });
 
 const b = await launch({ headed: true, width: W, height: H, dpr: DPR });
+// MOBILE=1: a phone — touch, mobile viewport, CPU ×4 (the M4 Pro's GPU still;
+// a real phone's is slower: this is a floor, not a verdict)
+if (process.env.MOBILE) {
+  await b.send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceScaleFactor: DPR, mobile: true });
+  await b.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+  await b.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+}
 await b.go(`${SITE}/?nointro&gl=${MODE === "gl" ? 1 : 0}`, 3000);
 // ready: every picture in, and the room's textures on the GPU
 const t0 = Date.now();
@@ -71,7 +78,7 @@ await flight("pan along the desk", async () => { for (let i = 0; i < 10; i++) { 
 
 const all = flights.filter((f) => !f.name.startsWith("pan"));
 const sum = { mode: MODE, dpr: DPR, size: `${W}x${H}`, room: JSON.parse(info || "{}"), worstP95: Math.max(...all.map((f) => f.p95)), worstMax: Math.max(...all.map((f) => f.max)), over33: all.reduce((a, f) => a + f.over33, 0), flights };
-const file = path.join(OUT, `bench-${MODE}-pr${DPR}-${W}x${H}-${new Date().toISOString().slice(11, 19).replace(/:/g, "")}.json`);
+const file = path.join(OUT, `bench-${MODE}${process.env.MOBILE ? "-mobile" : ""}-pr${DPR}-${W}x${H}-${new Date().toISOString().slice(11, 19).replace(/:/g, "")}.json`);
 fs.writeFileSync(file, JSON.stringify(sum, null, 1));
 log("worst p95", sum.worstP95, "worst max", sum.worstMax, ">33ms", sum.over33, "→", file);
 b.close();

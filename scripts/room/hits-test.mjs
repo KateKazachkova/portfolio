@@ -41,7 +41,9 @@ const PLACED = "document.documentElement.dataset.glReady && [...document.querySe
 const arrive = async (desk) => {
   // (home: html[data-desk] is "closed" once the camera has been away, unset before)
   const a = await until(desk === "closed" ? "!document.documentElement.dataset.desk || document.documentElement.dataset.desk === 'closed'" : `document.documentElement.dataset.desk===${JSON.stringify(desk)} && document.documentElement.dataset.deskArrived`);
-  const p = await until(PLACED, 3000);
+  // (a stop with no controls of its own — Profile, till M4 — has nothing to wait for)
+  const view = { closed: "home", open: "files" }[desk] ?? desk;
+  const p = HITS.some((h) => h.at.includes(view)) ? await until(PLACED, 3000) : true;
   if (!a || !p) log("  (not there:", desk, JSON.stringify(await st()), await b.ev("JSON.stringify((({view,frames,pending,waits})=>({view,frames,pending,waits,vis:document.visibilityState}))(window.__room.stats()))"), ")");
   await sleep(200);
 };
@@ -150,7 +152,7 @@ if (run("award")) {
   const reached = await tabWalk(70);
   // (once round: the walk may wrap back to the page's top)
   const order = reached.filter((a) => HITS.some((h) => h.id === a)).filter((a, i, all) => all.indexOf(a) === i);
-  ok(order.join() === [...ribbons.map((h) => h.id), "cert"].join(), "award: Tab goes through the ribbons in order, then the certificate", `${order.length} stops`);
+  ok(order.join() === [...ribbons.map((h) => h.id), "cert", "binder"].join(), "award: Tab goes through the ribbons in order, then the certificate and the binder", `${order.length} stops`);
   ok(!reached.some((a) => a === "bike" || a === "trophy"), "award: other stops' controls are not in the tab order");
   // a focused span shows its label too
   const span = ribbons.find((h) => h.kind === "span");
@@ -196,6 +198,13 @@ if (run("award")) {
   await key("Enter"); await sleep(2500);
   const s3 = await st();
   ok(s3.path === "/work/waypro" && s3.mark, "award: Enter on a focused ribbon opens its case, client-side", s3.path);
+  await b.go(`${SITE}/?nointro&gl=1#recognition`, 1500); await arrive("award");
+  // the binder in front of the certificate: on to Profile
+  const bn = await rect("binder");
+  ok(!!bn, "award: the binder is a control", JSON.stringify(bn));
+  await b.ev("document.querySelector('.room-hit--binder').focus()"); await sleep(100);
+  await key("Enter"); await arrive("profile");
+  ok((await st()).desk === "profile", "award: Enter on the binder goes to Profile");
   await b.go(`${SITE}/?nointro&gl=1#recognition`, 1500); await arrive("award");
   // Escape leaves the stop
   await key("Escape"); await arrive("closed");

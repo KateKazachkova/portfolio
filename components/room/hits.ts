@@ -49,6 +49,7 @@ const plain = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !
 
 const ACTIONS: Record<string, (h: Hit) => void> = {
   recognition: () => { if (document.documentElement.dataset.desk !== "award") dispatchEvent(new Event("kate:recognition")); },
+  profile: () => { if (document.documentElement.dataset.desk !== "profile") dispatchEvent(new Event("kate:profile")); },
   "offduty-bike": () => {
     const root = document.documentElement;
     if (root.dataset.desk !== "offduty") dispatchEvent(new Event("kate:off-duty"));

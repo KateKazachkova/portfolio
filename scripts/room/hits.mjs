@@ -24,6 +24,9 @@ const PICK = [
   // Recognition: every ribbon on the lattice, then the certificate
   { type: "ribbon", sel: ".award-ribbon", all: true, at: ["award"], label: "data-label" },
   { type: "cert", sel: "a.desk-cert", at: ["award"], kind: "link" },
+  // the Profile binder, lying in front of the certificate: a way to Profile
+  // (at Profile itself it is the page's own flat DOM, M4)
+  { type: "binder", sel: ".desk-binder", at: ["award"], kind: "button", action: "profile", name: "Profile binder — Profile" },
   // Off Duty: the bike computer, a way down to it; down over it, the unit
   // (a click anywhere: the next screen) and its three buttons over it
   { type: "bike", sel: ".bike", at: ["offduty"], kind: "button", action: "offduty-bike" },

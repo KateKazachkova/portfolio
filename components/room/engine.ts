@@ -919,6 +919,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
           const ud = p.meshes[0].userData;
           if (!!ud.away === on) continue;
           ud.away = on; ud.dirty = true; dirty = true;
+          // this frame's settle() has run already (place() comes after it):
+          // show or hide now, or the frame drawn next has neither the panel
+          // nor WebGL's binder
+          const op = p.op.value(performance.now());
+          for (const mesh of p.meshes) mesh.visible = ud.vis !== false && !on && op > 0.001;
         }
       },
     });

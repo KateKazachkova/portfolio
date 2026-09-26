@@ -837,7 +837,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
 
   const hosts = ["od-hang od-hang--l", "od-hang od-hang--r", "od-film od-film--l", "od-film od-film--r", "od-dvd__base"].map(hostOf);
-  const stepsOf = (side: string) => Array.from({ length: data.wallet?.steps ?? 0 }, (_, j) => hostOf(`od-step od-step--${side} od-step-${j}`)).filter((h): h is Host => !!h);
+  // (each step two strips: its side and its foot)
+  const stepsOf = (side: string) => Array.from({ length: data.wallet?.steps ?? 0 }, (_, j) => ["side", "foot"].map((k) => { const h = hostOf(`od-step od-step--${side} od-step-${j} od-step--${k}`); return h && { ...h, j }; })).flat().filter(Boolean) as Host[];
   wallet = data.wallet && hosts.every(Boolean) ? makeWallet({
     scene, data: data.wallet,
     under: { l: hosts[0]!, r: hosts[1]! }, film: { l: hosts[2]!, r: hosts[3]! }, steps: { l: stepsOf("l"), r: stepsOf("r") }, base: hosts[4]!,

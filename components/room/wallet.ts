@@ -32,7 +32,7 @@ export type WalletData = {
   screen: Box;
 };
 /** a baked plane of the room the wallet draws with (engine.ts's Placed) */
-export type Host = { meshes: THREE.Mesh[]; shown: () => boolean; m: number[]; w: number; h: number; k: number; tex: () => THREE.Texture; watch: (mat: THREE.ShaderMaterial) => void };
+export type Host = { j?: number; meshes: THREE.Mesh[]; shown: () => boolean; m: number[]; w: number; h: number; k: number; tex: () => THREE.Texture; watch: (mat: THREE.ShaderMaterial) => void };
 export type WalletCtx = {
   scene: THREE.Scene;
   data: WalletData;
@@ -281,7 +281,7 @@ export function makeWallet(o: WalletCtx) {
     const at = { l: turn && turn.dir === -1 ? turn.to : s.spread, r: turn && turn.dir === 1 ? turn.to : s.spread };
     for (const side of ["l", "r"] as const) {
       const n = under(at[side], side);
-      o.steps[side].forEach((h, j) => { const v = h.shown() && j < n; for (const m of h.meshes) m.visible = v; });
+      for (const h of o.steps[side]) { const v = h.shown() && (h.j ?? 0) < n; for (const m of h.meshes) m.visible = v; }
     }
     pocket.forEach((p, k) => {
       const d = inPocket[k];

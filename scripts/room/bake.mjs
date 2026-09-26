@@ -234,7 +234,35 @@ async function bakeAs(it, name, setup, undo) {
   await b.ev(undo);
   if (!res.w) return null;
   const ox = box.x + res.x / it.rho, oy = box.y + res.y / it.rho;
-  return { ox, oy, src: `/room/tex/${name}.webp`, px: [res.w, res.h], rho: it.rho, w: res.w / it.rho / u, h: res.h / it.rho / u };
+  return { ox, oy, r, src: `/room/tex/${name}.webp`, px: [res.w, res.h], rho: it.rho, w: res.w / it.rho / u, h: res.h / it.rho / u };
+}
+// A step of the stack is the sleeve's box-shadow, drawn only outside its
+// box: an L past its far edge and its foot, the rest empty. Two strips then
+// (the side, full height; the foot, short of the side), not the whole box
+// — a few hundred KB of GPU instead of a megabyte each.
+function splitStep(s, name, dir) {
+  const master = path.join(MASTER, "png", name + ".png");
+  const xs = Math.round(((dir > 0 ? s.r.ex + s.r.ew : s.r.ex) - s.ox) * s.rho), ys = Math.round((s.r.ey + s.r.eh - s.oy) * s.rho);
+  const cut = JSON.parse(execFileSync("python3", ["-c", `
+import sys,json
+from PIL import Image
+im=Image.open(sys.argv[1]); W,H=im.size; xs,ys,d=int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4])
+xs=max(0,min(W,xs)); ys=max(0,min(H,ys))
+parts={'side':(xs,0,W,H) if d>0 else (0,0,xs,H),'foot':(0,ys,xs,H) if d>0 else (xs,ys,W,H)}
+out={}
+for k,b in parts.items():
+  if b[2]-b[0]<1 or b[3]-b[1]<1: continue
+  p=sys.argv[5]+'-'+k+'.png'; im.crop(b).save(p); out[k]=[b[0],b[1],p]
+print(json.dumps(out))`, master, String(xs), String(ys), String(dir), path.join(TMP, name)]).toString());
+  fs.rmSync(master, { force: true }); fs.rmSync(path.join(OUT, "tex", name + ".webp"), { force: true });
+  const parts = [];
+  for (const [k, [cx, cy, p]] of Object.entries(cut)) {
+    const nm = `${name}${k === "side" ? "s" : "f"}`;
+    const res = JSON.parse(execFileSync("python3", [pyStitch, "trim", p, path.join(MASTER, "png", nm + ".png"), path.join(OUT, "tex", nm + ".webp"), String(s.rho)]).toString());
+    if (!res.w) continue;
+    parts.push({ ox: s.ox + (cx + res.x) / s.rho, oy: s.oy + (cy + res.y) / s.rho, src: `/room/tex/${nm}.webp`, px: [res.w, res.h], rho: s.rho, w: res.w / s.rho / u, h: res.h / s.rho / u, k });
+  }
+  return parts;
 }
 // (a pose leaves the world turned for the last plane: geometry is read
 // with it put back, as collect() read everything else)
@@ -254,7 +282,7 @@ if (OPT.only !== "flat") {
       const s = await bakeAs(it, `od-step-${side}${j}`,
         `document.documentElement.classList.add('bk-step'); ${sel}.style.setProperty('box-shadow', ${JSON.stringify(stepShadow(j, side === "r" ? 1 : -1))}, 'important'); 1`,
         `document.documentElement.classList.remove('bk-step'); ${sel}.style.removeProperty('box-shadow'); 1`);
-      if (s) steps.push(like(s, `od-step od-step--${side} od-step-${j}`));
+      if (s) for (const part of splitStep(s, `od-step-${side}${j}`, side === "r" ? 1 : -1)) steps.push(like(part, `od-step od-step--${side} od-step-${j} od-step--${part.k}`));
     }
     // paint order: the deepest step first, the sleeve, (its discs,) its film
     out.items.splice(at, 1, ...steps.reverse(), hang, ...(film ? [like(film, `od-film od-film--${side}`)] : []));

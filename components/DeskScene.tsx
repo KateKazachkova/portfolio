@@ -453,6 +453,13 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     // a drag that ends on a card is not a click on it
     const onClick = (e: MouseEvent) => {
+      // from home, any of the files is a way in to Case Files, as the award
+      // in the case is to Recognition
+      if (!open.current && (e.target as HTMLElement).closest?.(".desk-cases > *")) {
+        e.preventDefault(); e.stopPropagation();
+        dispatchEvent(new Event(DESK_EVENT));
+        return;
+      }
       if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; return; }
       // the first click on a case brings the camera to it and lays it out;
       // a click on the case in focus goes on to its page

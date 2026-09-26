@@ -1394,6 +1394,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
+/* from home (no data-desk yet, or "closed"), the files take a click: it
+   brings the camera to them */
+:root:is(:not([data-desk]), [data-desk="closed"]) .desk-cases > * { pointer-events: auto; cursor: pointer; }
 
 /* ── Recognition: the camera's second stop ──
    The trophy is big (56 cm), so the camera barely comes in: 10 cm, a

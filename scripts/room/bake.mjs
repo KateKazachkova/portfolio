@@ -53,6 +53,8 @@ html.bk .bk-on.bk-nops::before, html.bk .bk-on.bk-nops::after { display: none !i
 html.bk .bike__lcd, html.bk .bike__lcd * { visibility: hidden !important; }
 html.bk .od-dvd__screen, html.bk .od-dvd__screen * { visibility: hidden !important; }
 html.bk .desk-player__lcd, html.bk .desk-player__lcd * { visibility: hidden !important; }
+/* a stack's paper tags show only laid out: baked as they look then */
+html.bk .jury-tag { opacity: 1 !important; left: calc(50% - 94 * var(--u)) !important; }
 html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
 html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
 html.bk .od-sleeve { --stack: 0 0 transparent !important; }
@@ -85,6 +87,16 @@ const { u, stage, units, flat, groupM } = collected;
 const STATES = { home: ["closed"], files: ["open", undefined, "1"], award: ["award", undefined, "1"], profile: ["profile", undefined, "1"], offduty: ["offduty", undefined, "1"], bike: ["offduty", "bike", "1"] };
 const states = {};
 for (const [k, [d, f, a]] of Object.entries(STATES)) states[k] = await b.ev(`JSON.stringify(window.__bkState(${JSON.stringify(d)}, ${JSON.stringify(f)}, ${JSON.stringify(a)}))`).then(JSON.parse);
+// …and Case Files with each case in focus (M6, the award stacks): the one
+// laid out ("here"), the others moved aside to either side — DeskScene sets
+// that on the cards themselves (data-side), so it is set here the same way
+// (Ukrainska 15 left of them all: 150 aside, not 240, when it is the one)
+for (const f of ["ukrainska-15", "bulksource", "onsisoft", "waypro"]) {
+  await b.ev(`(()=>{const all=[...document.querySelectorAll('.desk-card[data-slug]')];const fx=+all.find(c=>c.dataset.slug===${JSON.stringify(f)}).dataset.x;
+    all.forEach(c=>{c.dataset.side=c.dataset.slug===${JSON.stringify(f)}?'here':(+c.dataset.x<fx?'left':'right')});return 1})()`);
+  states[`files:${f}`] = await b.ev(`JSON.stringify(window.__bkState("open", ${JSON.stringify(f)}, "1"))`).then(JSON.parse);
+  await b.ev("document.querySelectorAll('.desk-card[data-slug]').forEach(c=>delete c.dataset.side) || 1");
+}
 // …and the Profile binder open at each of its spreads (pf2 … pf7; pf1 is
 // how it lies anywhere): the WebGL room shows the spread the page's own
 // binder was left at (components/room/RoomBinder.tsx), so neither is ahead

@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
@@ -434,11 +434,14 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   let wallet: ReturnType<typeof makeWallet> | null = null, screen: ReturnType<typeof makeScreen> | null = null;
   // Ukrainska 15's folder, laid where the page's panel has it (u15gl.ts)
   let u15Hit: Hit | null = null;
+  // (its card slides aside as the stacks' do, .6 s, when another case is in focus)
+  const u15Card = new Channel<number[]>([], lerpN, (a, b) => a.length === b.length && sameN(a, b));
+  const u15CardTo = (rule: Rule, now: number) => { if (u15Hit) { const m = u15Hit.byFocus?.[root.dataset.deskFocus ?? ""] ?? u15Hit.m; if (!u15Card.to.length) u15Card.retarget(m, null, now); else u15Card.retarget(m, rule, now); } };
   const u15 = data.u15 ? makeU15({
     scene,
     parts: room.filter((p) => p.item.u15).map((p) => ({ meshes: p.meshes, w: p.item.w, h: p.item.h, k: p.k, u15: p.item.u15!, mats: p.mats })),
     edges: room.filter((p) => /^env__(edge|player-)/.test(p.item.cls)).map((p) => ({ meshes: p.meshes, sel: `.${p.item.cls.split(" ").pop()}`, mats: p.mats })),
-    card: () => (u15Hit ? (u15Hit.byFocus?.[root.dataset.deskFocus ?? ""] ?? u15Hit.m) : null),
+    card: () => (u15Hit ? u15Card.value(performance.now()) : null),
     lcd: data.u15.lcd, material, liftTop,
     shown: (p) => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
   }) : null;
@@ -447,13 +450,35 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
   const isBinder = (p: Placed) => (p.item.anc ?? "").split(" ").includes("desk-binder");
   let binderAt = 1;
-  const stateOf = (p: Placed, v: View) => (isBinder(p) ? p.item.states?.[`pf${binderAt}`] : p.item.states?.[v]) ?? {};
-  const arrange = (v: View, rule: Rule, now: number, only?: (p: Placed) => boolean) => {
+  // Case Files with a case in focus lies as the bake's files:<slug> (M6: the
+  // one laid out, the others moved aside); what that state leaves out lies
+  // as at home
+  const focusOf = (v: View) => (v === "files" ? root.dataset.deskFocus : undefined);
+  const stateOf = (p: Placed, v: View) => {
+    if (isBinder(p)) return p.item.states?.[`pf${binderAt}`] ?? {};
+    const f = focusOf(v);
+    if (f) return p.item.states?.[`files:${f}` as View] ?? {};
+    return p.item.states?.[v] ?? {};
+  };
+  // the page's own transitions when the case in focus changes, per thing:
+  // the card slides aside (.6 s), its parts fan out (.7 s), the truck
+  // drives (.8 s), a tag fades in once it lies there (.3 s after .35 s)
+  const FAN = bezier(0.65, 0, 0.2, 1), EASE_T = bezier(0.25, 0.1, 0.25, 1);
+  const focusRule = (p: Placed): { m: Rule; op: Rule } => {
+    const c = p.item.cls, a = p.item.anc ?? "";
+    if (reduced()) return { m: null, op: null };
+    if (/(^| )jury-tag( |$)/.test(c)) return { m: null, op: { dur: 300, delay: 350, ease: EASE_T } };
+    if (/stack-truck/.test(a) || /stack-truck/.test(c)) return { m: { dur: 800, delay: 0, ease: FAN }, op: null };
+    if (/^(jury-card|postcard|payslip|calc|stack-moss|stack-mush)/.test(c) || /(^| )(calc|stack-moss|jury-card|postcard|payslip)( |$)/.test(a)) return { m: { dur: 700, delay: 0, ease: FAN }, op: null };
+    return { m: { dur: 600, delay: 0, ease: FAN }, op: null };
+  };
+  const arrange = (v: View, rule: Rule | ((p: Placed) => { m: Rule; op: Rule }), now: number, only?: (p: Placed) => boolean) => {
     for (const p of room) {
       if (only && !only(p)) continue;
       const st = stateOf(p, v);
-      p.m.retarget(st.m ?? p.item.m, rule, now);
-      p.op.retarget(st.op ?? p.item.op, rule, now);
+      const r = typeof rule === "function" ? rule(p) : { m: rule, op: rule };
+      p.m.retarget(st.m ?? p.item.m, r.m, now);
+      p.op.retarget(st.op ?? p.item.op, r.op, now);
       const vis = st.vis ?? p.item.vis !== false;
       const ud = p.meshes[0].userData;
       // What home does not show (Off Duty's corner) goes once the camera is
@@ -693,7 +718,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     return [...need];
   };
-  let hold = false, waited = false;
+  let hold = false, waited = false, lastFocus = "";
   const evaluate = (now: number) => {
     const desk = root.dataset.desk, focus = root.dataset.deskFocus, arrived = root.dataset.deskArrived !== undefined;
     const v = viewOfState(desk, focus);
@@ -715,6 +740,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (hold) return;
     const leaving = view === "home" && v !== "home";
     if (leaving && !groupsShown) { buildGroups(); setGroupsShown(true); }
+    const prevView = view;
     view = v;
     const still = reduced();
     const def: Rule = still ? null : { dur: CAM.t, delay: CAM.wait, ease: EASE.cam };
@@ -734,7 +760,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       : { dur: 600, delay: 150, ease: EASE.ease };
     caseOp.retarget(opT, opRule, now);
     nightTo(v, now);
-    arrange(v, first ? null : poseRule ?? def, now);
+    // (at Case Files, a new case in focus: the stacks' own transitions)
+    const f = focusOf(v) ?? "";
+    const refocus = !first && prevView === "files" && v === "files" && f !== lastFocus;
+    lastFocus = f;
+    arrange(v, first ? null : refocus ? focusRule : poseRule ?? def, now);
+    u15CardTo(refocus && !reduced() ? { dur: 600, delay: 0, ease: FAN } : null, now);
     first = false;
     dirty = true;
     kick();
@@ -817,6 +848,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     const objects = settle(now);
     const moving = pose.active || shift.active || caseOp.active || objects;
+    // (what takes the controls and the page's panels away: the camera moving —
+    // not a stack fanning out at Case Files, which the page does under its
+    // own controls; Ukrainska 15 sliding aside takes only its own panel,
+    // WebGL drawing the slide)
+    const travelling = pose.active || shift.active || caseOp.active;
+    hitLayer?.suspend("u15panel", u15Card.active);
     const arrivedNow = pose.tick(now);
     shift.tick(now); caseOp.tick(now);
     if (arrivedNow && view !== "home") o.onArrive();
@@ -828,7 +865,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     // the controls: laid over the room when the camera is still, gone while it moves
     if (hitLayer) {
-      if (moving || hold) { if (placedKey !== "moving") { hitLayer.place(null); placedKey = "moving"; } }
+      if (travelling || hold) { if (placedKey !== "moving") { hitLayer.place(null); placedKey = "moving"; } }
       else {
         const s = shift.value(now), p = pose.to;
         const key = `${view}|${p.rx}|${p.t.join()}|${s.join()}|${geom.u}|${geom.cx}|${geom.cy}`;
@@ -839,7 +876,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // at rest (home and still, with the page's case; or a stop, its controls
     // laid) the page's own night layers draw the night, not WebGL's
     // (home: exactly while the page's case is shown, the frame it comes back)
-    const restNow = view === "home" ? !groupsShown : !(moving || hold);
+    const restNow = view === "home" ? !groupsShown : !(travelling || hold);
     if (restNow !== rest) {
       rest = restNow;
       if (rest) root.dataset.glRest = view === "home" ? "home" : "stop"; else delete root.dataset.glRest;
@@ -848,7 +885,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const nightMoving = nightActive();
     homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
     // (the wallet's own movements neither hide the controls nor count as the camera's)
-    const walletMoving = (wallet ? wallet.frame(now) : false) || (screen ? screen.frame(now) : false);
+    const walletMoving = (wallet ? wallet.frame(now) : false) || (screen ? screen.frame(now) : false) || u15Card.active;
+    u15Card.tick(now);
     // (only while the panel is out of sight: at rest at Case Files it is the folder)
     if (u15 && document.querySelector(".room-hit--u15panel[data-away]")) u15.frame();
     if (moving || dirty || video || arrivedNow || nightMoving || walletMoving) { draw(now); dirty = false; }
@@ -963,6 +1001,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   let hitLayer: HitLayer | null = null;
   fetch("/room/hits.json").then((r) => r.json()).then((d: { hits: Hit[] }) => {
     u15Hit = d.hits.find((h) => h.id === "u15panel") ?? null;
+    u15CardTo(null, performance.now());
     hitLayer = startHits({
       host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {}, navigate: o.navigate,
       // a plane the page's own DOM stands in for at rest (the Profile binder)

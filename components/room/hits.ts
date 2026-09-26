@@ -114,6 +114,8 @@ const STANDS_FOR: Partial<Record<string, string>> = { pf: "desk-binder", u15pane
 export type HitLayer = {
   /** lay the controls over the room for this camera, or hide them (null) */
   place(state: { view: View; pose: Pose; shift: [number, number]; u: number } | null): void;
+  /** keep the controls of a type out of sight for now (Ukrainska 15's panel while its card slides aside) */
+  suspend(type: string, on: boolean): void;
   dispose(): void;
 };
 
@@ -277,11 +279,12 @@ export function startHits(o: {
   // the room's state has there (refresh, again on every change of it)
   const placed = new Set<string>();
   const awayT = new Map<string, ReturnType<typeof setTimeout>>();
+  const suspended = new Set<string>();
   const refresh = (s: RoomState) => {
     const had = document.activeElement instanceof HTMLElement && layer.contains(document.activeElement) ? document.activeElement : null;
     for (const h of o.hits) {
       const el = els.get(h.id)!;
-      const on = placed.has(h.id) && inFocus(h) && (SHOWN[h.type]?.(s, h) ?? true);
+      const on = placed.has(h.id) && inFocus(h) && (SHOWN[h.type]?.(s, h) ?? true) && !suspended.has(h.type);
       // the DVD's screen, with a disc in, is only put out of sight away from
       // the corner (room.css [data-away]): its picture's animations run on,
       // for WebGL to draw where they are (wallet.ts), and do not start over
@@ -330,6 +333,11 @@ export function startHits(o: {
   mo.observe(root, { attributes: true, attributeFilter: ["data-desk-focus"] });
 
   const layerApi: HitLayer = {
+    suspend(type, on) {
+      if (suspended.has(type) === on) return;
+      if (on) suspended.add(type); else suspended.delete(type);
+      refresh(roomState());
+    },
     place(state) {
       last = state;
       // a control that sent the camera off loses its focus as it goes: the

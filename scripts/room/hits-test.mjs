@@ -84,7 +84,8 @@ const layOut = async (gl, f) => {
   else if (f === "ukrainska-15") await b.ev("document.querySelector('.u15-hit').click()");
   else await b.ev(`document.querySelector('.desk-card[data-slug="${f}"]').click()`);
   // (the legacy parts slide out over 1.2 s; the WebGL controls are there at once)
-  await sleep(gl ? 600 : 1800);
+  // (Ukrainska 15 slides aside in .6 s in both, its panel back after)
+  await sleep(gl ? 1200 : 1800);
 };
 if (run("parity")) {
   const stops = [...new Set(HITS.flatMap((h) => h.at))];

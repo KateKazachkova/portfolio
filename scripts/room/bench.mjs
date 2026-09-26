@@ -25,6 +25,10 @@ if (process.env.MOBILE) {
   await b.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
   await b.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 }
+// NIGHT=1: at 23:30 (the night edition: the room out, the lamp's pool), LAMP=off for the torch
+if (process.env.NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();
+  class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
+  window.Date=D; try{localStorage.setItem('lamp','${process.env.LAMP ?? "on"}')}catch(e){} })()` });
 await b.go(`${SITE}/?nointro&gl=${MODE === "gl" ? 1 : 0}`, 3000);
 // ready: every picture in, and the room's textures on the GPU
 const t0 = Date.now();
@@ -78,7 +82,7 @@ await flight("pan along the desk", async () => { for (let i = 0; i < 10; i++) { 
 
 const all = flights.filter((f) => !f.name.startsWith("pan"));
 const sum = { mode: MODE, dpr: DPR, size: `${W}x${H}`, room: JSON.parse(info || "{}"), worstP95: Math.max(...all.map((f) => f.p95)), worstMax: Math.max(...all.map((f) => f.max)), over33: all.reduce((a, f) => a + f.over33, 0), flights };
-const file = path.join(OUT, `bench-${MODE}${process.env.MOBILE ? "-mobile" : ""}-pr${DPR}-${W}x${H}-${new Date().toISOString().slice(11, 19).replace(/:/g, "")}.json`);
+const file = path.join(OUT, `bench-${MODE}${process.env.MOBILE ? "-mobile" : ""}${process.env.NIGHT ? "-night" : ""}-pr${DPR}-${W}x${H}-${new Date().toISOString().slice(11, 19).replace(/:/g, "")}.json`);
 fs.writeFileSync(file, JSON.stringify(sum, null, 1));
 log("worst p95", sum.worstP95, "worst max", sum.worstMax, ">33ms", sum.over33, "→", file);
 b.close();

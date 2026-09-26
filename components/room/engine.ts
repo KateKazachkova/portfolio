@@ -807,7 +807,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const video = groupsShown && [...(groupMeshes.get("case") ?? [])].some((m) => m.visible && (m.material as THREE.ShaderMaterial).uniforms.map.value instanceof THREE.VideoTexture);
     // at rest (home and still, with the page's case; or a stop, its controls
     // laid) the page's own night layers draw the night, not WebGL's
-    const restNow = view === "home" ? !groupsShown && !moving : !(moving || hold);
+    // (home: exactly while the page's case is shown, the frame it comes back)
+    const restNow = view === "home" ? !groupsShown : !(moving || hold);
     if (restNow !== rest) {
       rest = restNow;
       if (rest) root.dataset.glRest = view === "home" ? "home" : "stop"; else delete root.dataset.glRest;

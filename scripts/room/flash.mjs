@@ -13,7 +13,7 @@ import { launch, sleep, log } from "./cdp.mjs";
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const MODE = process.argv[3] ?? "gl";
 const DPR = +(process.argv[4] ?? 2);
-const OUT = path.join(process.env.HOME, `Documents/portfolio-offload/webgl-m1/flash-${MODE}`);
+const OUT = path.join(process.env.HOME, `Documents/portfolio-offload/webgl-m1/flash-${MODE}${process.env.NIGHT ? "-night" : ""}`);
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -29,6 +29,10 @@ b.handlers.add((m) => {
 });
 const marks = [];
 const mark = async (label) => marks.push({ label, t: await b.ev("Date.now()/1000"), frame: frames.length });
+// NIGHT=1: at 23:30 (the night edition: the room out, the lamp's pool), LAMP=off for the torch
+if (process.env.NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();
+  class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
+  window.Date=D; try{localStorage.setItem('lamp','${process.env.LAMP ?? "on"}')}catch(e){} })()` });
 await b.send("Page.startScreencast", { format: "jpeg", quality: 85, maxWidth: 756, maxHeight: 430, everyNthFrame: 1 });
 // from the very first paint: the load is a boundary too
 await mark("load");

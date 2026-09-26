@@ -448,6 +448,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       arrived = true; root.dataset.deskArrived = "1";
     };
     world?.addEventListener("transitionend", onArrive);
+    // the WebGL room (?gl=1) has no CSS move to end: it says when it is there
+    const onGlArrive = () => { if (!open.current) return; arrived = true; root.dataset.deskArrived = "1"; };
+    window.addEventListener("room:arrive", onGlArrive);
     const set = (v: View | null) => {
       if (v === open.current) return;
       if (v && !open.current) window.scrollTo({ top: 0 });
@@ -562,6 +565,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.removeEventListener("click", onClick, true);
       el.removeEventListener("focusin", onFocus);
       world?.removeEventListener("transitionend", onArrive);
+      window.removeEventListener("room:arrive", onGlArrive);
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GL_BOOT } from "@/lib/room/flag";
 import {
   Geist,
   Geist_Mono,
@@ -102,6 +103,8 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* ?gl=1: the WebGL room, before anything paints (lib/room/flag) */}
+        <script dangerouslySetInnerHTML={{ __html: GL_BOOT }} />
       </head>
       <body className="min-h-full flex flex-col">
         <TimeProvider>

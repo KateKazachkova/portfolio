@@ -52,8 +52,14 @@ export const LID = 58;
 export const DOOR_R = 1027;
 
 /** The lamp as it stands in the room: a picture, lit or not. */
-export default function DeskLamp() {
+export default function DeskLamp({ flat = false }: { flat?: boolean }) {
   const { on } = useLamp();
+  // laid flat over the WebGL room (components/room): its plane is parallel
+  // to the window, so the camera's perspective there is a scale by K about
+  // the principal point, here as a 2D move and scale about its foot
+  const transform = flat
+    ? `translate(calc(${(LEFT + LAMP_W / 2 - 560) * (K - 1)} * var(--u)), calc(${(TOP + LAMP.h - 226) * (K - 1)} * var(--u))) scale(${K})`
+    : `translateZ(calc(${LAMP.z} * var(--u)))`;
 
   return (
     <div
@@ -65,7 +71,7 @@ export default function DeskLamp() {
         top: `calc(${TOP} * var(--u))`,
         width: `calc(${LAMP_W} * var(--u))`,
         height: `calc(${LAMP.h} * var(--u))`,
-        transform: `translateZ(calc(${LAMP.z} * var(--u)))`,
+        transform,
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -50,6 +50,7 @@ html.bk .bk-on.bk-psb *, html.bk .bk-on.bk-psa * { visibility: hidden !important
 html.bk .bk-on.bk-psb::after, html.bk .bk-on.bk-psa::before { display: none !important; }
 html.bk .bk-on.bk-psb::before, html.bk .bk-on.bk-psa::after { mix-blend-mode: normal !important; }
 html.bk .bk-on.bk-nops::before, html.bk .bk-on.bk-nops::after { display: none !important; }
+html.bk .bike__lcd, html.bk .bike__lcd * { visibility: hidden !important; }
 html.bk .bk-anc { opacity: 1 !important; mix-blend-mode: normal !important; }
 html.bk, html.bk body, html.bk main { background: transparent !important; }
 html.bk::before, html.bk::after, html.bk body::before, html.bk body::after { display: none !important; }
@@ -153,6 +154,10 @@ const pyStitch = path.join(import.meta.dirname, "stitch.py");
 const limit = +(OPT.limit ?? 1e9);
 let n = 0;
 const out = { version: 1, u, stage: { w: stage.width / u, h: stage.height / u }, items: [], flat: [], groups: Object.fromEntries(Object.entries(groupM).map(([k, m]) => [k, toU(m, u)])) };
+// what WebGL draws live over the baked room (M4): the bike computer's
+// screen, baked blank (BAKE_CSS), its box here for components/room/lcd.ts
+const lcdBox = JSON.parse(await b.ev("(()=>{const e=document.querySelector('.bike__lcd');return JSON.stringify({m:window.__bkWorld(e),s:window.__bkSize(e)})})()"));
+out.live = [{ id: "bike-lcd", of: ".bike", m: toU(lcdBox.m, u), w: lcdBox.s[0] / u, h: lcdBox.s[1] / u }];
 const texName = (it) => `${String(it.i).padStart(3, "0")}-${(it.cls.split(" ").pop() || it.tag).replace(/[^a-z0-9_-]/gi, "").slice(0, 40)}`;
 
 if (OPT.only !== "flat") for (const it of units) {

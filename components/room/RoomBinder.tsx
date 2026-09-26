@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BinderBook, useBinder } from "@/components/profile/Binder";
 import { SPREADS } from "@/components/profile/spreads";
@@ -28,7 +28,9 @@ export function RoomBinder() {
     const root = document.documentElement;
     const read = () => {
       setLive(root.dataset.desk === "profile" && root.dataset.deskArrived === "1");
-      if (root.dataset.desk === "profile") setWarm(true);
+      // (its sheets are built as the camera sets off: in slices between
+      // frames, not one long task in the flight's first frame)
+      if (root.dataset.desk === "profile") startTransition(() => setWarm(true));
     };
     read();
     const mo = new MutationObserver(read);
@@ -36,6 +38,15 @@ export function RoomBinder() {
     return () => { removeEventListener("room:pf-host", onHost); mo.disconnect(); };
   }, []);
   const { at, go } = useBinder(SPREADS.length, live);
+  // its pictures decoded while the camera is on its way, off the main thread:
+  // decoded at the first paint instead, they cost the landing two slow frames
+  useEffect(() => {
+    if (!host || !warm) return;
+    const imgs = [...host.querySelectorAll("img")];
+    const go = () => imgs.forEach((i) => i.decode().catch(() => {}));
+    const id = requestAnimationFrame(go);
+    return () => cancelAnimationFrame(id);
+  }, [host, warm]);
   // WebGL's binder lies at the same spread (engine.ts), for the flight away
   useEffect(() => { dispatchEvent(new CustomEvent("room:binder-at", { detail: at })); }, [at]);
   if (!host || !warm) return null;

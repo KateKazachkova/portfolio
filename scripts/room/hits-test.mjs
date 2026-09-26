@@ -7,7 +7,7 @@
 // accessibility tree). Screenshots for the report.
 //
 //   node scripts/room/hits-test.mjs http://localhost:3301 [only]
-// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, binder, flight)
+// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, binder, lcd, flight)
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -540,6 +540,26 @@ if (run("binder")) {
   const back = await b.ev("(()=>{let v=0;window.__room.scene.traverse(o=>{if(o.isMesh&&o.userData&&!o.userData.away&&o.visible)v++});return JSON.stringify({panel: document.querySelector('.room-hit--pf').hidden, noneAway: (()=>{let n=0;window.__room.scene.traverse(o=>{if(o.isMesh&&o.userData&&o.userData.away)n++});return n})()})})()");
   ok(JSON.parse(back).panel && JSON.parse(back).noneAway === 0, "binder: leaving, the panel goes and WebGL draws the binder again", back);
   await arrive("closed");
+}
+// ── the bike computer's screen, live (M4): WebGL's against the legacy LCD ──
+if (run("lcd")) {
+  const shotLcd = async (gl, page, file) => {
+    await goto(gl, "bike");
+    if (!gl) await sleep(800);
+    for (let i = 0; i < page; i++) { await key("ArrowRight"); await sleep(gl ? 300 : 2200); }
+    await sleep(600);
+    const r = JSON.parse(await b.ev(`JSON.stringify((r=>[r.x,r.y,r.width,r.height])(document.querySelector(${JSON.stringify(gl ? "[data-hit=bike-unit]" : ".bike")}).getBoundingClientRect()))`));
+    // the screen, 26–75 % across and 24–69 % down the unit's box, and its middle
+    await b.shot(file, { x: r[0] + r[2] * 0.3, y: r[1] + r[3] * 0.28, width: r[2] * 0.42, height: r[3] * 0.38, scale: 1 });
+  };
+  for (const page of [0, 1]) {
+    const L = path.join(OUT, `lcd-legacy-${page}.png`), G = path.join(OUT, `lcd-gl-${page}.png`);
+    await shotLcd(0, page, L); await shotLcd(1, page, G);
+    const d = JSON.parse(execFileSync("python3", ["-c", `from PIL import Image, ImageChops;a=Image.open(${JSON.stringify(L)}).convert('L');b=Image.open(${JSON.stringify(G)}).convert('L').resize(a.size);s=(max(1,a.width//4),max(1,a.height//4));h=ImageChops.difference(a.resize(s,Image.BOX),b.resize(s,Image.BOX)).histogram();t=sum(h);print('{"quarter_over32":%.2f}'%(sum(h[33:])/t*100))`]).toString());
+    ok(d.quarter_over32 < 8, `lcd: screen ${page} (${page ? "the longest ride" : "the totals"}) as the legacy LCD draws it`, JSON.stringify(d));
+  }
+  const d01 = JSON.parse(execFileSync("python3", ["-c", `from PIL import Image, ImageChops;a=Image.open(${JSON.stringify(path.join(OUT, "lcd-gl-0.png"))}).convert('L');b=Image.open(${JSON.stringify(path.join(OUT, "lcd-gl-1.png"))}).convert('L').resize(a.size);h=ImageChops.difference(a,b).histogram();t=sum(h);print('{"over32":%.2f}'%(sum(h[33:])/t*100))`]).toString());
+  ok(d01.over32 > 3, "lcd: WebGL's screen changes with the page", JSON.stringify(d01));
 }
 // ── in flight: nothing to click or focus ──
 if (run("flight")) {

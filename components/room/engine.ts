@@ -17,6 +17,7 @@ import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectT
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
+import { makeLcd, type Lcd } from "./lcd";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -30,7 +31,9 @@ type Item = {
   /** a preview, a few KB, drawn until the texture is in */
   lo?: string;
 };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]> };
+/** drawn live over the baked room: the bike computer's screen (lcd.ts) */
+type Live = { id: string; of: string; m: number[]; w: number; h: number };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[] };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -383,6 +386,26 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     });
     room.push({ meshes, item: it, k, slot, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
   }
+  // what is drawn live over its object, shown and faded with it: the bike
+  // computer's screen, from the room's state, multiplied onto the unit as
+  // the page's LCD is (the bake left the unit's own screen blank)
+  const lives: { mesh: THREE.Mesh; host: Placed; lcd: Lcd; tex: THREE.CanvasTexture }[] = [];
+  for (const lv of data.live ?? []) {
+    const host = room.find((p) => p.item.cls.split(" ")[0] === lv.of.replace(/^\./, ""));
+    if (!host) continue;
+    const lcd = makeLcd(lv.w, lv.h);
+    const tex = new THREE.CanvasTexture(lcd.canvas);
+    tex.premultiplyAlpha = true; tex.colorSpace = THREE.NoColorSpace; tex.anisotropy = aniso;
+    tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true;
+    const mat = material(tex, { blend: "multiply", alphaTest: 0.002, depthWrite: false });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.matrixAutoUpdate = false;
+    mesh.matrix.copy(placed(lifted(lv.m, liftCount(lv.m)), lv.w, lv.h));
+    mesh.matrixWorldNeedsUpdate = true;
+    scene.add(mesh);
+    lcd.onChange(() => { tex.needsUpdate = true; dirty = true; kick(); });
+    lives.push({ mesh, host, lcd, tex });
+  }
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
@@ -677,6 +700,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     camera.projectionMatrixInverse.copy(P).invert();
     caseOpacity = caseOp.value(now);
     applyGroupOpacity();
+    for (const l of lives) {
+      l.mesh.visible = l.host.meshes[0].visible;
+      (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
+    }
     renderer.render(scene, camera);
     // the still of the room goes the frame WebGL has drawn it all
     if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
@@ -875,6 +902,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       raf = -2;
       mo.disconnect(); ro.disconnect();
       removeEventListener("room:binder-at", onBinder);
+      for (const l of lives) { l.lcd.dispose(); l.tex.dispose(); }
       hitLayer?.dispose();
       removeEventListener("resize", onResize);
       setGroupsShown(false);

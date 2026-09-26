@@ -256,6 +256,7 @@ export function startHits(o: {
   // where each control lies at the current stop (place), and which of them
   // the room's state has there (refresh, again on every change of it)
   const placed = new Set<string>();
+  const awayT = new Map<string, ReturnType<typeof setTimeout>>();
   const refresh = (s: RoomState) => {
     const had = document.activeElement instanceof HTMLElement && layer.contains(document.activeElement) ? document.activeElement : null;
     for (const h of o.hits) {
@@ -269,7 +270,17 @@ export function startHits(o: {
     }
     const corner = document.documentElement.dataset.desk === "offduty";
     for (const sf of surfaces.values()) sf.corner(corner);
-    for (const h of o.hits) { const c = STANDS_FOR[h.type]; if (c) o.away?.(c, !els.get(h.id)!.hidden); }
+    // WebGL's own goes a moment after the panel is there (its first paint may
+    // take a frame or two: what shows through meanwhile is WebGL's), and comes
+    // back at once when it goes
+    for (const h of o.hits) {
+      const c = STANDS_FOR[h.type];
+      if (!c) continue;
+      const on = !els.get(h.id)!.hidden;
+      clearTimeout(awayT.get(h.id));
+      if (on) awayT.set(h.id, setTimeout(() => { if (!els.get(h.id)!.hidden) o.away?.(c, true); }, 150));
+      else o.away?.(c, false);
+    }
     const say = active ? LIVE[active] : undefined;
     live.textContent = say ? say(s) : "";
     // what had focus is gone (the disc went into the player): the control

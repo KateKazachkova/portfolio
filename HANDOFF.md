@@ -136,6 +136,9 @@ Home's 3D room (desk, wall, stops Case Files / Recognition / Profile / Off Duty)
 - **Bake viewport stays 1600 px.** The text-line shift at the DOM↔baked binder hand-over is a separate binder-handoff problem (after M5/M6).
 - **Profile post-arrival DOM spike (25–41 ms)** accepted for now = post-arrival DOM activation, not flight; do not move raster into the flight, do not split the binder; M7 QA on a weaker device.
 - 75 MB room textures accepted; the 21–27 MB mirror is temporary; binder stays UASTC.
+- **M6 GPU budget: room textures ≤85 MB** (75 was M5's baseline; 80.4 after group 1 accepted, 26.09). Record GPU after every M6 group; at 90–100 MB a separate memory pass (largest added textures), not before.
+- **Wallet/DVD differences accepted (26.09):** the disc's 3D flight path, the static sheen on hover, the clip appearing after arrival.
+- In M6 groups, small visual differences that are not a pop, flash or state bug are documented, not a reason to stop the group.
 - **Generated KTX2/WebP stay in git** for now.
 - **Mobile undecided** until tested on a real device.
 - **Menu glass / backdrop-filter** not optimised now; benchmark in M7.

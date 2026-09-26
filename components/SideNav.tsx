@@ -131,16 +131,17 @@ export default function SideNav() {
 
           {/* Toggle + latch. The theme stays in the bar: it is one square, it
               costs nothing to keep, and it is the control people reach for
-              without opening anything. */}
+              without opening anything. A case file is a notebook page with no
+              night, so it has no toggle, and its latch is bare rules. */}
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+            {!inCaseFile && <ThemeToggle />}
             <button
               type="button"
               onClick={() => setOpen(!open)}
               aria-expanded={open}
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="flex flex-col items-center justify-center border-2"
+              className={`flex flex-col items-center justify-center${inCaseFile ? "" : " border-2"}`}
               style={{ width: 26, height: 26, borderColor: "var(--border)", gap: 3 }}
             >
               {/* Three ink rules that fold into a cross — same 2px ink as every

@@ -13,11 +13,16 @@
  * (/kit, the Parts List, still exists but is off the menu.)
  */
 export const NAV_LINKS = [
+  // The room itself, where the case stands open — the camera's rest. A link
+  // to "/" from a stop brings the camera back (DeskScene's onHomeLink).
+  { href: "/", stop: "/", label: "Studio" },
   { href: "/work", stop: "/#case-files", label: "Case Files" },
   { href: "/about", stop: "/#profile", label: "Profile" },
   { href: "/off-duty", stop: "/#off-duty", label: "Off Duty" },
   { href: "/recognition", stop: "/#recognition", label: "Recognition" },
 ] as const;
+
+export const CONTACT_HREF = "mailto:e.kazachkova.kh@gmail.com";
 
 export const CV_HREF =
   "https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf";

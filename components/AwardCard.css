@@ -13,8 +13,8 @@
   min-height: calc(6.4 * var(--cu)); border-bottom: 1px solid #9fb3c8; }
 .award-card__row > span { padding: 0 calc(1 * var(--cu)) 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .award-card__row > span + span { border-left: 1px solid #d59a95; }
-.award-card__row--th { font-size: max(8px, calc(2.5 * var(--cu))); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
-.award-card__date { color: #5b3f8c; font-weight: 700; font-size: max(8px, calc(2.7 * var(--cu))); transform: rotate(-3deg); }
+.award-card__row--th { font-size: max(9px, calc(2.5 * var(--cu))); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+.award-card__date { color: #5b3f8c; font-weight: 700; font-size: max(9px, calc(2.7 * var(--cu))); transform: rotate(-3deg); }
 @media (max-width: 700px) {
   .award-card { --cu: 2.8px; }
   .award-card__row > span { white-space: normal; }

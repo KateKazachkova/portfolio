@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
 import { mono } from "@/components/ui/type";
-import { NAV_LINKS as LINKS, CV_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
+import { NAV_LINKS as LINKS, CV_HREF, CONTACT_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
 import { openStop } from "@/components/DeskScene";
 
 /** The site's navigation, in the left margin of every page.
@@ -116,7 +116,8 @@ export default function SideNav() {
           background: barPainted ? "color-mix(in srgb, var(--bg) 70%, transparent)" : "transparent",
           backdropFilter: barPainted ? "blur(12px) saturate(140%)" : "none",
           WebkitBackdropFilter: barPainted ? "blur(12px) saturate(140%)" : "none",
-          borderBottom: barPainted ? "2px solid var(--border)" : "2px solid transparent",
+          // A case file's bar carries no ink rule under it — the page is a notebook.
+          borderBottom: barPainted && !inCaseFile ? "2px solid var(--border)" : "2px solid transparent",
           transition: "background 0.3s, border-color 0.3s",
         }}
       >
@@ -131,16 +132,17 @@ export default function SideNav() {
 
           {/* Toggle + latch. The theme stays in the bar: it is one square, it
               costs nothing to keep, and it is the control people reach for
-              without opening anything. */}
+              without opening anything. A case file is a notebook page with no
+              night, so it has no toggle, and its latch is bare rules. */}
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+            {!inCaseFile && <ThemeToggle />}
             <button
               type="button"
               onClick={() => setOpen(!open)}
               aria-expanded={open}
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="flex flex-col items-center justify-center border-2"
+              className={`flex flex-col items-center justify-center${inCaseFile ? "" : " border-2"}`}
               style={{ width: 26, height: 26, borderColor: "var(--border)", gap: 3 }}
             >
               {/* Three ink rules that fold into a cross — same 2px ink as every
@@ -214,7 +216,7 @@ export default function SideNav() {
                       color: isActive(link.href) ? "var(--fg)" : "var(--muted)",
                       padding: "14px 0 14px 12px",
                       borderTop: i === 0 ? "none" : "1px solid var(--hairline)",
-                      borderLeft: isActive(link.href) ? "2px solid var(--accent)" : "2px solid transparent",
+                      borderLeft: isActive(link.href) ? "2px solid var(--accent-red)" : "2px solid transparent",
                     }}
                   >
                     <span style={{ fontSize: 10, color: "var(--muted)" }}>
@@ -224,6 +226,23 @@ export default function SideNav() {
                   </Link>
                 ))}
 
+                <a
+                  href={CONTACT_HREF}
+                  onClick={() => setOpen(false)}
+                  className="block text-center uppercase font-bold"
+                  style={{
+                    fontFamily: mono,
+                    fontSize: 12,
+                    letterSpacing: "0.12em",
+                    padding: "12px 16px",
+                    margin: "14px 0 0",
+                    borderRadius: 4,
+                    border: "2px solid var(--border)",
+                    color: "var(--fg)",
+                  }}
+                >
+                  Let&rsquo;s Talk
+                </a>
                 <a
                   href={CV_HREF}
                   target="_blank"
@@ -235,7 +254,8 @@ export default function SideNav() {
                     fontSize: 12,
                     letterSpacing: "0.12em",
                     padding: "12px 16px",
-                    margin: "14px 0 16px",
+                    margin: "8px 0 16px",
+                    borderRadius: 4,
                     background: "var(--border)",
                     color: "var(--bg)",
                   }}

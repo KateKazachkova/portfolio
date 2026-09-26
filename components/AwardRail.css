@@ -19,7 +19,7 @@
   position: absolute; z-index: 1; transform: translate(-50%, -50%); white-space: nowrap;
   padding: calc(2.5 * var(--u)) calc(6 * var(--u)); border-radius: calc(1.5 * var(--u));
   background: #efe7d6; color: #22283a;
-  font: 600 calc(8.5 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
+  font: 600 calc(9 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace;
   letter-spacing: .12em; text-transform: uppercase;
   box-shadow: calc(2 * var(--u)) calc(2 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.55);
 }

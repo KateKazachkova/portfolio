@@ -705,7 +705,8 @@ body::after {
      Each is a straight line from its 1024px value to its 1440px one, so
      nothing jumps at the top of the range.  */
   .hero-aside { --t-title: calc(2.16vw - 1.15px); --t-body: calc(.721vw + 5.6px); }
-  .hero-aside .t-title { margin-top: calc(19.95vw - 163px); }
+  /* 64px at 1440, as above it (the glass pane has to end above the clock) */
+  .hero-aside .t-title { margin-top: calc(10.3vw - 84.3px); }
   .hero-aside nav { margin-top: calc(7.69vw - 55px); gap: calc(1.442vw - 8.77px); }
 }
 /* From 1280px the scene scales with the window both ways: its 1440px share
@@ -1622,9 +1623,83 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    under that it sits above the scene, on the page's own ground. */
 [data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { pointer-events: none; }
 [data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
-@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #22283a; --muted: #5b6275; } }
+@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #22283a; --muted: #5b6275; --on-fg: #f3efe6; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
-@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #efe7d8; --muted: rgba(239, 231, 216, .62); } }
+@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #efe7d8; --muted: rgba(239, 231, 216, .62); --on-fg: #15171d; } }
+/* Glass: one recipe for the column's pane and Kate's speech panel
+   (.katetalk), so the two read as the same material — the scene behind
+   blurred, the room's panel colour laid over it, a hairline edge with light
+   caught along the top. Only the tint moves: over the white desk the column
+   borrows the desk's ink, so its glass turns milky too. */
+.katetalk, .hero-aside::before {
+  --glass-tint: color-mix(in srgb, var(--panel) 64%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 52%, transparent);
+  border-radius: 12px;
+  background: var(--glass-tint);
+  /* prefixed first: the other way round the CSS build keeps only the
+     prefixed one, which Chrome ignores */
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    0 4px 14px rgba(44, 38, 63, 0.09);
+}
+[data-theme="dark"] .katetalk, [data-theme="dark"] .hero-aside::before {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 9%, transparent),
+    0 4px 14px rgba(0, 0, 0, 0.34);
+}
+/* The column's pane is a pseudo-element that takes no pointer, so the
+   objects under it still pick up. */
+@media (min-width: 1024px) {
+  .hero-aside { position: relative; isolation: isolate; }
+}
+/* the wordmark sits closer over the title than HeroAside's 124px, so the
+   pane ends above the flip clock (1024–1439 scales it, further up) */
+@media (min-width: 1440px) {
+  .hero-aside .t-title { margin-top: 64px; }
+}
+@media (min-width: 1024px) {
+  .hero-aside::before {
+    content: ""; position: absolute; inset: -22px -22px -22px -26px; z-index: -1;
+    pointer-events: none;
+  }
+  :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
+    --glass-tint: color-mix(in srgb, #f4ecdb 64%, transparent); border-color: color-mix(in srgb, #22283a 18%, transparent);
+  }
+  :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
+    --glass-tint: color-mix(in srgb, #211d19 64%, transparent); border-color: color-mix(in srgb, #efe7d8 30%, transparent);
+  }
+}
+
+/* On home the index lights the stop the camera is at; off home, the route.
+   The rule down its side is the ™'s red. */
+:root:not([data-desk]) .nav-index a[data-stop="/"],
+[data-desk="closed"] .nav-index a[data-stop="/"],
+[data-desk="open"] .nav-index a[data-stop="/#case-files"],
+[data-desk="profile"] .nav-index a[data-stop="/#profile"],
+[data-desk="offduty"] .nav-index a[data-stop="/#off-duty"],
+[data-desk="award"] .nav-index a[data-stop="/#recognition"] {
+  color: var(--fg) !important; border-left-color: var(--accent-red) !important;
+}
+/* …but not on the pages that carry the rail: there home is not "here" */
+:root:not([data-desk]) .nav-rail .nav-index a[data-stop="/"] { color: color-mix(in srgb, var(--fg) 74%, transparent) !important; border-left-color: transparent !important; }
+
+/* The two calls under the index: a letter (filled) and the CV (outlined).
+   Square, in the case files' own button (app/case.css, .pile__btns): mono
+   bold on a 1.5px ink rule, the ink filling in on hover. */
+.nav-call {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: .85em 1.2em; line-height: 1; font-weight: 700; border-radius: 4px;
+  color: var(--fg); border: 1.5px solid var(--fg);
+  transition: background .15s ease, color .15s ease;
+}
+/* its label is the ground the ink stands on: --bg, unless the column has
+   borrowed the desk's ink (above), where the page's own ground is the
+   wrong one */
+.nav-call:hover, .nav-call--primary { background: var(--fg); color: var(--on-fg, var(--bg)); }
+.nav-call--primary:hover { background: transparent; color: var(--fg); }
+.nav-call:focus-visible { outline: 2.5px solid var(--accent-red); outline-offset: 3px; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */
@@ -1885,15 +1960,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   width: 300px;
   padding: 13px 15px 11px;
   z-index: 70;
-
-  border: 1px solid color-mix(in srgb, var(--border) 52%, transparent);
-  border-radius: 13px;
-  background: color-mix(in srgb, var(--panel) 64%, transparent);
-  -webkit-backdrop-filter: blur(14px) saturate(1.08);
-  backdrop-filter: blur(14px) saturate(1.08);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
-    0 4px 14px rgba(44, 38, 63, 0.09);
+  /* the glass itself is shared with the column's pane: see "Glass" above */
   color: var(--fg);
 
   opacity: 0;
@@ -1902,11 +1969,6 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: translateX(-50%) translateY(4px);
   pointer-events: none;
   transition: opacity 220ms ease, transform 220ms ease;
-}
-[data-theme="dark"] .katetalk {
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 9%, transparent),
-    0 4px 14px rgba(0, 0, 0, 0.34);
 }
 .katetalk[data-open="true"] {
   opacity: 1;

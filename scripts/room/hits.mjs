@@ -24,7 +24,13 @@ const PICK = [
   // Recognition: every ribbon on the lattice, then the certificate
   { type: "ribbon", sel: ".award-ribbon", all: true, at: ["award"], label: "data-label" },
   { type: "cert", sel: "a.desk-cert", at: ["award"], kind: "link" },
+  // Off Duty: the bike computer, a way down to it; down over it, the unit
+  // (a click anywhere: the next screen) and its three buttons over it
   { type: "bike", sel: ".bike", at: ["offduty"], kind: "button", action: "offduty-bike" },
+  { type: "bike-unit", sel: ".bike", at: ["bike"], kind: "button", action: "bike-next", tab: false },
+  { type: "bike-prev", sel: ".bike__btn", i: 0, at: ["bike"], kind: "button", action: "bike-prev" },
+  { type: "bike-strava", sel: ".bike__btn", i: 1, at: ["bike"], kind: "link" },
+  { type: "bike-next", sel: ".bike__btn", i: 2, at: ["bike"], kind: "button", action: "bike-next" },
   { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
 ];
 const b = await launch({ width: 1600, height: 1000, dpr: 1 });
@@ -35,8 +41,8 @@ await b.ev(`(${collect.toString()})(${JSON.stringify(SIG_SRC)}) && 1`);
 const u = await b.ev("document.querySelector('.case-stage').getBoundingClientRect().width / 1118");
 const hits = [];
 for (const p of PICK) {
-  const list = JSON.parse(await b.ev(`(()=>{const els=[...document.querySelectorAll(${JSON.stringify(p.sel)})]${p.all ? "" : ".slice(0,1)"};
-    return JSON.stringify(els.map((el,i)=>{const m=window.__bkWorld(el); const s=window.__bkSize(el);
+  const list = JSON.parse(await b.ev(`(()=>{const els=[...document.querySelectorAll(${JSON.stringify(p.sel)})].map((el,i)=>[el,i])${p.all ? "" : `.slice(${p.i ?? 0},${(p.i ?? 0) + 1})`};
+    return JSON.stringify(els.map(([el,i])=>{const m=window.__bkWorld(el); const s=window.__bkSize(el);
       return {i, m, w:s[0], h:s[1], tag: el.tagName.toLowerCase(), href: el.getAttribute('href'), target: el.getAttribute('target'),
         name: el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent.trim().slice(0,80),
         hover: ${p.label ? `el.getAttribute(${JSON.stringify(p.label)})` : "null"}, src: el.currentSrc || null}}))})()`));
@@ -44,7 +50,7 @@ for (const p of PICK) {
   for (const j of list) {
     const kind = p.kind ?? (j.tag === "a" ? "link" : j.tag === "button" ? "button" : "span");
     const hit = {
-      id: p.all ? `${p.type}-${j.i}` : p.type, type: p.type, kind, at: p.at, ...(p.action ? { action: p.action } : {}),
+      id: p.all ? `${p.type}-${j.i}` : p.type, type: p.type, kind, at: p.at, ...(p.action ? { action: p.action } : {}), ...(p.tab === false ? { tab: false } : {}),
       label: p.name ?? j.name, hover: j.hover, href: kind === "link" ? j.href : null, target: kind === "link" ? j.target : null,
       of: { sel: p.sel, i: j.i },
       w: j.w / u, h: j.h / u, m: j.m.map((v, i) => (i >= 12 && i <= 14 ? v / u : v)),

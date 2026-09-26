@@ -30,6 +30,7 @@ html[data-gl] .room-poster {
    camera draws each object at rest, clipped to its outline. */
 .room-hits { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
 .room-hit { position: absolute; display: block; padding: 0; border: 0; margin: 0; background: transparent; cursor: pointer; pointer-events: auto; }
+.room-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .room-hit:focus-visible { clip-path: none !important; outline: 2px solid var(--brand, #F8C662); outline-offset: 3px; }
 html.room-pointer, html.room-pointer * { cursor: pointer; }
 /* a ribbon's label, as its ::after on the CSS room's rail (AwardRail.css) */

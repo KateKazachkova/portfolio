@@ -16,6 +16,7 @@
  */
 import * as THREE from "three";
 import { projectToStage, type Pose, type View } from "@/lib/room/pose";
+import { bikeWords, loadStrava, onRoom, roomState, stepBike, stravaHref, type RoomState } from "./state";
 
 export type Hit = {
   id: string; type: string; kind: "link" | "button" | "span"; at: View[]; action?: string;
@@ -23,6 +24,8 @@ export type Hit = {
   /** the legacy element it was read off (scripts/room/hits-test.mjs holds
    *  the two side by side) */
   of: { sel: string; i: number };
+  /** false: for the pointer only (what the keyboard reaches another way) */
+  tab?: boolean;
   w: number; h: number; m: number[];
   mask?: { w: number; h: number; bits: string };
 };
@@ -37,6 +40,20 @@ const ACTIONS: Record<string, () => void> = {
     if (root.dataset.desk !== "offduty") dispatchEvent(new Event("kate:off-duty"));
     else root.dataset.deskFocus = "bike";
   },
+  // down over the unit: its buttons page through the screens, and a click
+  // anywhere on it goes on to the next
+  "bike-next": () => stepBike(1),
+  "bike-prev": () => stepBike(-1),
+};
+
+// what changes on a control with the room's state: the Strava button opens
+// the ride on screen
+const BIND: Record<string, (el: HTMLElement, s: RoomState) => void> = {
+  "bike-strava": (el, s) => { (el as HTMLAnchorElement).href = stravaHref(s); },
+};
+// what a stop says, as its screen changes (polite: after what is being read)
+const LIVE: Partial<Record<View, (s: RoomState) => string>> = {
+  bike: bikeWords,
 };
 
 export type HitLayer = {
@@ -56,10 +73,15 @@ export function startHits(o: {
   const layer = document.createElement("div");
   layer.className = "room-hits";
   o.host.appendChild(layer);
+  const live = document.createElement("div");
+  live.className = "room-live";
+  live.setAttribute("aria-live", "polite");
+  layer.appendChild(live);
   const els = new Map<string, HTMLElement>();
   const labels = new Map<string, HTMLElement>();
   for (const h of o.hits) {
-    const el = document.createElement(h.kind === "button" ? "button" : h.kind === "link" ? "a" : "span") as HTMLElement;
+    // (for the pointer only: no element a screen reader would list)
+    const el = document.createElement(h.tab === false ? "div" : h.kind === "button" ? "button" : h.kind === "link" ? "a" : "span") as HTMLElement;
     el.className = `room-hit room-hit--${h.type}`;
     el.dataset.hit = h.id;
     if (el instanceof HTMLButtonElement) el.type = "button";
@@ -67,8 +89,9 @@ export function startHits(o: {
       el.href = h.href;
       if (h.target) { el.target = h.target; el.rel = "noopener noreferrer"; }
     }
-    el.setAttribute("aria-label", h.label || h.id);
-    el.tabIndex = -1;
+    if (h.tab === false) el.setAttribute("aria-hidden", "true");
+    else el.setAttribute("aria-label", h.label || h.id);
+    if (h.tab !== false) el.tabIndex = -1;
     el.hidden = true;
 
     if (h.action) el.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); ACTIONS[h.action!]?.(); });
@@ -112,6 +135,7 @@ export function startHits(o: {
   const ray = new THREE.Raycaster();
   let active: View | null = null;
   let over: Hit | null = null;
+  let refocus = false;
   const pick = (e: PointerEvent | MouseEvent): Hit | null => {
     if (!active || !proxies.children.length) return null;
     const r = o.canvasRect();
@@ -143,9 +167,28 @@ export function startHits(o: {
   };
   addEventListener("pointermove", onMove, { passive: true });
   addEventListener("click", onClick, true);
+  // ← → page the bike computer while the camera is down over it
+  const onKey = (e: KeyboardEvent) => {
+    if (active !== "bike" || e.defaultPrevented) return;
+    if (e.key === "ArrowRight") stepBike(1);
+    else if (e.key === "ArrowLeft") stepBike(-1);
+  };
+  addEventListener("keydown", onKey);
+  const bound = o.hits.filter((h) => BIND[h.type]);
+  if (o.hits.some((h) => h.type.startsWith("bike"))) loadStrava();
+  const sync = (s: RoomState) => {
+    for (const h of bound) BIND[h.type](els.get(h.id)!, s);
+    const say = active ? LIVE[active] : undefined;
+    live.textContent = say ? say(s) : "";
+  };
+  const off = onRoom(sync);
+  sync(roomState());
 
   return {
     place(state) {
+      // a control that sent the camera off loses its focus as it goes: the
+      // stop it lands at gives it to its first control
+      if (!state && layer.contains(document.activeElement)) refocus = true;
       active = state?.view ?? null;
       for (const h of o.hits) {
         const el = els.get(h.id)!;
@@ -153,7 +196,8 @@ export function startHits(o: {
         const on = !!state && h.at.includes(state.view);
         el.hidden = !on;
         if (lab) lab.hidden = !on;
-        el.tabIndex = on ? 0 : -1;
+        if (h.tab === false) el.removeAttribute("tabindex");
+        else el.tabIndex = on ? 0 : -1;
         if (!on || !state) continue;
         const { pose, shift, u } = state;
         const pts = [[0, 0], [h.w, 0], [h.w, h.h], [0, h.h]].map(([x, y]) => {
@@ -174,11 +218,19 @@ export function startHits(o: {
         }
       }
       if (!state) { over = null; document.documentElement.classList.remove("room-pointer"); }
+      else if (refocus) {
+        refocus = false;
+        if (!document.activeElement || document.activeElement === document.body)
+          layer.querySelector<HTMLElement>(".room-hit:not([hidden])[tabindex='0']")?.focus({ preventScroll: true });
+      }
+      sync(roomState());
       o.redraw();
     },
     dispose() {
       removeEventListener("pointermove", onMove);
       removeEventListener("click", onClick, true);
+      removeEventListener("keydown", onKey);
+      off();
       document.documentElement.classList.remove("room-pointer");
       layer.remove();
     },

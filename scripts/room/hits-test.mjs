@@ -7,7 +7,7 @@
 // accessibility tree). Screenshots for the report.
 //
 //   node scripts/room/hits-test.mjs http://localhost:3301 [only]
-// only: a comma list of sections (parity, trophy, award, offduty, flight)
+// only: a comma list of sections (parity, trophy, award, offduty, bike, flight)
 import fs from "node:fs";
 import path from "node:path";
 import { launch, sleep, log } from "./cdp.mjs";
@@ -19,6 +19,7 @@ const OUT = path.join(process.env.HOME, "Documents/portfolio-offload/webgl-m3");
 fs.mkdirSync(OUT, { recursive: true });
 const HITS = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, "../../public/room/hits.json"), "utf8")).hits;
 const b = await launch({ headed: true, width: 1512, height: 860, dpr: 2 });
+await b.send("Emulation.setFocusEmulationEnabled", { enabled: true });
 let fails = 0;
 const ok = (c, label, extra = "") => { if (!c) fails++; log(c ? "ok  " : "FAIL", label, extra); };
 const newTabs = [];
@@ -32,16 +33,32 @@ const key = async (k, code) => { await b.send("Input.dispatchKeyEvent", { type: 
 const rect = (id) => b.ev(`(()=>{const e=document.querySelector('.room-hit[data-hit="${id}"]');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return JSON.stringify({x:r.x,y:r.y,w:r.width,h:r.height,clip:e.style.clipPath,tab:e.tabIndex})})()`).then((r) => (r ? JSON.parse(r) : null));
 const st = () => b.ev(`JSON.stringify({desk:document.documentElement.dataset.desk??null,focus:document.documentElement.dataset.deskFocus??null,arrived:document.documentElement.dataset.deskArrived??null,active:document.activeElement&&document.activeElement.className, hit: document.activeElement?.dataset?.hit ?? null, ptr: document.documentElement.classList.contains('room-pointer'), path: location.pathname + location.hash, mark: !!window.__mark})`).then(JSON.parse);
 // until a condition holds in the page (a flight may first wait up to 1.5 s for its pictures)
-const until = async (x, ms = 7000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await b.ev(`!!(${x})`)) return true; await sleep(100); } return false; };
+// (a headed window can still be hidden by the system — another Space, a
+// window over it — and a hidden page draws no frames: bring it back)
+const front = async () => { if ((await b.ev("document.visibilityState")) === "hidden") { await b.send("Page.bringToFront"); await sleep(300); } };
+const until = async (x, ms = 7000) => { const t = Date.now(); while (Date.now() - t < ms) { if (await b.ev(`!!(${x})`)) return true; await front(); await sleep(100); } return false; };
 const PLACED = "document.documentElement.dataset.glReady && [...document.querySelectorAll('.room-hit')].some(e=>!e.hidden)";
-const arrive = async (desk) => { await until(`document.documentElement.dataset.desk===${JSON.stringify(desk)} && (${desk === "closed" ? "true" : "document.documentElement.dataset.deskArrived"})`); await until(PLACED, 3000); await sleep(200); };
-const DESK = { home: "closed", files: "open", award: "award", offduty: "offduty", profile: "profile" };
-const EVENT = { files: "kate:case-files", award: "kate:recognition", offduty: "kate:off-duty", profile: "kate:profile" };
+const arrive = async (desk) => {
+  // (home: html[data-desk] is "closed" once the camera has been away, unset before)
+  const a = await until(desk === "closed" ? "!document.documentElement.dataset.desk || document.documentElement.dataset.desk === 'closed'" : `document.documentElement.dataset.desk===${JSON.stringify(desk)} && document.documentElement.dataset.deskArrived`);
+  const p = await until(PLACED, 3000);
+  if (!a || !p) log("  (not there:", desk, JSON.stringify(await st()), await b.ev("JSON.stringify((({view,frames,pending,waits})=>({view,frames,pending,waits,vis:document.visibilityState}))(window.__room.stats()))"), ")");
+  await sleep(200);
+};
+const DESK = { home: "closed", files: "open", award: "award", offduty: "offduty", profile: "profile", bike: "offduty" };
+const EVENT = { files: "kate:case-files", award: "kate:recognition", offduty: "kate:off-duty", profile: "kate:profile", bike: "kate:off-duty" };
+// the stops below a stop: down over the bike computer
+const FOCUS = { bike: "bike" };
+const shown = (id) => `(e=>e&&!e.hidden)(document.querySelector('.room-hit[data-hit="${id}"]'))`;
 const goto = async (gl, stop) => {
   await b.go(`${SITE}/?nointro&gl=${gl}`, 1500);
   if (gl) await until("document.documentElement.dataset.glZone");
   if (stop !== "home") await b.ev(`dispatchEvent(new Event('${EVENT[stop]}'))`);
   if (gl) await arrive(DESK[stop]); else await sleep(stop === "home" ? 1500 : 3400);
+  if (FOCUS[stop]) {
+    await b.ev(`document.documentElement.dataset.deskFocus = ${JSON.stringify(FOCUS[stop])}`);
+    if (gl) await until(shown(HITS.find((h) => h.at.includes(stop)).id)); else await sleep(1800);
+  }
 };
 // every control whose Tab stop is reached from the page's top, in order
 const tabWalk = async (n = 60) => {
@@ -106,9 +123,10 @@ if (run("award")) {
   for (const h of ribbons) {
     const r = await rect(h.id);
     if (!r) continue;
-    await mouse("mouseMoved", r.x + r.w / 2, r.y + r.h / 2); await sleep(260);
-    const lab = JSON.parse(await b.ev(`(()=>{const l=document.querySelector('.room-hit[data-hit="${h.id}"] + .room-hit__label');const r=l.getBoundingClientRect();return JSON.stringify({op:getComputedStyle(l).opacity,y:r.y,text:l.textContent})})()`));
-    if (+lab.op > 0.9 && lab.y > r.y + r.h * 0.9 && lab.text === h.hover) labelled++;
+    await mouse("mouseMoved", r.x + r.w / 2, r.y + r.h / 2);
+    // (its fade is .2 s)
+    const shownLab = await until(`(l=>+getComputedStyle(l).opacity>0.9 && l.getBoundingClientRect().y > ${r.y + r.h * 0.9} && l.textContent===${JSON.stringify(h.hover)})(document.querySelector('.room-hit[data-hit="${h.id}"] + .room-hit__label'))`, 1500);
+    if (shownLab) labelled++; else log("  no label", h.id);
     if (h.id === "ribbon-0") await b.shot(path.join(OUT, "award-ribbon-hover.png"), { x: r.x - 150, y: r.y - 40, width: 340, height: r.h + 120, scale: 1 });
   }
   ok(labelled === ribbons.length, "award: hovering each ribbon shows its own label under it", `${labelled}/${ribbons.length}`);
@@ -191,6 +209,58 @@ if (run("offduty")) {
     ok((await st()).focus === "bike", "offduty: Enter on the focused unit does the same");
     await key("Escape"); await sleep(1600);
   }
+}
+// ── down over the bike computer: its buttons page through the screens ──
+if (run("bike")) {
+  await goto(1, "offduty");
+  // the keyboard's way down: Enter on the unit, and the first button has focus there
+  await b.ev("document.querySelector('.room-hit--bike').focus()"); await sleep(150);
+  await key("Enter");
+  await until(shown("bike-prev"));
+  await sleep(300);
+  let s = await st();
+  ok(s.focus === "bike" && s.hit === "bike-prev", "bike: Enter on the unit brings the camera down, focus on its first button", JSON.stringify({ focus: s.focus, hit: s.hit }));
+  // (the walk starts from where focus was: read it as a loop, from the first)
+  const walk = (await tabWalk(40)).filter((a) => a.startsWith("bike"));
+  const reached = walk.slice(walk.indexOf("bike-prev")).filter((a, i, all) => all.indexOf(a) === i);
+  ok(reached.join() === "bike-prev,bike-strava,bike-next", "bike: Tab goes back, Strava, next (the unit itself is not a stop)", reached.join());
+  await until("document.querySelector('.room-live').textContent.startsWith('Totals')");
+  const words = () => b.ev("document.querySelector('.room-live').textContent");
+  const href = () => b.ev("document.querySelector('.room-hit--bike-strava').href");
+  const w0 = await words();
+  ok(/^Totals: \d+ km over \d+ rides/.test(w0), "bike: the screen's words for a screen reader, the totals first", w0);
+  ok((await href()).endsWith("/athletes/52565503"), "bike: Strava opens the profile on the totals");
+  const nx = await rect("bike-next"), pv = await rect("bike-prev");
+  await click(nx.x + nx.w / 2, nx.y + nx.h / 2); await sleep(200);
+  const w1 = await words();
+  ok(/^Longest ride 1 of \d+/.test(w1), "bike: Next shows the longest ride", w1);
+  ok(/\/activities\/\d+$/.test(await href()), "bike: Strava opens that ride", await href());
+  await click(pv.x + pv.w / 2, pv.y + pv.h / 2); await sleep(200);
+  ok((await words()).startsWith("Totals"), "bike: Back returns to the totals");
+  await click(pv.x + pv.w / 2, pv.y + pv.h / 2); await sleep(200);
+  const n = (await words()).match(/of (\d+)/)?.[1];
+  ok(!!n && (await words()).startsWith(`Longest ride ${n} of ${n}`), "bike: Back from the totals wraps to the last ride", await words());
+  // a click on the unit, off its buttons, goes on to the next
+  const un = await rect("bike-unit");
+  await click(un.x + un.w * 0.5, un.y + un.h * 0.35); await sleep(200);
+  ok((await words()).startsWith("Totals"), "bike: a click on the screen goes on to the next", await words());
+  await key("ArrowRight"); await sleep(100);
+  ok((await words()).startsWith("Longest ride 1"), "bike: → pages on");
+  await key("ArrowLeft"); await sleep(100);
+  ok((await words()).startsWith("Totals"), "bike: ← pages back");
+  const ax = await b.send("Accessibility.getFullAXTree");
+  const nodes = (ax.result?.nodes ?? []).filter((x) => !x.ignored).map((x) => `${x.role?.value}: ${x.name?.value ?? ""}`);
+  fs.writeFileSync(path.join(OUT, "ax-bike.txt"), nodes.join("\n"));
+  ok(["button: Previous screen", "link: Open on Strava", "button: Next screen"].every((w) => nodes.includes(w)) && !nodes.some((x) => x.startsWith("button: Off Duty")), "bike: screen reader gets its three buttons, not the unit twice");
+  await b.shot(path.join(OUT, "bike-buttons.png"));
+  // a click on Strava opens it in a new tab
+  const before = newTabs.length;
+  const sv = await rect("bike-strava");
+  await click(sv.x + sv.w / 2, sv.y + sv.h / 2); await sleep(1500);
+  ok(newTabs.length > before && newTabs.slice(before).some((u) => u.includes("strava.com")), "bike: Strava opens in a new tab", newTabs.slice(-1)[0] ?? "");
+  await b.send("Page.bringToFront"); await sleep(400);
+  await key("Escape"); await until(shown("bike"));
+  ok((await st()).focus === null, "bike: Escape brings the camera back up");
 }
 // ── in flight: nothing to click or focus ──
 if (run("flight")) {

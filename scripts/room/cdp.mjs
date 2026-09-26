@@ -14,6 +14,9 @@ export async function launch({ headed = false, width = 1600, height = 1000, dpr 
   const args = [
     `--remote-debugging-port=${port}`, `--user-data-dir=${dir}`, "--no-first-run", "--no-default-browser-check",
     "--hide-scrollbars", "--autoplay-policy=no-user-gesture-required", `--window-size=${width},${height + 120}`, "--window-position=30,30",
+    // a headed window behind others (or on another Space) would be occluded,
+    // its page hidden and its frames stopped: keep it drawing
+    "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", "--disable-background-timer-throttling",
     ...(headed ? [] : ["--headless=new"]), ...extra, "about:blank",
   ];
   const chrome = spawn(CHROME, args, { stdio: "ignore" });

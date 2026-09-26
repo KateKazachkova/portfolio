@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } fr
 import { createPortal } from "react-dom";
 import type { WatchItem } from "@/lib/content";
 import DiscBody from "@/components/DiscBody";
-import { OFFDUTY_EVENT } from "./BikeComputer";
+import { come, here } from "./offduty";
 
 // Off Duty's corner of the room: against the wall, well left of the case
 // (past the plate's own left edge, on the room's extension), the series
@@ -14,24 +14,33 @@ import { OFFDUTY_EVENT } from "./BikeComputer";
 // Box px, as the trophy: x across, z out from the case's plane (the wall is
 // at z -269), everything standing on the desk line (y 656).
 
-// The wallet: its spine against the wall at x -900, 32 cm tall (346 px).
+// The wallet: its spine at x -900, 6 cm out from the wall, 32 cm tall (346 px).
 // Three stills cut from one Higgsfield shot: the spine, a flat strip 3 cm
 // across (34 px) facing the room, and a half hinged at each of its edges,
 // swung 35° toward the room so the wallet stands on its own and its inside
 // faces the camera (815 / 99 / 847 × 1000 stills).
-export const WALLET = { x: -900, z: -255, h: 346, open: 35 };
+export const WALLET = { x: -900, z: -205, h: 346, open: 35 };
 const WL = Math.round(WALLET.h * 815 / 1000);
 const SP = Math.round(WALLET.h * 99 / 1000);
 const WR = Math.round(WALLET.h * 847 / 1000);
 export { WL as WALLET_L, WR as WALLET_R, SP as WALLET_SPINE };
+// How far each open half reaches along the desk from the spine: across
+// (l, r) and out toward the room (dl, dr), each foot from the spine's edge.
+const OPEN = WALLET.open * Math.PI / 180;
+export const WALLET_REACH = {
+  l: (WL + SP / 2) * Math.cos(OPEN), r: (WR + SP / 2) * Math.cos(OPEN),
+  dl: (WL + SP / 2) * Math.sin(OPEN), dr: (WR + SP / 2) * Math.sin(OPEN),
+};
 // The pegs the sleeves hang on: twelve down the spine, 2.6 px right of its
 // middle, the first 60.5 px from the top and 16.5 px apart (measured off the
 // spine's still).
 const PEG = 2.6;
 const PEGS = { first: 60.5, step: 16.5, n: 12 };
-// It stands on its zip, 88% of the way down the stills; the pull below
-// that lies on the desk.
-const WALLET_FOOT = 0.88;
+// It stands on its zip, whose lowest edge is 88% of the way down the
+// stills (a hair above it, so the corners still curl up a little); the
+// pull below that lies on the desk. At 85.6% it hung 8 px over the desk
+// once the camera stopped tipping 8° (26.09).
+const WALLET_FOOT = 0.876;
 
 // The player: 26 cm across (280 px), in front of the wallet and a little
 // right of it, standing on the desk as three planes cut from one
@@ -39,7 +48,9 @@ const WALLET_FOOT = 0.88;
 // lying flat (1000 × 713, unwarped from the photo so its spindle is round —
 // 26 × 18.5 cm), its front edge (1000 × 74) and the lid with the screen
 // (1000 × 763), hinged at the base's back edge and leaning back 10°.
-export const DVD = { x: -500, z: -120, w: 280 };
+// 20% over that since 26.09 (Kate), its centre moved right to keep clear
+// of the wallet.
+export const DVD = { x: -472, z: -120, w: 336 };
 const BD = Math.round(DVD.w * 713 / 1000);    // base depth
 const FH = Math.round(DVD.w * 74 / 1000);     // base thickness
 const LH = Math.round(DVD.w * 763 / 1000);    // lid height
@@ -57,16 +68,16 @@ const FLY_MS = 900;
 const STICKERS = [
   { src: "trust-no-one", x: 38, y: 4.9, w: 15, r: -2 },
   { src: "kaz-2y5", x: 62, y: 5, w: 11, r: 3 },
+  // Kate's, 26.09: under the umbrella, which overlaps its top
+  { src: "afraid-of-the-dark", x: 33, y: 85, w: 17, r: -10 },
   { src: "umbrella", x: 42, y: 80, w: 14, r: -8 },
   { src: "beavers", x: 60, y: 81, w: 13, r: 6 },
   { src: "chakram", x: 93, y: 7, w: 8, r: 12 },
-  { src: "wolf-medallion", x: 8, y: 90, w: 6, r: -6 },
+  { src: "wolf-medallion", x: 51, y: 87, w: 11, r: -6 },
+  // Kate's own, 26.09: Charmed's P³
+  { src: "power-of-three", x: 77, y: 83, w: 15, r: 5 },
 ] as const;
 
-const come = () => {
-  if (document.documentElement.dataset.desk !== "offduty") dispatchEvent(new Event(OFFDUTY_EVENT));
-};
-const here = () => document.documentElement.dataset.desk === "offduty";
 
 // The sleeves: matte PVC refills hung on the spine's pegs by a clear
 // punched strip, four discs to a pocket (2 × 2), a pocket each side of a
@@ -259,8 +270,24 @@ export default function OffDutyShelf() {
   }) as CSSProperties;
   const out = (flight?.item ?? picked)?.title;
 
+  // its shade on the wall behind it and on the desk round its feet (the
+  // lamp is above, in front): as wide as the open halves reach, the spine's
+  // end darkest; the V between the halves is DeskScene's
+  const { l: reachL, r: reachR } = WALLET_REACH;
+  const depth = Math.max(WL, WR) * Math.sin(WALLET.open * Math.PI / 180);
+
   return (
     <>
+      <span className="od-wallet-shade od-wallet-shade--wall" aria-hidden style={{
+        left: `calc(${WALLET.x - reachL - 70} * var(--u))`, top: `calc(${656 - WALLET.h * 1.05} * var(--u))`,
+        width: `calc(${reachL + reachR + 140} * var(--u))`, height: `calc(${WALLET.h * 1.05} * var(--u))`,
+        transform: `translateZ(calc(${-268} * var(--u)))`,
+      }} />
+      <span className="od-wallet-shade od-wallet-shade--desk" aria-hidden style={{
+        left: `calc(${WALLET.x - reachL - 40} * var(--u))`, top: `calc(656 * var(--u))`,
+        width: `calc(${reachL + reachR + 80} * var(--u))`, height: `calc(${depth + 60} * var(--u))`,
+        transform: `translateZ(calc(${WALLET.z - 12} * var(--u))) rotateX(90deg)`,
+      }} />
       <div
         className="od-wallet"
         onClick={come}
@@ -360,7 +387,10 @@ export default function OffDutyShelf() {
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/items/off-duty/dvd-base.webp" alt="" draggable={false} />
-          <span ref={bay} className="od-dvd__bay" style={{ left: `${BAY.x}%`, top: `${BAY.y}%`, width: `${BAY.w}%` }} aria-hidden>
+          {/* a click on the disc on the spindle puts it back in its pocket */}
+          <span ref={bay} className="od-dvd__bay" data-full={picked ? "" : undefined}
+            style={{ left: `${BAY.x}%`, top: `${BAY.y}%`, width: `${BAY.w}%` }} aria-hidden
+            onClick={(e) => { if (picked && here()) { e.stopPropagation(); setPicked(null); } }}>
             {picked && <DiscBody poster={picked.disc ?? picked.poster} title={picked.title} />}
           </span>
         </div>

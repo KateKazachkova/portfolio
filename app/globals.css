@@ -62,6 +62,12 @@
    transparent backdrop is a no-op, so the grain silently does nothing. */
 html { background-color: var(--bg); }
 
+/* No focus ring after a click, anywhere (Kate, 26.09); the keyboard still
+   gets one (:focus-visible). Things out of the tab order (tabindex -1: the
+   books, tapes, comics on the desk) are only ever reached by a click, so
+   they never show it. */
+:focus:not(:focus-visible), [tabindex="-1"]:focus { outline: none; }
+
 body {
   background-color: var(--bg);
   color: var(--fg);
@@ -818,7 +824,6 @@ body::after {
 :root[data-desk="award"] .night-cam     { --pool: -15% 10%; --pool-size: 110% 130%; }
 :root[data-desk="profile"] .night-cam   { --pool: -40% -10%; --pool-size: 140% 140%; --pool-k: .85; }
 :root[data-desk="offduty"] .night-cam   { --pool: 115% 5%; --pool-size: 110% 130%; }
-:root[data-desk="offduty"][data-desk-focus="bike"] .night-cam { --pool: 95% -20%; --pool-size: 120% 120%; }
 /* a label or the talk panel open: the room comes up, as it does at home */
 main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transition-duration: .4s; }
 /* Multiply needs something to land on. The stage is its own blend group (it
@@ -1464,29 +1469,20 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
 
 /* ── Off Duty: the fourth stop, Recognition the other way ──
-   The eye stays at the case's height (y 226) and slides left to x -863,
-   210 cm nearer the wall (z 1600), tipping 8° down: the CD wallet (spine
-   at x -900 against the wall) and the cream player right of it (x -470)
-   fill the frame right of the index, 1.8 m off, a strip of desk under
-   them; the clock (x -62, nearer) is just out of shot on the right, the
-   case well out. translate O - C = (560 + 863, 0, 2150 - 1600).
-   A click on the bike computer on the desk in front (x -760, z 260)
-   brings the camera straight down over it, 0.56 m up (eye y 656 - 600),
-   its axis 60 px left of it: translate (560 + 820, 226 - 56, 2150 - 260). */
+   As at Recognition, the camera only slides (Kate, 26.09: no change of
+   angle between stops): the eye stays at the case's height (y 226), goes
+   left to x -863 and 10 cm nearer the wall (z 2050), tipping 4° down: the
+   shelf with the books and tapes, the CD wallet under it (spine at x -900
+   against the wall) and the cream player right of it fill the frame right
+   of the index, the helmet and the bike computer in front, under it.
+   translate O - C = (560 + 863, 0, 2150 - 2050). The bike computer is
+   read from here: no closer move onto it (Kate, 26.09). */
 [data-desk="offduty"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="offduty"] .desk-world,
 [data-desk="offduty"] .case-world {
-  transform: rotateX(-8deg) translate3d(calc(1423 * var(--u)), 0, calc(550 * var(--u)));
-}
-[data-desk="offduty"][data-desk-focus="bike"] .desk-world,
-[data-desk="offduty"][data-desk-focus="bike"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc(1380 * var(--u)), calc(170 * var(--u)), calc(1890 * var(--u)));
+  transform: rotateX(-4deg) translate3d(calc(1423 * var(--u)), 0, calc(100 * var(--u)));
 }
 [data-desk="offduty"] .case-world { pointer-events: none; }
-[data-desk="offduty"][data-desk-focus="bike"] .case-world { opacity: 0; transition: transform 1.4s cubic-bezier(.65, 0, .2, 1), opacity .4s ease; }
-/* the move down to the unit and back up happens after arrival */
-[data-desk="offduty"][data-desk-arrived] .desk-world,
-[data-desk="offduty"][data-desk-arrived] .case-world { transition: transform 1.4s cubic-bezier(.65, 0, .2, 1), opacity .4s ease; }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
    the room about it. The player: a still standing on the desk, its screen
@@ -1567,6 +1563,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .od-dvd__base { transform-origin: 50% 0; }
 .od-dvd__lid > img:first-child, .od-dvd__base > img:first-child { display: block; width: 100%; height: 100%; }
 .od-dvd__bay { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); }
+[data-desk="offduty"] .od-dvd__bay[data-full] { cursor: pointer; }
 .od-dvd__bay .cd-body { transform: none; filter: none; box-shadow: 0 0 calc(2 * var(--u)) rgba(0,0,0,.25); }
 /* the flying disc, in the window's own space */
 .od-fly { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; transform-origin: 0 0; }
@@ -1614,6 +1611,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   box-shadow: none; }
 /* the desk plane's y runs toward the room, so rotate(35°) swings a line
    from the spine out to the right and forward, as the right half goes */
+/* the wallet's shade (OffDutyShelf): soft on the wall behind it, darkest
+   low by the spine, and on the desk round its feet */
+.od-wallet-shade { position: absolute; display: block; pointer-events: none; }
+.od-wallet-shade--wall { background: radial-gradient(ellipse 50% 85% at 48% 100%, rgba(8,6,4,.5), rgba(8,6,4,.2) 55%, rgba(8,6,4,0)); }
+.od-wallet-shade--desk { transform-origin: 50% 0;
+  background: radial-gradient(ellipse 55% 75% at 48% 10%, rgba(10,8,6,.45), rgba(10,8,6,.18) 55%, rgba(10,8,6,0)); }
 .od-foot { position: absolute; height: calc(10 * var(--u)); margin-top: calc(-5 * var(--u)); transform-origin: 0 50%;
   pointer-events: none; border-radius: 999px;
   background: radial-gradient(closest-side, rgba(10,8,6,.75), rgba(10,8,6,.35) 60%, rgba(10,8,6,0)); }
@@ -1735,9 +1738,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
      still covers it once the page scrolls. */
   .hero-aside-wrap { position: relative; z-index: 50; }
 }
-@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
+@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
-@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
+@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
 @media (prefers-reduced-motion: reduce) { .hero-aside-wrap { transition: none; } }
 /* Glass: one recipe for the column's pane and Kate's speech panel
    (.katetalk), so the two read as the same material — the scene behind
@@ -1783,10 +1786,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
     content: ""; position: absolute; inset: -22px -22px -22px -26px; z-index: -1;
     pointer-events: none;
   }
-  :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
+  :is([data-desk="open"], [data-desk="profile"]) .hero-aside::before {
     --glass-tint: color-mix(in srgb, #f4ecdb 64%, transparent); border-color: color-mix(in srgb, #22283a 18%, transparent);
   }
-  :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
+  :root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside::before {
     --glass-tint: color-mix(in srgb, #211d19 64%, transparent); border-color: color-mix(in srgb, #efe7d8 30%, transparent);
   }
   /* Pane off for now (Kate, 26.09): over the wall it cut the room. Kept, not
@@ -1841,13 +1844,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    under the index. At home it is not there; it is back the moment the
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
-:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-dvd) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk="award"] :is(.desk-extl, .od-wallet, .od-dvd),
-[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
+:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
+[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
+[data-desk="award"] :is(.desk-extl, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
+[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
 [data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
-[data-desk="profile"] .case-world,
-[data-desk="offduty"][data-desk-focus="bike"] .case-world {
+[data-desk="profile"] .case-world {
   animation: desk-off 0s linear calc(var(--cam-t) + var(--cam-wait)) forwards;
 }
 

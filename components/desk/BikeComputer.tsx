@@ -13,7 +13,12 @@ export const OFFDUTY_EVENT = "kate:off-duty";
 // read from the camera's stop. Its shadow is baked into the cut-out, which
 // is why the picture is wider than the unit (the unit is 78% of it across).
 // x, y are its centre on the desk plane; w is the picture's width.
-export const BIKE = { x: 292, y: 529, w: 110, r: -8 };
+// It stands leaning against the helmet in the foreground (Helmet.tsx, box
+// x -1200, z 450), its foot on the desk in front of the shell's right
+// side (box x -1042, z 466: desk-top px box x + 1052.5, z + 269), tipped
+// up about its foot to 22° off upright and drawn at 1.08 so it keeps to
+// the helmet's scale.
+export const BIKE = { x: 10, y: 735, w: 110, r: -6, lean: 68, k: 1.08 };
 const H = Math.round(BIKE.w * 1590 / 1200);
 
 type Ride = { id: number; name: string; distanceKm: number; movingMin: number; date: string; path: string | null };
@@ -26,10 +31,10 @@ const day = (iso: string) =>
   iso ? new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase() : "";
 
 /** The head unit. From elsewhere in the room a click turns the camera to
- *  the Off Duty corner (Off Duty in the index does the same); a click there
- *  brings it down over the unit (html[data-desk-focus="bike"]), and from
- *  then on its buttons page through the screens — the totals, then the
- *  three longest rides — and a click on the screen does too. */
+ *  the Off Duty corner (Off Duty in the index does the same); once there
+ *  its buttons page through the screens — the totals, then the three
+ *  longest rides — and a click on the screen does too. The camera does
+ *  not come in closer (Kate, 26.09): it lies near enough to read. */
 export default function BikeComputer() {
   const [data, setData] = useState<Data | null>(null);
   const [page, setPage] = useState(0);
@@ -42,36 +47,24 @@ export default function BikeComputer() {
   }, []);
   useEffect(() => {
     const root = document.documentElement;
-    const read = () => setLive(root.dataset.desk === "offduty" && root.dataset.deskFocus === "bike");
+    const read = () => setLive(root.dataset.desk === "offduty");
     read();
     const mo = new MutationObserver(read);
-    mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-focus"] });
+    mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
     return () => mo.disconnect();
   }, []);
 
   const pages = 1 + (data?.rides.length ?? 0);
   const step = (d: number) => setPage((p) => (p + d + pages) % pages);
-  // the first clicks are the camera's, not the buttons': over to the corner,
-  // then down onto the unit
+  // from elsewhere the first click is the camera's, not the buttons'
   const come = () => {
-    const root = document.documentElement;
-    if (root.dataset.desk !== "offduty") dispatchEvent(new Event(OFFDUTY_EVENT));
-    else root.dataset.deskFocus = "bike";
+    if (document.documentElement.dataset.desk !== "offduty") dispatchEvent(new Event(OFFDUTY_EVENT));
   };
   const press = (e: React.MouseEvent, act: () => void) => {
     e.stopPropagation();
     if (!live) { come(); return; }
     act();
   };
-  useEffect(() => {
-    if (!live) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") step(1);
-      else if (e.key === "ArrowLeft") step(-1);
-    };
-    addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
-  });
 
   const s = data?.stats;
   const ride = page > 0 ? data?.rides[page - 1] : null;
@@ -83,7 +76,8 @@ export default function BikeComputer() {
       style={{
         left: `calc(${BIKE.x - BIKE.w / 2} * var(--u))`, top: `calc(${BIKE.y - H / 2} * var(--u))`,
         width: `calc(${BIKE.w} * var(--u))`, height: `calc(${H} * var(--u))`,
-        transform: `rotate(${BIKE.r}deg) translateZ(.1px)`,
+        transformOrigin: "50% 100%",
+        transform: `translateZ(.1px) rotate(${BIKE.r}deg) rotateX(${-BIKE.lean}deg) scale(${BIKE.k})`,
       } as React.CSSProperties}
       onClick={(e) => press(e, () => step(1))}
       role="group"

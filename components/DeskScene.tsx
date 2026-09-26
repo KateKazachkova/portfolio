@@ -8,7 +8,13 @@ import { useWarm } from "@/components/desk/useWarm";
 import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
-import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
+import BookShelf from "@/components/desk/BookShelf";
+import TapeStacks from "@/components/desk/TapeStacks";
+import Helmet from "@/components/desk/Helmet";
+import DeskComic from "@/components/desk/DeskComic";
+import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
+// the desk in the wallet's V: its feet from the spine, the spine's place across
+const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 
 /**
@@ -278,9 +284,15 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
             on the desk (desk-top px: box x + 1052.5, z + 269), and the bike
             computer lying in front of them */}
         {ready.has("offduty") && (<>
-        <div className="od-shadow" aria-hidden style={{
-          left: `calc(${WALLET.x + 1052.5} * var(--u))`, top: `calc(${WALLET.z + 85 + 269} * var(--u))`, "--w": 470, "--h": 150,
-        } as React.CSSProperties} />
+        {/* the desk inside the wallet's V, in the halves' shade: darkest at
+            the spine, gone by the open end (its sides run under the feet) */}
+        <div aria-hidden style={{
+          position: "absolute", pointerEvents: "none",
+          left: `calc(${WALLET.x + 1052.5 - V.l} * var(--u))`, top: `calc(${WALLET.z + 269} * var(--u))`,
+          width: `calc(${V.l + V.r} * var(--u))`, height: `calc(${V.d} * var(--u))`,
+          clipPath: `polygon(${V.sx}% 0, 0 ${(V.dl / V.d) * 100}%, 100% ${(V.dr / V.d) * 100}%)`,
+          background: `radial-gradient(ellipse 70% 120% at ${V.sx}% 0, rgba(10,8,6,.55), rgba(10,8,6,.25) 45%, rgba(10,8,6,0) 85%)`,
+        }} />
         {/* where each half's zip meets the desk: a dark line from the spine
             out along its foot, swung as far as the half is */}
         {([["l", -1], ["r", 1]] as const).map(([k, side]) => (
@@ -313,7 +325,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       <div className="desk-plane desk-ply" aria-hidden />
       <div className="desk-plane desk-under" aria-hidden />
       {/* Off Duty's corner, left of everything */}
-      {ready.has("offduty") && <OffDutyShelf />}
+      {ready.has("offduty") && <><OffDutyShelf /><BookShelf /><TapeStacks /><Helmet /><DeskComic /></>}
       {/* what home stands in the room itself: the flip clock */}
       {children}
     </div>
@@ -521,8 +533,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (e.key === "Escape") {
         if (focus === U15) dispatchEvent(new Event(U15_CLOSE));
         else if (focus) setFocus(null);
-        // down over the bike computer: back up to the clock's corner
-        else if (root.dataset.deskFocus === "bike") delete root.dataset.deskFocus;
         else close();
       }
       else if (panning() && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {

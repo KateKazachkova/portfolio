@@ -31,6 +31,11 @@ const PICK = [
   { type: "bike-prev", sel: ".bike__btn", i: 0, at: ["bike"], kind: "button", action: "bike-prev" },
   { type: "bike-strava", sel: ".bike__btn", i: 1, at: ["bike"], kind: "link" },
   { type: "bike-next", sel: ".bike__btn", i: 2, at: ["bike"], kind: "button", action: "bike-next" },
+  // the CD wallet: its two sleeves (a click on a margin turns the spread),
+  // the open spread's eight discs over them, and the player's screen
+  { type: "sleeve", sel: ".od-hang", all: true, at: ["offduty"], kind: "button", action: "sleeve-turn", tab: false },
+  { type: "disc", sel: ".od-disc", all: true, at: ["offduty"], kind: "button", action: "disc-pick" },
+  { type: "dvd", sel: ".od-dvd__screen", at: ["offduty"], kind: "button" },
   { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
 ];
 const b = await launch({ width: 1600, height: 1000, dpr: 1 });

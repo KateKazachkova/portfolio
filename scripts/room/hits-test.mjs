@@ -7,7 +7,7 @@
 // accessibility tree). Screenshots for the report.
 //
 //   node scripts/room/hits-test.mjs http://localhost:3301 [only]
-// only: a comma list of sections (parity, trophy, award, offduty, bike, flight)
+// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, flight)
 import fs from "node:fs";
 import path from "node:path";
 import { launch, sleep, log } from "./cdp.mjs";
@@ -72,7 +72,9 @@ const tabWalk = async (n = 60) => {
 if (run("parity")) {
   const stops = [...new Set(HITS.flatMap((h) => h.at))];
   for (const stop of stops) {
-    const here = HITS.filter((h) => h.at.includes(stop));
+    // (what the room's state keeps away at first — the DVD's screen, with no
+    // disc in — is checked where it comes on)
+    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd"].includes(h.type));
     await goto(0, stop);
     const legacy = JSON.parse(await b.ev(`JSON.stringify(${JSON.stringify(here.map((h) => [h.id, h.of.sel, h.of.i]))}.map(([id,s,i])=>{const e=document.querySelectorAll(s)[i];if(!e)return [id,null];const r=e.getBoundingClientRect();return [id,[r.x,r.y,r.width,r.height]]}))`));
     await goto(1, stop);
@@ -261,6 +263,74 @@ if (run("bike")) {
   await b.send("Page.bringToFront"); await sleep(400);
   await key("Escape"); await until(shown("bike"));
   ok((await st()).focus === null, "bike: Escape brings the camera back up");
+}
+// ── the CD wallet: discs into the player, the spreads turned, the clip's sound ──
+if (run("wallet")) {
+  const series = await (await fetch(`${SITE}/api/series`)).json();
+  series.sort((a, c) => (c.year ?? -1) - (a.year ?? -1) || a.title.localeCompare(c.title));
+  // the legacy player with Star City in it, for the picture side by side
+  await goto(0, "offduty");
+  const lr = JSON.parse(await b.ev(`(()=>{const d=[...document.querySelectorAll('.od-disc')].find(e=>e.getAttribute('aria-label').startsWith('Star City'));d.click();return JSON.stringify(document.querySelector('.od-dvd__screen').getBoundingClientRect())})()`));
+  await sleep(2500);
+  await b.shot(path.join(OUT, "dvd-legacy.png"), { x: lr.x - 20, y: lr.y - 20, width: lr.width + 40, height: lr.height + 40, scale: 1 });
+  await goto(1, "offduty");
+  const discs = () => b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit--disc')].filter(e=>!e.hidden&&e.tabIndex===0).map(e=>e.getAttribute('aria-label').replace(' — put it in the player','')))`).then(JSON.parse);
+  const d0 = await discs();
+  ok(d0.join("|") === series.slice(0, 8).map((x) => x.title).join("|"), "wallet: the open spread's eight discs, in the wallet's order, each a button by its title", d0.length + "");
+  ok(!(await b.ev(shown("dvd"))), "wallet: no disc in, no panel over the player's screen (WebGL's NO DISC)");
+  // a click on Star City: out of its pocket, into the player
+  const sc = HITS.find((h) => h.type === "disc" && h.of.i === d0.indexOf("Star City"));
+  const r = await rect(sc.id);
+  await click(r.x + r.w / 2, r.y + r.h / 2); await sleep(400);
+  const d1 = await discs();
+  ok(!d1.includes("Star City") && d1.length === 7, "wallet: the disc picked is out of its pocket", d1.length + "");
+  const dv = JSON.parse(await b.ev(`(()=>{const e=document.querySelector('[data-hit=dvd]');const r=e.getBoundingClientRect();return JSON.stringify({on:!e.hidden,x:r.x,y:r.y,w:r.width,h:r.height,text:e.textContent,label:e.getAttribute('aria-label'),role:e.getAttribute('role'),tube:e.querySelector('iframe')?.src??null})})()`));
+  ok(dv.on && dv.text.includes("Star City · 2026"), "wallet: the player's screen shows it", dv.text);
+  ok(dv.tube?.includes(series.find((x) => x.title === "Star City").clip), "wallet: its clip plays on the screen", dv.tube?.slice(0, 60));
+  const dd = Math.max(Math.abs(dv.x - lr.x), Math.abs(dv.y - lr.y), Math.abs(dv.x + dv.w - lr.x - lr.width), Math.abs(dv.y + dv.h - lr.y - lr.height));
+  ok(dd <= 2, "wallet: the screen panel lies within 2 px of the legacy screen", `${dd.toFixed(2)} px`);
+  await sleep(2500);
+  await b.shot(path.join(OUT, "dvd-gl.png"), { x: lr.x - 20, y: lr.y - 20, width: lr.width + 40, height: lr.height + 40, scale: 1 });
+  ok(dv.role === "button" && dv.label === "Sound on", "wallet: the screen is a button, Sound on", `${dv.role} ${dv.label}`);
+  await click(dv.x + dv.w / 2, dv.y + dv.h / 2); await sleep(300);
+  const snd = JSON.parse(await b.ev(`JSON.stringify({label: document.querySelector('[data-hit=dvd]').getAttribute('aria-label'), sound: document.querySelector('[data-hit=dvd] iframe').hasAttribute('data-sound'), osd: document.querySelector('[data-hit=dvd] .od-dvd__osd').textContent})`));
+  ok(snd.label === "Sound off" && snd.sound && snd.osd.includes("SOUND ON"), "wallet: a click on the screen gives the clip sound", JSON.stringify(snd));
+  await b.ev("document.querySelector('[data-hit=dvd]').focus()"); await sleep(100);
+  await key("Enter"); await sleep(300);
+  ok((await b.ev("document.querySelector('[data-hit=dvd]').getAttribute('aria-label')")) === "Sound on", "wallet: Enter on it takes the sound away again");
+  // the keyboard: Enter on a disc puts it in, and focus goes on to the next disc
+  const wb = HITS.find((h) => h.type === "disc" && h.of.i === d0.indexOf("Widow's Bay"));
+  await b.ev(`document.querySelector('[data-hit="${wb.id}"]').focus()`); await sleep(100);
+  await key("Enter"); await sleep(400);
+  const s1 = await st();
+  const nowIn = await b.ev("document.querySelector('[data-hit=dvd]').textContent");
+  ok(nowIn.includes("Widow's Bay") && (await discs()).includes("Star City"), "wallet: Enter on another disc swaps them, Star City back in its pocket", nowIn);
+  ok(s1.hit && s1.hit.startsWith("disc") && s1.hit !== wb.id, "wallet: focus goes on to the next disc", s1.hit);
+  // the spreads: a click on the right sleeve's margin, and ← →
+  // a point of the sleeve's own, off its discs: the first on a grid where it is on top
+  const margin = (id) => b.ev(`(()=>{const e=document.querySelector('[data-hit="${id}"]');const r=e.getBoundingClientRect();
+    for(let fy=0.5;fy<0.95;fy+=0.05)for(let fx=${id === "sleeve-1" ? "0.95;fx>0.05;fx-=0.03" : "0.05;fx<0.95;fx+=0.03"}){const x=r.x+r.width*fx,y=r.y+r.height*fy;if(document.elementFromPoint(x,y)===e)return JSON.stringify([x,y])}return null})()`).then(JSON.parse);
+  const sl = await margin("sleeve-1");
+  await click(sl[0], sl[1]); await sleep(300);
+  ok((await discs()).join("|") === series.slice(8, 16).map((x) => x.title).join("|"), "wallet: a click on the right sleeve's margin turns to the next spread", (await discs())[0]);
+  await key("ArrowRight"); await sleep(200);
+  ok((await discs())[0] === series[16].title, "wallet: → turns on", (await discs())[0]);
+  await key("ArrowLeft"); await key("ArrowLeft"); await sleep(200);
+  ok((await discs())[0] === series[0].title && !(await discs()).includes("Widow's Bay"), "wallet: ← back to the first, the disc in the player still out of it");
+  const sl0 = await margin("sleeve-0");
+  await click(sl0[0], sl0[1]); await sleep(300);
+  ok((await discs())[0] === series[0].title, "wallet: the left sleeve at the first spread turns no further");
+  const ax = await b.send("Accessibility.getFullAXTree");
+  const nodes = (ax.result?.nodes ?? []).filter((x) => !x.ignored).map((x) => `${x.role?.value}: ${x.name?.value ?? ""}`);
+  fs.writeFileSync(path.join(OUT, "ax-offduty.txt"), nodes.join("\n"));
+  ok(nodes.includes("button: Star City — put it in the player") && nodes.includes("button: Sound on"), "wallet: screen reader gets the discs and the screen's button");
+  // leaving the corner: the clip goes, the disc stays in
+  await key("Escape"); await arrive("closed");
+  ok(!(await b.ev("!!document.querySelector('[data-hit=dvd] iframe')")), "wallet: away from the corner the clip stops");
+  await b.ev(`dispatchEvent(new Event('kate:off-duty'))`); await arrive("offduty");
+  const back = await b.ev("document.querySelector('[data-hit=dvd]').textContent");
+  ok(back.includes("Widow's Bay") && (await b.ev("!!document.querySelector('[data-hit=dvd] iframe')")), "wallet: back at the corner, the disc is still in and its clip plays", back.slice(0, 40));
+  await key("Escape"); await arrive("closed");
 }
 // ── in flight: nothing to click or focus ──
 if (run("flight")) {

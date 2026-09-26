@@ -33,6 +33,12 @@ html[data-gl] .room-poster {
 .room-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .room-hit:focus-visible { clip-path: none !important; outline: 2px solid var(--brand, #F8C662); outline-offset: 3px; }
 html.room-pointer, html.room-pointer * { cursor: pointer; }
+/* the DVD's screen (components/room/dvd.ts): OffDutyShelf's, as a panel
+   mapped onto the lid's screen; its padding is the lid's 3 % / 4 % (the lid
+   is 280.5 across), not the stage's */
+.room-hit--dvd { display: flex; transform-origin: 0 0; cursor: default; padding: calc(8.415 * var(--u)) calc(11.22 * var(--u)); background: #0b0f16; }
+.room-hit--dvd[data-clip] { cursor: pointer; }
+.room-hit--dvd[data-on] .od-dvd__osd { color: rgba(235, 245, 255, .92); text-shadow: 0 0 calc(2 * var(--u)) rgba(0,0,0,.6); }
 /* a ribbon's label, as its ::after on the CSS room's rail (AwardRail.css) */
 .room-hit__label {
   position: absolute; transform: translateX(-50%); pointer-events: none;

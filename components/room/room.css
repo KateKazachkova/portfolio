@@ -5,6 +5,13 @@ html[data-gl] .desk-world { display: none !important; }
 html[data-gl] .scene-cam { transform: none !important; perspective: none !important; transition: none !important; }
 html[data-gl] .case-world { transform: none !important; transition: none !important; opacity: 1 !important; animation: none !important; }
 .room-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+/* The night (components/room/night.ts): while the camera travels WebGL
+   draws it; at rest the page's own layers do, over the page's case at home
+   (NightRoom) and over a stop's panels (NightCam). They hand over in one
+   frame (html[data-gl-rest], engine.ts), so no fades of their own. */
+html[data-gl] :is(.night-room, .night-cam) { transition: none !important; }
+html[data-gl]:not([data-gl-rest="home"]) .night-room { opacity: 0 !important; }
+html[data-gl]:not([data-gl-rest="stop"]) .night-cam { opacity: 0 !important; }
 /* what WebGL mirrors while the camera is away: the page's own copy hidden,
    every child with it, whatever visibility it sets itself */
 .room-away, .room-away * { visibility: hidden !important; }

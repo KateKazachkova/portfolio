@@ -18,6 +18,7 @@ import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
 import { makeLcd, type Lcd } from "./lcd";
+import { makeNight, POOL } from "./night";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -381,6 +382,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       mesh.matrix.copy(placed(lifted(it.m, k), it.w, it.h));
       mesh.matrixWorldNeedsUpdate = true;
       mesh.visible = it.vis !== false && it.op > 0.001;
+      // a plane's own ::before (the wall's haze) is painted before anything
+      // laid on the plane, as the page paints it: three would sort its big
+      // quad by its middle, after the trophy's shadow on the wall
+      if (/::before$/.test(it.cls) && /^desk-plane /.test(it.cls)) mesh.renderOrder = -1;
       scene.add(mesh);
       return mesh;
     });
@@ -570,6 +575,44 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.toggle("room-away", on);
   };
 
+  // ── the night (night.ts): its layers' opacities, the lamp, the torch and
+  // NightCam's pool, timed as globals.css times the page's ──
+  const night = makeNight();
+  scene.add(night.mesh);
+  const lerp1 = (a: number, b: number, e: number) => a + (b - a) * e, same1 = (a: number, b: number) => Math.abs(a - b) < 1e-4;
+  const homeOp = new Channel<number>(0, lerp1, same1), camOp = new Channel<number>(0, lerp1, same1);
+  const lampOp = new Channel<number>(1, lerp1, same1), torchOp = new Channel<number>(0, lerp1, same1);
+  const poolCh = new Channel<number[]>([0.3, -0.15, 1.3, 1.2, 1], lerpN, sameN);
+  let torchAt = [-1e4, -1e4], torchSeen = false, rest = false;
+  const nightActive = () => homeOp.active || camOp.active || lampOp.active || torchOp.active || poolCh.active;
+  // (instant: a toggle at rest, which the page's own layers show; a flight
+  // runs the page's transitions)
+  const nightTo = (v: View, now: number, instant = false) => {
+    const on = root.hasAttribute("data-night"), lampOn = root.dataset.lamp !== "off";
+    const desk = root.dataset.desk, atHome = !desk || desk === "closed";
+    const still = reduced() || instant;
+    const E = (dur: number): Rule => (still ? null : { dur, delay: 0, ease: EASE.ease });
+    const h = on && atHome ? 1 : 0;
+    homeOp.retarget(h, E(h ? 1200 : 600), now);
+    camOp.retarget(on && !atHome ? 1 : 0, E(900), now);
+    lampOp.retarget(lampOn ? 1 : 0, E(350), now);
+    torchOp.retarget(on && !lampOn && torchSeen ? 1 : 0, E(500), now);
+    const P0 = POOL[v] ?? POOL.home;
+    // (the page's pool jumps there at the click; here it moves over, in the
+    // time the layer itself takes to come in)
+    poolCh.retarget([...P0.at, ...P0.size, P0.k], E(900), now);
+  };
+  const onPointer = (e: PointerEvent) => {
+    const r = canvas.getBoundingClientRect();
+    torchAt = [e.clientX - r.left, e.clientY - r.top];
+    if (!torchSeen) { torchSeen = true; nightTo(view, performance.now(), rest); }
+    if (!rest && night.mesh.visible) { dirty = true; kick(); }
+  };
+  const onPointerOut = (e: PointerEvent) => { if (e.pointerType === "mouse" && !e.relatedTarget) { torchSeen = false; nightTo(view, performance.now(), rest); } };
+  addEventListener("pointermove", onPointer, { passive: true });
+  addEventListener("pointerdown", onPointer, { passive: true });
+  document.addEventListener("pointerout", onPointerOut);
+
   // ── the camera ──
   const pose = new Channel<Pose>(stopPose("home"), lerpPose, samePose);
   const shift = new Channel<number[]>([0, 0], lerp2, same2);
@@ -659,6 +702,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       : v === "bike" ? { dur: 400, delay: 0, ease: EASE.ease }
       : { dur: 600, delay: 150, ease: EASE.ease };
     caseOp.retarget(opT, opRule, now);
+    nightTo(v, now);
     arrange(v, first ? null : poseRule ?? def, now);
     first = false;
     dirty = true;
@@ -667,6 +711,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
 
   // ── where the canvas is and what it covers ──
   let geom = { u: 1, cx: 0, cy: 0, cw: 1, ch: 1, w: 1, h: 1 };
+  let stageSize = [1118, 745];
   const layout = () => {
     const r = o.stage.getBoundingClientRect();
     const u = r.width / 1118;
@@ -680,6 +725,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const sz = renderer.getSize(new THREE.Vector2());
     if (sz.x !== w || sz.y !== h) renderer.setSize(w, h, false);
     geom = { u, cx: left / u, cy: top / u, cw: w / u, ch: h / u, w, h };
+    stageSize = [r.width, r.height];
     dirty = true;
   };
   layout();
@@ -700,6 +746,19 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     camera.projectionMatrixInverse.copy(P).invert();
     caseOpacity = caseOp.value(now);
     applyGroupOpacity();
+    // the night: WebGL's while the camera travels, the page's at rest
+    const ho = homeOp.value(now), co = camOp.value(now);
+    night.mesh.visible = !rest && (ho > 0.001 || co > 0.001);
+    if (night.mesh.visible) {
+      const nu = night.u, prr = renderer.getPixelRatio();
+      nu.res.value.set(geom.w * prr, geom.h * prr); nu.pr.value = prr;
+      nu.stage.value.set(-geom.cx * u, -geom.cy * u, stageSize[0], stageSize[1]);
+      nu.view.value.set(scrollX, scrollY, innerWidth, innerHeight);
+      nu.homeOp.value = ho; nu.camOp.value = co; nu.lamp.value = lampOp.value(now); nu.torchOp.value = torchOp.value(now);
+      nu.torch.value.set(torchAt[0], torchAt[1]);
+      const pl = poolCh.value(now);
+      nu.pool.value.set(pl[0], pl[1], pl[2], pl[3]); nu.poolK.value = pl[4];
+    }
     for (const l of lives) {
       l.mesh.visible = l.host.meshes[0].visible;
       (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
@@ -746,8 +805,18 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       }
     }
     const video = groupsShown && [...(groupMeshes.get("case") ?? [])].some((m) => m.visible && (m.material as THREE.ShaderMaterial).uniforms.map.value instanceof THREE.VideoTexture);
-    if (moving || dirty || video || arrivedNow) { draw(now); dirty = false; }
-    if (moving || video || view !== "home" || pending > 0) raf = requestAnimationFrame(loop);
+    // at rest (home and still, with the page's case; or a stop, its controls
+    // laid) the page's own night layers draw the night, not WebGL's
+    const restNow = view === "home" ? !groupsShown && !moving : !(moving || hold);
+    if (restNow !== rest) {
+      rest = restNow;
+      if (rest) root.dataset.glRest = view === "home" ? "home" : "stop"; else delete root.dataset.glRest;
+      dirty = true;
+    }
+    const nightMoving = nightActive();
+    homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
+    if (moving || dirty || video || arrivedNow || nightMoving) { draw(now); dirty = false; }
+    if (moving || video || view !== "home" || pending > 0 || nightMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
   };
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
@@ -765,6 +834,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   addEventListener("room:binder-at", onBinder);
   const mo = new MutationObserver(() => evaluate(performance.now()));
   mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-focus", "data-desk-arrived"] });
+  // the night, the lamp: toggled at rest (the page's layers show it), kept for the flight
+  const moNight = new MutationObserver(() => { nightTo(view, performance.now(), rest); dirty = true; kick(); });
+  moNight.observe(root, { attributes: true, attributeFilter: ["data-night", "data-lamp"] });
   const onResize = () => { layout(); kick(); };
   addEventListener("resize", onResize);
   const ro = new ResizeObserver(onResize);
@@ -900,7 +972,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     dispose() {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
-      mo.disconnect(); ro.disconnect();
+      mo.disconnect(); ro.disconnect(); moNight.disconnect();
+      removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("pointerout", onPointerOut);
+      delete root.dataset.glRest;
       removeEventListener("room:binder-at", onBinder);
       for (const l of lives) { l.lcd.dispose(); l.tex.dispose(); }
       hitLayer?.dispose();

@@ -4,6 +4,9 @@
 // the trophy, a small alpha mask to hit-test its silhouette with. Read off
 // the legacy CSS room; writes public/room/hits.json.
 //
+// Each names the legacy element it was read off (`of`), for the parity check
+// in hits-test.mjs; under the flag the legacy room is not rendered at all.
+//
 //   node scripts/room/hits.mjs http://localhost:3301
 import fs from "node:fs";
 import path from "node:path";
@@ -14,13 +17,15 @@ import { collect } from "./collect.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const OUT = path.resolve(import.meta.dirname, "../../public/room/hits.json");
-// the M3 spike's three objects (+ the trophy): a plain link, a hoverable
-// one with a label, and two with hit areas that are not rectangles
+// type: the control's class (room-hit--<type>); all: every match, ids
+// <type>-<i>; kind: link | button | span (a focusable name with a label,
+// for what has no link yet)
 const PICK = [
-  { id: "cert", sel: "a.desk-cert", at: ["award"], kind: "link" },
-  { id: "ribbon", sel: ".award-ribbon", at: ["award"], kind: "hover" },
-  { id: "bike", sel: ".bike", at: ["offduty"], kind: "button", action: "offduty-bike" },
-  { id: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true },
+  // Recognition: every ribbon on the lattice, then the certificate
+  { type: "ribbon", sel: ".award-ribbon", all: true, at: ["award"], label: "data-label" },
+  { type: "cert", sel: "a.desk-cert", at: ["award"], kind: "link" },
+  { type: "bike", sel: ".bike", at: ["offduty"], kind: "button", action: "offduty-bike" },
+  { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
 ];
 const b = await launch({ width: 1600, height: 1000, dpr: 1 });
 await b.go(SITE + "/?nointro&gl=0", 4000);
@@ -30,21 +35,30 @@ await b.ev(`(${collect.toString()})(${JSON.stringify(SIG_SRC)}) && 1`);
 const u = await b.ev("document.querySelector('.case-stage').getBoundingClientRect().width / 1118");
 const hits = [];
 for (const p of PICK) {
-  const info = await b.ev(`(()=>{const el=document.querySelector(${JSON.stringify(p.sel)}); if(!el) return null;
-    const a=getComputedStyle(el,'::after'); const m=window.__bkWorld(el); const s=window.__bkSize(el);
-    return JSON.stringify({m, w:s[0], h:s[1], href: el.getAttribute('href'), target: el.getAttribute('target'), label: el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent.trim().slice(0,80),
-      after: a.content && a.content!=='none' ? a.content.replace(/^"|"$/g,'') : null, src: el.currentSrc || null})})()`);
-  if (!info) { log("missing", p.sel); continue; }
-  const j = JSON.parse(info);
-  const hit = { ...p, label: j.label || j.after, hover: j.after, href: j.href, target: j.target, w: j.w / u, h: j.h / u, m: j.m.map((v, i) => (i >= 12 && i <= 14 ? v / u : v)) };
-  delete hit.sel;
-  if (p.mask && j.src) {
-    // the silhouette, 64 px across, as 0/1 per px
-    const file = path.join(path.resolve(import.meta.dirname, "../../public"), new URL(j.src).pathname);
-    hit.mask = JSON.parse(execFileSync("python3", ["-c", `import json;from PIL import Image;im=Image.open(${JSON.stringify(file)}).convert('RGBA');w=64;h=max(1,round(im.height*w/im.width));a=im.resize((w,h)).getchannel('A');print(json.dumps({'w':w,'h':h,'bits':''.join('1' if v>96 else '0' for v in a.getdata())}))`]).toString());
+  const list = JSON.parse(await b.ev(`(()=>{const els=[...document.querySelectorAll(${JSON.stringify(p.sel)})]${p.all ? "" : ".slice(0,1)"};
+    return JSON.stringify(els.map((el,i)=>{const m=window.__bkWorld(el); const s=window.__bkSize(el);
+      return {i, m, w:s[0], h:s[1], tag: el.tagName.toLowerCase(), href: el.getAttribute('href'), target: el.getAttribute('target'),
+        name: el.getAttribute('aria-label') || el.getAttribute('title') || el.textContent.trim().slice(0,80),
+        hover: ${p.label ? `el.getAttribute(${JSON.stringify(p.label)})` : "null"}, src: el.currentSrc || null}}))})()`));
+  if (!list.length) { log("missing", p.sel); continue; }
+  for (const j of list) {
+    const kind = p.kind ?? (j.tag === "a" ? "link" : j.tag === "button" ? "button" : "span");
+    const hit = {
+      id: p.all ? `${p.type}-${j.i}` : p.type, type: p.type, kind, at: p.at, ...(p.action ? { action: p.action } : {}),
+      label: p.name ?? j.name, hover: j.hover, href: kind === "link" ? j.href : null, target: kind === "link" ? j.target : null,
+      of: { sel: p.sel, i: j.i },
+      w: j.w / u, h: j.h / u, m: j.m.map((v, i) => (i >= 12 && i <= 14 ? v / u : v)),
+    };
+    if (p.mask && j.src) {
+      // the silhouette, 64 px across, as 0/1 per px
+      const file = path.join(path.resolve(import.meta.dirname, "../../public"), new URL(j.src).pathname);
+      hit.mask = JSON.parse(execFileSync("python3", ["-c", `import json;from PIL import Image;im=Image.open(${JSON.stringify(file)}).convert('RGBA');w=64;h=max(1,round(im.height*w/im.width));a=im.resize((w,h)).getchannel('A');print(json.dumps({'w':w,'h':h,'bits':''.join('1' if v>96 else '0' for v in a.getdata())}))`]).toString());
+    }
+    hits.push(hit);
   }
-  hits.push(hit);
 }
 fs.writeFileSync(OUT, JSON.stringify({ hits }));
-log("hits", hits.map((h) => h.id).join(", "));
+const n = {};
+for (const h of hits) n[h.type] = (n[h.type] ?? 0) + 1;
+log("hits", Object.entries(n).map(([k, v]) => `${k} ${v}`).join(", "));
 b.close();

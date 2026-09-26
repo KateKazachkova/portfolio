@@ -41,6 +41,8 @@ export type RoomOptions = {
   sceneUrl?: string;
   /** the room at home as a still, shown until WebGL has drawn it */
   poster?: HTMLElement | null;
+  /** a link of the site's own, followed on the client (Next's router) */
+  navigate?: (href: string) => void;
 };
 
 // ── transitions, as CSS runs them ──────────────────────────────────────────
@@ -774,10 +776,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   idle(warm);
   kick();
 
-  // what can be clicked (M3 spike: public/room/hits.json)
+  // what can be clicked (public/room/hits.json)
   let hitLayer: HitLayer | null = null;
   fetch("/room/hits.json").then((r) => r.json()).then((d: { hits: Hit[] }) => {
-    hitLayer = startHits({ host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {} });
+    hitLayer = startHits({ host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {}, navigate: o.navigate });
     placedKey = "";
     kick();
   }).catch(() => {});

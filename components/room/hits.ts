@@ -1,5 +1,5 @@
 /**
- * What can be clicked in the WebGL room (M3 spike): public/room/hits.json,
+ * What can be clicked in the WebGL room (M3): public/room/hits.json,
  * read off the CSS room by scripts/room/hits.mjs.
  *
  * Each object is a real, flat DOM control — a link or a button, with its
@@ -18,11 +18,17 @@ import * as THREE from "three";
 import { projectToStage, type Pose, type View } from "@/lib/room/pose";
 
 export type Hit = {
-  id: string; kind: "link" | "button" | "hover"; at: View[]; action?: string;
+  id: string; type: string; kind: "link" | "button" | "span"; at: View[]; action?: string;
   label?: string; hover?: string | null; href?: string | null; target?: string | null;
+  /** the legacy element it was read off (scripts/room/hits-test.mjs holds
+   *  the two side by side) */
+  of: { sel: string; i: number };
   w: number; h: number; m: number[];
   mask?: { w: number; h: number; bits: string };
 };
+
+// a plain click: with a modifier it is the browser's (a new tab, a download)
+const plain = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
 
 const ACTIONS: Record<string, () => void> = {
   recognition: () => { if (document.documentElement.dataset.desk !== "award") dispatchEvent(new Event("kate:recognition")); },
@@ -45,6 +51,7 @@ export function startHits(o: {
   camera: THREE.Camera;
   canvasRect: () => DOMRect;
   redraw: () => void;
+  navigate?: (href: string) => void;
 }): HitLayer {
   const layer = document.createElement("div");
   layer.className = "room-hits";
@@ -52,18 +59,25 @@ export function startHits(o: {
   const els = new Map<string, HTMLElement>();
   const labels = new Map<string, HTMLElement>();
   for (const h of o.hits) {
-    const el = document.createElement(h.kind === "button" ? "button" : "a") as HTMLElement;
-    el.className = `room-hit room-hit--${h.id}`;
+    const el = document.createElement(h.kind === "button" ? "button" : h.kind === "link" ? "a" : "span") as HTMLElement;
+    el.className = `room-hit room-hit--${h.type}`;
+    el.dataset.hit = h.id;
     if (el instanceof HTMLButtonElement) el.type = "button";
     if (el instanceof HTMLAnchorElement && h.href) {
       el.href = h.href;
       if (h.target) { el.target = h.target; el.rel = "noopener noreferrer"; }
     }
-    el.setAttribute("aria-label", h.label || (h.id === "trophy" ? "The Davey Awards trophy — Recognition" : h.id));
+    el.setAttribute("aria-label", h.label || h.id);
     el.tabIndex = -1;
     el.hidden = true;
 
     if (h.action) el.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); ACTIONS[h.action!]?.(); });
+    // a link of the site's own goes on the client, as a Next <Link> does
+    else if (h.kind === "link" && h.href?.startsWith("/") && !h.target && o.navigate) el.addEventListener("click", (e) => {
+      if (!plain(e)) return;
+      e.preventDefault();
+      o.navigate!(h.href!);
+    });
     // a silhouette is hit-tested by the ray, not by the box
     if (h.mask) el.style.pointerEvents = "none";
     layer.appendChild(el);

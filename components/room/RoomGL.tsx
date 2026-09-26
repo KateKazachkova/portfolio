@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 import { glOn } from "@/lib/room/flag";
 import "./room.css";
 
@@ -16,6 +17,9 @@ export function useGl() {
  * the scene load only here, only under the flag.
  */
 export function RoomGL({ cam, home }: { cam: React.RefObject<HTMLDivElement | null>; home: React.RefObject<HTMLDivElement | null> }) {
+  const router = useRouter();
+  const nav = useRef(router);
+  useEffect(() => { nav.current = router; }, [router]);
   useEffect(() => {
     const el = cam.current, h = home.current;
     const stage = el?.parentElement;
@@ -28,6 +32,7 @@ export function RoomGL({ cam, home }: { cam: React.RefObject<HTMLDivElement | nu
         groups: { case: stage.querySelector<HTMLElement>(".case-world"), clock: h.querySelector<HTMLElement>(".flip-clock-slot"), lamp: h.querySelector<HTMLElement>(".desk-lamp") },
         onArrive: () => dispatchEvent(new Event("room:arrive")),
         poster: stage.querySelector<HTMLElement>(".room-poster"),
+        navigate: (href) => nav.current.push(href),
       }),
     ).then((r) => {
       if (dead) r.dispose(); else { room = r; (window as unknown as { __room: unknown }).__room = r; document.documentElement.dataset.glReady = "1"; }

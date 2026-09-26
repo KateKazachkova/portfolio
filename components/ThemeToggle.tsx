@@ -20,9 +20,9 @@ import { useTime } from "@/components/TimeProvider";
  */
 const GLYPH = { auto: "◐", light: "☀", dark: "☾" } as const;
 const LABEL = {
-  auto: "Theme follows the time of day — click to keep it light",
-  light: "Theme kept light — click to keep it dark",
-  dark: "Theme kept dark — click to follow the time of day",
+  auto: "Theme follows the time of day – click to keep it light",
+  light: "Theme kept light – click to keep it dark",
+  dark: "Theme kept dark – click to follow the time of day",
 } as const;
 
 export default function ThemeToggle() {

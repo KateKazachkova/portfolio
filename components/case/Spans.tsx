@@ -32,7 +32,7 @@ export default function Spans({ spans }: { spans: Para }) {
         if ("redact" in s) return <s key={i}>{s.redact}</s>;
         return (
           <span key={i} className="tk" title="Not yet confirmed">
-            TK — {s.tk}
+            TK – {s.tk}
           </span>
         );
       })}

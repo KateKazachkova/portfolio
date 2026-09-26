@@ -35,12 +35,9 @@ export default function SideNav() {
   const onHome = pathname === "/";
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
-  // A case file is already a document with a margin of its own: app/case.css
-  // sets a rail of notes, a fixed measure and an annotation field, and the
-  // widths are the page's, not the window's. Taking 232px off the front of it
-  // collapses that grid onto one column on any laptop — so on a case file the
-  // navigation stays the bar, and the only rail on the page is the one the
-  // document brought. Its own "← Case Files" link goes back.
+  // A case file takes the index down the left like every other page; the
+  // document has no margin rail of its own any more (app/case.css). Only its
+  // bar differs: no ink rule, no theme toggle.
   const inCaseFile = pathname.startsWith("/work/");
 
   // Transparent at the top of the page; frosted-glass + colour once scrolled.
@@ -80,12 +77,16 @@ export default function SideNav() {
   // the page, so it always paints its own ground.
   const barPainted = scrolled || open;
 
-  if (onHome) return null;
+  // Home carries its own column (HeroAside, beside the case) from 1024px up,
+  // so there it gets no rail and no bar. Under 1024 the column stands over
+  // the case and keeps only its title and line; the index folds into this
+  // bar's latch, as it does on every other page.
+  const barClass = onHome ? "min-[1024px]:hidden" : "min-[1280px]:hidden";
 
   return (
     <>
       {/* ── The rail, once there is room for it ── */}
-      {!inCaseFile && (
+      {!onHome && (
       <div
         className="nav-rail hidden min-[1280px]:block shrink-0"
         // The measure and the offsets are home's, read off the hero: 48px in
@@ -108,7 +109,7 @@ export default function SideNav() {
 
       {/* ── The bar + panel, under that ── */}
       <header
-        className={inCaseFile ? undefined : "min-[1280px]:hidden"}
+        className={barClass}
         style={{
           position: "sticky",
           top: 0,
@@ -135,7 +136,8 @@ export default function SideNav() {
               without opening anything. A case file is a notebook page with no
               night, so it has no toggle, and its latch is bare rules. */}
           <div className="flex items-center gap-3">
-            {!inCaseFile && <ThemeToggle />}
+            {/* not on home: the theme is off home's menu (Kate, 26.09) */}
+            {!inCaseFile && !onHome && <ThemeToggle />}
             <button
               type="button"
               onClick={() => setOpen(!open)}

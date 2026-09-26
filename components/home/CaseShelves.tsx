@@ -24,7 +24,7 @@ export default function CaseShelves() {
           href="https://www.figma.com/@uxui_kazachkova"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Figma — @uxui_kazachkova"
+          aria-label="Figma – @uxui_kazachkova"
           className="block w-full h-full"
           style={{ borderRadius: 9 }}
         >

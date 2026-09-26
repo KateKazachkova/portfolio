@@ -283,7 +283,7 @@ export default function NicheDoll({ edition, ready = true }: { edition: string; 
         className="niche-clip" src={poster}
         srcSet={`${poster.replace(/\.jpg$/, "-160.jpg")} 160w, ${poster.replace(/\.jpg$/, "-324.jpg")} 324w, ${poster} 648w`}
         sizes="(max-width: 1023px) 16vw, 13vw"
-        alt={`${EDITIONS[edition]?.label ?? edition} — in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false}
+        alt={`${EDITIONS[edition]?.label ?? edition} – in the niche`} fetchPriority="high" style={{ ...NICHE, zIndex: 2 }} draggable={false}
       />
       {live && (
         <video

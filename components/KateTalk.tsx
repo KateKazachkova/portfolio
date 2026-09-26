@@ -94,7 +94,7 @@ export default function KateTalk({ edition }: { edition: string }) {
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label="Kate — say something"
+        aria-label="Kate – say something"
         className="katetalk__hotspot"
         style={{ position: "absolute", ...HOTSPOT, zIndex: 20 }}
         onMouseEnter={() => { cancelClose(); setOpen(true); }}

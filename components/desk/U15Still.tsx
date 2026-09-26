@@ -14,7 +14,9 @@
  * Box px of the capture: x 68.7–442, y 645.1–805.1 (373.3 × 160), taken with
  * the cases one tile (107.5) further back; brought forward it is that capture
  * scaled about the camera's principal point (560, 226) by (2150 − 306) /
- * (2150 − 413.5), the stack's depth then and now.
+ * (2150 − 413.5), the stack's depth then and now. Since the folder went
+ * from K 1.3 to 1.15 and 30 desk px right, the still is mapped onto the live
+ * folder's new box as measured from this camera (× .864 wide, × .883 high).
  */
 export default function U15Still() {
   return (
@@ -26,8 +28,8 @@ export default function U15Still() {
       aria-hidden
       draggable={false}
       style={{
-        position: "absolute", left: "calc(38.3 * var(--u))", top: "calc(671.0 * var(--u))",
-        width: "calc(396.4 * var(--u))", height: "calc(169.9 * var(--u))",
+        position: "absolute", left: "calc(101.6 * var(--u))", top: "calc(679.9 * var(--u))",
+        width: "calc(342.6 * var(--u))", height: "calc(150.0 * var(--u))",
       }}
     />
   );

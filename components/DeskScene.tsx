@@ -61,7 +61,7 @@ import { prefersReducedMotion } from "@/lib/reducedMotion";
 // they are ~2.5 screen px per desk px — more than fits across the window,
 // which is why the camera pans along the row (see the pan in useDeskCamera).
 const CASES = [
-  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 195, h: 270, x: 1340, y: 682.5, r: -3 },
+  { slug: "ukrainska-15", title: "Ukrainska 15", img: "envelope", w: 172.5, h: 239, x: 1370, y: 682.5, r: -3 },
   { slug: "bulksource", title: "BulkSource", img: "stack", w: 180, h: 120, x: 1609, y: 675, r: 3 },
   { slug: "onsisoft", title: "OnsiSoft", img: "stack", w: 180, h: 120, x: 1879, y: 680, r: -2 },
   { slug: "waypro", title: "WayPro", img: "stack", w: 180, h: 120, x: 2149, y: 672, r: 2 },
@@ -93,7 +93,7 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
       className="desk-card desk-card--stack"
       data-slug={c.slug}
       data-x={c.x}
-      aria-label={`${c.title} — awards`}
+      aria-label={`${c.title} – awards`}
       style={{
         left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
         "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
@@ -205,6 +205,7 @@ function useStops() {
 
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
+  const warm = useWarm();
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall" aria-hidden>
@@ -229,7 +230,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       {ready.has("award") && (
       <a
         className="desk-cert" href="/artefacts/cert-indigo-women-in-design-2026.webp" target="_blank" rel="noopener noreferrer"
-        tabIndex={-1} aria-label="Indigo Design Award — Women in Design, shortlisted 2026 (certificate)"
+        tabIndex={-1} aria-label="Indigo Design Award – Women in Design, shortlisted 2026 (certificate)"
         style={{
           left: `calc(${CERT.x - CERT.w / 2} * var(--u))`, top: `calc(${656 - CERT.h} * var(--u))`,
           width: `calc(${CERT.w} * var(--u))`, height: `calc(${CERT.h} * var(--u))`,
@@ -252,6 +253,15 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           left: `calc(${AWARD.x + 1052.5} * var(--u))`, top: `calc(${AWARD.z + 269} * var(--u))`,
           "--w": AWARD_W,
         } as React.CSSProperties} />
+        {/* A sheet of paper where the index column lands over the desk, so
+            its words stand on paper and not on the tiles' grout: left of the
+            case files (at pan 0) and left of the Profile binder. Desk-top px,
+            measured from the column's box at 1440 × 900. */}
+        {warm && <div className="desk-paper" aria-hidden style={{ left: "calc(1211 * var(--u))", top: "calc(611 * var(--u))", "--r": "-1.5deg", "--w": 155, "--h": 225 } as React.CSSProperties} />}
+        {/* the Profile one is slipped into the binder, over its board and
+            under its first sheet, and runs 56 desk px (~100 screen px)
+            wider to reach in under the sheet */}
+        {ready.has("profile") && <div className="desk-paper desk-paper--tucked" aria-hidden style={{ left: "calc(2719 * var(--u))", top: "calc(257 * var(--u))", "--r": "1.2deg", "--w": 191 } as React.CSSProperties} />}
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />

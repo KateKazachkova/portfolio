@@ -99,7 +99,7 @@ export default function Tardis() {
           can send it off too. */}
       <button
         type="button"
-        aria-label="A model police box — send it somewhere else in the case"
+        aria-label="A model police box – send it somewhere else in the case"
         className="scene-hit"
         onMouseEnter={trigger}
         onClick={trigger}

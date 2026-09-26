@@ -30,8 +30,9 @@ export type Decision = {
   label: string;
   title: string;
   body: Para[];
-  /** What the decision cost. The interesting half. */
-  tradeoff: Para;
+  /** What the decision cost. The interesting half. A decision that cost
+   *  nothing has none. */
+  tradeoff?: Para[];
 };
 
 export type SpecRow = { key: string; value: Para };
@@ -68,10 +69,15 @@ export type PlateItem = {
 };
 
 export type Section =
-  | { kind: "prose"; n: string; label: string; heading: string; rule?: boolean;
-      body: Para[]; notes?: MarginNote[]; hand?: HandNote }
-  | { kind: "decisions"; n: string; label: string; heading: string;
-      items: Decision[]; notes?: MarginNote[]; hand?: HandNote }
+  | { kind: "prose"; n: string; label?: string; heading: string; rule?: boolean;
+      body: Para[]; notes?: MarginNote[]; hand?: HandNote;
+      /** The project's award card under the text (the outcome section). */
+      awards?: boolean;
+      /** Prints laid in the field beside the text, each at its own tilt, with
+       *  an optional line written under it in hand, an arrow up to the print. */
+      photos?: { src: string; alt: string; tilt: number; hand?: string }[] }
+  | { kind: "decisions"; n: string; label?: string; heading: string; rule?: boolean;
+      body?: Para[]; items: Decision[]; notes?: MarginNote[]; hand?: HandNote }
   | { kind: "spec"; n: string; label: string; heading: string;
       body: Para[]; rows: SpecRow[]; notes?: MarginNote[]; hand?: HandNote }
   | { kind: "pile"; title: string; count: string; help: string;
@@ -86,14 +92,23 @@ export type CaseStudy = {
   title: string;
   years: string;
   /** The result, in the first 100 words, above the fold. */
-  result: Para;
+  result?: Para;
   subtitle: string;
+  /** Under the title in place of the subtitle, when a case wants more than
+   *  one line and the annotation layer (the subtitle still gives the page's
+   *  description). */
+  summary?: Para[];
   fields: { key: string; value: Para }[];
-  lead: { ghost: string; red: string; ink: string };
-  outcome: {
+  lead?: { ghost: string; red: string; ink: string };
+  outcome?: {
     stats: { n: string; sup?: string; caption: string }[];
     stamps: AwardStamp[];
   };
+  /** The live thing on a tablet before the text: a recording of it on the
+   *  screen, and a click through to it. */
+  tablet?: { video: string; poster: string; href: string; label: string };
   sections: Section[];
-  next?: { label: string; href: string };
+  /** The last word, under the sections: the title again, one line, and the
+   *  way out to the live thing. */
+  closing?: { line: string; cta: { label: string; href: string } };
 };

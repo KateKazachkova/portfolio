@@ -19,14 +19,14 @@ export const metadata = {
 const COLOURS: { token: string; role: string }[] = [
   { token: "--bg", role: "The paper. A dirty off-white, never #fff" },
   { token: "--panel", role: "A sheet lying on the paper: cards, documents" },
-  { token: "--inner", role: "Recessed — an inner window, a well" },
+  { token: "--inner", role: "Recessed – an inner window, a well" },
   { token: "--fg", role: "The ink everything is written in" },
   { token: "--border", role: "A drawn edge, at full ink strength" },
   { token: "--hairline", role: "A thin archive rule between things" },
   { token: "--muted", role: "Secondary text, a touch of plum" },
   { token: "--accent-red", role: "The stamp. Numbering, marks, one thing at a time" },
   { token: "--brand", role: "Saffron: the logo, a selected state, a small label" },
-  { token: "--violet", role: "Ultra Violet: episodic — cards, hover, a project's own identity" },
+  { token: "--violet", role: "Ultra Violet: episodic – cards, hover, a project's own identity" },
   { token: "--green", role: "Hunter Green: the second big colour, for whole sections" },
 ];
 
@@ -85,7 +85,7 @@ export default function Kit() {
       <section className="px-8 py-12 max-w-5xl mx-auto">
         <SectionHeading n="02" title="Type" />
         <p className="text-gray-500 max-w-2xl mb-8 leading-relaxed">
-          The monospace does the labelling — the small tracked-out capitals a document uses to
+          The monospace does the labelling – the small tracked-out capitals a document uses to
           name a field. These five sizes are not a scale someone drew up: they are the sizes the
           site turned out to use, counted in the source.
         </p>
@@ -134,7 +134,7 @@ export default function Kit() {
         <SectionHeading n="04" title="Ink" />
         <p className="text-gray-500 max-w-2xl mb-8 leading-relaxed">
           The button is a block of ink with the paper knocked out of it. The stamps are the
-          juries&apos; own marks, reduced to one channel of coverage and bitten back at the edges —
+          juries&apos; own marks, reduced to one channel of coverage and bitten back at the edges –
           they ship as masks, so the colour is CSS and follows the theme.
         </p>
         <Sheet raised className="p-6">
@@ -176,7 +176,7 @@ export default function Kit() {
         <SectionHeading n="05" title="The Document Table" />
         <p className="text-gray-500 max-w-2xl mb-8 leading-relaxed">
           Four parts, and they carry very different weights. The cell is where the repetition
-          was. The table owns what is true of the whole — the rule it hangs from, the caption, and
+          was. The table owns what is true of the whole – the rule it hangs from, the caption, and
           stacking into blocks on a phone. The header cell is semantics and no style, because this
           header is read rather than seen. The row draws almost nothing and exists for the
           behaviour coming to it.
@@ -206,7 +206,7 @@ export default function Kit() {
             </DocRow>
           </DocTable>
           <p style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.1em" }} className="text-gray-400 uppercase mt-2">
-            Column widths belong to the table using it, not to the cell — and only from md up,
+            Column widths belong to the table using it, not to the cell – and only from md up,
             because below that the cells stack
           </p>
         </Sheet>

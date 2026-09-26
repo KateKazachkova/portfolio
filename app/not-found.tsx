@@ -342,7 +342,7 @@ export default function NotFound() {
               </h1>
 
               <p className="text-sm md:text-base leading-snug mt-3.5" style={{ color: "var(--muted)" }}>
-                You’ve reached an edition that doesn’t exist. Kate is still here — this
+                You’ve reached an edition that doesn’t exist. Kate is still here – this
                 particular version isn’t. No stock. No reissue. Probably for the best.
               </p>
 

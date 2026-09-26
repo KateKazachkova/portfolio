@@ -99,7 +99,7 @@ export default function AwardCubby() {
     >
       <Link
         href="/#recognition"
-        aria-label="Recognition — the award for Redesigning the Redesign"
+        aria-label="Recognition – the award for Redesigning the Redesign"
         className="block absolute inset-0"
         // like Recognition in the index: over to the wall, not a page
         onClick={(e) => {

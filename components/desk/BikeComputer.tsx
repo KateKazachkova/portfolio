@@ -87,7 +87,7 @@ export default function BikeComputer() {
       } as React.CSSProperties}
       onClick={(e) => press(e, () => step(1))}
       role="group"
-      aria-label="Off Duty — ride totals from Strava, on a bike computer"
+      aria-label="Off Duty – ride totals from Strava, on a bike computer"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/items/off-duty/bike-computer-v2.webp" alt="" draggable={false} />

@@ -1,8 +1,10 @@
 import Link from "next/link";
-import type { CaseStudy as Case, HandNote, MarginNote, Section } from "@/content/work/types";
+import type { CaseStudy as Case, HandNote, MarginNote, Para, Section } from "@/content/work/types";
 import Spans from "./Spans";
 import Pile from "./Pile";
+import CaseTablet from "./CaseTablet";
 import AwardCard from "@/components/AwardCard";
+import { neighbours } from "@/content/work";
 
 /**
  * A case study rendered as an annotated document: a margin rail of notes, a
@@ -40,21 +42,21 @@ function Hand({ hand }: { hand?: HandNote }) {
 
 /** The margin rail: the numeral, the label, and the notes that argue with the
  *  section beside them — one grid cell, not three. */
-function Rail({ n, label, notes }: { n: string; label: string; notes?: MarginNote[] }) {
+function Rail({ n, label, notes }: { n: string; label?: string; notes?: MarginNote[] }) {
   return (
     <div className="rail">
       <div className="num">{n}</div>
-      <div className="label" style={{ marginTop: 10 }}>{label}</div>
+      {label && <div className="label" style={{ marginTop: 10 }}>{label}</div>}
       <Notes notes={notes} />
     </div>
   );
 }
 
-function Body({ section }: { section: Extract<Section, { kind: "prose" | "spec" }> }) {
+function Body({ section }: { section: { heading: string; body?: Para[] } }) {
   return (
     <>
       <h2>{section.heading}</h2>
-      {section.body.map((p, i) => (
+      {section.body?.map((p, i) => (
         <p key={i} style={i === 0 ? { marginTop: 14 } : undefined}>
           <Spans spans={p} />
         </p>
@@ -63,7 +65,16 @@ function Body({ section }: { section: Extract<Section, { kind: "prose" | "spec" 
   );
 }
 
-function Block({ section }: { section: Section }) {
+/** The case's own award card: the outcome row, or a section that carries it. */
+function CaseAwards({ data }: { data: Case }) {
+  return (
+    <div className="award-card-slot">
+      <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
+    </div>
+  );
+}
+
+function Block({ section, data }: { section: Section; data: Case }) {
   switch (section.kind) {
     case "prose":
       return (
@@ -71,8 +82,28 @@ function Block({ section }: { section: Section }) {
           <Rail n={section.n} label={section.label} notes={section.notes} />
           <div className={section.rule ? "body rule" : "body"}>
             <Body section={section} />
+            {section.awards && <CaseAwards data={data} />}
           </div>
-          <div className="side"><Hand hand={section.hand} /></div>
+          <div className="side">
+            <Hand hand={section.hand} />
+            {section.photos?.map((ph) => (
+              <figure key={ph.src} className="side-shot">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="side-print" src={ph.src} alt={ph.alt} loading="lazy"
+                  style={{ "--tilt": `${ph.tilt}deg` } as React.CSSProperties} />
+                {ph.hand && (
+                  <figcaption className="side-hand">
+                    {/* a pen stroke from the words up to the print */}
+                    <svg className="side-hand__arrow" viewBox="0 0 56 44" aria-hidden>
+                      <path d="M6 40 C 14 30, 30 24, 44 8" />
+                      <path d="M36 9 L 45 6 L 44 16" />
+                    </svg>
+                    {ph.hand}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
         </section>
       );
 
@@ -99,14 +130,18 @@ function Block({ section }: { section: Section }) {
       return (
         <section className="row">
           <Rail n={section.n} label={section.label} notes={section.notes} />
-          <div className="body">
-            <h2>{section.heading}</h2>
+          <div className={section.rule ? "body rule" : "body"}>
+            <Body section={section} />
             {section.items.map((d) => (
               <div className="decision" key={d.label}>
                 <div className="d-label">{d.label}</div>
                 <h4>{d.title}</h4>
                 {d.body.map((p, i) => <p key={i}><Spans spans={p} /></p>)}
-                <div className="tradeoff"><Spans spans={d.tradeoff} /></div>
+                {d.tradeoff && (
+                  <div className="tradeoff">
+                    {d.tradeoff.map((p, i) => <p key={i}><Spans spans={p} /></p>)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -164,18 +199,32 @@ function Block({ section }: { section: Section }) {
 }
 
 export default function CaseStudyPage({ data }: { data: Case }) {
+  const { prev, next } = neighbours(data.slug);
   return (
     <main className="case">
       <div className="sheet">
-        <div className="mast row">
-          <div className="rail">
-            <Link className="backlink" href="/#case-files"><span>←</span> Case Files</Link>
-          </div>
-          <div className="body" />
-          <div className="side" style={{ textAlign: "right" }}>
-            <span className="label">{data.fileNo}</span>
-          </div>
+        {/* Where the page is, and the way to the cases either side of it —
+            round the ring: after the last case comes the first. */}
+        <div className="mast">
+          <nav className="crumbs" aria-label="Breadcrumb">
+            <Link href="/#case-files">Case Studies</Link>
+            <span aria-hidden>/</span>
+            <span aria-current="page">{data.title}</span>
+          </nav>
+          <nav className="flip" aria-label="Case studies">
+            <Link className="flip__prev" href={`/work/${prev.slug}`} aria-label={`Previous case: ${prev.title}`}>←</Link>
+            <Link className="flip__next" href={`/work/${next.slug}`}>
+              <span className="flip__k">Next project</span> {next.title} <span aria-hidden>→</span>
+            </Link>
+          </nav>
         </div>
+
+        {data.tablet && (
+          <div className="row tablet-row">
+            <div className="rail" />
+            <div className="body wide"><CaseTablet {...data.tablet} /></div>
+          </div>
+        )}
 
         <div className="row title-block">
           <div className="rail">
@@ -184,28 +233,29 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             <div className="label" style={{ marginTop: 4 }}>{data.years}</div>
           </div>
           <div className="body wide">
-            <h1>{data.title}</h1>
-            <p className="result"><Spans spans={data.result} /></p>
-            <p className="subtitle">{data.subtitle}</p>
+            <div className="title-line">
+              <h1>{data.title}</h1>
+              {data.tablet && (
+                <a className="case-live" href={data.tablet.href} target="_blank" rel="noopener noreferrer" aria-label={data.tablet.label}>
+                  View the live project <span aria-hidden>↗</span>
+                </a>
+              )}
+            </div>
+            {data.result && <p className="result"><Spans spans={data.result} /></p>}
+            {data.summary
+              ? data.summary.map((p, i) => <p key={i} className="subtitle"><Spans spans={p} /></p>)
+              : <p className="subtitle">{data.subtitle}</p>}
           </div>
         </div>
 
         <div className="row">
           <div className="rail" />
           <div className="body wide">
-            <div className="fields">
+            <div className="fields" style={{ "--n": data.fields.length } as React.CSSProperties}>
               {data.fields.map((f) => (
                 <div key={f.key}>
                   <span className="k">{f.key}</span>
-                  <span className="v">
-                    {f.key === "Live" ? (
-                      <a href="https://ukrainska15.com" target="_blank" rel="noopener noreferrer">
-                        <Spans spans={f.value} />
-                      </a>
-                    ) : (
-                      <Spans spans={f.value} />
-                    )}
-                  </span>
+                  <span className="v"><Spans spans={f.value} /></span>
                 </div>
               ))}
             </div>
@@ -213,9 +263,10 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         </div>
 
         {/* The lead, overprinted on the argument it summarises. */}
+        {data.lead && (
         <div className="row lead-wrap">
           <div className="rail">
-            <div className="note"><strong>The short version</strong> — read this, then stop if you like.</div>
+            <div className="note"><strong>The short version</strong> – read this, then stop if you like.</div>
             <div className="note note--quiet">Everything below is the same argument, at length and with evidence.</div>
           </div>
           <div className="body wide">
@@ -225,7 +276,9 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             </p>
           </div>
         </div>
+        )}
 
+        {data.outcome && (
         <div className="row">
           <div className="rail"><div className="label label--ink" style={{ paddingTop: 24 }}>Outcome</div></div>
           <div className="body outcome wide">
@@ -237,19 +290,31 @@ export default function CaseStudyPage({ data }: { data: Case }) {
                 </div>
               ))}
             </div>
-            <div className="award-card-slot">
-              <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
-            </div>
+            <CaseAwards data={data} />
           </div>
         </div>
+        )}
 
-        {data.sections.map((s, i) => <Block key={i} section={s} />)}
+        {data.sections.map((s, i) => <Block key={i} section={s} data={data} />)}
+
+        {data.closing && (
+          <div className="row closing">
+            <div className="rail" />
+            <div className="body wide">
+              <h2>{data.title}</h2>
+              <p className="closing__line">{data.closing.line}</p>
+              <a className="closing__cta" href={data.closing.cta.href} target="_blank" rel="noopener noreferrer">
+                {data.closing.cta.label}
+              </a>
+            </div>
+          </div>
+        )}
 
         <div className="row">
           <div className="rail" />
           <div className="body casenav" style={{ gridColumn: "2 / 4" }}>
             <Link href="/#case-files"><span>←</span> All case files</Link>
-            {data.next && <Link href={data.next.href}>{data.next.label} <span>→</span></Link>}
+            <Link href={`/work/${next.slug}`}>Next: {next.title} <span>→</span></Link>
           </div>
         </div>
       </div>

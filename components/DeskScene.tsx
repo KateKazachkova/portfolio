@@ -270,7 +270,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
         {/* the Profile one is slipped into the binder, over its board and
             under its first sheet, and runs 56 desk px (~100 screen px)
             wider to reach in under the sheet */}
-        {ready.has("profile") && <div className="desk-paper desk-paper--tucked" aria-hidden style={{ left: "calc(2719 * var(--u))", top: "calc(257 * var(--u))", "--r": "1.2deg", "--w": 191 } as React.CSSProperties} />}
+        {ready.has("profile") && <div className="desk-paper desk-paper--tucked" aria-hidden style={{ left: "calc(2719 * var(--u))", top: "calc(237 * var(--u))", "--r": "1.2deg", "--w": 191 } as React.CSSProperties} />}
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />

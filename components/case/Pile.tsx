@@ -204,7 +204,7 @@ export default function Pile({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.src} alt={item.alt} draggable={false} />
             <figcaption>
-              <b>{String(i + 1).padStart(2, "0")}</b>&nbsp; {item.kind} — <Spans spans={item.caption} />
+              <b>{String(i + 1).padStart(2, "0")}</b>&nbsp; {item.kind} – <Spans spans={item.caption} />
             </figcaption>
           </figure>
         ))}

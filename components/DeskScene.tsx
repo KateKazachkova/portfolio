@@ -93,7 +93,7 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
       className="desk-card desk-card--stack"
       data-slug={c.slug}
       data-x={c.x}
-      aria-label={`${c.title} — awards`}
+      aria-label={`${c.title} – awards`}
       style={{
         left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
         "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
@@ -230,7 +230,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       {ready.has("award") && (
       <a
         className="desk-cert" href="/artefacts/cert-indigo-women-in-design-2026.webp" target="_blank" rel="noopener noreferrer"
-        tabIndex={-1} aria-label="Indigo Design Award — Women in Design, shortlisted 2026 (certificate)"
+        tabIndex={-1} aria-label="Indigo Design Award – Women in Design, shortlisted 2026 (certificate)"
         style={{
           left: `calc(${CERT.x - CERT.w / 2} * var(--u))`, top: `calc(${656 - CERT.h} * var(--u))`,
           width: `calc(${CERT.w} * var(--u))`, height: `calc(${CERT.h} * var(--u))`,

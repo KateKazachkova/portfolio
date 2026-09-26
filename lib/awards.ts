@@ -177,8 +177,8 @@ export const PROJECT_ORDER = ["Ukrainska 15", "BulkSource", "WayPro", "OnsiSoft"
 
 export const AWARD_RECORDS: AwardRecord[] = [
   // ── Ukrainska 15 ──
-  { id: "muse-u15-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website — Strange & Unusual", externalUrls: ["https://museaward.com/winner-info.php?id=237485"], featured: true, certificate: "/artefacts/ukrainska-15/cert-muse-u15-strange-unusual-web.jpg" },
-  { id: "muse-u15-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website — Causes / Awareness", externalUrls: ["https://museaward.com/winner-info.php?id=237486"], featured: true, certificate: "/artefacts/ukrainska-15/cert-muse-u15-causes-awareness-web.jpg" },
+  { id: "muse-u15-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website – Strange & Unusual", externalUrls: ["https://museaward.com/winner-info.php?id=237485"], featured: true, certificate: "/artefacts/ukrainska-15/cert-muse-u15-strange-unusual-web.jpg" },
+  { id: "muse-u15-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "Ukrainska 15", year: 2026, recognition: "Gold", category: "Website – Causes / Awareness", externalUrls: ["https://museaward.com/winner-info.php?id=237486"], featured: true, certificate: "/artefacts/ukrainska-15/cert-muse-u15-causes-awareness-web.jpg" },
   { id: "cssda-u15", awardName: "CSS Design Awards", organisation: "CSS Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Best UI · Best UX · Best Innovation · Special Kudos", category: null, externalUrls: ["https://www.cssdesignawards.com/sites/ukrainska-15/49016"], featured: true },
   { id: "csswinner-u15", awardName: "CSS Winner", organisation: "CSS Winner", project: "Ukrainska 15", year: 2026, recognition: "Star", category: null, externalUrls: ["https://www.csswinner.com/details/ukrainska-15/19123"], featured: true },
   { id: "cssnectar-u15", awardName: "CSS Nectar", organisation: "CSS Nectar", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", category: null, externalUrls: ["https://cssnectar.com/css-gallery-inspiration/ukrainska-15/"], featured: false },
@@ -186,12 +186,12 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "french-u15", awardName: "French Design Awards", organisation: "French Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Silver", category: null, externalUrls: [], featured: false },
 
   // ── BulkSource ──
-  { id: "london-bulksource-1", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design — Business", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3927"], featured: false },
-  { id: "london-bulksource-2", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design — Services & Utilities", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3928"], featured: false },
-  { id: "london-bulksource-3", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design — Best UI / Experience", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3929"], featured: false },
-  { id: "nyx-bulksource-1", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website — Best User Experience", externalUrls: ["https://nyxawards.com/winner-info.php?id=7416"], featured: false },
-  { id: "nyx-bulksource-2", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website — Professional Services", externalUrls: ["https://nyxawards.com/winner-info.php?id=7419"], featured: false },
-  { id: "nyx-bulksource-3", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website — Web App", externalUrls: ["https://nyxawards.com/winner-info.php?id=7420"], featured: false },
+  { id: "london-bulksource-1", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design – Business", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3927"], featured: false },
+  { id: "london-bulksource-2", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design – Services & Utilities", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3928"], featured: false },
+  { id: "london-bulksource-3", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design – Best UI / Experience", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3929"], featured: false },
+  { id: "nyx-bulksource-1", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website – Best User Experience", externalUrls: ["https://nyxawards.com/winner-info.php?id=7416"], featured: false },
+  { id: "nyx-bulksource-2", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website – Professional Services", externalUrls: ["https://nyxawards.com/winner-info.php?id=7419"], featured: false },
+  { id: "nyx-bulksource-3", awardName: "NYX Awards", organisation: "NYX Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "Website – Web App", externalUrls: ["https://nyxawards.com/winner-info.php?id=7420"], featured: false },
   { id: "indigo-bulksource-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Silver", category: "Digital Tools & Utilities", externalUrls: ["https://www.indigoaward.com/winners/8738"], featured: false },
   { id: "indigo-bulksource-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Silver", category: "Interactive Design", externalUrls: ["https://www.indigoaward.com/winners/8738"], featured: false },
   { id: "indigo-bulksource-3", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "BulkSource", year: 2024, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrls: ["https://www.indigoaward.com/winners/8738"], featured: false },
@@ -206,12 +206,12 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "muse-waypro", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "WayPro", year: 2025, recognition: "Silver", category: null, externalUrls: ["https://museaward.com/winner-info.php?id=233848"], featured: false },
 
   // ── OnsiSoft ──
-  { id: "nyx-onsisoft-1", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Best User Experience", externalUrls: ["https://nyxawards.com/winner-info.php?id=7593"], featured: false },
-  { id: "nyx-onsisoft-2", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Redesign", externalUrls: ["https://nyxawards.com/winner-info.php?id=7596"], featured: false },
-  { id: "nyx-onsisoft-3", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Business to Business", externalUrls: ["https://nyxawards.com/winner-info.php?id=7606"], featured: false },
-  { id: "muse-onsisoft-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Best User Experience", externalUrls: ["https://museaward.com/winner-info.php?id=233846"], featured: false },
-  { id: "muse-onsisoft-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — SaaS", externalUrls: ["https://museaward.com/winner-info.php?id=232916"], featured: false },
-  { id: "muse-onsisoft-3", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website — Website Redesign", externalUrls: ["https://museaward.com/winner-info.php?id=232917"], featured: false },
+  { id: "nyx-onsisoft-1", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website – Best User Experience", externalUrls: ["https://nyxawards.com/winner-info.php?id=7593"], featured: false },
+  { id: "nyx-onsisoft-2", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website – Redesign", externalUrls: ["https://nyxawards.com/winner-info.php?id=7596"], featured: false },
+  { id: "nyx-onsisoft-3", awardName: "NYX Awards", organisation: "NYX Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website – Business to Business", externalUrls: ["https://nyxawards.com/winner-info.php?id=7606"], featured: false },
+  { id: "muse-onsisoft-1", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website – Best User Experience", externalUrls: ["https://museaward.com/winner-info.php?id=233846"], featured: false },
+  { id: "muse-onsisoft-2", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website – SaaS", externalUrls: ["https://museaward.com/winner-info.php?id=232916"], featured: false },
+  { id: "muse-onsisoft-3", awardName: "MUSE Creative Awards", organisation: "MUSE Creative Awards", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Website – Website Redesign", externalUrls: ["https://museaward.com/winner-info.php?id=232917"], featured: false },
   { id: "indigo-onsisoft-1", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Silver", category: "Digital Tools & Utilities", externalUrls: ["https://www.indigoaward.com/winners/9545"], featured: false },
   { id: "indigo-onsisoft-2", awardName: "Indigo Design Award", organisation: "Indigo Design Award", project: "OnsiSoft", year: 2025, recognition: "Bronze", category: "UX, Innovation & Novelty", externalUrls: ["https://www.indigoaward.com/winners/9545"], featured: false },
 
@@ -226,7 +226,10 @@ export const AWARD_RECORDS: AwardRecord[] = [
 // "Best UI · Best UX …") is split into its rows, dated with its year.
 // "Website — Strange & Unusual" → "Strange & Unusual": the card has no room
 // for the medium, and the jury's column already says what kind of prize it is.
-const short = (category: string) => category.split(/\s[—–]\s/).pop()!;
+const short = (category: string) => category.split(/\s[––]\s/).pop()!;
+
+/** The winner page of one award record, when there is one. */
+export const awardHref = (id: string) => AWARD_RECORDS.find((r) => r.id === id)?.externalUrls[0] ?? null;
 
 export function awardRows(project: string) {
   return AWARD_RECORDS.filter((r) => r.project === project).flatMap((r) => {
@@ -234,6 +237,7 @@ export function awardRows(project: string) {
     return parts.map((p) => ({
       date: r.year ? String(r.year) : "",
       jury: r.organisation,
+      href: r.externalUrls[0] ?? null,
       award: parts.length === 1 && r.category ? `${p} · ${short(r.category)}` : p,
     }));
   });

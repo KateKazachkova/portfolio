@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { awardHref } from "@/lib/awards";
 
 /**
  * Ukrainska 15's file on the desk: a red card pocket folder in the live
@@ -54,17 +55,18 @@ const STACKS = [
 
 // In front of the prints, a library book card — but what it has been out to
 // is juries. Dates are stamped only where the award's own page gives one.
+// Each row opens its jury's winner page (lib/awards.ts), where there is one.
 const LENDINGS = [
-  { jury: "MUSE Creative Awards", award: "Gold · Causes & Awareness" },
-  { jury: "MUSE Creative Awards", award: "Gold · Strange & Unusual" },
-  { jury: "CSS Design Awards", award: "Best UI Design" },
-  { jury: "CSS Design Awards", award: "Best UX Design" },
-  { jury: "CSS Design Awards", award: "Best Innovation" },
-  { jury: "CSS Design Awards", award: "Special Kudos" },
-  { jury: "CSS Winner", award: "Star" },
-  { jury: "CSS Nectar", award: "Site of the Day", date: "11 MAR 2026" },
-  { jury: "Design Nominees", award: "Site of the Day", date: "06 MAR 2026" },
-  { jury: "French Design Awards", award: "Silver" },
+  { id: "muse-u15-2", jury: "MUSE Creative Awards", award: "Gold · Causes & Awareness" },
+  { id: "muse-u15-1", jury: "MUSE Creative Awards", award: "Gold · Strange & Unusual" },
+  { id: "cssda-u15", jury: "CSS Design Awards", award: "Best UI Design" },
+  { id: "cssda-u15", jury: "CSS Design Awards", award: "Best UX Design" },
+  { id: "cssda-u15", jury: "CSS Design Awards", award: "Best Innovation" },
+  { id: "cssda-u15", jury: "CSS Design Awards", award: "Special Kudos" },
+  { id: "csswinner-u15", jury: "CSS Winner", award: "Star" },
+  { id: "cssnectar-u15", jury: "CSS Nectar", award: "Site of the Day", date: "11 MAR 2026" },
+  { id: "designnominees-u15", jury: "Design Nominees", award: "Site of the Day", date: "06 MAR 2026" },
+  { id: "french-u15", jury: "French Design Awards", award: "Silver" },
 ];
 
 type Pt = { x: number; y: number };
@@ -252,7 +254,14 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
             <span>Voice from the Basement · K. Kazachkova</span>
           </span>
           <span className="env__card-row env__card-row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
-          {LENDINGS.map((l) => (
+          {LENDINGS.map((l) => ({ ...l, href: awardHref(l.id) })).map((l) => l.href ? (
+            // a link, not a handle: pressing it opens the page instead of
+            // picking the card up (the card still drags from anywhere else)
+            <a key={l.award + l.jury} className="env__card-row env__card-row--link" href={l.href} target="_blank" rel="noopener noreferrer"
+              tabIndex={open ? 0 : -1} aria-label={`${l.jury} – ${l.award}: winner page`} onPointerDown={(e) => e.stopPropagation()}>
+              <span className="env__card-date">{l.date ?? ""}</span><span>{l.jury}</span><span>{l.award}</span>
+            </a>
+          ) : (
             <span key={l.award + l.jury} className="env__card-row">
               <span className="env__card-date">{l.date ?? ""}</span><span>{l.jury}</span><span>{l.award}</span>
             </span>

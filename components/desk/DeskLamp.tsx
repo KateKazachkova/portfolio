@@ -92,7 +92,7 @@ const pct = (x: number, y: number, w: number, h: number) => ({
 });
 export function DeskLampSwitch() {
   const { on, toggle } = useLamp();
-  const label = on ? "Desk lamp: on — switch it off" : "Desk lamp: off — switch it on";
+  const label = on ? "Desk lamp: on – switch it off" : "Desk lamp: off – switch it on";
   const title = on ? "Switch the lamp off" : "Switch the lamp on";
   const armL = Math.max(DOOR_R, ARM_TL.x);
 

@@ -21,4 +21,11 @@ export function getCase(slug: string): CaseStudy | null {
   return CASES[slug] ?? null;
 }
 
+/** The cases either side of this one, in the order above, wrapping round:
+ *  after the last comes the first again. */
+export function neighbours(slug: string) {
+  const all = Object.values(CASES), i = all.findIndex((c) => c.slug === slug);
+  return { prev: all[(i - 1 + all.length) % all.length], next: all[(i + 1) % all.length] };
+}
+
 export default CASES;

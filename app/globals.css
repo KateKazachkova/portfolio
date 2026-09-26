@@ -1208,6 +1208,11 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env__card-row > span { padding-left: calc(1 * var(--eu)); white-space: nowrap; overflow: hidden; }
 .env__card-row > span + span { border-left: calc(.25 * var(--eu)) solid #d59a95; }
 .env__card-row--th { font-size: calc(2.5 * var(--eu)); letter-spacing: .12em; text-transform: uppercase; color: #6d6252; }
+/* A row with a winner page opens it (U15File LENDINGS). */
+.env__card-row--link { color: inherit; text-decoration: none; cursor: pointer; }
+.env__card-row--link:hover { background: rgba(179, 49, 42, .08); }
+.env__card-row--link:hover > span:last-child { text-decoration: underline; text-underline-offset: calc(.6 * var(--eu)); }
+.env__card-row--link:focus-visible { outline: calc(.5 * var(--eu)) solid #b3312a; outline-offset: 0; }
 .env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2.7 * var(--eu)); transform: rotate(-3deg); }
 /* Dark red ink printed into the card, as on the reference folder. */
 .env__print { position: absolute; inset: 0; color: #6e0d06; mix-blend-mode: multiply; }

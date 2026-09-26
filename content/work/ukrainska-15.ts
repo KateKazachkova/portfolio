@@ -12,16 +12,28 @@ const ukrainska15: CaseStudy = {
   slug: "ukrainska-15",
   fileNo: "File 001 · Self-initiated",
   title: "Ukrainska 15",
-  years: "2024 — 2026",
+  years: "2024 – 2026",
 
-  subtitle: "An interactive story about a family home, occupation, loss and the things we keep.",
+  subtitle:
+    "An interactive digital story built from my family’s real messages, voice notes, photographs and videos during the Russian occupation of Kupiansk.",
+  summary: [
+    ["An interactive digital story built from my family’s real messages, voice notes, photographs and videos ", { mark: "during the Russian occupation of Kupiansk." }],
+    ["Ukrainska 15 turns this personal archive into a chronological experience about one house, several generations of one family, and what happens to memory when the physical place that held it is lost."],
+  ],
 
   fields: [
     { key: "Project", value: ["Independent / Personal"] },
     { key: "Role", value: ["UX/UI Designer · Interaction Designer · Developer"] },
     { key: "Focus", value: ["Digital Storytelling · Content Design · Narrative Experience"] },
-    { key: "Duration", value: ["Feb 2024 — Mar 2026\nActive design & development: Dec 2025 — Mar 2026"] },
+    { key: "Duration", value: ["Feb 2024 – Mar 2026\nActive design & development: Dec 2025 – Mar 2026"] },
   ],
+
+  tablet: {
+    video: "/artefacts/ukrainska-15/tablet/site-scroll.mp4",
+    poster: "/artefacts/ukrainska-15/tablet/site-poster.jpg",
+    href: "https://ukrainska15.com",
+    label: "Open the live site, ukrainska15.com",
+  },
 
   sections: [
     {
@@ -29,6 +41,12 @@ const ukrainska15: CaseStudy = {
       n: "01",
       heading: "The short version",
       rule: true,
+      photos: [
+        { src: "/artefacts/ukrainska-15/booklet/basement.webp", alt: "The cellar, carpets hung on its walls, a bed made up under them", tilt: 4,
+          hand: "our basement – we set it up during the war" },
+        { src: "/artefacts/ukrainska-15/booklet/child-and-cat.webp", alt: "My daughter in the basement, holding the family's cat", tilt: -3,
+          hand: "my daughter with the cat" },
+      ],
       body: [
         ["Ukrainska 15 is the address of my family home in Kupiansk, Kharkiv region."],
         ["My great-grandparents built it. My grandparents lived there, and then my mother did. For generations, the same rooms, garden and address held a large part of our family’s history."],
@@ -37,10 +55,10 @@ const ukrainska15: CaseStudy = {
         ["During that time, I kept everything without really deciding to: ", { mark: "Telegram messages, voice notes, video circles and photographs" }, ". Sending them was how we knew everyone was still alive."],
         ["Two years later, I realised that this accidental archive was the most complete record I had of what happened to my family and the house."],
         ["By then, the project had become personal in another way."],
-        ["Losing the house meant losing a physical connection shared by several generations of my family. War doesn’t begin with one generation, and neither does the weight families carry from it. I became interested in transgenerational trauma — how fear, loss and displacement can continue through a family long after the original event."],
+        ["Losing the house meant losing a physical connection shared by several generations of my family. War doesn’t begin with one generation, and neither does the weight families carry from it. I became interested in transgenerational trauma – how fear, loss and displacement can continue through a family long after the original event."],
         ["I couldn’t change what had happened to the house. And I couldn’t keep holding on to it as if one day everything would simply return to what it had been."],
         ["Making Ukrainska 15 became my way of processing that loss."],
-        ["I could preserve the messages, voices, photographs and memories without trying to preserve the house itself. I could give the story a place to exist — and, in doing so, begin to let the physical place go."],
+        ["I could preserve the messages, voices, photographs and memories without trying to preserve the house itself. I could give the story a place to exist – and, in doing so, begin to let the physical place go."],
         ["That changed what I wanted the project to be."],
         ["I didn’t want to build a memorial page."],
         [{ mark: "I wanted someone who had never met us to enter the story, understand what happened, and stay with it until the end." }],
@@ -55,14 +73,14 @@ const ukrainska15: CaseStudy = {
       body: [
         ["Once I decided to make the project, the problem changed."],
         ["I wasn’t designing only for myself anymore."],
-        ["I had two years of Telegram messages, voice notes, photographs and videos — hundreds of fragments that made sense to my family because we had lived through them."],
+        ["I had two years of Telegram messages, voice notes, photographs and videos – hundreds of fragments that made sense to my family because we had lived through them."],
         ["For everyone else, they were just fragments."],
         ["The challenge was to turn that private archive into a story a stranger could understand without flattening it into a news article, a historical timeline or a memorial page."],
-        ["I needed to give people enough context to follow what happened, while keeping the original material — the messages, voices and photographs — at the centre."],
+        ["I needed to give people enough context to follow what happened, while keeping the original material – the messages, voices and photographs – at the centre."],
         ["And there was another constraint: the story was already emotionally heavy."],
         ["The interface couldn’t make it heavier."],
         ["That became the design problem:"],
-        [{ pen: "How do I turn hundreds of deeply personal fragments into a coherent experience — without losing what made them personal in the first place?" }],
+        [{ pen: "How do I turn hundreds of deeply personal fragments into a coherent experience – without losing what made them personal in the first place?" }],
       ],
     },
 
@@ -89,21 +107,21 @@ const ukrainska15: CaseStudy = {
     {
       kind: "pile",
       title: "The pile",
-      count: "4 items — none of them made for this",
-      help: "Push them around — or focus one and use the arrow keys",
+      count: "4 items – none of them made for this",
+      help: "Push them around – or focus one and use the arrow keys",
       items: [
         { src: "/artefacts/ukrainska-15/photo-01.jpg", kind: "Photograph",
           alt: "The back door of the house, its green paint blistered, the brick frame rusted and the roof sheeting torn.",
           caption: ["The back door of the house, photographed on the first visit after the family got back in."] },
         { src: "/artefacts/ukrainska-15/photo-02.jpg", kind: "Photograph",
-          alt: "A window with its glass blown in — shards across the sill and the cast-iron radiator below, the lace curtain torn, bare trees through the frame.",
-          caption: ["A window blown in — the glass across the sill and the radiator beneath it."] },
+          alt: "A window with its glass blown in – shards across the sill and the cast-iron radiator below, the lace curtain torn, bare trees through the frame.",
+          caption: ["A window blown in – the glass across the sill and the radiator beneath it."] },
         { src: "/artefacts/ukrainska-15/photo-03.jpg", kind: "Photograph",
           alt: "A furnished room in disarray beneath a crystal chandelier, belongings across the floor, the window behind blocked by a collapsed wall.",
-          caption: ["The main room, everything shifted — the chandelier still up, the window behind it filled by the wall that came down."] },
+          caption: ["The main room, everything shifted – the chandelier still up, the window behind it filled by the wall that came down."] },
         { src: "/artefacts/ukrainska-15/photo-04.jpg", kind: "Photograph",
           alt: "A windowsill of broken glass and toppled plant pots, looking onto a collapsed brick building outside where a small fire still burns.",
-          caption: ["The view from the sill — broken glass, a knocked-over plant, and the building opposite still burning."] },
+          caption: ["The view from the sill – broken glass, a knocked-over plant, and the building opposite still burning."] },
       ],
     },
 
@@ -116,7 +134,7 @@ const ukrainska15: CaseStudy = {
         ["My first instinct was to organise the story into chapters: occupation, survival, liberation, destruction."],
         ["It made sense on paper."],
         ["But it didn’t feel like what we had lived through."],
-        ["Those categories were something I could create afterwards, knowing how the story ended. At the time, we didn’t know what the next day — or even the next hour — would bring."],
+        ["Those categories were something I could create afterwards, knowing how the story ended. At the time, we didn’t know what the next day – or even the next hour – would bring."],
         ["Then I went back to the messages."],
         [{ code: "05:00." }, "\n", { code: "05:45." }, "\n", { code: "06:05." }],
         ["Every fragment already had a place in the story."],
@@ -198,7 +216,7 @@ const ukrainska15: CaseStudy = {
             [{ pen: "Does the visitor need this to understand what happens next?" }],
             ["If the answer was no, I considered removing it."],
             ["The version that shows everything is the version nobody finishes."],
-            ["And a story nobody finishes hasn’t really been preserved — it has only been uploaded."],
+            ["And a story nobody finishes hasn’t really been preserved – it has only been uploaded."],
           ],
         },
       ],
@@ -246,7 +264,7 @@ const ukrainska15: CaseStudy = {
         ["But reproducing Telegram literally would have turned the project into an imitation of an app."],
         ["I wasn’t interested in recreating its interface."],
         ["I wanted to preserve the feeling of receiving those messages."],
-        ["So I kept what mattered — sequence, sender, timestamps, voice, pauses — and removed most of the surrounding UI."],
+        ["So I kept what mattered – sequence, sender, timestamps, voice, pauses – and removed most of the surrounding UI."],
         ["The same approach shaped photographs, audio and maps."],
         ["I wasn’t trying to reproduce the tools that captured the archive."],
         [{ mark: "I was trying to preserve what it felt like to receive it." }],
@@ -334,7 +352,7 @@ const ukrainska15: CaseStudy = {
       rule: true,
       awards: true,
       body: [
-        ["I made Ukrainska 15 independently — without a client, a product team or an existing brief."],
+        ["I made Ukrainska 15 independently – without a client, a product team or an existing brief."],
         ["The project went on to receive international recognition across UX, UI, innovation and digital storytelling, including ", { mark: "two MUSE Gold awards and four CSS Design Awards" }, "."],
         ["It was also featured in international media and design publications."],
         ["For me, the recognition mattered for two reasons."],
@@ -391,8 +409,6 @@ const ukrainska15: CaseStudy = {
     line: "A house can disappear. Its address doesn’t have to.",
     cta: { label: "View the experience →", href: "https://ukrainska15.com" },
   },
-
-  next: { label: "Next: Case 002 — WayPro", href: "/work/waypro" },
 };
 
 export default ukrainska15;

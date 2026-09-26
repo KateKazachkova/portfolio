@@ -25,7 +25,7 @@ const STAMP: Record<string, { key: string; ratio: number; ink: string }> = {
 
 const MEDAL: Record<string, number> = { Gold: 0, Silver: 1, Bronze: 2 };
 const rank = (recognition: string) => MEDAL[recognition.split(" ")[0]] ?? 3;
-const short = (category: string) => category.split(/\s[—–]\s/).pop()!;
+const short = (category: string) => category.split(/\s[––]\s/).pop()!;
 
 function juriesOf(project: string) {
   const byJury = new Map<string, typeof AWARD_RECORDS>();
@@ -59,13 +59,13 @@ export default function AwardStack({ project, title, sub, links = [], picture }:
         const year = records.find((r) => r.year)?.year;
         return (
           <a key={jury} className="postcard" href={records[0].externalUrls[0]} target="_blank" rel="noopener noreferrer" tabIndex={-1}
-            aria-label={`${jury}: ${records.map((r) => r.recognition).join(", ")} — winner page`}
+            aria-label={`${jury}: ${records.map((r) => r.recognition).join(", ")} – winner page`}
             style={{ "--ux": ux, "--uy": uy, "--ur": `${ur}deg`, "--fy": -50 + i * 30, "--fr": `${i % 2 ? 1.5 : -1.5}deg`, zIndex: i + 1 } as React.CSSProperties}>
             <span className="postcard__msg">
               <span className="postcard__from">Greetings from</span>
               <span className="postcard__jury">{jury}</span>
               {records.map((r) => (
-                <span key={r.id} className="postcard__line">{r.recognition}{r.category ? ` — ${short(r.category)}` : ""}</span>
+                <span key={r.id} className="postcard__line">{r.recognition}{r.category ? ` – ${short(r.category)}` : ""}</span>
               ))}
             </span>
             <span className="postcard__addr">
@@ -104,7 +104,7 @@ export default function AwardStack({ project, title, sub, links = [], picture }:
           const cells = <><span className="jury-card__date">{l.date}</span><span>{l.jury}</span><span>{l.award}</span></>;
           return urls[i]
             ? <a key={i} className="jury-card__row" href={urls[i]} target="_blank" rel="noopener noreferrer" tabIndex={-1}
-                aria-label={`${l.jury}, ${l.award} — winner page`}>{cells}</a>
+                aria-label={`${l.jury}, ${l.award} – winner page`}>{cells}</a>
             : <span key={i} className="jury-card__row">{cells}</span>;
         })}
       </div>

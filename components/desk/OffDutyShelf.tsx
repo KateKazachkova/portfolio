@@ -111,7 +111,7 @@ function Sleeve({ items, out, under = 0, dir = 1, onPick, live = false }: {
       {Array.from({ length: PER }, (_, i) => items[i]).map((s, i) => (
         <div className="od-sleeve__cell" key={s?.title ?? i}>
           {s && s.title !== out && (
-            <button type="button" className="cd od-disc" tabIndex={live ? 0 : -1} aria-label={`${s.title} — put it in the player`}
+            <button type="button" className="cd od-disc" tabIndex={live ? 0 : -1} aria-label={`${s.title} – put it in the player`}
               onPointerMove={track} onPointerLeave={untrack}
               onClick={(e) => { if (!here()) return; e.stopPropagation(); onPick(s, e.currentTarget.getBoundingClientRect()); }}>
               <DiscBody poster={s.disc ?? s.poster} title={s.title} />
@@ -327,7 +327,7 @@ export default function OffDutyShelf() {
             {picked?.poster && <span className="od-dvd__picture" key={picked.title} style={{ backgroundImage: `url(${picked.poster})` }} />}
             {clip && (
               <iframe
-                ref={tube} key={clip} className="od-dvd__tube" data-sound={sound || undefined} title={`${picked?.title} — clip`}
+                ref={tube} key={clip} className="od-dvd__tube" data-sound={sound || undefined} title={`${picked?.title} – clip`}
                 src={`https://www.youtube-nocookie.com/embed/${clip}?autoplay=1&mute=1&controls=0&playsinline=1&rel=0&iv_load_policy=3&loop=1&playlist=${clip}&enablejsapi=1`}
                 allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin"
               />

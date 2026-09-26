@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { CaseStudy as Case, HandNote, MarginNote, Para, Section } from "@/content/work/types";
 import Spans from "./Spans";
 import Pile from "./Pile";
+import CaseTablet from "./CaseTablet";
 import AwardCard from "@/components/AwardCard";
+import { neighbours } from "@/content/work";
 
 /**
  * A case study rendered as an annotated document: a margin rail of notes, a
@@ -82,7 +84,26 @@ function Block({ section, data }: { section: Section; data: Case }) {
             <Body section={section} />
             {section.awards && <CaseAwards data={data} />}
           </div>
-          <div className="side"><Hand hand={section.hand} /></div>
+          <div className="side">
+            <Hand hand={section.hand} />
+            {section.photos?.map((ph) => (
+              <figure key={ph.src} className="side-shot">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="side-print" src={ph.src} alt={ph.alt} loading="lazy"
+                  style={{ "--tilt": `${ph.tilt}deg` } as React.CSSProperties} />
+                {ph.hand && (
+                  <figcaption className="side-hand">
+                    {/* a pen stroke from the words up to the print */}
+                    <svg className="side-hand__arrow" viewBox="0 0 56 44" aria-hidden>
+                      <path d="M6 40 C 14 30, 30 24, 44 8" />
+                      <path d="M36 9 L 45 6 L 44 16" />
+                    </svg>
+                    {ph.hand}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
         </section>
       );
 
@@ -178,18 +199,32 @@ function Block({ section, data }: { section: Section; data: Case }) {
 }
 
 export default function CaseStudyPage({ data }: { data: Case }) {
+  const { prev, next } = neighbours(data.slug);
   return (
     <main className="case">
       <div className="sheet">
-        <div className="mast row">
-          <div className="rail">
-            <Link className="backlink" href="/#case-files"><span>←</span> Case Files</Link>
-          </div>
-          <div className="body" />
-          <div className="side" style={{ textAlign: "right" }}>
-            <span className="label">{data.fileNo}</span>
-          </div>
+        {/* Where the page is, and the way to the cases either side of it —
+            round the ring: after the last case comes the first. */}
+        <div className="mast">
+          <nav className="crumbs" aria-label="Breadcrumb">
+            <Link href="/#case-files">Case Studies</Link>
+            <span aria-hidden>/</span>
+            <span aria-current="page">{data.title}</span>
+          </nav>
+          <nav className="flip" aria-label="Case studies">
+            <Link className="flip__prev" href={`/work/${prev.slug}`} aria-label={`Previous case: ${prev.title}`}>←</Link>
+            <Link className="flip__next" href={`/work/${next.slug}`}>
+              <span className="flip__k">Next project</span> {next.title} <span aria-hidden>→</span>
+            </Link>
+          </nav>
         </div>
+
+        {data.tablet && (
+          <div className="row tablet-row">
+            <div className="rail" />
+            <div className="body wide"><CaseTablet {...data.tablet} /></div>
+          </div>
+        )}
 
         <div className="row title-block">
           <div className="rail">
@@ -198,9 +233,18 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             <div className="label" style={{ marginTop: 4 }}>{data.years}</div>
           </div>
           <div className="body wide">
-            <h1>{data.title}</h1>
+            <div className="title-line">
+              <h1>{data.title}</h1>
+              {data.tablet && (
+                <a className="case-live" href={data.tablet.href} target="_blank" rel="noopener noreferrer" aria-label={data.tablet.label}>
+                  View the live project <span aria-hidden>↗</span>
+                </a>
+              )}
+            </div>
             {data.result && <p className="result"><Spans spans={data.result} /></p>}
-            <p className="subtitle">{data.subtitle}</p>
+            {data.summary
+              ? data.summary.map((p, i) => <p key={i} className="subtitle"><Spans spans={p} /></p>)
+              : <p className="subtitle">{data.subtitle}</p>}
           </div>
         </div>
 
@@ -222,7 +266,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         {data.lead && (
         <div className="row lead-wrap">
           <div className="rail">
-            <div className="note"><strong>The short version</strong> — read this, then stop if you like.</div>
+            <div className="note"><strong>The short version</strong> – read this, then stop if you like.</div>
             <div className="note note--quiet">Everything below is the same argument, at length and with evidence.</div>
           </div>
           <div className="body wide">
@@ -270,7 +314,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
           <div className="rail" />
           <div className="body casenav" style={{ gridColumn: "2 / 4" }}>
             <Link href="/#case-files"><span>←</span> All case files</Link>
-            {data.next && <Link href={data.next.href}>{data.next.label} <span>→</span></Link>}
+            <Link href={`/work/${next.slug}`}>Next: {next.title} <span>→</span></Link>
           </div>
         </div>
       </div>

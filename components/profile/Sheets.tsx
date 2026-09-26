@@ -30,7 +30,7 @@ export function CvSheet() {
       <div className="pf-cv__title">Curriculum<br />Vitae</div>
       <div className="pf-cv__row">
         <p className="pf-mono" style={{ fontSize: "calc(9 * var(--px))", margin: 0 }}>
-          Kate Kazachkova — product designer.<br />Ten years in UX and product design,<br />
+          Kate Kazachkova – product designer.<br />Ten years in UX and product design,<br />
           four B2B SaaS products, one design<br />department built from one to five.
         </p>
         <div className="pf-cv__vol pf-mono">Vol.<b>01</b></div>
@@ -50,7 +50,7 @@ export function CvSheet() {
 export function PhotoSheet() {
   return (
     <div className="pf-photo">
-      <div className="pf-x pf-mono">Photograph — to be supplied</div>
+      <div className="pf-x pf-mono">Photograph – to be supplied</div>
       <div className="pf-tag pf-mono">
         <svg className="pf-tag__clip" viewBox="0 0 12 34" aria-hidden>
           <path d="M4 30V7a3 3 0 0 1 6 0v21a5 5 0 0 1-10 0V9" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
@@ -267,7 +267,7 @@ export function BudEvidenceSheet() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/profile/bud/notes.webp" alt="A participant's notes from the portfolio session, the stream on the laptop behind" />
         <blockquote>
-          “A really informative and constructive lecture. I now understand my own strengths better — and the line I underlined
+          “A really informative and constructive lecture. I now understand my own strengths better – and the line I underlined
           in my notes: not to make it ‘pretty’, but so it gets easier for the user, and the business feels it.”
           <cite className="pf-mono">
             <a href="https://www.linkedin.com/posts/nadia-gerasimova-856111225_kateryna-kazachkova-%D1%86%D0%B5-%D0%B1%D1%83%D0%BB%D0%B0-%D0%B4%D1%83%D0%B6%D0%B5-%D1%96%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%B0-activity-7345854543412322306-tfnL" target="_blank" rel="noopener noreferrer">Nadia Gerasimova, UX/UI designer · LinkedIn ↗</a>
@@ -275,7 +275,7 @@ export function BudEvidenceSheet() {
         </blockquote>
       </figure>
       <div className="pf-card">
-        <p>“Thank you for the webinar on product design — so structured and thorough. I’ve decided this is the direction I want to go: it’s more me, in how I think and how deep I want to go into what I work on.”</p>
+        <p>“Thank you for the webinar on product design – so structured and thorough. I’ve decided this is the direction I want to go: it’s more me, in how I think and how deep I want to go into what I work on.”</p>
         <span className="pf-mono">A participant, in the programme’s Slack</span>
       </div>
       <div className="pf-foot pf-mono"><span>Translated from Ukrainian</span><span>08</span></div>
@@ -355,7 +355,7 @@ export function ClusterTalksSheet() {
         <figure style={{ "--t": "-2deg" } as React.CSSProperties}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/profile/itc/teachers2it-results.webp" alt="Kharkiv IT Cluster's summary of the educators' course: 7 sessions, 170+ participants, 50+ finalists" />
-          <figcaption className="pf-mono">Teachers2IT, 2024 — the cluster’s summary</figcaption>
+          <figcaption className="pf-mono">Teachers2IT, 2024 – the cluster’s summary</figcaption>
         </figure>
         <figure style={{ "--t": "1.5deg" } as React.CSSProperties}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -385,7 +385,7 @@ export function IxdfSheet() {
       <Head sheet="11" title="Community" />
       <Part n="06" title="IxDF Kharkiv" />
       <p className="pf-lead" style={{ margin: "0 0 calc(8 * var(--px))" }}>
-        Local Leader of the Interaction Design Foundation’s Kharkiv chapter — one of six in Ukraine.
+        Local Leader of the Interaction Design Foundation’s Kharkiv chapter – one of six in Ukraine.
       </p>
       <p style={{ margin: "0 0 calc(12 * var(--px))", opacity: 0.8, fontSize: "calc(12 * var(--px))" }}>
         Free meetups for designers in and from Kharkiv: skills, careers, AI, portfolios. I pick the topics, invite the guests and host.
@@ -397,7 +397,7 @@ export function IxdfSheet() {
         ))}
       </div>
       <div className="pf-card" style={{ margin: "calc(14 * var(--px)) auto 0 0", width: "52%", transform: "rotate(.8deg)" }}>
-        <p>“Big thanks to Kateryna Kazachkova for showing the Figma MCP + Claude magic — super inspiring to see where things are going.”</p>
+        <p>“Big thanks to Kateryna Kazachkova for showing the Figma MCP + Claude magic – super inspiring to see where things are going.”</p>
         <span className="pf-mono">Dmytro Yatsenko, IxDF Ukraine · LinkedIn</span>
       </div>
       <div className="pf-foot pf-mono">
@@ -423,7 +423,7 @@ export function IxdfEvidenceSheet() {
       <div className="pf-ixdf">
         <figure className="pf-poster">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/profile/ixdf/portfolio-review-poster.webp" alt="IxDF Kharkiv poster: Portfolio Review — Share, Learn, Improve, 21 July 2026" />
+          <img src="/profile/ixdf/portfolio-review-poster.webp" alt="IxDF Kharkiv poster: Portfolio Review – Share, Learn, Improve, 21 July 2026" />
         </figure>
         <div>
           <figure className="pf-snap" style={{ "--t": "2deg" } as React.CSSProperties}>

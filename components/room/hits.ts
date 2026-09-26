@@ -274,13 +274,21 @@ export function startHits(o: {
     for (const h of o.hits) {
       const el = els.get(h.id)!;
       const on = placed.has(h.id) && inFocus(h) && (SHOWN[h.type]?.(s, h) ?? true);
-      el.hidden = !on;
+      // the DVD's screen, with a disc in, is only put out of sight away from
+      // the corner (room.css [data-away]): its picture's animations run on,
+      // for WebGL to draw where they are (wallet.ts), and do not start over
+      // when the camera is back
+      if (h.type === "dvd") { el.hidden = !(SHOWN.dvd!(s, h)); el.toggleAttribute("data-away", !on); }
+      else el.hidden = !on;
       const lab = labels.get(h.id);
       if (lab) lab.hidden = !on;
       if (!surfaces.has(h.id) && h.tab !== false) el.tabIndex = on ? 0 : -1;
       BIND[h.type]?.(el, s, h);
     }
-    const corner = document.documentElement.dataset.desk === "offduty";
+    // at the corner and still: the clip starts once the screen is the page's
+    // (in flight WebGL draws the poster; a clip already playing when the
+    // panel comes back would jump in over it)
+    const corner = document.documentElement.dataset.desk === "offduty" && [...placed].some((id) => id === "dvd" || id.startsWith("disc"));
     for (const sf of surfaces.values()) sf.corner(corner);
     // WebGL's own goes a moment after the panel is there (its first paint may
     // take a frame or two: what shows through meanwhile is WebGL's), and comes

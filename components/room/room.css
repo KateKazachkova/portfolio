@@ -48,6 +48,8 @@ html.room-pointer, html.room-pointer * { cursor: pointer; }
    is 280.5 across), not the stage's */
 .room-hit--dvd { display: flex; transform-origin: 0 0; cursor: default; padding: calc(8.415 * var(--u)) calc(11.22 * var(--u)); background: #0b0f16; }
 .room-hit--dvd[data-clip] { cursor: pointer; }
+.room-hit--dvd[data-away] { visibility: hidden; pointer-events: none; }
+.room-hit--dvd[data-away] * { visibility: hidden !important; }
 /* the Profile binder's panel (RoomBinder.tsx), mapped onto the binder */
 .room-hit--pf { transform-origin: 0 0; cursor: default; }
 .room-hit--dvd[data-on] .od-dvd__osd { color: rgba(235, 245, 255, .92); text-shadow: 0 0 calc(2 * var(--u)) rgba(0,0,0,.6); }

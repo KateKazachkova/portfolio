@@ -31,6 +31,7 @@ export function InkButton({
         fontSize: 12,
         letterSpacing: "0.1em",
         padding: "10px 18px",
+        borderRadius: 4,
         background: "var(--border)",
         color: "var(--bg)",
       }}

@@ -896,7 +896,13 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // the flat groups' pictures to the GPU before the first move
   // (and every baked look of theirs, not only what shows now: the TARDIS's
   // glow is out at idle and lit when she sends it off, maybe as the camera goes)
-  const warm = () => { for (const f of data.flat) imageTexture(useK2 && f.k2 ? f.k2 : f.src); if (!groupsShown) { buildGroups(); for (const ms of groupMeshes.values()) for (const m of ms) { const t = (m.material as THREE.ShaderMaterial).uniforms.map.value; if (t) renderer.initTexture(t); } } };
+  // (the night's shader too: compiled the first time it drew, it cost the
+  // first flight away from home at night a frame of 25–34 ms)
+  const warm = () => {
+    const nv = night.mesh.visible; night.mesh.visible = true; night.u.homeOp.value = night.u.camOp.value = 0.5;
+    const prev = renderer.getRenderTarget(); renderer.setRenderTarget(warmRT); renderer.render(scene, camera); renderer.setRenderTarget(prev);
+    night.mesh.visible = nv;
+    for (const f of data.flat) imageTexture(useK2 && f.k2 ? f.k2 : f.src); if (!groupsShown) { buildGroups(); for (const ms of groupMeshes.values()) for (const m of ms) { const t = (m.material as THREE.ShaderMaterial).uniforms.map.value; if (t) renderer.initTexture(t); } } };
   const idle = (cb: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 500));
   idle(warm);
   kick();

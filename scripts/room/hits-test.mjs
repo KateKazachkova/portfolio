@@ -7,7 +7,7 @@
 // accessibility tree). Screenshots for the report.
 //
 //   node scripts/room/hits-test.mjs http://localhost:3301 [only]
-// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, flight)
+// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, flight)
 import fs from "node:fs";
 import path from "node:path";
 import { launch, sleep, log } from "./cdp.mjs";
@@ -269,7 +269,9 @@ if (run("bike")) {
   // a click on Strava opens it in a new tab
   const before = newTabs.length;
   const sv = await rect("bike-strava");
-  await click(sv.x + sv.w / 2, sv.y + sv.h / 2); await sleep(1500);
+  await click(sv.x + sv.w / 2, sv.y + sv.h / 2);
+  // (another site: its tab may take a while to say where it is)
+  for (let i = 0; i < 50 && !newTabs.slice(before).some((u) => u.includes("strava.com")); i++) await sleep(100);
   ok(newTabs.length > before && newTabs.slice(before).some((u) => u.includes("strava.com")), "bike: Strava opens in a new tab", newTabs.slice(-1)[0] ?? "");
   await b.send("Page.bringToFront"); await sleep(400);
   await key("Escape"); await until(shown("bike"));
@@ -342,6 +344,90 @@ if (run("wallet")) {
   const back = await b.ev("document.querySelector('[data-hit=dvd]').textContent");
   ok(back.includes("Widow's Bay") && (await b.ev("!!document.querySelector('[data-hit=dvd] iframe')")), "wallet: back at the corner, the disc is still in and its clip plays", back.slice(0, 40));
   await key("Escape"); await arrive("closed");
+}
+// ── Case Files: the folder, its song, the stacks laid out one at a time ──
+if (run("files")) {
+  await goto(1, "files");
+  const vis = () => b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden).map(e=>e.dataset.hit))`).then(JSON.parse);
+  const attr = (id, a) => b.ev(`document.querySelector('.room-hit[data-hit="${id}"]').getAttribute('${a}')`);
+  const pan = () => b.ev("+getComputedStyle(document.querySelector('.scene-cam')).getPropertyValue('--pan')");
+  // a point of the control's own, where nothing lies over it (the centre first)
+  const clickHit = async (id) => {
+    const p = JSON.parse(await b.ev(`(()=>{const e=document.querySelector('.room-hit[data-hit="${id}"]');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();
+      const at=(fx,fy)=>{const x=r.x+r.width*fx,y=r.y+r.height*fy;return x>0&&y>0&&x<innerWidth&&y<innerHeight&&document.elementFromPoint(x,y)===e?[x,y]:null};
+      let q=at(.5,.5);for(let fy=.1;!q&&fy<.95;fy+=.08)for(let fx=.1;!q&&fx<.95;fx+=.08)q=at(fx,fy);return JSON.stringify(q)})()`));
+    if (!p) { log("  (nowhere to click", id, ")"); return; }
+    await click(p[0], p[1]);
+  };
+  // off in the window's edge, or moved aside: focus brings the desk round to it first
+  const use = async (id) => { await b.ev(`document.querySelector('.room-hit[data-hit="${id}"]').focus()`); await sleep(900); await clickHit(id); };
+  let v = await vis();
+  ok(["u15", "player", "case-bulksource", "case-onsisoft", "case-waypro"].every((x) => v.includes(x)) && !v.some((x) => /^(row|postcard|jury-tag|u15-tag)/.test(x)), "files: the folder, the player and the three stacks; nothing laid out yet", v.filter((x) => x !== "trophy").join(" "));
+  ok((await attr("u15", "aria-label")) === "Open Ukrainska 15" && (await attr("u15", "aria-expanded")) === "false", "files: the folder says it opens");
+  const walk = (await tabWalk(30)).filter((x) => HITS.some((h) => h.id === x && h.at.includes("files")));
+  // (the trophy, also a way to Recognition from here, comes first)
+  const once = walk.filter((x, i) => walk.indexOf(x) === i && x !== "trophy");
+  ok(once.slice(0, 5).join() === "u15,player,case-bulksource,case-onsisoft,case-waypro", "files: Tab goes left to right along the desk", once.join(" "));
+  // focus on the far stack pans the desk to it
+  await b.ev("document.querySelector('.room-hit[data-hit=\"case-waypro\"]').focus()"); await sleep(900);
+  const p1 = await pan();
+  ok(p1 > 300, "files: focus on WayPro's stack pans the desk to it", `pan ${p1.toFixed(0)}`);
+  // Enter lays it out: its rows, postcards and tags
+  await key("Enter"); await until(shown("row-waypro-0"), 3000); await sleep(300);
+  let s = await st();
+  v = await vis();
+  ok(s.focus === "waypro" && !v.includes("case-waypro") && v.filter((x) => x.startsWith("row-waypro")).length === 6 && v.filter((x) => x.startsWith("postcard-waypro")).length === 5 && v.includes("jury-tag-waypro-1"), "files: Enter on it lays it out, its rows, postcards and tags there", `${s.focus} ${v.length}`);
+  await b.shot(path.join(OUT, "files-waypro.png"));
+  const tw = (await tabWalk(40)).filter((x) => x.includes("waypro"));
+  ok(tw.includes("row-waypro-0") && tw.includes("postcard-waypro-4") && tw.includes("jury-tag-waypro-1"), "files: Tab reaches the laid-out case's links", [...new Set(tw)].length + "");
+  const before = newTabs.length;
+  await clickHit("row-waypro-3"); await sleep(1500);
+  ok(newTabs.slice(before).some((u) => u.includes("daveyawards.com")), "files: a row opens its winner page in a new tab", newTabs.slice(-1)[0] ?? "");
+  await b.send("Page.bringToFront"); await sleep(400);
+  await b.ev("window.__mark = 1");
+  await clickHit("jury-tag-waypro-1"); await sleep(2500);
+  s = await st();
+  ok(s.path === "/work/waypro" && s.mark, "files: its tag opens the case, client-side", s.path);
+  await goto(1, "files");
+  // another stack: the one laid out goes back
+  await use("case-bulksource"); await until(shown("row-bulksource-0"), 3000); await sleep(200);
+  await use("case-onsisoft"); await until(shown("row-onsisoft-0"), 3000); await sleep(200);
+  v = await vis();
+  ok((await st()).focus === "onsisoft" && !v.some((x) => x.startsWith("row-bulksource")) && v.includes("case-bulksource"), "files: a click on another stack lays that one out instead");
+  // Put the file away, and Escape
+  await b.ev("document.querySelector('.desk-hint__close').click()"); await sleep(400);
+  ok((await st()).focus === null && (await vis()).includes("case-onsisoft"), "files: Put the file away puts it back");
+  await use("case-onsisoft"); await until(shown("row-onsisoft-0"), 3000);
+  await key("Escape"); await sleep(400);
+  s = await st();
+  ok(s.focus === null && s.desk === "open", "files: Escape puts it back, the camera stays at the desk");
+  // Ukrainska 15: open, its tag, its song
+  await use("u15"); await until(shown("u15-tag"), 3000); await sleep(300);
+  s = await st();
+  ok(s.focus === "ukrainska-15" && (await b.ev("document.documentElement.dataset.u15")) === "open", "files: a click opens Ukrainska 15, in focus", s.focus);
+  ok((await attr("u15", "aria-label")) === "Put Ukrainska 15 away" && (await attr("u15", "aria-expanded")) === "true", "files: open, the folder says it goes away");
+  await b.shot(path.join(OUT, "files-u15.png"));
+  await use("player"); await until(`document.querySelector('.room-hit[data-hit="player"]').getAttribute('aria-pressed')==='true'`, 4000);
+  ok((await attr("player", "aria-label")) === "Pause “Still live in my mind”", "files: the player plays the song", await attr("player", "aria-label"));
+  await b.ev("document.querySelector('.room-hit[data-hit=\"player\"]').focus()"); await key("Enter");
+  await until(`document.querySelector('.room-hit[data-hit="player"]').getAttribute('aria-pressed')==='false'`, 3000);
+  ok((await attr("player", "aria-pressed")) === "false", "files: Enter on it pauses");
+  // another case while it is open: it shuts
+  await use("case-bulksource"); await until(shown("row-bulksource-0"), 3000); await sleep(300);
+  s = await st();
+  ok(s.focus === "bulksource" && !(await b.ev("document.documentElement.dataset.u15")) && !(await b.ev(shown("u15-tag"))), "files: another case in focus puts Ukrainska 15 away", s.focus);
+  await key("Escape"); await sleep(300);
+  await b.ev("document.querySelector('.room-hit[data-hit=\"u15\"]').focus()"); await key("Enter"); await until(shown("u15-tag"), 3000);
+  await key("Escape"); await sleep(400);
+  s = await st();
+  ok(s.focus === null && !(await b.ev("document.documentElement.dataset.u15")) && s.desk === "open", "files: Enter opens it, Escape puts it away");
+  // the song stops when the camera leaves the desk
+  await use("u15"); await until(shown("player"), 3000); await sleep(300);
+  await use("player"); await until(`document.querySelector('.room-hit[data-hit="player"]').getAttribute('aria-pressed')==='true'`, 4000);
+  await key("Escape"); await sleep(300); await key("Escape"); await arrive("closed");
+  ok((await b.ev("document.querySelector('.room-hit[data-hit=\"player\"]').getAttribute('aria-pressed')")) === "false" && !(await b.ev("document.documentElement.dataset.u15")), "files: leaving the desk stops the song and shuts the folder");
+  const ax = await b.send("Accessibility.getFullAXTree");
+  void ax;
 }
 // ── in flight: nothing to click or focus ──
 if (run("flight")) {

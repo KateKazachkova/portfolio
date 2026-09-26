@@ -5,6 +5,9 @@ html[data-gl] .desk-world { display: none !important; }
 html[data-gl] .scene-cam { transform: none !important; perspective: none !important; transition: none !important; }
 html[data-gl] .case-world { transform: none !important; transition: none !important; opacity: 1 !important; animation: none !important; }
 .room-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+/* what WebGL mirrors while the camera is away: the page's own copy hidden,
+   every child with it, whatever visibility it sets itself */
+.room-away, .room-away * { visibility: hidden !important; }
 
 /* What stands in the room but stays DOM at home, laid flat where the
    camera draws it at rest: its plane is parallel to the window, so the

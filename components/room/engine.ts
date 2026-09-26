@@ -536,8 +536,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     groupsShown = on;
     for (const ms of groupMeshes.values()) for (const m of ms) m.visible = on;
     applyGroupOpacity();
-    const vis = on ? "hidden" : "";
-    for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) if (el) el.style.visibility = vis;
+    // (a class, not visibility on the group: a child that sets its own
+    // visibility — the niche's clip — would still be drawn)
+    for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.toggle("room-away", on);
   };
 
   // ── the camera ──
@@ -616,11 +617,14 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     pose.retarget(stopPose(v, v === "files" ? readVar("--pan") : 0), poseRule, now);
     const sh = v === "home" ? [0, 0] : [readVar("--dx"), readVar("--dy")];
     shift.retarget(sh, def, now);
-    const opT = v === "profile" || v === "bike" ? 0 : 1;
+    // the case fades out at the desk and at Profile, as .case-world does
+    // there (globals.css: opacity .6s ease .7s); from above the desk, panned
+    // along it, it would otherwise stand in the frame
+    const opT = v === "profile" || v === "files" || v === "bike" ? 0 : 1;
     const opRule: Rule = still ? null
       : arrived && desk === "offduty" ? { dur: 400, delay: 0, ease: EASE.ease }
       : arrived ? null
-      : v === "profile" ? { dur: 600, delay: 700, ease: EASE.ease }
+      : v === "profile" || v === "files" ? { dur: 600, delay: 700, ease: EASE.ease }
       : v === "bike" ? { dur: 400, delay: 0, ease: EASE.ease }
       : { dur: 600, delay: 150, ease: EASE.ease };
     caseOp.retarget(opT, opRule, now);
@@ -729,7 +733,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   if (v0 !== "home") {
     pose.retarget(stopPose(v0, readVar("--pan")), null, 0);
     shift.retarget([readVar("--dx"), readVar("--dy")], null, 0);
-    caseOp.retarget(v0 === "profile" || v0 === "bike" ? 0 : 1, null, 0);
+    caseOp.retarget(v0 === "profile" || v0 === "files" || v0 === "bike" ? 0 : 1, null, 0);
     view = v0;
     buildGroups(); setGroupsShown(true);
     // there already: say so, as the CSS camera does when its move ends

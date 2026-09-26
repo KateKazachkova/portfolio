@@ -21,6 +21,7 @@
 import * as THREE from "three";
 import { projectToStage, type Pose, type View } from "@/lib/room/pose";
 import { makeDvd } from "./dvd";
+import { SONG_TITLE, startU15, toggleSong, toggleU15 } from "./u15";
 import {
   bikeWords, discAt, loadSeries, loadStrava, onRoom, pickDisc, roomState, stepBike, stravaHref, turnSpread, type RoomState,
 } from "./state";
@@ -33,6 +34,12 @@ export type Hit = {
   of: { sel: string; i: number };
   /** false: for the pointer only (what the keyboard reaches another way) */
   tab?: boolean;
+  /** the case file it belongs to (Case Files): focus on it pans the desk there */
+  slug?: string;
+  /** there only while that case is in focus (html[data-desk-focus]), or only while it is not */
+  focus?: string; notFocus?: string;
+  /** where it lies while a case is in focus, if not at m (a case laid out, the others moved aside) */
+  byFocus?: Record<string, number[]>;
   w: number; h: number; m: number[];
   mask?: { w: number; h: number; bits: string };
 };
@@ -55,6 +62,11 @@ const ACTIONS: Record<string, (h: Hit) => void> = {
   // the spread that way (the left sleeve back, the right one on)
   "disc-pick": (h) => { const d = discAt(h.of.i); if (d) pickDisc(d); },
   "sleeve-turn": (h) => turnSpread(h.of.i === 0 ? -1 : 1),
+  // Case Files: a case into focus (useDeskCamera lays it out and pans to
+  // it); Ukrainska 15's folder opened or put away; its song
+  case: (h) => dispatchEvent(new CustomEvent("room:case", { detail: h.slug })),
+  "u15-toggle": () => toggleU15(),
+  "u15-play": () => toggleSong(),
 };
 
 // what changes on a control with the room's state: the Strava button opens
@@ -62,6 +74,8 @@ const ACTIONS: Record<string, (h: Hit) => void> = {
 const BIND: Record<string, (el: HTMLElement, s: RoomState, h: Hit) => void> = {
   "bike-strava": (el, s) => { (el as HTMLAnchorElement).href = stravaHref(s); },
   disc: (el, s, h) => { const d = discAt(h.of.i, s); if (d) el.setAttribute("aria-label", `${d.title} — put it in the player`); },
+  u15: (el, s) => { el.setAttribute("aria-label", s.u15 ? "Put Ukrainska 15 away" : "Open Ukrainska 15"); el.setAttribute("aria-expanded", String(s.u15)); },
+  player: (el, s) => { el.setAttribute("aria-label", `${s.playing ? "Pause" : "Play"} “${SONG_TITLE}”`); el.setAttribute("aria-pressed", String(s.playing)); },
 };
 // whether the room's state has it there at all
 const SHOWN: Record<string, (s: RoomState, h: Hit) => boolean> = {
@@ -216,6 +230,14 @@ export function startHits(o: {
   addEventListener("keydown", onKey);
   if (o.hits.some((h) => h.type.startsWith("bike"))) loadStrava();
   if (o.hits.some((h) => h.type === "disc")) loadSeries();
+  const stopU15 = o.hits.some((h) => h.type === "u15") ? startU15() : null;
+  // focus on a case's control pans the desk to that case, as focus on a card does
+  for (const h of o.hits) if (h.slug) els.get(h.id)!.addEventListener("focus", () => dispatchEvent(new CustomEvent("room:case-focus", { detail: h.slug })));
+  const root = document.documentElement;
+  const inFocus = (h: Hit) => {
+    const f = root.dataset.deskFocus;
+    return (h.focus === undefined || f === h.focus) && (h.notFocus === undefined || f !== h.notFocus);
+  };
 
   // where each control lies at the current stop (place), and which of them
   // the room's state has there (refresh, again on every change of it)
@@ -224,7 +246,7 @@ export function startHits(o: {
     const had = document.activeElement instanceof HTMLElement && layer.contains(document.activeElement) ? document.activeElement : null;
     for (const h of o.hits) {
       const el = els.get(h.id)!;
-      const on = placed.has(h.id) && (SHOWN[h.type]?.(s, h) ?? true);
+      const on = placed.has(h.id) && inFocus(h) && (SHOWN[h.type]?.(s, h) ?? true);
       el.hidden = !on;
       const lab = labels.get(h.id);
       if (lab) lab.hidden = !on;
@@ -245,9 +267,15 @@ export function startHits(o: {
     }
   };
   const off = onRoom(refresh);
+  // a case in focus (or none) moves what lies on the desk, even where the
+  // camera stays (Ukrainska 15 opens at the pan it may be at already)
+  let last: Parameters<HitLayer["place"]>[0] = null;
+  const mo = new MutationObserver(() => { if (last) layerApi.place(last); });
+  mo.observe(root, { attributes: true, attributeFilter: ["data-desk-focus"] });
 
-  return {
+  const layerApi: HitLayer = {
     place(state) {
+      last = state;
       // a control that sent the camera off loses its focus as it goes: the
       // stop it lands at gives it to its first control
       if (!state && layer.contains(document.activeElement)) refocus = true;
@@ -257,8 +285,8 @@ export function startHits(o: {
         const el = els.get(h.id)!;
         if (!state || !h.at.includes(state.view)) continue;
         const { pose, shift, u } = state;
+        const m = h.byFocus?.[root.dataset.deskFocus ?? ""] ?? h.m;
         const pts = [[0, 0], [h.w, 0], [h.w, h.h], [0, h.h]].map(([x, y]) => {
-          const m = h.m;
           const s = projectToStage(pose, [m[0] * x + m[4] * y + m[12], m[1] * x + m[5] * y + m[13], m[2] * x + m[6] * y + m[14]]);
           return s ? [s[0] * u + shift[0], s[1] * u + shift[1]] : [NaN, NaN];
         });
@@ -296,9 +324,12 @@ export function startHits(o: {
       removeEventListener("click", onClick, true);
       removeEventListener("keydown", onKey);
       off();
+      mo.disconnect();
+      stopU15?.();
       for (const sf of surfaces.values()) sf.dispose();
       document.documentElement.classList.remove("room-pointer");
       layer.remove();
     },
   };
+  return layerApi;
 }

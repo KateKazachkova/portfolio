@@ -37,7 +37,26 @@ const PICK = [
   { type: "disc", sel: ".od-disc", all: true, at: ["offduty"], kind: "button", action: "disc-pick" },
   { type: "dvd", sel: ".od-dvd__screen", at: ["offduty"], kind: "button" },
   { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
+  // Case Files, left to right: Ukrainska 15's folder, its tag to the case
+  // (out of the pocket once open) and its player; then each stack of
+  // awards — the card, a way to lay it out, and laid out, its card's rows,
+  // the juries' postcards and its tags
+  { type: "u15", sel: ".u15-hit", at: ["files"], kind: "button", action: "u15-toggle", slug: "ukrainska-15" },
+  { type: "u15-tag", sel: ".u15-tag", at: ["files"], kind: "link", slug: "ukrainska-15", here: true },
+  { type: "player", sel: ".desk-player", at: ["files"], kind: "button", action: "u15-play", slug: "ukrainska-15" },
+  ...["bulksource", "onsisoft", "waypro"].flatMap((slug) => {
+    const card = `.desk-card--stack[data-slug="${slug}"]`;
+    return [
+      { type: "case", sel: card, at: ["files"], kind: "button", action: "case", slug, aside: true },
+      { type: "row", sel: `${card} a.jury-card__row`, all: true, at: ["files"], kind: "link", slug, here: true },
+      { type: "postcard", sel: `${card} .postcard`, all: true, at: ["files"], kind: "link", slug, here: true },
+      { type: "jury-tag", sel: `${card} .jury-tag`, all: true, at: ["files"], kind: "link", slug, here: true },
+    ];
+  }),
 ];
+// the case files laid out one at a time (html[data-desk-focus]), for where
+// everything on the desk lies then
+const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro"];
 const b = await launch({ width: 1600, height: 1000, dpr: 1 });
 await b.go(SITE + "/?nointro&gl=0", 4000);
 for (const e of ["kate:case-files", "kate:recognition", "kate:off-duty", "kate:profile"]) { await b.ev(`dispatchEvent(new Event("${e}"))`); await sleep(3200); }
@@ -54,8 +73,10 @@ for (const p of PICK) {
   if (!list.length) { log("missing", p.sel); continue; }
   for (const j of list) {
     const kind = p.kind ?? (j.tag === "a" ? "link" : j.tag === "button" ? "button" : "span");
+    const id = [p.type, ...(p.slug && p.type !== "case" && !p.type.startsWith("u15") && p.type !== "player" ? [p.slug] : p.type === "case" ? [p.slug] : []), ...(p.all ? [j.i] : [])].join("-");
     const hit = {
-      id: p.all ? `${p.type}-${j.i}` : p.type, type: p.type, kind, at: p.at, ...(p.action ? { action: p.action } : {}), ...(p.tab === false ? { tab: false } : {}),
+      id, type: p.type, kind, at: p.at, ...(p.action ? { action: p.action } : {}), ...(p.tab === false ? { tab: false } : {}),
+      ...(p.slug ? { slug: p.slug } : {}), ...(p.here ? { focus: p.slug } : {}), ...(p.aside ? { notFocus: p.slug } : {}),
       label: p.name ?? j.name, hover: j.hover, href: kind === "link" ? j.href : null, target: kind === "link" ? j.target : null,
       of: { sel: p.sel, i: j.i },
       w: j.w / u, h: j.h / u, m: j.m.map((v, i) => (i >= 12 && i <= 14 ? v / u : v)),
@@ -67,6 +88,27 @@ for (const p of PICK) {
     }
     hits.push(hit);
   }
+}
+// ── Case Files, each case laid out in turn: where its parts lie then, and
+// where the rest have moved aside to ──
+const files = hits.filter((h) => h.at.includes("files") && h.slug);
+await b.ev(`dispatchEvent(new Event("kate:case-files"))`); await sleep(3500);
+const read = async () => JSON.parse(await b.ev(`JSON.stringify(${JSON.stringify(files.map((h) => [h.id, h.of.sel, h.of.i]))}.map(([id,s,i])=>[id, window.__bkWorld(document.querySelectorAll(s)[i])]))`));
+const near = (a, c) => a.every((v, i) => Math.abs(v - c[i]) < 0.01);
+for (const f of FOCI) {
+  if (f === "ukrainska-15") await b.ev(`document.querySelector('.u15-hit').click()`);
+  else await b.ev(`document.querySelector('.desk-card[data-slug="${f}"]').click()`);
+  await sleep(1800);
+  const focus = await b.ev("document.documentElement.dataset.deskFocus");
+  if (focus !== f) log("focus did not take", f, focus);
+  for (const [id, m0] of await read()) {
+    const h = hits.find((x) => x.id === id);
+    const m = m0.map((v, i) => (i >= 12 && i <= 14 ? v / u : v));
+    // laid out, a case's own parts lie there; the rest, where they move to
+    if (h.focus === f) h.m = m;
+    else if (!h.focus && !near(m, h.m)) (h.byFocus ??= {})[f] = m;
+  }
+  await b.ev(`dispatchEvent(new Event("kate:desk-put-away"))`); await sleep(1800);
 }
 fs.writeFileSync(OUT, JSON.stringify({ hits }));
 const n = {};

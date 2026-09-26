@@ -2,7 +2,7 @@
  * What the WebGL room's objects hold between clicks (M3): the page the bike
  * computer shows and the rides it pages through; the series in the CD
  * wallet, the spread it is open at, the disc in the player and whether its
- * clip has sound. Under the flag the legacy
+ * clip has sound; whether Ukrainska 15's folder is open and its song on. Under the flag the legacy
  * components that kept this in React state are not rendered, so it lives
  * here, for the controls (hits.ts) to change and for what draws it (M4: the
  * LCD) to read. One plain store: set() merges and tells every listener.
@@ -25,9 +25,12 @@ export type RoomState = {
   picked: Series | null;
   /** its clip has sound (only while the camera is at the corner) */
   sound: boolean;
+  /** Ukrainska 15's folder is open on the desk, and its song playing */
+  u15: boolean;
+  playing: boolean;
 };
 
-const state: RoomState = { bikePage: 0, strava: null, series: [], spread: 0, picked: null, sound: false };
+const state: RoomState = { bikePage: 0, strava: null, series: [], spread: 0, picked: null, sound: false, u15: false, playing: false };
 const listeners = new Set<(s: RoomState) => void>();
 
 export const roomState = () => state;

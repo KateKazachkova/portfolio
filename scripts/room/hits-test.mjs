@@ -69,15 +69,26 @@ const tabWalk = async (n = 60) => {
 };
 
 // ── parity: each control's box at its stop against the legacy element's ──
+// (Case Files once with no case in focus, and once with each laid out)
+const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro"];
+const layOut = async (gl, f) => {
+  if (gl) await b.ev(`document.querySelector('.room-hit[data-hit="${f === "ukrainska-15" ? "u15" : `case-${f}`}"]').click()`);
+  else if (f === "ukrainska-15") await b.ev("document.querySelector('.u15-hit').click()");
+  else await b.ev(`document.querySelector('.desk-card[data-slug="${f}"]').click()`);
+  // (the legacy parts slide out over 1.2 s; the WebGL controls are there at once)
+  await sleep(gl ? 600 : 1800);
+};
 if (run("parity")) {
   const stops = [...new Set(HITS.flatMap((h) => h.at))];
-  for (const stop of stops) {
-    // (what the room's state keeps away at first — the DVD's screen, with no
-    // disc in — is checked where it comes on)
-    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd"].includes(h.type));
+  for (const stop of stops) for (const f of stop === "files" ? [null, ...FOCI] : [null]) {
+    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd"].includes(h.type)
+      && (h.focus === undefined || h.focus === f) && (h.notFocus === undefined || h.notFocus !== f));
+    const name = f ? `${stop} (${f})` : stop;
     await goto(0, stop);
+    if (f) await layOut(0, f);
     const legacy = JSON.parse(await b.ev(`JSON.stringify(${JSON.stringify(here.map((h) => [h.id, h.of.sel, h.of.i]))}.map(([id,s,i])=>{const e=document.querySelectorAll(s)[i];if(!e)return [id,null];const r=e.getBoundingClientRect();return [id,[r.x,r.y,r.width,r.height]]}))`));
     await goto(1, stop);
+    if (f) await layOut(1, f);
     let worst = 0, worstId = "", missing = [];
     for (const [id, l] of legacy) {
       const g = await rect(id);
@@ -88,8 +99,8 @@ if (run("parity")) {
       const d = Math.max(Math.abs(lx0 - gx0), Math.abs(lx1 - gx1), Math.abs(ly0 - gy0), Math.abs(ly1 - gy1));
       if (d > worst) { worst = d; worstId = id; }
     }
-    ok(!missing.length, `parity ${stop}: every control there (${here.length})`, missing.join(" "));
-    ok(worst <= 2, `parity ${stop}: boxes within 2 px of the legacy elements'`, `worst ${worst.toFixed(2)} px (${worstId})`);
+    ok(!missing.length, `parity ${name}: every control there (${here.length})`, missing.join(" "));
+    ok(worst <= 2, `parity ${name}: boxes within 2 px of the legacy elements'`, `worst ${worst.toFixed(2)} px (${worstId})`);
   }
 }
 

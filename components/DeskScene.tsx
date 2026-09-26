@@ -442,6 +442,18 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (!a || !panning()) return;
       go(Number(a.dataset.x) - VIEW_X - 120 / SPD);
     };
+    // The WebGL room (?gl=1) does not render the cards: its controls stand
+    // for them and say which case was clicked, or took focus.
+    const xOf = (e: Event) => CASES.find((c) => c.slug === (e as CustomEvent<string>).detail);
+    const onGlCase = (e: Event) => {
+      const c = xOf(e);
+      if (!c || !panning() || focus === c.slug) return;
+      setFocus(c.slug);
+      go(c.x - VIEW_X);
+    };
+    const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(c.x - VIEW_X - 120 / SPD); };
+    window.addEventListener("room:case", onGlCase);
+    window.addEventListener("room:case-focus", onGlCaseFocus);
     const world = el.querySelector<HTMLElement>(".desk-world");
     const onArrive = (e: TransitionEvent) => {
       if (e.target !== world || e.propertyName !== "transform" || !open.current) return;
@@ -566,6 +578,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.removeEventListener("focusin", onFocus);
       world?.removeEventListener("transitionend", onArrive);
       window.removeEventListener("room:arrive", onGlArrive);
+      window.removeEventListener("room:case", onGlCase);
+      window.removeEventListener("room:case-focus", onGlCaseFocus);
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;

@@ -7,9 +7,10 @@
 // accessibility tree). Screenshots for the report.
 //
 //   node scripts/room/hits-test.mjs http://localhost:3301 [only]
-// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, flight)
+// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, binder, flight)
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { launch, sleep, log } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
@@ -83,7 +84,7 @@ const layOut = async (gl, f) => {
 if (run("parity")) {
   const stops = [...new Set(HITS.flatMap((h) => h.at))];
   for (const stop of stops) for (const f of stop === "files" ? [null, ...FOCI] : [null]) {
-    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd"].includes(h.type)
+    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd", "pf"].includes(h.type)
       && (h.focus === undefined || h.focus === f) && (h.notFocus === undefined || h.notFocus !== f));
     const name = f ? `${stop} (${f})` : stop;
     await goto(0, stop);
@@ -446,6 +447,99 @@ if (run("files")) {
   ok((await b.ev("document.querySelector('.room-hit[data-hit=\"player\"]').getAttribute('aria-pressed')")) === "false" && !(await b.ev("document.documentElement.dataset.u15")), "files: leaving the desk stops the song and shuts the folder");
   const ax = await b.send("Accessibility.getFullAXTree");
   void ax;
+}
+// ── Profile: the binder, the page's own DOM laid flat at rest (M4) ──
+if (run("binder")) {
+  // the legacy binder's box, for where the flat one must lie
+  await goto(0, "profile");
+  const lb = JSON.parse(await b.ev("JSON.stringify((r=>[r.x,r.y,r.width,r.height])(document.querySelector('.desk-binder').getBoundingClientRect()))"));
+  await goto(1, "profile");
+  await until("document.querySelector('.room-hit--pf .pf-binder')", 5000);
+  const label = () => b.ev("document.querySelector('.room-hit--pf .pf-binder')?.getAttribute('aria-label') ?? ''");
+  const pr = await rect("pf");
+  const d = pr ? Math.max(Math.abs(pr.x - lb[0]), Math.abs(pr.y - lb[1]), Math.abs(pr.x + pr.w - lb[0] - lb[2]), Math.abs(pr.y + pr.h - lb[1] - lb[3])) : 99;
+  ok(!!pr && d <= 2, "binder: the flat binder lies within 2 px of the legacy one", `${d.toFixed(2)} px`);
+  ok((await label()).startsWith("Profile binder, spread 1 of 7: CV"), "binder: opens on the CV", await label());
+  const away = await b.ev("(()=>{let n=0,v=0;window.__room.scene.traverse(o=>{if(o.isMesh&&o.userData&&o.userData.away){n++;if(o.visible)v++}});return JSON.stringify([n,v])})()");
+  ok(JSON.parse(away)[0] > 0 && JSON.parse(away)[1] === 0, "binder: WebGL's binder is put away under it", away);
+  // its text is text: a selection of the CV's title
+  const sel = await b.ev("(()=>{const t=[...document.querySelectorAll('.room-hit--pf .pf-cv__title')].find(e=>e.offsetParent);const r=document.createRange();r.selectNodeContents(t);getSelection().removeAllRanges();getSelection().addRange(r);return getSelection().toString().trim()})()");
+  ok(/curriculum/i.test(sel), "binder: its text selects", sel);
+  // a selection by the pointer, and the click that ends it does not turn the page
+  const tl = JSON.parse(await b.ev("(()=>{const t=[...document.querySelectorAll('.room-hit--pf .pf-cv__title')].find(e=>e.offsetParent);const r=t.getBoundingClientRect();return JSON.stringify([r.x+4,r.y+r.height*0.3,r.x+r.width*0.8,r.y+r.height*0.3])})()"));
+  await b.ev("getSelection().removeAllRanges()");
+  const drag = (type, x, y) => b.send("Input.dispatchMouseEvent", { type, x, y, button: "left", buttons: type === "mouseReleased" ? 0 : 1, clickCount: 1 });
+  await drag("mouseMoved", tl[0], tl[1]); await drag("mousePressed", tl[0], tl[1]);
+  for (let i = 1; i <= 10; i++) await drag("mouseMoved", tl[0] + (tl[2] - tl[0]) * i / 10, tl[1]);
+  await drag("mouseReleased", tl[2], tl[3]); await sleep(300);
+  const picked = (await b.ev("getSelection().toString()")).trim();
+  ok(picked.length > 3 && (await label()).includes("spread 1 of 7"), "binder: a drag over the title selects it, the page stays", JSON.stringify(picked));
+  await b.ev("getSelection().removeAllRanges()");
+  // a click on the right half turns on, the left half back
+  const bx = await rect("pf");
+  await click(bx.x + bx.w * 0.8, bx.y + bx.h * 0.6); await sleep(300);
+  ok((await label()).includes("spread 2 of 7"), "binder: a click on the right half turns the page", await label());
+  await b.shot(path.join(OUT, "binder-spread2.png"));
+  await click(bx.x + bx.w * 0.2, bx.y + bx.h * 0.6); await sleep(300);
+  ok((await label()).includes("spread 1 of 7"), "binder: on the left half turns it back");
+  await key("ArrowRight"); await key("ArrowRight"); await sleep(300);
+  ok((await label()).includes("spread 3 of 7"), "binder: → turns on", await label());
+  await key("ArrowLeft"); await sleep(300);
+  ok((await label()).includes("spread 2 of 7"), "binder: ← back");
+  // a divider's tab: straight to its section
+  const tab = JSON.parse(await b.ev("(()=>{const t=[...document.querySelectorAll('.room-hit--pf .pf-tab')].find(e=>e.getAttribute('aria-label')==='Open БУДЬ');const r=t.getBoundingClientRect();return JSON.stringify([r.x+r.width/2,r.y+r.height*0.25])})()"));
+  await click(tab[0], tab[1]); await sleep(300);
+  ok((await label()).includes("spread 4 of 7: БУДЬ"), "binder: a click on БУДЬ's tab opens its section", await label());
+  await b.shot(path.join(OUT, "binder-bud.png"));
+  // Tab and Enter on another tab
+  await b.ev("[...document.querySelectorAll('.room-hit--pf .pf-tab')].find(e=>e.getAttribute('aria-label')==='Open IxDF Kharkiv').focus()"); await sleep(100);
+  await key("Enter"); await sleep(300);
+  ok((await label()).includes("spread 6 of 7: IxDF"), "binder: Enter on IxDF's tab opens its section", await label());
+  // the hung certificate turns over by itself, and back
+  await b.ev("[...document.querySelectorAll('.room-hit--pf .pf-tab')].find(e=>e.getAttribute('aria-label')==='Open БУДЬ').click()"); await sleep(300);
+  const hung = JSON.parse(await b.ev("(()=>{const f=[...document.querySelectorAll('.room-hit--pf .pf-hang__face[role=button]')].find(e=>e.closest('.pf-leaf').hasAttribute('data-turned')&&!e.closest('.pf-leaf').hasAttribute('data-hidden'));if(!f)return null;const c=f.firstElementChild.getBoundingClientRect();return JSON.stringify([c.x+c.width/2,c.y+c.height/2])})()"));
+  if (hung) {
+    await click(hung[0], hung[1]); await sleep(300);
+    const fl = await b.ev("document.querySelectorAll('.room-hit--pf .pf-hangleaf[data-flipped]').length");
+    ok(fl === 1, "binder: a click on the hung certificate turns it over", String(fl));
+    await b.shot(path.join(OUT, "binder-flipped.png"));
+    const vis = await b.ev("(()=>{const l=document.querySelector('.room-hit--pf .pf-hangleaf[data-flipped]');const rev=l.querySelector('.pf-hang__face--rev'),face=l.querySelector('.pf-hang__face:not(.pf-hang__face--rev)');return getComputedStyle(rev).visibility+'/'+getComputedStyle(face).visibility})()");
+    ok(vis === "visible/hidden", "binder: over, its back shows, not its face", vis);
+  } else ok(false, "binder: a hung certificate to click");
+  // a link on a sheet opens in a new tab, and does not turn the page
+  const before = newTabs.length, l0 = await label();
+  const ln = JSON.parse(await b.ev("(()=>{const a=[...document.querySelectorAll('.room-hit--pf .pf-sheet a[href^=http]')].find(e=>{const r=e.getBoundingClientRect();if(r.width<2)return false;const t=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return t&&e.contains(t)});if(!a)return null;const r=a.getBoundingClientRect();return JSON.stringify([r.x+r.width/2,r.y+r.height/2,a.href])})()"));
+  if (ln) {
+    await click(ln[0], ln[1]);
+    for (let i = 0; i < 50 && newTabs.length === before; i++) await sleep(100);
+    ok(newTabs.length > before && (await label()) === l0, "binder: a link on a sheet opens in a new tab, the page stays", ln[2].slice(0, 50));
+    await b.send("Page.bringToFront"); await sleep(400);
+  } else ok(false, "binder: a link on the open spread to click");
+  // the accessibility tree: the binder, its tabs
+  const ax = await b.send("Accessibility.getFullAXTree");
+  const nodes = (ax.result?.nodes ?? []).filter((x) => !x.ignored).map((x) => `${x.role?.value}: ${x.name?.value ?? ""}`);
+  fs.writeFileSync(path.join(OUT, "ax-profile.txt"), nodes.join("\n"));
+  ok(nodes.some((x) => x.startsWith("group: Profile binder, spread")) && nodes.includes("button: Open Kharkiv IT Cluster"), "binder: screen reader gets the binder and its tabs");
+  // the hand-over as the camera sets off: the page's binder at БУДЬ, then
+  // (Escape, the camera still for its .2 s beat) WebGL's, at the same spread
+  // (a certificate turned over by itself WebGL does not show over yet, M6:
+  // a turn of the page lays it back first)
+  await key("ArrowRight"); await sleep(300);
+  await b.ev("[...document.querySelectorAll('.room-hit--pf .pf-tab')].find(e=>e.getAttribute('aria-label')==='Open БУДЬ').click()"); await sleep(1200);
+  const box = await rect("pf");
+  const clip = { x: box.x, y: box.y, width: Math.min(box.w, 1512 - box.x), height: Math.min(box.h, 860 - box.y), scale: 1 };
+  await b.shot(path.join(OUT, "handover-dom.png"), clip);
+  await key("Escape"); await sleep(60);
+  await b.shot(path.join(OUT, "handover-gl.png"), clip);
+  // (at an eighth of the size: the same sheets, whatever the text's own
+  // rounding — WebGL's sheets were laid out in the bake's 1600 px window,
+  // the page's in this one, and their lines sit a few px apart)
+  const hd = JSON.parse(execFileSync("python3", ["-c", `from PIL import Image, ImageChops;a=Image.open(${JSON.stringify(path.join(OUT, "handover-dom.png"))}).convert('L');b=Image.open(${JSON.stringify(path.join(OUT, "handover-gl.png"))}).convert('L').resize(a.size);s=(a.width//8,a.height//8);d=ImageChops.difference(a.resize(s,Image.BOX),b.resize(s,Image.BOX));h=d.histogram();t=sum(h);f=ImageChops.difference(a,b).histogram();print('{"eighth_over32":%.2f,"full_over8":%.2f}'%(sum(h[33:])/t*100,sum(f[9:])/sum(f)*100))`]).toString());
+  ok(hd.eighth_over32 < 15, "binder: the page's binder and WebGL's, one frame apart at the hand-over, show the same spread", JSON.stringify(hd));
+  await sleep(700);
+  const back = await b.ev("(()=>{let v=0;window.__room.scene.traverse(o=>{if(o.isMesh&&o.userData&&!o.userData.away&&o.visible)v++});return JSON.stringify({panel: document.querySelector('.room-hit--pf').hidden, noneAway: (()=>{let n=0;window.__room.scene.traverse(o=>{if(o.isMesh&&o.userData&&o.userData.away)n++});return n})()})})()");
+  ok(JSON.parse(back).panel && JSON.parse(back).noneAway === 0, "binder: leaving, the panel goes and WebGL draws the binder again", back);
+  await arrive("closed");
 }
 // ── in flight: nothing to click or focus ──
 if (run("flight")) {

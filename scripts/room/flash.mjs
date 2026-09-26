@@ -45,6 +45,11 @@ for (const [label, js, wait] of [
   ["→home mid-flight", "history.back()", 3200],
   ["home→offduty", `dispatchEvent(new Event("${EV.offduty}"))`, 3000],
   ["offduty→home", "history.back()", 3500],
+  // Profile all the way: WebGL hands the binder to the page's DOM on
+  // arrival (M4), a page turned there, and back on the way home
+  ["home→profile", `dispatchEvent(new Event("${EV.profile}"))`, 4200],
+  ["profile: a page turned", `dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }))`, 1200],
+  ["profile→home", "history.back()", 3500],
 ]) { await mark(label); await b.ev(js); await sleep(wait); }
 await mark("end");
 await b.send("Page.stopScreencast");

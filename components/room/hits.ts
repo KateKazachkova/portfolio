@@ -89,7 +89,18 @@ const LIVE: Partial<Record<View, (s: RoomState) => string>> = {
 };
 // panels with content of their own
 type Surface = { corner(on: boolean): void; dispose(): void };
-const SURFACE: Partial<Record<string, (el: HTMLElement) => Surface>> = { dvd: makeDvd };
+const SURFACE: Partial<Record<string, (el: HTMLElement) => Surface>> = {
+  dvd: makeDvd,
+  // the Profile binder: RoomBinder.tsx renders the page's own into it
+  pf: (el) => {
+    const say = (host: HTMLElement | null) => dispatchEvent(new CustomEvent("room:pf-host", { detail: host }));
+    say(el);
+    return { corner() {}, dispose: () => say(null) };
+  },
+};
+// what WebGL puts away while a surface stands in for it (planes whose
+// classes, with their holders', include this)
+const STANDS_FOR: Partial<Record<string, string>> = { pf: "desk-binder" };
 
 export type HitLayer = {
   /** lay the controls over the room for this camera, or hide them (null) */
@@ -115,6 +126,8 @@ export function startHits(o: {
   canvasRect: () => DOMRect;
   redraw: () => void;
   navigate?: (href: string) => void;
+  /** put the room's planes of a class away (a surface is there instead), or back */
+  away?: (cls: string, on: boolean) => void;
 }): HitLayer {
   const layer = document.createElement("div");
   layer.className = "room-hits";
@@ -256,6 +269,7 @@ export function startHits(o: {
     }
     const corner = document.documentElement.dataset.desk === "offduty";
     for (const sf of surfaces.values()) sf.corner(corner);
+    for (const h of o.hits) { const c = STANDS_FOR[h.type]; if (c) o.away?.(c, !els.get(h.id)!.hidden); }
     const say = active ? LIVE[active] : undefined;
     live.textContent = say ? say(s) : "";
     // what had focus is gone (the disc went into the player): the control

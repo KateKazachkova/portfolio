@@ -23,7 +23,7 @@ type Item = {
   i: number; cls: string; anc?: string; type: "img" | "tex" | "grid"; src: string; w: number; h: number; m: number[];
   op: number; vis?: boolean; blend: string; order: number; grid?: number[]; back?: boolean; rho?: number; px?: [number, number];
   /** how it lies at each stop, where that differs from home */
-  states?: Partial<Record<View, State>>;
+  states?: Partial<Record<View | `pf${number}`, State>>;
   need: number;
   /** the GPU's copy (scripts/room/textures.mjs) */
   k2?: string; k2px?: [number, number]; k2mode?: string; k2bytes?: number;
@@ -384,9 +384,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     room.push({ meshes, item: it, k, slot, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
   }
   // each plane where the stop puts it
-  const arrange = (v: View, rule: Rule, now: number) => {
+  // the Profile binder's planes lie as the spread the page's binder is at
+  // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
+  const isBinder = (p: Placed) => (p.item.anc ?? "").split(" ").includes("desk-binder");
+  let binderAt = 1;
+  const stateOf = (p: Placed, v: View) => (isBinder(p) ? p.item.states?.[`pf${binderAt}`] : p.item.states?.[v]) ?? {};
+  const arrange = (v: View, rule: Rule, now: number, only?: (p: Placed) => boolean) => {
     for (const p of room) {
-      const st = p.item.states?.[v] ?? {};
+      if (only && !only(p)) continue;
+      const st = stateOf(p, v);
       p.m.retarget(st.m ?? p.item.m, rule, now);
       p.op.retarget(st.op ?? p.item.op, rule, now);
       const vis = st.vis ?? p.item.vis !== false;
@@ -408,7 +414,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       for (const mesh of p.meshes) {
         mesh.matrix.copy(mm);
         mesh.matrixWorldNeedsUpdate = true;
-        mesh.visible = ud.vis !== false && op > 0.001;
+        mesh.visible = ud.vis !== false && !ud.away && op > 0.001;
       }
       for (const mat of p.mats) mat.uniforms.opacity.value = op;
       p.m.tick(now); p.op.tick(now);
@@ -574,7 +580,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const zones = () => {
     for (const [v, pans] of ZONES) {
       const set = new Set<Slot>();
-      for (const p of room) if (p.item.vis !== false || p.item.states) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan), v === "home")) { set.add(p.slot); break; }
+      // (a binder leaf that only another spread shows loads when it is turned to)
+      const shown = (p: Placed) => p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf"));
+      for (const p of room) if (shown(p)) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan), v === "home")) { set.add(p.slot); break; }
       zoneSlots.set(v, set);
     }
   };
@@ -717,6 +725,17 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   };
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
 
+  const onBinder = (e: Event) => {
+    const at = (e as CustomEvent<number>).detail;
+    if (at === binderAt) return;
+    binderAt = at;
+    const now = performance.now();
+    arrange(view, null, now, isBinder);
+    // its sheets now on show, to the GPU first
+    want(room.filter((p) => isBinder(p) && (stateOf(p, view).vis ?? p.item.vis !== false)).map((p) => p.slot), 1);
+    dirty = true; kick();
+  };
+  addEventListener("room:binder-at", onBinder);
   const mo = new MutationObserver(() => evaluate(performance.now()));
   mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-focus", "data-desk-arrived"] });
   const onResize = () => { layout(); kick(); };
@@ -783,7 +802,18 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // what can be clicked (public/room/hits.json)
   let hitLayer: HitLayer | null = null;
   fetch("/room/hits.json").then((r) => r.json()).then((d: { hits: Hit[] }) => {
-    hitLayer = startHits({ host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {}, navigate: o.navigate });
+    hitLayer = startHits({
+      host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {}, navigate: o.navigate,
+      // a plane the page's own DOM stands in for at rest (the Profile binder)
+      away: (cls, on) => {
+        for (const p of room) {
+          if (!(p.item.anc ?? "").split(" ").includes(cls)) continue;
+          const ud = p.meshes[0].userData;
+          if (!!ud.away === on) continue;
+          ud.away = on; ud.dirty = true; dirty = true;
+        }
+      },
+    });
     placedKey = "";
     kick();
   }).catch(() => {});
@@ -844,6 +874,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect();
+      removeEventListener("room:binder-at", onBinder);
       hitLayer?.dispose();
       removeEventListener("resize", onResize);
       setGroupsShown(false);

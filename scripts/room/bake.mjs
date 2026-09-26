@@ -76,6 +76,25 @@ const { u, stage, units, flat, groupM } = collected;
 const STATES = { home: ["closed"], files: ["open", undefined, "1"], award: ["award", undefined, "1"], profile: ["profile", undefined, "1"], offduty: ["offduty", undefined, "1"], bike: ["offduty", "bike", "1"] };
 const states = {};
 for (const [k, [d, f, a]] of Object.entries(STATES)) states[k] = await b.ev(`JSON.stringify(window.__bkState(${JSON.stringify(d)}, ${JSON.stringify(f)}, ${JSON.stringify(a)}))`).then(JSON.parse);
+// …and the Profile binder open at each of its spreads (pf2 … pf7; pf1 is
+// how it lies anywhere): the WebGL room shows the spread the page's own
+// binder was left at (components/room/RoomBinder.tsx), so neither is ahead
+// of the other when they hand over. Each spread is set on the leaves
+// themselves (Binder.tsx's data-turned), and only its two sheets are on
+// show: WebGL turns at once, and the leaves under them, which a turning
+// leaf uncovers, would lie over them in its fixed order. Put back after.
+const LEAVES = "document.querySelectorAll('.desk-binder .pf-leaf')";
+await b.ev(`window.__pfWas = [...${LEAVES}].map((l) => [l.hasAttribute("data-turned"), l.hasAttribute("data-hidden"), l.hasAttribute("data-flying")]) && 1`);
+const binderN = await b.ev(`${LEAVES}.length`);
+for (let k = 2; k <= 7; k++) {
+  await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", i < ${k}); l.toggleAttribute("data-hidden", !(i === ${k - 1} || i === ${k})); l.removeAttribute("data-flying"); }) || 1`);
+  states[`pf${k}`] = await b.ev(`JSON.stringify(window.__bkState("profile", undefined, "1"))`).then(JSON.parse);
+}
+// (pf1 too, for the way back to the first spread: only its two sheets)
+await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", i < 1); l.toggleAttribute("data-hidden", !(i === 0 || i === 1)); }) || 1`);
+states.pf1 = await b.ev(`JSON.stringify(window.__bkState("profile", undefined, "1"))`).then(JSON.parse);
+await b.ev(`[...${LEAVES}].forEach((l, i) => { const [t, h, f] = window.__pfWas[i]; l.toggleAttribute("data-turned", t); l.toggleAttribute("data-hidden", h); l.toggleAttribute("data-flying", f); }) || 1`);
+log("binder", binderN, "leaves, 7 spreads");
 const sameM = (a, b) => a && b && a.every((v, i) => Math.abs(v - b[i]) < 1e-3);
 log("u", u.toFixed(4), "units", units.length, "flat", flat.length);
 
@@ -142,6 +161,7 @@ if (OPT.only !== "flat") for (const it of units) {
   // own offset into its box is applied to each state's matrix alike)
   const diff = {};
   for (const [k, list] of Object.entries(states)) {
+    if (k.startsWith("pf") && !(it.anc ?? "").split(" ").includes("desk-binder")) continue;
     const st = list[it.i]; if (!st) continue;
     const d = {};
     if (st.m && !sameM(st.m, states.home[it.i]?.m ?? it.m)) d.m = st.m;

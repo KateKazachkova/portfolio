@@ -27,6 +27,8 @@ const PICK = [
   // the Profile binder, lying in front of the certificate: a way to Profile
   // (at Profile itself it is the page's own flat DOM, M4)
   { type: "binder", sel: ".desk-binder", at: ["award"], kind: "button", action: "profile", name: "Profile binder — Profile" },
+  // …and at Profile, the panel the page's own binder is laid flat on (M4)
+  { type: "pf", sel: ".desk-binder", at: ["profile"], kind: "button" },
   // Off Duty: the bike computer, a way down to it; down over it, the unit
   // (a click anywhere: the next screen) and its three buttons over it
   { type: "bike", sel: ".bike", at: ["offduty"], kind: "button", action: "offduty-bike" },

@@ -1291,7 +1291,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env > .u15-sleeve { z-index: 5; }
 .env > .env__back, .env > .env__shadow { z-index: 0; }
 .env__shadow { position: absolute; left: 1.2%; top: .4%; right: 3.1%; bottom: 2.1%; display: block;
-  box-shadow: 0 calc(1 * var(--eu) / 3) calc(1.5 * var(--eu) / 3) rgba(20,16,12,.3); }
+  box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.3), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.32); }
 .u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
 /* the other files make room, and stay in sight at the right edge; opened,
    the folder's things lie over them */
@@ -1345,12 +1345,6 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
 }
-
-/* The stack as home's camera sees it (U15Still): only while the camera is
-   home — gone at once when it moves, back once it has landed again. */
-.u15-still { position: absolute; display: block; max-width: none; pointer-events: none; z-index: 0;
-  transition: opacity .45s ease calc(var(--cam-wait) + var(--cam-t)); }
-:root[data-desk]:not([data-desk="closed"]) .u15-still { opacity: 0; transition: opacity .2s ease; }
 
 /* Opened, a sticky note out of the pocket: what the project is, in a few
    lines, and the button to the case's own page. */

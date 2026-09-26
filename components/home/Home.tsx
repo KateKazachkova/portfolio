@@ -13,7 +13,6 @@ import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
 import { mono } from "@/components/ui/type";
 import { DeskPlanes, DeskHint, useDeskCamera } from "@/components/DeskScene";
-import U15Still from "@/components/desk/U15Still";
 import Tardis from "./Tardis";
 import AwardCubby from "./AwardCubby";
 import Wardrobe from "./Wardrobe";
@@ -116,9 +115,6 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
           <DeskLamp />
         </DeskPlanes>
         <div className="case-world">
-        {/* Ukrainska 15's stack as this camera sees it, over the live one */}
-        <U15Still />
-
         {/* The case does not sit flat on the floor: it stands on the feet at
             the outer bottom corners of the two doors, nearer the camera than
             the trunk's base. Its shadow at rest is the opening clip's last

@@ -373,6 +373,15 @@ if (run("files")) {
   let v = await vis();
   ok(["u15", "player", "case-bulksource", "case-onsisoft", "case-waypro"].every((x) => v.includes(x)) && !v.some((x) => /^(row|postcard|jury-tag|u15-tag)/.test(x)), "files: the folder, the player and the three stacks; nothing laid out yet", v.filter((x) => x !== "trophy").join(" "));
   ok((await attr("u15", "aria-label")) === "Open Ukrainska 15" && (await attr("u15", "aria-expanded")) === "false", "files: the folder says it opens");
+  // a drag along the desk pans it, and the controls go with it
+  const c0 = await rect("case-bulksource");
+  const drag = (type, x) => b.send("Input.dispatchMouseEvent", { type, x, y: 800, button: "left", buttons: type === "mouseReleased" ? 0 : 1, clickCount: 1 });
+  await drag("mouseMoved", 1300); await drag("mousePressed", 1300);
+  for (let i = 1; i <= 20; i++) { await drag("mouseMoved", 1300 - i * 30); await sleep(16); }
+  await drag("mouseReleased", 700); await sleep(1200);
+  const pd = await pan(), c1 = await rect("case-bulksource");
+  ok(pd > 100 && c1 && c1.x < c0.x - 100, "files: a drag pans the desk, its controls with it", `pan ${pd.toFixed(0)}, card ${c0.x.toFixed(0)} → ${c1?.x.toFixed(0)}`);
+  await goto(1, "files");
   const walk = (await tabWalk(30)).filter((x) => HITS.some((h) => h.id === x && h.at.includes("files")));
   // (the trophy, also a way to Recognition from here, comes first)
   const once = walk.filter((x, i) => walk.indexOf(x) === i && x !== "trophy");

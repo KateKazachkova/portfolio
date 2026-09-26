@@ -175,6 +175,10 @@ export type Room = {
   scene: THREE.Scene;
   /** debugging: the camera the room is drawn with */
   camera: THREE.Camera;
+  /** debugging: every texture the room holds — its slots, the mirrored groups', and whatever else a mesh draws (canvases) */
+  textures(): Record<string, unknown>[];
+  /** debugging (memory pass): drop these slots' textures and load them again — how long each takes to come back, and its upload */
+  reload(srcs: string[]): Promise<Record<string, unknown>[]>;
   redraw(): void;
   quads(): Record<string, unknown[]>;
   /** the room at home, without the case, clock and lamp, over (x, y, w, h)
@@ -218,7 +222,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const ktx2 = new KTX2Loader().setTranscoderPath("/room/basis/").detectSupport(renderer);
   const EMPTY = new THREE.DataTexture(new Uint8Array(4), 1, 1);
   EMPTY.needsUpdate = true;
-  type Slot = { src: string; tex: THREE.Texture; mats: Set<THREE.ShaderMaterial>; state: 0 | 1 | 2; prio: number; bytes: number; wait: (() => void)[]; zone: string; lo?: string; loTex?: THREE.Texture };
+  type Slot = { src: string; tex: THREE.Texture; mats: Set<THREE.ShaderMaterial>; state: 0 | 1 | 2; prio: number; bytes: number; wait: (() => void)[]; zone: string; lo?: string; loTex?: THREE.Texture; at?: number; upMs?: number };
   const slots = new Map<string, Slot>();
   const bytesOf = (t: THREE.Texture) => {
     const c = t as THREE.CompressedTexture;
@@ -256,8 +260,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if ((tex as THREE.CompressedTexture).isCompressedTexture) { tex.premultiplyAlpha = false; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = false; }
     else { tex.premultiplyAlpha = true; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true; }
     tex.needsUpdate = true;
+    const t0 = performance.now();
     renderer.initTexture(tex);
-    sl.tex = tex; sl.state = 2; sl.bytes = bytesOf(tex);
+    sl.upMs = performance.now() - t0;
+    sl.tex = tex; sl.state = 2; sl.bytes = bytesOf(tex); sl.at = performance.now();
     for (const m of sl.mats) m.uniforms.map.value = tex;
     if (sl.loTex) { sl.loTex.dispose(); sl.loTex = undefined; }
     for (const f of sl.wait.splice(0)) f();
@@ -1080,6 +1086,28 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       return c.toDataURL("image/png");
     },
     forceGroups(on) { forced = on; if (on) buildGroups(); setGroupsShown(on); dirty = true; kick(); },
+    async reload(srcs) {
+      const list = srcs.map((s) => slots.get(s)).filter((sl): sl is Slot => !!sl);
+      const t0 = performance.now();
+      for (const sl of list) { if (sl.tex !== EMPTY) sl.tex.dispose(); sl.tex = EMPTY; sl.state = 0; sl.bytes = 0; for (const m of sl.mats) m.uniforms.map.value = EMPTY; }
+      await want(list, 0);
+      return list.map((sl) => ({ src: sl.src, ms: Math.round((sl.at ?? 0) - t0), upMs: +(sl.upMs ?? 0).toFixed(2), bytes: sl.bytes }));
+    },
+    textures() {
+      const size = (t: THREE.Texture) => { const im = (t.image ?? {}) as { width?: number; height?: number; videoWidth?: number; videoHeight?: number }; return [im.videoWidth || im.width || 0, im.videoHeight || im.height || 0]; };
+      const seen = new Set<THREE.Texture>();
+      const out: Record<string, unknown>[] = [];
+      for (const sl of slots.values()) { seen.add(sl.tex); out.push({ kind: "slot", src: sl.src, bytes: sl.bytes, state: sl.state, prio: sl.prio, at: sl.at ? Math.round(sl.at) : null, lo: !!sl.loTex }); }
+      for (const [el, t] of texCache) { seen.add(t); out.push({ kind: "group", src: el instanceof Element ? `${el.tagName.toLowerCase()}.${(el.className || "").toString().split(" ")[0]}${(el as HTMLImageElement).currentSrc ? " " + (el as HTMLImageElement).currentSrc.split("/").pop() : ""}` : String(el), bytes: bytesOf(t), wh: size(t) }); }
+      scene.traverse((o) => {
+        const mat = (o as THREE.Mesh).material as THREE.ShaderMaterial | undefined;
+        const t = mat?.uniforms?.map?.value as THREE.Texture | undefined;
+        if (!t || seen.has(t) || t === EMPTY) return;
+        seen.add(t);
+        out.push({ kind: "other", src: t.constructor.name + " " + size(t).join("x"), bytes: bytesOf(t), wh: size(t), order: (o as THREE.Mesh).renderOrder });
+      });
+      return out;
+    },
     stats() {
       const ft = frameTimes.slice();
       const sorted = [...ft].sort((a, b) => a - b);

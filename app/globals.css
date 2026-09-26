@@ -1526,16 +1526,30 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 /* the flying disc, in the window's own space */
 .od-fly { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; transform-origin: 0 0; }
 .od-fly .cd-body { transform: none; filter: none; box-shadow: 0 10px 18px rgba(0,0,0,.35); }
-/* the picture: the poster, filling the panel, drifting in slowly */
+/* the title card: the disc's number, title, year and why, set in the
+   OSD's mono on a dark panel with scanlines; the lines come up in turn */
 .od-dvd__screen { overflow: hidden; }
-.od-dvd__picture { position: absolute; inset: 0; background: center / cover no-repeat; z-index: -1;
-  animation: od-on .5s ease-out both, od-drift 18s ease-in-out infinite alternate; }
-.od-dvd__picture::after { content: ""; position: absolute; inset: 0;
-  background: linear-gradient(transparent 55%, rgba(0,0,0,.55)), repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.08) 2px 3px); }
+.od-dvd__card { position: absolute; inset: 0; z-index: -1; box-sizing: border-box; padding: 14% 7% 6%;
+  display: flex; flex-direction: column; justify-content: center; gap: calc(2.4 * var(--u));
+  background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.18) 2px 3px),
+    radial-gradient(120% 90% at 30% 35%, #16233a, #070b14 75%);
+  color: rgba(225, 238, 255, .92); text-shadow: 0 0 calc(2 * var(--u)) rgba(120, 170, 255, .35);
+  animation: od-on .5s ease-out both; }
+.od-dvd__card > * { animation: od-line .4s ease-out both; }
+.od-dvd__card > :nth-child(2) { animation-delay: .25s; }
+.od-dvd__card > :nth-child(3) { animation-delay: .4s; }
+.od-dvd__card > :nth-child(4) { animation-delay: .6s; }
+.od-dvd__card-no { color: rgba(160, 200, 255, .72); }
+.od-dvd__card-title { font-size: calc(11 * var(--u)); line-height: 1.05; letter-spacing: .04em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.od-dvd__card-why { font-weight: 500; line-height: 1.35; letter-spacing: .04em; text-transform: none;
+  color: rgba(200, 220, 245, .8);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 @keyframes od-on { from { opacity: 0; filter: brightness(3); } }
-@keyframes od-drift { to { transform: scale(1.12) translate(-2%, -1%); } }
+@keyframes od-line { from { opacity: 0; transform: translateY(calc(2 * var(--u))); } }
+@media (prefers-reduced-motion: reduce) { .od-dvd__card, .od-dvd__card > * { animation: none; } }
 .od-dvd__screen > .od-dvd__osd { position: relative; pointer-events: none; }
-/* the clip over the poster once it loads; the frame takes no clicks, the
+/* the clip over the title card once it loads; the frame takes no clicks, the
    screen does (sound on / off) */
 /* laid out three times the screen's size and scaled down, so YouTube's own
    title, buttons and logo come out a third as big */

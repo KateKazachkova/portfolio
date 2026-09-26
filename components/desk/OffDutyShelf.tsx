@@ -324,7 +324,16 @@ export default function OffDutyShelf() {
             aria-label={clip ? (sound ? "Sound off" : "Sound on") : undefined}
             onKeyDown={(e) => { if (clip && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleSound(); } }}
             onClick={(e) => { if (clip && here()) { e.stopPropagation(); toggleSound(); } }}>
-            {picked?.poster && <span className="od-dvd__picture" key={picked.title} style={{ backgroundImage: `url(${picked.poster})` }} />}
+            {/* the disc's title card, in the player's own type: the poster
+                stays on the disc's label; a clip plays over the card */}
+            {picked && (
+              <span className="od-dvd__card" key={picked.title}>
+                <span className="od-dvd__card-no">Disc {String(series.indexOf(picked) + 1).padStart(2, "0")}/{String(series.length).padStart(2, "0")}</span>
+                <span className="od-dvd__card-title">{picked.title}</span>
+                {picked.year && <span className="od-dvd__card-no">{picked.year}</span>}
+                {picked.why && <span className="od-dvd__card-why">{picked.why}</span>}
+              </span>
+            )}
             {clip && (
               <iframe
                 ref={tube} key={clip} className="od-dvd__tube" data-sound={sound || undefined} title={`${picked?.title} – clip`}
@@ -334,7 +343,7 @@ export default function OffDutyShelf() {
             )}
             <span className="od-dvd__osd">{picked ? (clip ? (sound ? "▶ PLAY · SOUND ON" : "▶ PLAY · CLICK FOR SOUND") : "▶ PLAY") : "KATE™ DVD"}</span>
             {picked
-              ? <span className="od-dvd__osd od-dvd__osd--title">{picked.title}{picked.year ? ` · ${picked.year}` : ""}</span>
+              ? clip && <span className="od-dvd__osd od-dvd__osd--title">{picked.title}{picked.year ? ` · ${picked.year}` : ""}</span>
               : <span className="od-dvd__osd od-dvd__osd--blink">NO DISC</span>}
           </div>
           {STICKERS.map((s) => (

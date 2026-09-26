@@ -1349,7 +1349,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 /* The stack as home's camera sees it (U15Still): only while the camera is
    home — gone at once when it moves, back once it has landed again. */
 .u15-still { position: absolute; display: block; max-width: none; pointer-events: none; z-index: 0;
-  transition: opacity .45s ease 1.6s; }
+  transition: opacity .45s ease calc(var(--cam-wait) + var(--cam-t)); }
 :root[data-desk]:not([data-desk="closed"]) .u15-still { opacity: 0; transition: opacity .2s ease; }
 
 /* Opened, a sticky note out of the pocket: what the project is, in a few

@@ -4,10 +4,9 @@ import type { CaseStudy } from "./types";
  * CASE 002 — WayPro.
  *
  * A client/product UX case, ported from the Behance write-up and Kate's own
- * account. Every fact here is taken from that write-up (role, research, the
- * four pain points, the palette, the awards) — nothing is invented. What is
- * still hers to supply — the hindsight, the clean screens, the exact
- * timeline — renders as a `{ tk }` chip, never as fact.
+ * account. The text is the Behance case's own, word for word. Laid out
+ * as Ukrainska 15 is: the screens in pairs between the sections, the key
+ * line of a section in bold under the highlighter.
  */
 const waypro: CaseStudy = {
   slug: "waypro",
@@ -31,198 +30,154 @@ const waypro: CaseStudy = {
     { key: "Recognition", value: ["Indigo Design Award – 2× Gold, Silver\nDavey Awards – Gold\nLondon Design Awards – Gold\nMUSE – Silver"] },
   ],
 
-  lead: {
-    ghost:
-      "A driver hauling grass products spends the day inside a sequence: a list of routes handed down by a manager, a pickup that has to match an order, a drive to a place they may never have been, an unload, a signature, and a report at the end of it. Every step is a small negotiation with time, and every step is a place where a wrong number or a late message costs an afternoon. The temptation, designing for that, is to solve the part that looks hardest from the outside – the driving, the map, the route. The interviews said otherwise. The map was the one thing already handled. What actually slowed the day was everything around it: not knowing what was in the van, confirming a delivery on paper, waiting on an update that never came.",
-    red: "A delivery app for drivers hauling grass products farm to buyer, built from ten field interviews – not from assumptions.",
-    ink: "The problem we were sure of – navigation – turned out to be the smallest one.",
-  },
-
-  outcome: {
-    stats: [
-      { n: "10", caption: "Drivers interviewed, all actively delivering herbal products" },
-      { n: "4", caption: "Field pain points, each turned into a feature" },
-      { n: "6", caption: "Stages mapped in the driver's journey, route to report" },
-      { n: "6", sup: "×", caption: "International awards – Indigo 2× Gold + Silver · Davey Gold · London Design Awards Gold · MUSE Silver" },
-    ],
-    stamps: [
-      { text: "Indigo Design Award · Gold" },
-      { text: "Indigo Design Award · Gold" },
-      { text: "Indigo Design Award · Silver" },
-      { text: "Davey Awards · Gold" },
-      { text: "London Design Awards · Gold" },
-      { text: "MUSE Creative Awards · Silver" },
-    ],
+  tablet: {
+    video: "/artefacts/waypro/cover.mp4",
+    poster: "/artefacts/waypro/cover-poster.jpg",
+    href: "https://www.behance.net/gallery/209626437/WayPro-UIUX-iOS-App",
+    label: "WayPro on Behance",
+    button: "View on Behance",
   },
 
   sections: [
     {
       kind: "prose",
       n: "01",
-      label: "Why it exists",
-      heading: "Getting grass from the farm to the buyer",
+      heading: "About WayPro",
       rule: true,
-      notes: [
-        { text: [{ strong: "Lead UX Designer." }, " Research, wireframes and prototypes, usability testing – and the argument with the brief."] },
-        { quiet: true, text: ["A two-person project with Alex Broman, built alongside a development team. My half was the experience: what a driver sees, in what order, and why."] },
+      photos: [
+        { src: "/artefacts/waypro/sign-in.webp", alt: "The WayPro sign-in screen on an iPhone: email, password and a Sign In button", tilt: 4,
+          hand: "sign in – the driver's way in", cutout: true },
       ],
       body: [
-        ["WayPro is a logistics and delivery iOS app for the people who move grass products from farms to buyers. It gives a driver the one thing the job actually needs: everything for the day's run, in the order the day happens."],
-        ["The work is coordination under time pressure – ", { mark: "assigned routes, pickups that have to match an order, drop-offs, confirmations, and a report at the end" }, ". Each of those is a place a delivery can go wrong, and most of them had nothing to do with the road."],
+        ["WayPro is a logistics and delivery management iOS app designed for drivers transporting grass products from farms to buyers."],
+        ["It simplifies the delivery process by providing drivers with all the tools they need to efficiently complete their assigned routes."],
       ],
     },
 
     {
       kind: "prose",
       n: "02",
-      label: "Research",
-      heading: "The assumption was navigation. It wasn't.",
-      hand: { lines: ["ask before you", "assume – the", "whole case is in", "that one flip"], inkFrom: 2, offsetTop: 40 },
-      notes: [
-        { text: [{ strong: "The hypothesis was wrong," }, " which is the most useful thing research can tell you."] },
-      ],
+      heading: "The goal",
+      rule: true,
       body: [
-        ["We went in certain the main issue was ", { mark: "route navigation" }, ". So we asked – ", { mark: "ten qualitative interviews with drivers actively delivering herbal products" }, " – before committing a single screen."],
-        ["The interviews moved the brief. Navigation was the one part already handled: routes were planned by managers, and the real difficulty was executing them. What actually cost the day was ", { pen: "not knowing the inventory, confirming deliveries on paper, and updates that arrived late or not at all." }],
-        ["Four pain points came out of it, and each one became a decision."],
+        [{ mark: "Create an intuitive, driver-friendly iOS app that simplifies delivery management", strong: true }, " by providing real-time route tracking, easy delivery confirmation, and seamless communication with logistics managers, ultimately improving efficiency and reducing errors in the grass product logistics process."],
+        ["As the Lead UX Designer, I was responsible for creating a user-centric experience tailored specifically for drivers in the grass product logistics industry."],
+        [{ strong: "Responsibilities:" }],
+        [{ strong: "Conducted user research" }, ", including interviews with drivers and stakeholders to gather insights into their workflows and pain points;"],
+        [{ strong: "Designed wireframes and prototypes" }, " using Figma, focusing on ease of use and efficient delivery management;"],
+        [{ strong: "Collaborated with developers" }, ";"],
+        [{ strong: "Facilitated usability testing, gathered feedback" }, ", and iterated on designs to improve overall user experience."],
+      ],
+    },
+
+    {
+      kind: "plates",
+      items: [
+        { src: "/waypro/board-08.webp", pl: "PL. 01", alt: "The home screen: the day's assigned routes as a list, each with a status and load.", caption: ["The home screen – the day's routes, each tagged with its status and how full the load is."] },
+        { src: "/waypro/board-10.webp", pl: "PL. 02", alt: "A route-detail screen with stops in order, addresses, time windows and load status.", caption: ["A route in detail – stops in order, time windows, and the load on board."] },
       ],
     },
 
     {
       kind: "decisions",
       n: "03",
-      label: "Decisions",
-      heading: "What the research changed",
-      notes: [
-        { text: [{ strong: "Four findings, four features." }, " The interesting half is the pain each one answered."] },
+      heading: "Understanding the user",
+      rule: true,
+      body: [
+        ["Qualitative user interviews with 10 drivers who were actively delivering herbal products."],
+        [{ mark: "The initial hypothesis was that the main issue was route navigation.", strong: true }],
       ],
-      hand: { lines: ["every feature", "here has a", "driver behind it"], inkFrom: 1, offsetTop: 150 },
       items: [
         {
-          label: "Finding 01",
-          title: "Real-time delivery updates, as the spine",
-          body: [["Status became the backbone of the app rather than a screen you go looking for. ", { mark: "A driver is never guessing where a delivery stands." }]],
-          tradeoff: [["The pain – updates on delivery status arrived late or not at all, so drivers and managers kept falling out of sync."]],
+          label: "01",
+          title: "Real-time delivery updates",
+          body: [
+            ["Drivers expressed difficulty in receiving real-time updates on delivery status, which led to delays and miscommunication."],
+            ["Moving forward, the app design will prioritize real-time notifications to ensure drivers are always informed."],
+          ],
         },
         {
-          label: "Finding 02",
-          title: "One-tap confirmation, with e-signatures",
-          body: [["Paperwork at every stop became a streamlined digital confirmation: collect the recipient's signature, verify in-app, move on."]],
-          tradeoff: [["The pain – completing paperwork and order confirmations by hand ate time at every single drop-off."]],
+          label: "02",
+          title: "Complex paperwork",
+          body: [
+            ["Drivers struggled with completing paperwork and order confirmations efficiently."],
+            ["To address this, we designed a streamlined, digital confirmation process with e-signatures to minimize paperwork and improve delivery speed."],
+          ],
         },
         {
-          label: "Finding 03",
-          title: "Live inventory, before arrival",
-          body: [["Real-time inventory tracking, so a driver knows what is actually available ", { strong: "before" }, " reaching the delivery point, not after."]],
-          tradeoff: [["The pain – arriving at a drop with no reliable read on the product actually on board."]],
+          label: "03",
+          title: "Lack of inventory transparency",
+          body: [
+            ["Drivers found it frustrating to arrive at delivery points without knowing accurate inventory details."],
+            ["By integrating real-time inventory tracking, we ensure that drivers have up-to-date information about product availability before reaching delivery points."],
+          ],
         },
         {
-          label: "Finding 04",
-          title: "Turn-by-turn, not route planning",
-          body: [["Planning stayed with the managers, where it worked. Drivers got Google Maps turn-by-turn integration for the part that was hard: following a complex route on the road."]],
-          tradeoff: [["The pain – the plan was fine; navigating it in the moment was not."]],
+          label: "04",
+          title: "Navigation issues",
+          body: [
+            ["Though route planning was handled by managers, drivers reported difficulties navigating complex routes."],
+            ["Google Maps integration with turn-by-turn directions was introduced to provide drivers with reliable, real-time navigation assistance."],
+          ],
         },
       ],
     },
 
     {
-      kind: "spec",
+      kind: "prose",
       n: "04",
-      label: "The journey",
-      heading: "Route to report, in six steps",
-      notes: [
-        { text: [{ strong: "The whole run, mapped," }, " so every screen has to earn its place in the day."] },
-      ],
+      heading: "Persona: Alex Winchester",
+      rule: true,
       body: [
-        ["A journey map held the design honest: each stage carries a task, a feeling, and the one thing that could be better. The screens fell out of the map, not the other way round."],
-      ],
-      rows: [
-        { key: "Review routes", value: ["Open the day's routes, check the details, verify product inventory."] },
-        { key: "Navigate", value: ["Turn-by-turn guidance that adapts to traffic."] },
-        { key: "Pick up", value: ["Check pickup details, verify inventory, load the vehicle."] },
-        { key: "Deliver", value: ["Find the exact drop-off, unload, meet the recipient."] },
-        { key: "Confirm", value: ["Collect the recipient's signature; verify the delivery in-app."] },
-        { key: "Report", value: ["Finalise the route and submit the delivery report."] },
+        ["32 · High School Diploma · Denver, Colorado · Married, 2 kids · Delivery Driver for Grass Products"],
+        [{ mark: "Alex is a 32-year-old driver who needs a way to receive real-time updates and confirm deliveries efficiently because current methods of handling paperwork and navigation slow him down.", strong: true }],
+        [{ strong: "Scenario" }],
+        ["Alex typically starts his day early, receiving his assigned routes and preparing for deliveries. However, he often encounters problems when product inventories are not up to date, or last-minute changes are not communicated effectively. This leads to wasted time and frustration. He wants a solution that simplifies these processes, allowing him to focus on driving and delivering products efficiently."],
+        [{ strong: "Goals" }],
+        ["Complete all daily deliveries without unnecessary delays.\nReduce time spent on paperwork by using an app to confirm deliveries.\nStay informed about delivery changes in real time to avoid confusion."],
+        [{ strong: "Frustrations" }],
+        ["Struggles with inaccurate or outdated delivery information.\nThe current paperwork system is time-consuming and prone to errors.\nDifficulties navigating complex routes without proper GPS guidance."],
       ],
     },
 
     {
-      kind: "marker",
-      ghost:
-        "There is a version of this project that ships the navigation app we assumed we were making, wins nothing, and quietly fails the people using it – because the thing it solved beautifully was never the thing in the way. The difference between that version and this one is ten conversations. Research is not the part of the process that slows you down; it is the part that stops you building the wrong thing well.",
-      lines: [
-        ["The hypothesis was navigation."],
-        ["The drivers said paperwork."],
-        [{ strong: "You find that out by asking –" }],
-        [{ strong: "not by guessing." }],
+      kind: "plates",
+      items: [
+        { src: "/waypro/board-11.webp", pl: "PL. 03", alt: "A route in progress with a pinned map and turn-by-turn navigation.", caption: ["In progress – turn-by-turn navigation for the active route."] },
+        { src: "/waypro/board-12.webp", pl: "PL. 04", alt: "A delivery-confirmation screen with an on-screen signature pad.", caption: ["Delivery confirmed with an on-screen signature – no paperwork."] },
       ],
     },
 
     {
       kind: "spec",
       n: "05",
-      label: "Craft & build",
-      heading: "Built earthy, for eyes on the road all day",
-      notes: [
-        { text: [{ strong: "The palette is doing a job," }, " not decorating one."] },
-        { quiet: true, text: ["Ochre, mustard and olive green are easy on the eyes over a long shift; the muted contrast keeps the thing that matters legible without shouting."] },
-      ],
-      hand: { lines: ["a driver reads", "this in sun, in", "a moving van –", "so nothing shouts"], inkFrom: 3, offsetTop: 210 },
-      body: [
-        ["Designed in Figma end to end – wireframes, prototypes and the high-fidelity UI – and tested with drivers, then iterated. The front end was built with a development team; the handover was the prototype plus its states."],
-        ["The colour scheme is earthy on purpose: ", { mark: "charcoal, olive, ochre, sage and brick red" }, ". Long hours of use reward low strain over high contrast, so the important element stands out without the screen ever being harsh."],
-      ],
+      label: "The journey",
+      heading: "Customer journey map",
+      body: [],
       rows: [
-        { key: "Platform", value: ["iOS."] },
-        { key: "Designed in", value: ["Figma – wireframes, prototypes and hi-fi UI."] },
-        { key: "Palette", value: ["Charcoal ", { code: "#1E1E1E" }, ", olive ", { code: "#7F772C" }, ", ochre ", { code: "#CFA84D" }, ", sage ", { code: "#CAC30B" }, ", brick red ", { code: "#A7473B" }, "."] },
-        { key: "Method", value: ["Ten driver interviews · persona · journey map · usability testing."] },
-        { key: "Team", value: ["Lead UX Designer, with Alex Broman and the development team."] },
-      ],
-    },
-
-    {
-      kind: "plates",
-      label: "The screens",
-      heading: "What the driver sees",
-      notes: [
-        { text: [{ strong: "Six screens, one job each." }, " The whole run lives on the phone in the cab."] },
-        { quiet: true, text: ["Shown as they were presented – the app on the earthy palette it was designed in."] },
-      ],
-      items: [
-        { src: "/waypro/board-04.webp", pl: "PL. 01",
-          alt: "The WayPro sign-in screen shown on an iPhone.",
-          caption: ["Sign in – the driver's entry point."] },
-        { src: "/waypro/board-08.webp", pl: "PL. 02",
-          alt: "The home screen: the day's assigned routes as a list, each with a status and load.",
-          caption: ["The home screen – the day's routes, each tagged with its status and how full the load is."] },
-        { src: "/waypro/board-10.webp", pl: "PL. 03",
-          alt: "A route-detail screen with stops in order, addresses, time windows and load status.",
-          caption: ["A route in detail – stops in order, time windows, and the load on board."] },
-        { src: "/waypro/board-11.webp", pl: "PL. 04",
-          alt: "A route in progress with a pinned map and turn-by-turn navigation.",
-          caption: ["In progress – turn-by-turn navigation for the active route."] },
-        { src: "/waypro/board-12.webp", pl: "PL. 05",
-          alt: "A delivery-confirmation screen with an on-screen signature pad.",
-          caption: ["Delivery confirmed with an on-screen signature – no paperwork."] },
-        { src: "/waypro/board-13.webp", pl: "PL. 06",
-          alt: "A route-complete screen and the one-tap report submission.",
-          caption: ["Route complete; the report submits in a tap."] },
+        { key: "Review assigned routes", value: ["Open app and view assigned routes · Check route details · Verify product inventory\nFeeling: confused, rushed\nImprovement: clearer route overview and real-time traffic updates"] },
+        { key: "Start navigation", value: ["Use Google Maps for navigation · Follow route guidance\nFeeling: focused, determined\nImprovement: turn-by-turn guidance that adapts to traffic changes"] },
+        { key: "Pickup product", value: ["Check pickup details · Verify inventory · Load product into vehicle\nFeeling: confident, prepared\nImprovement: real-time inventory tracking, improved product verification"] },
+        { key: "Deliver product", value: ["Use app to find exact drop-off location · Unload product · Meet with recipient\nFeeling: tired, focused\nImprovement: detailed instructions for delivery drop-offs"] },
+        { key: "Confirm delivery", value: ["Collect recipient's signature · Verify delivery in app\nFeeling: relieved, accomplished\nImprovement: quick signature collection, one-step verification process"] },
+        { key: "Complete route report", value: ["Finalize route · Submit delivery report\nFeeling: satisfied, ready to finish\nImprovement: automated report submission for faster completion"] },
       ],
     },
 
     {
       kind: "prose",
       n: "06",
-      label: "Outcome",
-      heading: "What happened to it",
+      heading: "Outcomes",
       rule: true,
-      notes: [
-        { text: [{ strong: "Six international awards" }, " for a driver's tool most people will never see."] },
+      awards: true,
+      stats: [
+        { n: "10", caption: "Drivers interviewed, all actively delivering herbal products" },
+        { n: "4", caption: "Pain points, each turned into a feature" },
+        { n: "6", sup: "×", caption: "International awards" },
       ],
       body: [
-        ["WayPro took ", { mark: "two Golds and a Silver at the Indigo Design Award" }, " (Mobile App; Mobile Interaction & Experience), ", { mark: "Gold at the Davey Awards" }, " (Mobile Features – Best UI), ", { mark: "Gold at the London Design Awards" }, " (UI, Transportation) and ", { mark: "Silver at the MUSE Creative Awards" }, " (Mobile App, Logistics) – recognition for a piece of workwear software, judged on the same terms as consumer apps."],
-        [{ tk: "any shipped/usage numbers you can share – drivers on it, deliveries handled" }],
+        ["The design of WayPro greatly simplified the delivery process for drivers, reducing the time spent on manual paperwork and improving route efficiency."],
+        ["One of the study participants noted, ", { mark: "“The app makes it so much easier to navigate routes and confirm deliveries quickly without getting bogged down by paperwork.”", strong: true }],
       ],
     },
   ],

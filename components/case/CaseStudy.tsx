@@ -1,6 +1,7 @@
 import Link from "next/link";
-import type { CaseStudy as Case, HandNote, MarginNote, Para, Section } from "@/content/work/types";
+import type { CaseStudy as Case, HandNote, MarginNote, Para, Section, SidePhoto } from "@/content/work/types";
 import Spans from "./Spans";
+import CasePlayer from "./CasePlayer";
 import Pile from "./Pile";
 import CaseTablet from "./CaseTablet";
 import AwardCard from "@/components/AwardCard";
@@ -80,29 +81,29 @@ function Block({ section, data }: { section: Section; data: Case }) {
       return (
         <section className="row">
           <Rail n={section.n} label={section.label} notes={section.notes} />
-          <div className={section.rule ? "body rule" : "body"}>
+          <div className={[section.rule ? "body rule" : "body", section.awards && "body--awards"].filter(Boolean).join(" ")}>
             <Body section={section} />
+            {section.stats && (
+              <div className="outcome outcome--inline">
+                <div className="grid">
+                  {section.stats.map((st) => (
+                    <div className="stat" key={st.caption}>
+                      <div className="n">{st.n}{st.sup && <small>{st.sup}</small>}</div>
+                      <span className="c">{st.caption}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {section.awards && <CaseAwards data={data} />}
           </div>
           <div className="side">
             <Hand hand={section.hand} />
-            {section.photos?.map((ph) => (
-              <figure key={ph.src} className="side-shot">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="side-print" src={ph.src} alt={ph.alt} loading="lazy"
-                  style={{ "--tilt": `${ph.tilt}deg` } as React.CSSProperties} />
-                {ph.hand && (
-                  <figcaption className="side-hand">
-                    {/* a pen stroke from the words up to the print */}
-                    <svg className="side-hand__arrow" viewBox="0 0 56 44" aria-hidden>
-                      <path d="M6 40 C 14 30, 30 24, 44 8" />
-                      <path d="M36 9 L 45 6 L 44 16" />
-                    </svg>
-                    {ph.hand}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
+            <SidePhotos photos={section.photos} />
+            {section.player && <CasePlayer />}
+            {section.cta && (
+              <a className="case-live side-cta" href={section.cta.href} target="_blank" rel="noopener noreferrer">{section.cta.label}</a>
+            )}
           </div>
         </section>
       );
@@ -134,18 +135,30 @@ function Block({ section, data }: { section: Section; data: Case }) {
             <Body section={section} />
             {section.items.map((d) => (
               <div className="decision" key={d.label}>
-                <div className="d-label">{d.label}</div>
-                <h4>{d.title}</h4>
+                {/* a sticky note: the number and the title in hand */}
+                <div className="d-sticker">
+                  <div className="d-label">{d.label}</div>
+                  <h4>{d.title}</h4>
+                </div>
                 {d.body.map((p, i) => <p key={i}><Spans spans={p} /></p>)}
                 {d.tradeoff && (
                   <div className="tradeoff">
                     {d.tradeoff.map((p, i) => <p key={i}><Spans spans={p} /></p>)}
                   </div>
                 )}
+                {d.player && <CasePlayer />}
+                {d.tablet && (
+                  <div className="d-tablet">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/artefacts/ukrainska-15/tablet/tablet.webp" alt="" aria-hidden />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className="case-tablet__screen" src={d.tablet.src} alt={d.tablet.alt} loading="lazy" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
-          <div className="side"><Hand hand={section.hand} /></div>
+          <div className="side"><Hand hand={section.hand} /><SidePhotos photos={section.photos} /></div>
         </section>
       );
 
@@ -237,7 +250,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
               <h1>{data.title}</h1>
               {data.tablet && (
                 <a className="case-live" href={data.tablet.href} target="_blank" rel="noopener noreferrer" aria-label={data.tablet.label}>
-                  View the live project <span aria-hidden>↗</span>
+                  {data.tablet.button ?? "View the live project"} <span aria-hidden>↗</span>
                 </a>
               )}
             </div>
@@ -320,4 +333,17 @@ export default function CaseStudyPage({ data }: { data: Case }) {
       </div>
     </main>
   );
+}
+
+/** Prints laid in the field beside a section, each at its own tilt, with a
+ *  line in hand under it. */
+function SidePhotos({ photos }: { photos?: SidePhoto[] }) {
+  return photos?.map((ph) => (
+    <figure key={ph.src} className="side-shot">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className={ph.cutout ? "side-print side-print--cutout" : "side-print"} src={ph.src} alt={ph.alt} loading="lazy"
+        style={{ "--tilt": `${ph.tilt}deg` } as React.CSSProperties} />
+      {ph.hand && <figcaption className="side-hand">{ph.hand}</figcaption>}
+    </figure>
+  ));
 }

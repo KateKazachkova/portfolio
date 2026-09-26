@@ -9,7 +9,6 @@ import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
-import { isWritten } from "@/content/work/slugs";
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 
 /**
@@ -68,10 +67,13 @@ const CASES = [
 ] as const;
 
 // Whose awards a stack holds (lib/awards.ts), and what rides along with it
-const PROJECT: Record<string, { name: string; sub: string }> = {
-  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS · K. Kazachkova" },
-  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS · K. Kazachkova" },
-  waypro: { name: "WayPro", sub: "Logistics iOS app · K. Kazachkova" },
+const PROJECT: Record<string, { name: string; sub: string; about: string }> = {
+  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS · K. Kazachkova",
+    about: "A B2B supply-chain platform for bulk materials – sand, gravel and the trucks that haul them. I designed it from the ground up as the sole product designer: research, UX, UI, the design system and handoff." },
+  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS · K. Kazachkova",
+    about: "Compliance and benefits SaaS for US government contractors. I have led its redesign since October 2024: support requests down 71%, onboarding completion up 76%." },
+  waypro: { name: "WayPro", sub: "Logistics iOS app · K. Kazachkova",
+    about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
 };
 // BulkSource moves sand and gravel: its stack lies in a spill of sand with
 // a toy dump truck parked on top (public/items/bulksource, generated).
@@ -82,12 +84,13 @@ const STACK_LINKS: Record<string, { label: string; href: string; external?: bool
 };
 
 // The first click brings the camera to a card; then its rows open the
-// winner pages, and a written case its page (content/work/slugs.ts).
+// winner pages.
 function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" }> }) {
   // the objects' pictures wait for the room's own first paint (useWarm)
   const warm = useWarm();
   const pic = (src: string) => (warm ? src : undefined);
-  const links = [...(STACK_LINKS[c.slug] ?? []), ...(isWritten(c.slug) ? [{ label: "Read the case →", href: `/work/${c.slug}` }] : [])];
+  // no "Read the case" yet: each note says the case study is in progress
+  const links = STACK_LINKS[c.slug] ?? [];
   return (
     <div
       className="desk-card desk-card--stack"
@@ -108,7 +111,7 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
         // eslint-disable-next-line @next/next/no-img-element
         <img className="stack-mush" src={pic("/items/waypro/mush.webp")} alt="" draggable={false} decoding="async" />
       )}
-      <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} links={links}
+      <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} about={PROJECT[c.slug].about} links={links}
         picture={c.slug === "waypro" ? { src: pic("/items/waypro/postcard.webp"), href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
       {c.slug === "waypro" && (
         <span className="stack-moss" aria-hidden>
@@ -257,7 +260,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
             its words stand on paper and not on the tiles' grout: left of the
             case files (at pan 0) and left of the Profile binder. Desk-top px,
             measured from the column's box at 1440 × 900. */}
-        {warm && <div className="desk-paper" aria-hidden style={{ left: "calc(1211 * var(--u))", top: "calc(611 * var(--u))", "--r": "-1.5deg", "--w": 155, "--h": 225 } as React.CSSProperties} />}
+        {warm && <div className="desk-paper" aria-hidden style={{ left: "calc(1191 * var(--u))", top: "calc(611 * var(--u))", "--r": "-1.5deg", "--w": 155, "--h": 225 } as React.CSSProperties} />}
         {/* the Profile one is slipped into the binder, over its board and
             under its first sheet, and runs 56 desk px (~100 screen px)
             wider to reach in under the sheet */}

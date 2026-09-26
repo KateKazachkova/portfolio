@@ -11,7 +11,7 @@ export type TK = { tk: string };
 /** A line of body copy. Strings are plain; the objects carry the annotation layer. */
 export type Span =
   | string
-  | { mark: string }        // highlighter — the deliberate skim path
+  | { mark: string; strong?: boolean }   // highlighter — the deliberate skim path (and bold, where it must stop the eye)
   | { pen: string }         // ink underline, a second weight of emphasis
   | { redact: string }      // for NDA work: the words are there, the ink is not
   | { code: string }
@@ -26,6 +26,12 @@ export type MarginNote = { text: Para; quiet?: boolean };
 /** Handwriting in the right-hand annotation field. */
 export type HandNote = { lines: string[]; inkFrom?: number; offsetTop?: number };
 
+export type Stat = { n: string; sup?: string; caption: string };
+
+export type SidePhoto = { src: string; alt: string; tilt: number; hand?: string;
+  /** a cut-out (a phone, not a print): its shadow follows its outline */
+  cutout?: boolean };
+
 export type Decision = {
   label: string;
   title: string;
@@ -33,6 +39,10 @@ export type Decision = {
   /** What the decision cost. The interesting half. A decision that cost
    *  nothing has none. */
   tradeoff?: Para[];
+  /** the song's flash player, in the margin beside the decision */
+  player?: boolean;
+  /** a screen of the product on the tablet, under the decision's text */
+  tablet?: { src: string; alt: string };
 };
 
 export type SpecRow = { key: string; value: Para };
@@ -56,7 +66,9 @@ export type PileItem = {
   /** Describes the decision or the content, never "screenshot". */
   alt: string;
   kind: string;
-  caption: Para;
+  caption?: Para;
+  /** how much bigger than the others it lies on the table (1 = as they are) */
+  size?: number;
 };
 
 /** A numbered plate — a full-width figure that breaks out of the measure. */
@@ -74,10 +86,16 @@ export type Section =
       /** The project's award card under the text (the outcome section). */
       awards?: boolean;
       /** Prints laid in the field beside the text, each at its own tilt, with
-       *  an optional line written under it in hand, an arrow up to the print. */
-      photos?: { src: string; alt: string; tilt: number; hand?: string }[] }
+       *  an optional line written under it in hand. */
+      photos?: SidePhoto[];
+      /** the song's flash player, in the margin beside the text */
+      player?: boolean;
+      /** the numbers under the text, as the outcome strip sets them */
+      stats?: Stat[];
+      /** a button out to the project, in the margin beside the text */
+      cta?: { label: string; href: string } }
   | { kind: "decisions"; n: string; label?: string; heading: string; rule?: boolean;
-      body?: Para[]; items: Decision[]; notes?: MarginNote[]; hand?: HandNote }
+      body?: Para[]; items: Decision[]; notes?: MarginNote[]; hand?: HandNote; photos?: SidePhoto[] }
   | { kind: "spec"; n: string; label: string; heading: string;
       body: Para[]; rows: SpecRow[]; notes?: MarginNote[]; hand?: HandNote }
   | { kind: "pile"; title: string; count: string; help: string;
@@ -101,12 +119,14 @@ export type CaseStudy = {
   fields: { key: string; value: Para }[];
   lead?: { ghost: string; red: string; ink: string };
   outcome?: {
-    stats: { n: string; sup?: string; caption: string }[];
+    stats: Stat[];
     stamps: AwardStamp[];
   };
   /** The live thing on a tablet before the text: a recording of it on the
    *  screen, and a click through to it. */
-  tablet?: { video: string; poster: string; href: string; label: string };
+  /** the product on Kate's tablet by the title; `button` names the link
+   *  beside the title */
+  tablet?: { video: string; poster: string; href: string; label: string; button?: string };
   sections: Section[];
   /** The last word, under the sections: the title again, one line, and the
    *  way out to the live thing. */

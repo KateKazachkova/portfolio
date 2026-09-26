@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { awardHref } from "@/lib/awards";
+import { U15_SONG as SONG, U15_SONG_HINT } from "@/lib/u15Song";
 
 /**
  * Ukrainska 15's file on the desk: a red card pocket folder in the live
@@ -11,12 +12,14 @@ import { awardHref } from "@/lib/awards";
  * Closed, the folder lies in the row like the other files, the prints and
  * the library card standing out of its pocket. A click opens it where it
  * lies: the folder slides down out of the way, the other files slide off to
- * the right, the two stacks of prints rise up out of the pocket (and can
- * then be dragged anywhere on the desk), the library card of its awards
- * goes to the left, the player to the right, and a tag out of the pocket
- * leads to the case's own page (where the story and the live site are now,
- * rather than a booklet and a tablet on the desk). A click on the folder
- * again, or leaving the desk, puts it all back.
+ * the right, the prints rise up out of the pocket and spread one by one over
+ * the desk (and can then be dragged anywhere), the library card of its
+ * awards goes to the left, the player to the right, and a sticky note out of
+ * the pocket says what the project is and leads to the case's own page. A
+ * click on the folder again, or leaving the desk, puts it all back.
+ *
+ * Closed, a pointer over the folder draws the card a little way up out of
+ * the pocket, with a button to the case's page on it.
  *
  * Everything is laid out in the folder's own units (150 × 208, each K desk
  * px; see .env in globals.css for why it is drawn 3× up), and the open
@@ -74,19 +77,30 @@ type Pt = { x: number; y: number };
 // Where each thing goes once the folder is open, as an offset from where it
 // lies closed (folder units) and the angle it lands at. The layout is for the
 // camera at pan 0, clear of the nav column on the left (it stays on the desk
-// too): the card left, the stacks up, the player right, the tag to the
-// case's page between them, the folder down.
+// too): the card left, the note right of it, the player right, the folder
+// down. The stacks stay put: their prints spread out of them (SPREAD).
 const OPEN: Record<string, Pt & { r: number }> = {
   sleeve: { x: -20, y: 175, r: -2 },
-  family: { x: 32.5, y: -40, r: 4 },
-  after: { x: 105, y: -52, r: -3 },
   card: { x: 10, y: 31, r: -4 },
   player: { x: 100, y: 22, r: 12 },
-  tag: { x: 112, y: 30, r: -3 },
+  note: { x: 112, y: -47, r: -3 },
 };
+// Where each print lands on the open desk: its top left corner in folder
+// units, and its angle. Scattered round the card and the note, over the
+// top of the desk and down its right side, as if tipped out of the pocket.
+const SPREAD: Record<string, [number, number, number]> = {
+  "family-1": [1, -52, -4], "after-2": [75, -59, 3], "family-2": [152, -50, -3], "after-6": [216, -59, 4], "family-4": [284, -49, -5],
+  "family-5": [25, -7, 5], "family-3": [102, -14, -6], "after-1": [251, -5, -3],
+  "after-3": [291, 39, 4], "after-4": [291, 129, -4],
+  "after-5": [161, 157, 3], "after-7": [234, 178, -5], "after-8": [289, 199, 6], "family-6": [84, 164, -3],
+};
+// where each stack lies in the folder (.env__stack--* in globals.css)
+const STACK_AT: Record<string, Pt> = { family: { x: 7.5, y: 3.12 }, after: { x: 64.5, y: 16.64 } };
 // On the way out everything first slides straight up out of the pocket,
 // together, and only then spreads; on the way back it gathers there first.
-const SPILL: Record<string, Pt> = { family: { x: 0, y: -62 }, after: { x: 0, y: -72 }, card: { x: 0, y: -78 }, tag: { x: 0, y: -70 } };
+const SPILL: Record<string, Pt> = { family: { x: 0, y: -62 }, after: { x: 0, y: -72 }, card: { x: 0, y: -78 }, note: { x: 0, y: -70 } };
+// What the note on the open desk says: the case's own summary, shortened.
+const INTRO = "An interactive story built from my family’s real messages, voice notes and photographs during the Russian occupation of Kupiansk – one house, several generations, and what happens to memory when the place that held it is lost.";
 const SPILL_MS = 480, GATHER_MS = 820;
 const CLOSED_R: Record<string, number> = { card: -1.5, player: 8 };
 
@@ -220,12 +234,18 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="env__layer env__back u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src={near ? "/artefacts/ukrainska-15/envelope/back.webp?v=4" : "/artefacts/ukrainska-15/envelope/back.sm.webp"} alt="" draggable={false} />
 
-        <Link className="u15-tag" href="/work/ukrainska-15" style={place("tag", 9)} tabIndex={open ? 0 : -1} aria-hidden={!open}>Read the case →</Link>
+        {/* the sticky note: what the project is, and the way to its page */}
+        <span className="u15-note u15-item" {...is("note")} style={place("note", 11)} onPointerDown={(e) => grab("note")(e)} aria-hidden={!open}>
+          <span className="u15-note__kicker">Ukrainska 15 · 2024 – 2026</span>
+          <span className="u15-note__text">{INTRO}</span>
+          <Link className="u15-note__btn" href="/work/ukrainska-15" tabIndex={open ? 0 : -1} onPointerDown={(e) => e.stopPropagation()}>Read the case →</Link>
+        </span>
 
         {STACKS.map((st) => (
           <span key={st.key} className={`env__stack env__stack--${st.key} u15-item`} data-item={st.key} style={place(st.key, 10)}>
-            {[...st.prints].reverse().map(([n, w, h, t], i, all) => {
+            {[...st.prints].reverse().map(([n, w, h, t]) => {
               const id = `${st.key}-${n}`, d = drag[id];
+              const [sx, sy, sr] = SPREAD[id], at = STACK_AT[st.key];
               return (
                 <span
                   key={n}
@@ -235,8 +255,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
                   onPointerDown={(e) => grab(id)(e)}
                   style={{
                     "--t": `${t}deg`, "--dx": d?.x ?? 0, "--dy": d?.y ?? 0,
-                    // fanned a little once out of the pocket, top print last
-                    "--fan": all.length - 1 - i,
+                    // where it lands once out of the pocket, from its stack
+                    "--sx": sx - at.x, "--sy": sy - at.y, "--sr": `${sr}deg`,
                     aspectRatio: `${w} / ${h}`, zIndex: top[id],
                   } as React.CSSProperties}
                 >
@@ -296,6 +316,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
           onPointerDown={(e) => grab("sleeve", toggle)(e)}
           onClick={(e) => { if (e.detail === 0) toggle(); }}   // keyboard
         />
+        {/* closed, over the card drawn up out of the pocket on hover */}
+        <Link className="u15-view" href="/work/ukrainska-15" tabIndex={-1} aria-hidden={open} onPointerDown={(e) => e.stopPropagation()}>View project →</Link>
 
         <DeskPlayer place={place("player", 12)} held={held === "player"} onGrab={(e, play) => grab("player", play)(e)} />
       </span>
@@ -307,7 +329,6 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
 // player (public/artefacts/ukrainska-15/player/). Click plays, click again
 // pauses; the LCD lights up and scrolls the title while it plays. The body
 // is ~8 cm; the cut-out with its earbuds is 58 × 124 desk px.
-const SONG = { title: "Still live in my mind", src: "/artefacts/ukrainska-15/player/still-live-in-my-mind.mp3" };
 const clock = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
 
 function DeskPlayer({ place, held, onGrab }: {
@@ -344,6 +365,7 @@ function DeskPlayer({ place, held, onGrab }: {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/artefacts/ukrainska-15/player/player.webp" alt="" draggable={false} />
+      <span className="desk-player__hint" aria-hidden>{U15_SONG_HINT}</span>
       <span className="desk-player__lcd" aria-hidden>
         <span className="desk-player__title"><span>{SONG.title}</span></span>
         <span className="desk-player__time">{playing ? "▶" : "❚❚"} {clock(time)}</span>

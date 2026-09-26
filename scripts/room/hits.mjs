@@ -46,6 +46,9 @@ const PICK = [
   // (out of the pocket once open) and its player; then each stack of
   // awards — the card, a way to lay it out, and laid out, its card's rows,
   // the juries' postcards and its tags
+  // …and the panel the page's own folder lies on at Case Files (M6,
+  // RoomU15.tsx): its box, the card's
+  { type: "u15panel", sel: ".desk-card--env", at: ["files"], kind: "button", slug: "ukrainska-15" },
   { type: "u15", sel: ".u15-hit", at: ["files"], kind: "button", action: "u15-toggle", slug: "ukrainska-15" },
   { type: "u15-tag", sel: ".u15-tag", at: ["files"], kind: "link", slug: "ukrainska-15", here: true },
   { type: "player", sel: ".desk-player", at: ["files"], kind: "button", action: "u15-play", slug: "ukrainska-15" },

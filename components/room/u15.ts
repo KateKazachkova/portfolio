@@ -1,58 +1,30 @@
 /**
- * Ukrainska 15's folder and its flash player in the WebGL room (M3), as
- * U15File's: a click opens the folder where it lies, and again puts it
- * away; the player plays the site's song and pauses it. The camera hears
- * of it as it does from U15File (kate:u15-open → the desk pans to it and
- * the case is in focus; kate:u15-closed), and asks it back the same way
- * (kate:u15-close: Escape, another case, "Put the file away";
- * kate:u15-reset: leaving the desk, which stops the song too).
- *
- * Not drawn yet (M6): the folder opening, the prints rising out of its
- * pocket and being dragged about, the player's LCD.
+ * Ukrainska 15's folder and its flash player in the WebGL room. Since M6
+ * they are the page's own U15File, laid flat on a panel at Case Files
+ * (RoomU15.tsx): it opens and closes itself, plays the song, and says so to
+ * the camera as in the CSS room (kate:u15-open / -closed; it hears
+ * kate:u15-close and kate:u15-reset). The room's state only follows it
+ * (html[data-u15], which U15File sets); the old controls' actions, should
+ * one run, press the panel's own.
  */
-import { roomState, setRoom } from "./state";
+import { setRoom } from "./state";
 
-const OPEN = "kate:u15-open", CLOSE = "kate:u15-close", CLOSED = "kate:u15-closed", RESET = "kate:u15-reset";
-const SONG = "/artefacts/ukrainska-15/player/still-live-in-my-mind.mp3";
 export const SONG_TITLE = "Still live in my mind";
 
-let audio: HTMLAudioElement | null = null;
-export function toggleSong() {
-  if (!audio) {
-    audio = new Audio(SONG);
-    audio.preload = "none";
-    audio.addEventListener("play", () => setRoom({ playing: true }));
-    audio.addEventListener("pause", () => setRoom({ playing: false }));
-  }
-  if (audio.paused) audio.play().catch(() => {}); else audio.pause();
-}
-
-export function toggleU15() {
-  const root = document.documentElement;
-  if (!roomState().u15) {
-    setRoom({ u15: true });
-    root.dataset.u15 = "open";
-    dispatchEvent(new Event(OPEN));
-  } else close();
-}
-// (said once the folder is shut, after the move that asked for it: a case
-// clicked while this one is open is in focus by then)
-function close(quiet = false) {
-  if (!roomState().u15) return;
-  setRoom({ u15: false });
-  delete document.documentElement.dataset.u15;
-  if (!quiet) setTimeout(() => dispatchEvent(new Event(CLOSED)), 0);
-}
+const press = (sel: string) => document.querySelector<HTMLElement>(`.room-hit--u15panel ${sel}`)?.click();
+export const toggleU15 = () => press(".u15-hit");
+export const toggleSong = () => press(".desk-player");
 
 export function startU15() {
-  const onClose = () => close();
-  const onReset = () => { close(true); audio?.pause(); };
-  addEventListener(CLOSE, onClose);
-  addEventListener(RESET, onReset);
-  return () => {
-    removeEventListener(CLOSE, onClose);
-    removeEventListener(RESET, onReset);
-    audio?.pause();
-    delete document.documentElement.dataset.u15;
-  };
+  const root = document.documentElement;
+  const player = () => document.querySelector(".room-hit--u15panel .desk-player");
+  const read = () => setRoom({ u15: root.dataset.u15 === "open", playing: !!player()?.hasAttribute("data-playing") });
+  const mo = new MutationObserver(read);
+  mo.observe(root, { attributes: true, attributeFilter: ["data-u15"] });
+  // (the player's own attribute, once the panel is built)
+  const mp = new MutationObserver(read);
+  const watch = () => { const p = player(); if (p) mp.observe(p, { attributes: true, attributeFilter: ["data-playing"] }); };
+  const id = setInterval(() => { if (player()) { watch(); clearInterval(id); } }, 500);
+  read();
+  return () => { mo.disconnect(); mp.disconnect(); clearInterval(id); };
 }

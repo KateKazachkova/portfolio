@@ -31,7 +31,7 @@ const click = async (x, y) => { await mouse("mouseMoved", x, y); await mouse("mo
 const VK = { Tab: 9, Enter: 13, Escape: 27, " ": 32, ArrowLeft: 37, ArrowRight: 39 };
 // (Enter carries its text: a button is pressed by the keypress it makes)
 const key = async (k, code) => { await b.send("Input.dispatchKeyEvent", { type: "keyDown", ...(k === "Enter" ? { text: "\r", unmodifiedText: "\r" } : {}), key: k, code: code ?? k, windowsVirtualKeyCode: VK[k] }); await b.send("Input.dispatchKeyEvent", { type: "keyUp", key: k, code: code ?? k, windowsVirtualKeyCode: VK[k] }); };
-const rect = (id) => b.ev(`(()=>{const e=document.querySelector('.room-hit[data-hit="${id}"]');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return JSON.stringify({x:r.x,y:r.y,w:r.width,h:r.height,clip:e.style.clipPath,tab:e.tabIndex})})()`).then((r) => (r ? JSON.parse(r) : null));
+const rect = (id) => b.ev(`(()=>{const e=document.querySelector('${sel(id)}');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return JSON.stringify({x:r.x,y:r.y,w:r.width,h:r.height,clip:e.style.clipPath,tab:e.tabIndex})})()`).then((r) => (r ? JSON.parse(r) : null));
 const st = () => b.ev(`JSON.stringify({desk:document.documentElement.dataset.desk??null,focus:document.documentElement.dataset.deskFocus??null,arrived:document.documentElement.dataset.deskArrived??null,active:document.activeElement&&document.activeElement.className, hit: document.activeElement?.dataset?.hit ?? null, ptr: document.documentElement.classList.contains('room-pointer'), path: location.pathname + location.hash, mark: !!window.__mark})`).then(JSON.parse);
 // until a condition holds in the page (a flight may first wait up to 1.5 s for its pictures)
 // (a headed window can still be hidden by the system — another Space, a
@@ -52,7 +52,12 @@ const DESK = { home: "closed", files: "open", award: "award", offduty: "offduty"
 const EVENT = { files: "kate:case-files", award: "kate:recognition", offduty: "kate:off-duty", profile: "kate:profile", bike: "kate:off-duty" };
 // the stops below a stop: down over the bike computer
 const FOCUS = { bike: "bike" };
-const shown = (id) => `(e=>e&&!e.hidden)(document.querySelector('.room-hit[data-hit="${id}"]'))`;
+// Ukrainska 15's own controls are the page's, on its panel (M6, RoomU15.tsx)
+const PANEL = { u15: ".u15-hit", player: ".desk-player", "u15-tag": ".u15-tag" };
+const sel = (id) => (PANEL[id] ? `.room-hit--u15panel:not([data-away]) ${PANEL[id]}` : `.room-hit[data-hit="${id}"]`);
+const shown = (id) => PANEL[id]
+  ? `(e=>!!e&&+getComputedStyle(e).opacity>0.5&&getComputedStyle(e).visibility!=='hidden')(document.querySelector('${sel(id)}'))`
+  : `(e=>e&&!e.hidden)(document.querySelector('.room-hit[data-hit="${id}"]'))`;
 const goto = async (gl, stop) => {
   await b.go(`${SITE}/?nointro&gl=${gl}`, 1500);
   if (gl) await until("document.documentElement.dataset.glZone");
@@ -67,7 +72,7 @@ const goto = async (gl, stop) => {
 const tabWalk = async (n = 60) => {
   await b.ev("document.activeElement && document.activeElement.blur(); document.body.focus()");
   const seen = [];
-  for (let i = 0; i < n; i++) { await key("Tab"); await sleep(40); seen.push(await b.ev("document.activeElement?.dataset?.hit ?? (document.activeElement ? document.activeElement.className : '')")); }
+  for (let i = 0; i < n; i++) { await key("Tab"); await sleep(40); seen.push(await b.ev("(a=>a?.dataset?.hit ?? (a?.closest?.('.room-hit--u15panel') ? (a.classList.contains('u15-hit') ? 'u15' : a.classList.contains('desk-player') ? 'player' : a.classList.contains('u15-tag') ? 'u15-tag' : a.className) : a ? a.className : ''))(document.activeElement)")); }
   return seen;
 };
 
@@ -75,7 +80,7 @@ const tabWalk = async (n = 60) => {
 // (Case Files once with no case in focus, and once with each laid out)
 const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro"];
 const layOut = async (gl, f) => {
-  if (gl) await b.ev(`document.querySelector('.room-hit[data-hit="${f === "ukrainska-15" ? "u15" : `case-${f}`}"]').click()`);
+  if (gl) await b.ev(`document.querySelector('${f === "ukrainska-15" ? sel("u15") : sel(`case-${f}`)}').click()`);
   else if (f === "ukrainska-15") await b.ev("document.querySelector('.u15-hit').click()");
   else await b.ev(`document.querySelector('.desk-card[data-slug="${f}"]').click()`);
   // (the legacy parts slide out over 1.2 s; the WebGL controls are there at once)
@@ -84,7 +89,7 @@ const layOut = async (gl, f) => {
 if (run("parity")) {
   const stops = [...new Set(HITS.flatMap((h) => h.at))];
   for (const stop of stops) for (const f of stop === "files" ? [null, ...FOCI] : [null]) {
-    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd", "pf"].includes(h.type)
+    const here = HITS.filter((h) => h.at.includes(stop) && !["dvd", "pf", "u15", "u15-tag", "player"].includes(h.type)
       && (h.focus === undefined || h.focus === f) && (h.notFocus === undefined || h.notFocus !== f));
     const name = f ? `${stop} (${f})` : stop;
     await goto(0, stop);
@@ -360,19 +365,20 @@ if (run("wallet")) {
 // ── Case Files: the folder, its song, the stacks laid out one at a time ──
 if (run("files")) {
   await goto(1, "files");
-  const vis = () => b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden).map(e=>e.dataset.hit))`).then(JSON.parse);
-  const attr = (id, a) => b.ev(`document.querySelector('.room-hit[data-hit="${id}"]').getAttribute('${a}')`);
+  const vis = () => b.ev(`JSON.stringify([...[...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden&&!e.hasAttribute('data-away')).map(e=>e.dataset.hit).filter(h=>!['u15','player','u15-tag','u15panel'].includes(h)), ...Object.entries(${JSON.stringify(PANEL)}).filter(([k,s])=>(e=>!!e&&+getComputedStyle(e).opacity>0.5)(document.querySelector('.room-hit--u15panel:not([data-away]) '+s))).map(([k])=>k)])`).then(JSON.parse);
+  const attr = (id, a) => b.ev(`document.querySelector('${sel(id)}').getAttribute('${a}')`);
   const pan = () => b.ev("+getComputedStyle(document.querySelector('.scene-cam')).getPropertyValue('--pan')");
   // a point of the control's own, where nothing lies over it (the centre first)
   const clickHit = async (id) => {
-    const p = JSON.parse(await b.ev(`(()=>{const e=document.querySelector('.room-hit[data-hit="${id}"]');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();
-      const at=(fx,fy)=>{const x=r.x+r.width*fx,y=r.y+r.height*fy;return x>0&&y>0&&x<innerWidth&&y<innerHeight&&document.elementFromPoint(x,y)===e?[x,y]:null};
+    const p = JSON.parse(await b.ev(`(()=>{const e=document.querySelector('${sel(id)}');if(!e||e.hidden)return null;const r=e.getBoundingClientRect();
+      const at=(fx,fy)=>{const x=r.x+r.width*fx,y=r.y+r.height*fy;return x>0&&y>0&&x<innerWidth&&y<innerHeight&&e.contains(document.elementFromPoint(x,y))?[x,y]:null};
       let q=at(.5,.5);for(let fy=.1;!q&&fy<.95;fy+=.08)for(let fx=.1;!q&&fx<.95;fx+=.08)q=at(fx,fy);return JSON.stringify(q)})()`));
     if (!p) { log("  (nowhere to click", id, ")"); return; }
     await click(p[0], p[1]);
   };
   // off in the window's edge, or moved aside: focus brings the desk round to it first
-  const use = async (id) => { await b.ev(`document.querySelector('.room-hit[data-hit="${id}"]').focus()`); await sleep(900); await clickHit(id); };
+  // (the panel is out of sight while the desk pans: wait for it)
+  const use = async (id) => { await until(`!!document.querySelector('${sel(id)}')`, 3000); await b.ev(`document.querySelector('${sel(id)}')?.focus()`); await sleep(900); await until(`!!document.querySelector('${sel(id)}')`, 3000); await clickHit(id); };
   let v = await vis();
   ok(["u15", "player", "case-bulksource", "case-onsisoft", "case-waypro"].every((x) => v.includes(x)) && !v.some((x) => /^(row|postcard|jury-tag|u15-tag)/.test(x)), "files: the folder, the player and the three stacks; nothing laid out yet", v.filter((x) => x !== "trophy").join(" "));
   ok((await attr("u15", "aria-label")) === "Open Ukrainska 15" && (await attr("u15", "aria-expanded")) === "false", "files: the folder says it opens");
@@ -428,25 +434,28 @@ if (run("files")) {
   ok(s.focus === "ukrainska-15" && (await b.ev("document.documentElement.dataset.u15")) === "open", "files: a click opens Ukrainska 15, in focus", s.focus);
   ok((await attr("u15", "aria-label")) === "Put Ukrainska 15 away" && (await attr("u15", "aria-expanded")) === "true", "files: open, the folder says it goes away");
   await b.shot(path.join(OUT, "files-u15.png"));
-  await use("player"); await until(`document.querySelector('.room-hit[data-hit="player"]').getAttribute('aria-pressed')==='true'`, 4000);
+  await use("player"); await until(`document.querySelector('.room-hit--u15panel .desk-player').getAttribute('aria-pressed')==='true'`, 4000);
   ok((await attr("player", "aria-label")) === "Pause “Still live in my mind”", "files: the player plays the song", await attr("player", "aria-label"));
-  await b.ev("document.querySelector('.room-hit[data-hit=\"player\"]').focus()"); await key("Enter");
-  await until(`document.querySelector('.room-hit[data-hit="player"]').getAttribute('aria-pressed')==='false'`, 3000);
+  await b.ev("document.querySelector('.room-hit--u15panel .desk-player').focus()"); await key("Enter");
+  await until(`document.querySelector('.room-hit--u15panel .desk-player').getAttribute('aria-pressed')==='false'`, 3000);
   ok((await attr("player", "aria-pressed")) === "false", "files: Enter on it pauses");
   // another case while it is open: it shuts
-  await use("case-bulksource"); await until(shown("row-bulksource-0"), 3000); await sleep(300);
+  // (the folder gathers its things first, U15File's GATHER_MS, then is shut)
+  await use("case-bulksource"); await until(shown("row-bulksource-0"), 3000); await until("!document.documentElement.dataset.u15", 2000); await sleep(300);
   s = await st();
   ok(s.focus === "bulksource" && !(await b.ev("document.documentElement.dataset.u15")) && !(await b.ev(shown("u15-tag"))), "files: another case in focus puts Ukrainska 15 away", s.focus);
-  await key("Escape"); await sleep(300);
-  await b.ev("document.querySelector('.room-hit[data-hit=\"u15\"]').focus()"); await key("Enter"); await until(shown("u15-tag"), 3000);
-  await key("Escape"); await sleep(400);
+  await key("Escape"); await sleep(1200);
+  await until(`!!document.querySelector('${sel("u15")}')`, 3000);
+  await b.ev("document.querySelector('.room-hit--u15panel .u15-hit').focus()"); await key("Enter"); await until(shown("u15-tag"), 3000);
+  await key("Escape"); await until("!document.documentElement.dataset.u15", 2000); await sleep(400);
   s = await st();
   ok(s.focus === null && !(await b.ev("document.documentElement.dataset.u15")) && s.desk === "open", "files: Enter opens it, Escape puts it away");
   // the song stops when the camera leaves the desk
   await use("u15"); await until(shown("player"), 3000); await sleep(300);
-  await use("player"); await until(`document.querySelector('.room-hit[data-hit="player"]').getAttribute('aria-pressed')==='true'`, 4000);
-  await key("Escape"); await sleep(300); await key("Escape"); await arrive("closed");
-  ok((await b.ev("document.querySelector('.room-hit[data-hit=\"player\"]').getAttribute('aria-pressed')")) === "false" && !(await b.ev("document.documentElement.dataset.u15")), "files: leaving the desk stops the song and shuts the folder");
+  await use("player"); await until(`document.querySelector('.room-hit--u15panel .desk-player').getAttribute('aria-pressed')==='true'`, 4000);
+  // (Escape shuts the folder first, as the page's does; once shut, Escape leaves)
+  await key("Escape"); await until("!document.documentElement.dataset.u15", 2000); await sleep(300); await key("Escape"); await arrive("closed");
+  ok((await b.ev("document.querySelector('.room-hit--u15panel .desk-player').getAttribute('aria-pressed')")) === "false" && !(await b.ev("document.documentElement.dataset.u15")), "files: leaving the desk stops the song and shuts the folder");
   const ax = await b.send("Accessibility.getFullAXTree");
   void ax;
 }
@@ -567,7 +576,8 @@ if (run("lcd")) {
 if (run("flight")) {
   await goto(1, "home");
   await b.ev(`dispatchEvent(new Event('kate:recognition'))`); await sleep(700);
-  const mid = await b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden).map(e=>e.dataset.hit))`);
+  // (a panel kept out of sight, [data-away], is not shown: visibility hidden, nothing in it takes focus)
+  const mid = await b.ev(`JSON.stringify([...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden&&getComputedStyle(e).visibility!=='hidden').map(e=>e.dataset.hit))`);
   ok(mid === "[]", "flight: no control is shown or focusable while the camera moves", mid);
 }
 log(fails ? `${fails} FAILED` : "all passed");

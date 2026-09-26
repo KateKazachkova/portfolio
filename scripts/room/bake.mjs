@@ -52,6 +52,7 @@ html.bk .bk-on.bk-psb::before, html.bk .bk-on.bk-psa::after { mix-blend-mode: no
 html.bk .bk-on.bk-nops::before, html.bk .bk-on.bk-nops::after { display: none !important; }
 html.bk .bike__lcd, html.bk .bike__lcd * { visibility: hidden !important; }
 html.bk .od-dvd__screen, html.bk .od-dvd__screen * { visibility: hidden !important; }
+html.bk .desk-player__lcd, html.bk .desk-player__lcd * { visibility: hidden !important; }
 html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
 html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
 html.bk .od-sleeve { --stack: 0 0 transparent !important; }
@@ -185,6 +186,8 @@ if (OPT.only !== "flat") for (const it of units) {
   item._diff = diff;
   if (it.kind === "img" || it.kind === "bg") { Object.assign(item, { type: "img", src: it.src }); out.items.push(item); continue; }
   if (it.kind === "grid") { Object.assign(item, { type: "grid", src: it.src, grid: it.grid.map((v) => v / u) }); out.items.push(item); continue; }
+  // (Ukrainska 15's folder is baked in its parts, below)
+  if (it.cls === "env") { out.items.push(item); continue; }
   if (n++ >= limit) continue;
   // the plane's own frame on screen at 1:1: its local box, grown for ink
   // (shadows, blur, pseudo-elements) and trimmed back to what was drawn
@@ -316,6 +319,83 @@ if (OPT.only !== "flat") {
   wallet.screen = { m: toU(scr.m, u), w: scr.s[0] / u, h: scr.s[1] / u };
   out.wallet = wallet;
   log("wallet", wallet.discs.length, "discs,", Object.keys(wallet.layers).length, "layers,", out.items.filter((x) => /^od-(step|film)/.test(x.cls)).length, "sleeve layers");
+}
+
+// ── Ukrainska 15 (M6): the folder in its parts ────────────────────────────
+// .env (U15File) is one flat layer, baked above as one picture; its parts
+// move apart when it opens and can be dragged, so each is a plane of its
+// own here: the back (and its shadow), each print, the library card, the
+// tag, the front (the pocket, its print, its stamps), the player (its LCD
+// left blank, drawn live) — closed, as the bake page has it. For the engine
+// (components/room/u15gl.ts) each carries its chain of elements from .env
+// down to it, with their layout offsets in u (constant at any size), so it
+// can lay the part where the page's own folder (the flat panel at Case
+// Files, RoomU15.tsx) has it now: the card's matrix × each link's offset,
+// origin and current transform × the picture's offset in its element.
+if (OPT.only !== "flat") {
+  const env = units.find((x) => x.cls === "env");
+  const at = out.items.findIndex((x) => x.i === env?.i);
+  if (!env || at < 0) log("no U15 folder");
+  else {
+    const envItem = out.items[at];
+    const PRINTS = JSON.parse(await b.ev("JSON.stringify([...document.querySelectorAll('.env__print-photo')].map(e=>e.dataset.item))"));
+    const PARTS = [
+      { key: "back", els: [".env__back", ".env__shadow"] },
+      ...PRINTS.map((p) => ({ key: `print-${p}`, els: [`.env__print-photo[data-item="${p}"]`] })),
+      { key: "card", els: [".env__card"] },
+      { key: "tag", els: [".u15-tag"], prep: "document.querySelector('.u15-tag').style.setProperty('opacity','1','important')", undo: "document.querySelector('.u15-tag').style.removeProperty('opacity')" },
+      { key: "front", els: [".env > .env__layer:not(.env__back)", ".env__print", ".env__stamps"] },
+      { key: "player", els: [".desk-player"] },
+    ];
+    let idx = 9200;
+    const parts = [];
+    for (const p of PARTS) {
+      const i = idx++;
+      await b.ev(`(()=>{document.querySelector(${JSON.stringify(p.els[0])}).dataset.bk=${i}; ${p.prep ?? ""}; return 1})()`);
+      await b.ev(`window.__bk.pose(${i}, "all")`);
+      await b.ev(`(()=>{${JSON.stringify(p.els.slice(1))}.forEach(s=>document.querySelector(s).classList.add('bk-on'));return 1})()`);
+      // what they all draw, in the first one's frame (one flat layer)
+      const r = JSON.parse(await b.ev(`(()=>{const base=document.querySelector('.case-stage').getBoundingClientRect();let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+        for(const s of ${JSON.stringify(p.els)}){const root=document.querySelector(s);for(const e of [root,...root.querySelectorAll('*')]){const q=e.getBoundingClientRect();if(q.width<.01&&q.height<.01)continue;x0=Math.min(x0,q.left);y0=Math.min(y0,q.top);x1=Math.max(x1,q.right);y1=Math.max(y1,q.bottom)}}
+        return JSON.stringify({x:x0-base.left,y:y0-base.top,w:x1-x0,h:y1-y0})})()`));
+      const grow = Math.ceil(Math.max(8, Math.min(60, Math.max(r.w, r.h) * 0.08)));
+      const box = { x: Math.floor(r.x - grow), y: Math.floor(r.y - grow), w: Math.ceil(r.w + 2 * grow), h: Math.ceil(r.h + 2 * grow) };
+      const name = `u15-${p.key}`;
+      const png = await capture({ i: name }, box, env.rho);
+      const res = JSON.parse(execFileSync("python3", [pyStitch, "trim", png, path.join(MASTER, "png", name + ".png"), path.join(OUT, "tex", name + ".webp"), String(env.rho)]).toString());
+      await b.ev(`(()=>{${JSON.stringify(p.els.slice(1))}.forEach(s=>document.querySelector(s).classList.remove('bk-on'));delete document.querySelector(${JSON.stringify(p.els[0])}).dataset.bk; ${p.undo ?? ""}; return 1})()`);
+      if (!res.w) { log("u15 empty", p.key); continue; }
+      parts.push({ p, ox: box.x + res.x / env.rho, oy: box.y + res.y / env.rho, res });
+    }
+    await unpose();
+    // each part's chain from .env down to it: every link's layout offset in
+    // its parent link, read with every transform in the page off (as
+    // collect's measure()), in u
+    const chains = JSON.parse(await b.ev(`(()=>{
+      const st=document.createElement('style');st.textContent='html.bk-u15flat *, html.bk-u15flat *::before, html.bk-u15flat *::after{transform:none!important;translate:none!important;rotate:none!important;scale:none!important;transition:none!important}';document.head.appendChild(st);
+      document.documentElement.classList.add('bk-u15flat');void document.body.offsetHeight;
+      const u=document.querySelector('.case-stage').getBoundingClientRect().width/1118;
+      const card=document.querySelector('.desk-card--env'), env=card.querySelector('.env');
+      const out=${JSON.stringify(parts.map((x) => x.p.els[0]))}.map(s=>{const el=document.querySelector(s);const nodes=[];
+        for(let n=el;n&&n!==card;n=n.parentElement)nodes.unshift(n);
+        let par=card;return nodes.map(n=>{const a=n.getBoundingClientRect(),q=par.getBoundingClientRect();const l={cls:n===env?'env':(n.classList.contains('env__stack')?'stack':'item'),dx:(a.left-q.left)/u,dy:(a.top-q.top)/u};par=n;return l})});
+      document.documentElement.classList.remove('bk-u15flat');st.remove();void document.body.offsetHeight;
+      return JSON.stringify(out)})()`));
+    const items = [];
+    for (const [k, x] of parts.entries()) {
+      const el = x.p.els[0];
+      const m = JSON.parse(await b.ev(`JSON.stringify(window.__bkWorld(document.querySelector(${JSON.stringify(el)})))`));
+      items.push({ ...envItem, cls: `u15p u15p--${x.p.key}`, type: "tex", src: `/room/tex/u15-${x.p.key}.webp`, px: [x.res.w, x.res.h], rho: env.rho,
+        w: x.res.w / env.rho / u, h: x.res.h / env.rho / u, off: [x.ox, x.oy], m: toU(mulLocal(m, x.ox, x.oy), u), _diff: envItem._diff,
+        u15: { sel: el, key: x.p.key, q: [x.ox / u, x.oy / u], chain: chains[k] } });
+    }
+    out.items.splice(at, 1, ...items);
+    // the LCD's box in the player, u
+    const lcd = JSON.parse(await b.ev(`(()=>{const u=document.querySelector('.case-stage').getBoundingClientRect().width/1118;const e=document.querySelector('.desk-player__lcd');const p=e.offsetParent;return JSON.stringify({x:e.offsetLeft/u,y:e.offsetTop/u,w:e.offsetWidth/u,h:e.offsetHeight/u,of:p&&p.className})})()`));
+    const card = JSON.parse(await b.ev("JSON.stringify(window.__bkWorld(document.querySelector('.desk-card--env')))"));
+    out.u15 = { card: toU(card, u), lcd };
+    log("u15", items.length, "parts");
+  }
 }
 
 // ── the flat groups: their non-picture paint, by signature ─────────────────

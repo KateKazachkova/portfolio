@@ -21,6 +21,7 @@ import { makeLcd, type Lcd } from "./lcd";
 import { makeNight, POOL } from "./night";
 import { makeWallet, type Host, type WalletData } from "./wallet";
 import { makeScreen } from "./screen";
+import { makeU15 } from "./u15gl";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -33,10 +34,12 @@ type Item = {
   k2?: string; k2px?: [number, number]; k2mode?: string; k2bytes?: number;
   /** a preview, a few KB, drawn until the texture is in */
   lo?: string;
+  /** a part of Ukrainska 15's folder (bake.mjs, u15gl.ts) */
+  u15?: { sel: string; key: string; q: [number, number]; chain: { cls: "env" | "stack" | "item"; dx: number; dy: number }[] };
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } } };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -334,6 +337,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     planeCount.set(key, k + 1);
     return k;
   };
+  /** how many planes the room lifts in m's plane: the next free height there */
+  const liftTop = (m: number[]) => {
+    const n = normalOf(m);
+    if (!n) return 0;
+    return planeCount.get([n.x, n.y, n.z].map((v) => v.toFixed(2)).join() + "|" + Math.round(n.dot(new THREE.Vector3(m[12], m[13], m[14])) * 2) / 2) ?? 0;
+  };
   const lifted = (m: number[], k: number) => {
     const n = normalOf(m);
     if (!n || !k) return m;
@@ -423,6 +432,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   };
   // (made once the loop is there to draw them: below)
   let wallet: ReturnType<typeof makeWallet> | null = null, screen: ReturnType<typeof makeScreen> | null = null;
+  // Ukrainska 15's folder, laid where the page's panel has it (u15gl.ts)
+  let u15Hit: Hit | null = null;
+  const u15 = data.u15 ? makeU15({
+    scene,
+    parts: room.filter((p) => p.item.u15).map((p) => ({ meshes: p.meshes, w: p.item.w, h: p.item.h, k: p.k, u15: p.item.u15!, mats: p.mats })),
+    edges: room.filter((p) => /^env__(edge|player-)/.test(p.item.cls)).map((p) => ({ meshes: p.meshes, sel: `.${p.item.cls.split(" ").pop()}`, mats: p.mats })),
+    card: () => (u15Hit ? (u15Hit.byFocus?.[root.dataset.deskFocus ?? ""] ?? u15Hit.m) : null),
+    lcd: data.u15.lcd, material, liftTop,
+    shown: (p) => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
+  }) : null;
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
@@ -830,6 +849,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
     // (the wallet's own movements neither hide the controls nor count as the camera's)
     const walletMoving = (wallet ? wallet.frame(now) : false) || (screen ? screen.frame(now) : false);
+    // (only while the panel is out of sight: at rest at Case Files it is the folder)
+    if (u15 && document.querySelector(".room-hit--u15panel[data-away]")) u15.frame();
     if (moving || dirty || video || arrivedNow || nightMoving || walletMoving) { draw(now); dirty = false; }
     if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
@@ -941,6 +962,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // what can be clicked (public/room/hits.json)
   let hitLayer: HitLayer | null = null;
   fetch("/room/hits.json").then((r) => r.json()).then((d: { hits: Hit[] }) => {
+    u15Hit = d.hits.find((h) => h.id === "u15panel") ?? null;
     hitLayer = startHits({
       host: o.cam, hits: d.hits, camera, canvasRect: () => canvas.getBoundingClientRect(), redraw: () => {}, navigate: o.navigate,
       // a plane the page's own DOM stands in for at rest (the Profile binder)
@@ -1018,7 +1040,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
-      wallet?.dispose(); screen?.dispose();
+      wallet?.dispose(); screen?.dispose(); u15?.dispose();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

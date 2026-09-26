@@ -50,6 +50,11 @@ html.room-pointer, html.room-pointer * { cursor: pointer; }
 .room-hit--dvd[data-clip] { cursor: pointer; }
 .room-hit--dvd[data-away] { visibility: hidden; pointer-events: none; }
 .room-hit--dvd[data-away] * { visibility: hidden !important; }
+/* Ukrainska 15's panel (RoomU15.tsx): the card's box; what opens out of it
+   lies past it */
+.room-hit--u15panel { transform-origin: 0 0; cursor: default; overflow: visible; }
+.room-hit--u15panel[data-away] { visibility: hidden; pointer-events: none; }
+.room-hit--u15panel[data-away] * { visibility: hidden !important; }
 /* the Profile binder's panel (RoomBinder.tsx), mapped onto the binder */
 .room-hit--pf { transform-origin: 0 0; cursor: default; }
 .room-hit--dvd[data-on] .od-dvd__osd { color: rgba(235, 245, 255, .92); text-shadow: 0 0 calc(2 * var(--u)) rgba(0,0,0,.6); }

@@ -19,6 +19,7 @@ import AwardCubby from "./AwardCubby";
 import Wardrobe from "./Wardrobe";
 import { RoomGL, useGl } from "@/components/room/RoomGL";
 import { RoomBinder } from "@/components/room/RoomBinder";
+import { RoomU15 } from "@/components/room/RoomU15";
 
 /** Home: the case on the desk, and everything in it that moves with the time
  *  of day. The still things in the case come from the server as `shelves`
@@ -122,6 +123,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
         )}
         {gl && <RoomGL cam={deskCam} home={roomHome} />}
         {gl && <RoomBinder />}
+        {gl && <RoomU15 />}
         <div className="scene-cam" ref={deskCam}>
         {!gl && (
         <DeskPlanes>

@@ -83,6 +83,8 @@ const SHOWN: Record<string, (s: RoomState, h: Hit) => boolean> = {
   // (not while a sleeve turns, as OffDutyShelf's `live`)
   disc: (s, h) => { const d = discAt(h.of.i, s); return !!d && d.title !== discOut(s) && !s.turn; },
   dvd: (s) => !!s.picked,
+  // Ukrainska 15's own controls are the page's, on its panel (RoomU15.tsx)
+  u15: () => false, "u15-tag": () => false, player: () => false,
 };
 // what a stop says, as its screen changes (polite: after what is being read)
 const LIVE: Partial<Record<View, (s: RoomState) => string>> = {
@@ -98,10 +100,16 @@ const SURFACE: Partial<Record<string, (el: HTMLElement) => Surface>> = {
     say(el);
     return { corner() {}, dispose: () => say(null) };
   },
+  // Ukrainska 15's folder: RoomU15.tsx renders the page's own into it
+  u15panel: (el) => {
+    const say = (host: HTMLElement | null) => dispatchEvent(new CustomEvent("room:u15-host", { detail: host }));
+    say(el);
+    return { corner() {}, dispose: () => say(null) };
+  },
 };
 // what WebGL puts away while a surface stands in for it (planes whose
 // classes, with their holders', include this)
-const STANDS_FOR: Partial<Record<string, string>> = { pf: "desk-binder" };
+const STANDS_FOR: Partial<Record<string, string>> = { pf: "desk-binder", u15panel: "desk-card--env" };
 
 export type HitLayer = {
   /** lay the controls over the room for this camera, or hide them (null) */
@@ -279,6 +287,8 @@ export function startHits(o: {
       // for WebGL to draw where they are (wallet.ts), and do not start over
       // when the camera is back
       if (h.type === "dvd") { el.hidden = !(SHOWN.dvd!(s, h)); el.toggleAttribute("data-away", !on); }
+      // (the folder's panel too, once built: its transitions run on)
+      else if (h.type === "u15panel") { el.hidden = false; el.toggleAttribute("data-away", !on); }
       else el.hidden = !on;
       const lab = labels.get(h.id);
       if (lab) lab.hidden = !on;
@@ -296,9 +306,9 @@ export function startHits(o: {
     for (const h of o.hits) {
       const c = STANDS_FOR[h.type];
       if (!c) continue;
-      const on = !els.get(h.id)!.hidden;
+      const el = els.get(h.id)!, on = !el.hidden && !el.hasAttribute("data-away");
       clearTimeout(awayT.get(h.id));
-      if (on) awayT.set(h.id, setTimeout(() => { if (!els.get(h.id)!.hidden) o.away?.(c, true); }, 150));
+      if (on) awayT.set(h.id, setTimeout(() => { const e = els.get(h.id)!; if (!e.hidden && !e.hasAttribute("data-away")) o.away?.(c, true); }, 150));
       else o.away?.(c, false);
     }
     const say = active ? LIVE[active] : undefined;

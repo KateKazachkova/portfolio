@@ -708,6 +708,18 @@ body::after {
   /* 64px at 1440, as above it (the glass pane has to end above the clock) */
   .hero-aside .t-title { margin-top: calc(10.3vw - 84.3px); }
   .hero-aside nav { margin-top: calc(7.69vw - 55px); gap: calc(1.442vw - 8.77px); }
+  /* …but never so narrow that the title and the line under it take three
+     lines each: 224px of measure (+24 padding) fits both in two at 1024,
+     and still ends short of the case's left door */
+  .hero-aside-wrap { width: max(19.65vw, 248px); }
+  /* and 20px nearer the window's edge than the 48px it keeps from 1440 up
+     (its left-6 is 24 inside a row that starts 24 in) */
+  .hero-aside-wrap { left: 4px; }
+  /* the sheets under the column (DeskScene) lie ~40 screen px nearer the
+     viewer here: 21 desk px at this range's scale (about 2.4 × u)  */
+  .desk-paper { translate: 0 calc(21 * var(--u)); }
+  /* the Profile binder 5% smaller in this range, about its centre */
+  .pf-binder.desk-binder { scale: .95 .95 1; }   /* not in depth: the sheet under its first leaf keeps its place */
 }
 /* From 1280px the scene scales with the window both ways: its 1440px share
    of the width (1118 / 1440 — at which the window's edge cuts the Davey
@@ -1379,6 +1391,24 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .7s; }
 [data-desk="profile"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
 .desk-binder { cursor: pointer; }
+/* Between the binder's board (at --t, 4.5 of the binder's own u) and its
+   first sheet: the leaves are lifted .6 more than the board, the tucked
+   sheet sits halfway, at 4.9. The binder's u is half the desk's (its --u is
+   read against a container half as wide), hence 2.45 here. */
+.pf-binder.desk-binder .pf-leaf { --lift: calc(var(--t) + .6 * var(--u)); }
+.desk-paper.desk-paper--tucked { transform: rotate(var(--r, 0deg)) translateZ(calc(2.45 * var(--u) + .1px)); }
+/* the sheets under the index column (DeskScene): 135 × 240 desk px unless
+   set, the generated sheet stretched a little taller than A-size to hold the
+   column (the camera over the case files is lower: its sheet is smaller) */
+.desk-paper {
+  --w: 135; --h: 240;
+  position: absolute; width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
+  margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
+  background: url(/items/desk-paper.webp) center / 100% 100% no-repeat;
+  transform: rotate(var(--r, 0deg)) translateZ(.1px); pointer-events: none;
+  box-shadow: calc(1 * var(--u)) calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(20, 16, 12, .16),
+    calc(3 * var(--u)) calc(6 * var(--u)) calc(10 * var(--u)) calc(-3 * var(--u)) rgba(20, 16, 12, .2);
+}
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
 .desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
@@ -1623,9 +1653,33 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    under that it sits above the scene, on the page's own ground. */
 [data-desk="open"] .hero-aside-wrap, [data-desk="profile"] .hero-aside-wrap { pointer-events: none; }
 [data-desk="open"] .hero-aside-wrap :is(a, button), [data-desk="profile"] .hero-aside-wrap :is(a, button) { pointer-events: auto; }
-@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #22283a; --muted: #5b6275; --on-fg: #f3efe6; } }
+/* The ink is set on the wrap as registered colours so it can cross-fade: it
+   turns while the camera is halfway (2.3s move after .2s, so .6s from 1.05s)
+   rather than the moment the stop is picked, when the old ground is still
+   under the words. */
+@property --aside-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --aside-muted { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --aside-on-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
+.hero-aside-wrap {
+  --aside-fg: var(--fg); --aside-muted: var(--muted); --aside-on-fg: var(--bg);
+  transition: --aside-fg .6s ease 1.05s, --aside-muted .6s ease 1.05s, --aside-on-fg .6s ease 1.05s;
+}
+.hero-aside-wrap .hero-aside { --fg: var(--aside-fg); --muted: var(--aside-muted); --on-fg: var(--aside-on-fg); }
+/* Under 1024 home's column stands over the case: the bar above it (SideNav)
+   carries the wordmark and the index behind its latch, so the column keeps
+   only the title and the line under it.  */
+@media (max-width: 1023px) {
+  .hero-aside-wrap .hero-aside > p:first-child, .hero-aside-wrap .nav-index { display: none; }
+  .hero-aside-wrap .hero-aside .t-title { margin-top: 0; }
+  /* lifted over the room: the scene's planes are positioned and stacked, and
+     a static block goes under all of them. Under the bar (z 60) so the bar
+     still covers it once the page scrolls. */
+  .hero-aside-wrap { position: relative; z-index: 50; }
+}
+@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
-@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside { --fg: #efe7d8; --muted: rgba(239, 231, 216, .62); --on-fg: #15171d; } }
+@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
+@media (prefers-reduced-motion: reduce) { .hero-aside-wrap { transition: none; } }
 /* Glass: one recipe for the column's pane and Kate's speech panel
    (.katetalk), so the two read as the same material — the scene behind
    blurred, the room's panel colour laid over it, a hairline edge with light
@@ -1653,6 +1707,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    objects under it still pick up. */
 @media (min-width: 1024px) {
   .hero-aside { position: relative; isolation: isolate; }
+  /* the line under the title and the index are both 14px at every width
+     (Kate, 26.09); later than the 1024–1439 rule, so it wins there too */
+  .hero-aside { --t-body: 14px; }
+  .hero-aside .nav-index a[data-stop] { font-size: 14px; }
+  /* the line sits half as far under the title as HeroAside's mt-4 */
+  .hero-aside .t-title + p { margin-top: 8px; }
 }
 /* the wordmark sits closer over the title than HeroAside's 124px, so the
    pane ends above the flip clock (1024–1439 scales it, further up) */
@@ -1670,6 +1730,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
     --glass-tint: color-mix(in srgb, #211d19 64%, transparent); border-color: color-mix(in srgb, #efe7d8 30%, transparent);
   }
+  /* Pane off for now (Kate, 26.09): over the wall it cut the room. Kept, not
+     removed: drop this line to bring it back. */
+  .hero-aside::before { display: none; }
 }
 
 /* On home the index lights the stop the camera is at; off home, the route.

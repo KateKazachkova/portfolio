@@ -34,7 +34,7 @@ export default function NavIndex({ className = "mt-14" }: { className?: string }
           // wall — rather than pages (components/DeskScene.tsx).
           onClick={(e) => { openStop(e, link.stop); }}
           data-stop={link.stop}
-          className="t-label transition-opacity hover:opacity-60"
+          className="t-label font-bold transition-opacity hover:opacity-60"
           style={{
             // Not --muted: on the glass over the dark wall that grey sank.
             color: isActive(link.href) ? "var(--fg)" : "color-mix(in srgb, var(--fg) 74%, transparent)",

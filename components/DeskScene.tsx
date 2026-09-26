@@ -205,6 +205,7 @@ function useStops() {
 
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
+  const warm = useWarm();
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall" aria-hidden>
@@ -252,6 +253,15 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           left: `calc(${AWARD.x + 1052.5} * var(--u))`, top: `calc(${AWARD.z + 269} * var(--u))`,
           "--w": AWARD_W,
         } as React.CSSProperties} />
+        {/* A sheet of paper where the index column lands over the desk, so
+            its words stand on paper and not on the tiles' grout: left of the
+            case files (at pan 0) and left of the Profile binder. Desk-top px,
+            measured from the column's box at 1440 × 900. */}
+        {warm && <div className="desk-paper" aria-hidden style={{ left: "calc(1211 * var(--u))", top: "calc(611 * var(--u))", "--r": "-1.5deg", "--w": 155, "--h": 225 } as React.CSSProperties} />}
+        {/* the Profile one is slipped into the binder, over its board and
+            under its first sheet, and runs 56 desk px (~100 screen px)
+            wider to reach in under the sheet */}
+        {ready.has("profile") && <div className="desk-paper desk-paper--tucked" aria-hidden style={{ left: "calc(2719 * var(--u))", top: "calc(257 * var(--u))", "--r": "1.2deg", "--w": 191 } as React.CSSProperties} />}
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />

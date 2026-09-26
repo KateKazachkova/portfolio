@@ -49,13 +49,13 @@ DONE (2026-07-31, later): **opening sequence** (`components/IntroOverlay.tsx`) �
 
 Temp alignment harnesses (`public/_*.html`) + `preview_*.png` are created + deleted per session — never committed. Local static server for visual tuning: `cd public && python3 -m http.server 8765`, open via `preview_start {url:"http://localhost:8765/_x.html"}` (localhost is blocked for plain `navigate`). To locate the niche rect / align crops: `cv2.matchTemplate(open2.png, openpart.png)`.
 
-## WebGL room migration — READ FIRST if continuing it (code state `004a0db`, 26.09.2026)
+## WebGL room migration — READ FIRST if continuing it (code state `6aa1b03`, 26.09.2026)
 
 Home's 3D room (desk, wall, stops Case Files / Recognition / Profile / Off Duty) is being moved from CSS 3D (`components/DeskScene.tsx`) to a WebGL renderer behind a flag. **M1–M5 are done and accepted by Kate. Next: M6 (object animations).** Legacy CSS room is still the default. Everything below is the current truth; older notes in chat/memory are superseded by this section.
 
 ### 1. Current state
-- **Worktree** `~/Documents/portfolio-webgl` (a git worktree of `~/Documents/portfolio`), **branch `webgl`**, last code/data commit **`004a0db`**; the only commit on top of it is the one that wrote this handoff (check: `git -C ~/Documents/portfolio-webgl log --oneline -3`). Working tree clean except untracked scratch; `scripts/room/*` are committed.
-- **Base:** staging `9fc4db4`, merged into webgl as **`3570246`** (Kate: staging is the source of truth; WebGL is compared with the legacy room *of this staging*). Branched originally off staging `69a9c4e`.
+- **Worktree** `~/Documents/portfolio-webgl` (a git worktree of `~/Documents/portfolio`), **branch `webgl`**, last code/data commit **`6aa1b03`** (staging sync 2); the commit on top of it is the one that updated this handoff (check: `git -C ~/Documents/portfolio-webgl log --oneline -3`). Working tree clean except untracked scratch; `scripts/room/*` are committed.
+- **Base:** staging `e7d5cec`, merged into webgl as **`b154563`** (sync 2, 26.09; sync 1 was `9fc4db4` → `3570246`) (Kate: staging is the source of truth; WebGL is compared with the legacy room *of this staging*). Branched originally off staging `69a9c4e`.
 - **Not pushed, not merged** anywhere. Never push/merge `webgl` without Kate's explicit OK.
 - **Milestone commits, in order:**
   - M1 scene/camera/nav: `169dc98`
@@ -63,6 +63,7 @@ Home's 3D room (desk, wall, stops Case Files / Recognition / Profile / Off Duty)
   - M3 spike: `e9dbc54` · handoff `7f6c1a2`
   - M3 port: `4349284` ribbons · `2177788` bike computer · `1f91a1d` CD wallet + DVD · `b8e8fd9` Case Files controls
   - staging sync: `3570246` merge 9fc4db4 · `2e86b41` re-bake · `60aa819` handoff
+  - staging sync 2: `b154563` merge e7d5cec · `77d32cd` re-bake (105 planes: + `desk-paper`, `desk-paper--tucked`; U15 folder 1.15×; binder leaves +0.3 u; KTX2 36.4 MB) + en-dash labels · `6aa1b03` binder `away()` visibility fix
   - M3 finish: `2874abc` Case Files tests + fixes (niche leak, case fade) · `6671344` binder at Recognition · `88f4eb6` drag test
   - M4: `e7f4d6c` Profile binder as page DOM + bake `pf1…pf7` · `5878a4c` live bike LCD + binder hand-over tuning · handoffs `5aaaff2`, `59f8380`
   - M5: `716dfb5` night in WebGL + trophy shadow · `42891a8` TARDIS glow · `ab952be` night hand-over at home · `85f2e9a` night shader pre-draw + `flight-dom.mjs` · `004a0db` handoff
@@ -116,9 +117,10 @@ Home's 3D room (desk, wall, stops Case Files / Recognition / Profile / Off Duty)
 - **GPU:** room textures **73.9–75.4 MB**; mirror/DOM groups **21–27 MB**; `gpu/shared_images` **772–862 MB**; `skia/gpu_resources` is a noisy cache (99–342 MB) — not a budget.
 - **Network:** total **30.7–31.0 MB**, KTX2 **24.7–24.9 MB** (binder spread 1 = 9.9 of it), KTX2 on disk **35.5 MB**.
 - **Cold (`cold.mjs`):** FCP ~150–300 ms, GL ready ~250–300, home zone ~560–580, first flight p95 9.2 / max ≤10.9.
-- **Tests:** `hits-test.mjs` **119/119**; `nav-test.mjs` **22/22**; `check-stops.mjs` worst **0.02 u** at every stop.
+- **Tests:** `hits-test.mjs` **119/119**; `nav-test.mjs` **22/22**; `check-stops.mjs` worst **0.02 u** at every stop (sync 2: ≤0.002).
+- **After sync 2 (`6aa1b03`):** flash day 0/2858 + 0/2855, night 0/2940, torch 0/2936; bench p95 ≤9.3 at PR 2/1.5/1, only award→profile #0 over 17.5 (25–33); flight-dom unchanged (only `.hero-aside` over the canvas).
 - **Alignment:** controls vs legacy ≤0.6 px (files with a case laid out), ≤0.05 elsewhere; DVD panel 0.02 px; binder panel 0.05 px; home swap ≤0.5 px; LCD vs legacy (¼ size) 5.8 / 3.2 % px over 32; night at rest = legacy (DOM); WebGL home night vs NightRoom within 0.1 luminance.
-- **CSS↔GL screenshots, % px over 8 (day / night):** home 3.8 / 2.8, files 16.0 / 11.7, award 15.9 / 14.9, profile 14.5 / 7.0, offduty 9.7 / 5.8 (`compare.mjs`).
+- **CSS↔GL screenshots, % px over 8 (day / night):** home 3.8 / 2.8, files 16.0 / 11.7, award 15.9 / 14.9, profile 14.5 / 7.0, offduty 9.7 / 5.8 (`compare.mjs http://localhost:3301 OUT 1512x860 2 [--night]` — pass the URL first; the defaults are 1600×1000 @1). Sync 2: files 11.9 / 9.0, award 16.5 / 15.8, profile **17.3 / 9.5** (tucked paper, see §7), offduty 9.8 / 5.8; `~/Documents/portfolio-offload/webgl-sync2/`.
 - **Stop criteria (per milestone):** flight p95 >12 ms; max >30 ms reproducibly in flight; WebGL/DOM mismatch >1–2 px; flash/pop at a DOM↔WebGL boundary; a needed change of the accepted model. On a fail: stop dependent work, record why. Don't tune benchmarks to pass; document visual differences instead of changing the design. **Arrival-DOM budget** is tracked separately (Profile binder first paint).
 
 ### 6. Kate's decisions (do not ask again)
@@ -149,6 +151,7 @@ Goal: WebGL draws the object animations and state changes that today only change
 - [ ] **Ribbon tilt.** Legacy: `components/AwardRail.css` (`:hover/:focus-visible` rotate(-4deg) translateY(-2u)). Hits exist (`ribbon-0…36`). **Missing:** ribbons are baked into the lattice plane (`007-desk-wall--hung`) → need per-ribbon planes; hover/focus state from hits → engine.
 - [ ] **Binder turn + hung certificate.** Legacy: `components/profile/Binder.tsx` (leaf turn 1.15 s with 3 bands curling, lag 80 ms per leaf; hung certificate flip .9 s), `Binder.css`. New: `RoomBinder.tsx/.css` (DOM, turns instantly), engine `pf` states (instant). **Missing:** turning in WebGL (in flight only if departing mid-turn; decide whether the DOM keeps instant turns), **hung certificate turned over → not in WebGL: departing Profile with a certificate over pops** (DOM shows it over, WebGL shows it hanging). Then re-measure binder textures (Kate). The hand-over line shift (bake at 1600 px) is a separate problem, not M6 unless trivial.
 - [ ] **Other real animations:** clock flap (`components/FlipClock.tsx`, `flap-fall`; DOM at home, mirrored as a snapshot); TARDIS pulse (`components/home/Tardis.tsx`, `tardis-charge`; snapshot in flight); bike map draw (`bike-draw` 1.6 s) + "SEARCHING GPS" blink (`bike-blink`) — `lcd.ts` draws the map whole, no blink; DVD `od-on`/`od-drift` (DOM panel, fine); postcard hover z-index; lamp lit crossfade (.3 s, DOM at home).
+- **Open after sync 2 (before or with M6):** (a) **tucked desk paper at Profile** — WebGL draws it over the binder's board and under its first sheet (as the legacy does), but at rest the DOM binder panel (`RoomBinder`, board + sheets in one flat panel) covers WebGL's paper, so the paper loses its part over the board on arrival (a pop, profile over8 +2.8). Fix = draw that strip inside the panel between board and first leaf (touches `BinderBook` → Kate's OK) or clip an overlay copy of it to outside the first sheet. (b) **home→award at night (torch) first frame**: the leg's first frame jumps 44–57 (the case and the night go at once); the same at `8c4666e`, so not from the sync — check with the home night hand-over. (c) bake renumbered textures: 91 stale `ktx2/`+`lo/` files of the old numbering remain tracked (engine never loads them); deleting them needs Kate's OK.
 - **Known DOM→WebGL state-handoff risks to cover in M6:** DVD with a disc in (above); binder with a certificate over (above); wallet spread/picked disc shown wrong by WebGL at rest and in flight; departure during any running animation (turn, flight, fan-out, spill) must not pop; home groups are a snapshot at departure (TARDIS mid-charge, clock mid-flap).
 
 ### 8. M6 acceptance criteria

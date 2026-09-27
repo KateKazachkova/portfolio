@@ -5,6 +5,10 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+// where the tests put what they record (frames, screenshots, traces, JSON):
+// out of ~/Documents, which iCloud syncs — thousands of frames there keep
+// fileproviderd busy and the machine too loaded to measure (27.09)
+export const TESTS = process.env.ROOM_TESTS ?? `${process.env.HOME}/portfolio-test-output`;
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const log = (...a) => process.stderr.write(new Date().toISOString().slice(11, 19) + " " + a.join(" ") + "\n");
 

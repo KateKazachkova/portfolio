@@ -6,11 +6,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { launch, sleep, log } from "./cdp.mjs";
+import { launch, sleep, log, TESTS } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const LAMP = (process.argv[3] ?? "lamp=on").split("=")[1];
-const OUT = path.join(process.env.HOME, `Documents/portfolio-offload/webgl-m5/night-flight-lamp-${LAMP}`);
+const OUT = path.join(TESTS, `webgl-m5/night-flight-lamp-${LAMP}`);
 fs.mkdirSync(OUT, { recursive: true });
 const FIX = `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}

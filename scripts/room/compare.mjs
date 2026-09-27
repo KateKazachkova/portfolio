@@ -8,10 +8,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { launch, sleep, log } from "./cdp.mjs";
+import { launch, sleep, log, TESTS } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
-const OUT = process.argv[3] ?? path.join(process.env.HOME, "Documents/portfolio-offload/webgl-m1/compare");
+const OUT = process.argv[3] ?? path.join(TESTS, "webgl-m1/compare");
 const [W, H] = (process.argv[4] ?? "1600x1000").split("x").map(Number);
 const DPR = +(process.argv[5] ?? 1);
 const NIGHT = process.argv.includes("--night");

@@ -8,13 +8,13 @@
 // mean, p95, max, how many over 20 and 33 ms.
 import fs from "node:fs";
 import path from "node:path";
-import { launch, sleep, log } from "./cdp.mjs";
+import { launch, sleep, log, TESTS } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const MODE = process.argv[3] ?? "gl";
 const DPR = +(process.argv[4] ?? 2);
 const [W, H] = (process.argv[5] ?? "1512x860").split("x").map(Number);
-const OUT = path.join(process.env.HOME, "Documents/portfolio-offload/webgl-m1/bench");
+const OUT = path.join(TESTS, "webgl-m1/bench");
 fs.mkdirSync(OUT, { recursive: true });
 
 const b = await launch({ headed: true, width: W, height: H, dpr: DPR });

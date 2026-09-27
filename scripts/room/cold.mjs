@@ -6,13 +6,13 @@
 //   node scripts/room/cold.mjs http://localhost:3301 [gl|css] [dpr] [extra query]
 import fs from "node:fs";
 import path from "node:path";
-import { launch, sleep, log } from "./cdp.mjs";
+import { launch, sleep, log, TESTS } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const MODE = process.argv[3] ?? "gl";
 const DPR = +(process.argv[4] ?? 2);
 const EXTRA = process.argv[5] ?? "";
-const OUT = path.join(process.env.HOME, "Documents/portfolio-offload/webgl-m2");
+const OUT = path.join(TESTS, "webgl-m2");
 fs.mkdirSync(OUT, { recursive: true });
 
 const b = await launch({ headed: true, width: 1512, height: 860, dpr: DPR });

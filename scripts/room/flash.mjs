@@ -8,12 +8,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { launch, sleep, log } from "./cdp.mjs";
+import { launch, sleep, log, TESTS } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const MODE = process.argv[3] ?? "gl";
 const DPR = +(process.argv[4] ?? 2);
-const OUT = path.join(process.env.HOME, `Documents/portfolio-offload/webgl-m1/flash-${MODE}${process.env.NIGHT ? "-night" : ""}`);
+const OUT = path.join(TESTS, `webgl-m1/flash-${MODE}${process.env.NIGHT ? "-night" : ""}`);
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -61,5 +61,13 @@ await sleep(500);
 b.close();
 fs.writeFileSync(path.join(OUT, "frames.json"), JSON.stringify({ frames, marks }));
 log("frames", frames.length);
-const res = execFileSync("python3", [path.join(import.meta.dirname, "flashes.py"), OUT]).toString();
-console.log(res);
+const res = JSON.parse(execFileSync("python3", [path.join(import.meta.dirname, "flashes.py"), OUT]).toString());
+// A run is only a measurement if the screencast kept up: on a quiet M4 Pro
+// at 1512 × 860 @2 it sends ~2950 frames over the ~48 s of legs (2850–2990
+// since M5). A busy machine sends far fewer and half-painted ones that read
+// as flashes, the old build's as much as the new (27.09): below 2800 the
+// run is invalid — neither pass nor fail.
+const secs = marks.length ? (frames[frames.length - 1].t - frames[0].t) : 0;
+res.expected = { frames: 2950, min: 2800, secs: +secs.toFixed(1), valid: res.frames >= 2800 };
+console.log(JSON.stringify(res, null, 1));
+if (!res.expected.valid) log(`INVALID run: ${res.frames} frames (expected ~2950, at least 2800)`);

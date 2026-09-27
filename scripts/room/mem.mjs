@@ -8,10 +8,10 @@
 //   node scripts/room/mem.mjs http://localhost:3301 [OUT.json]
 import fs from "node:fs";
 import path from "node:path";
-import { launch, sleep, log } from "./cdp.mjs";
+import { launch, sleep, log, TESTS } from "./cdp.mjs";
 
 const SITE = process.argv[2] ?? "http://localhost:3301";
-const OUT = process.argv[3] ?? path.join(process.env.HOME, "Documents/portfolio-offload/webgl-m6/mem/session.json");
+const OUT = process.argv[3] ?? path.join(TESTS, "webgl-m6/mem/session.json");
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 const b = await launch({ headed: true, width: 1512, height: 860, dpr: 2 });
 await b.go(`${SITE}/?nointro&gl=1`, 0);

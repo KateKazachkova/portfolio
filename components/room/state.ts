@@ -11,7 +11,7 @@
 export type Ride = { id: number; name: string; distanceKm: number; movingMin: number; date: string; path: string | null };
 export type Strava = { stats: { rides: number; distanceKm: number; timeHours: number; elevationM: number } | null; rides: Ride[] };
 
-export type Series = { title: string; poster: string | null; year: number | null; clip?: string | null; disc?: string | null };
+export type Series = { title: string; poster: string | null; year: number | null; why?: string; clip?: string | null; disc?: string | null };
 
 export type RoomState = {
   /** the bike computer's screen: 0 the totals, then the longest rides */

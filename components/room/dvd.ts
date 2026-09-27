@@ -1,6 +1,7 @@
 /**
  * The DVD player's screen in the WebGL room (M3), as OffDutyShelf's: with a
- * disc in, its poster drifting behind the OSD, and its clip over it
+ * disc in, its title card (its number, title, year and why, staging 27.09)
+ * under the OSD, and its clip over it
  * (YouTube's own player, muted, which a browser lets start by itself); a
  * click on the screen, or Enter, gives it sound, and takes it away again.
  *
@@ -10,18 +11,35 @@
  * disc in: with none, WebGL's own "NO DISC" is what the legacy screen shows.
  * The clip runs while the camera is at the corner, as it does there.
  */
-import { onRoom, roomState, setRoom, type RoomState } from "./state";
+import { onRoom, roomState, setRoom, type RoomState, type Series } from "./state";
+
+/** OffDutyShelf's title card for a disc: its number in the wallet, title, year and why */
+export function cardOf(p: Series | null, s: RoomState) {
+  const c = document.createElement("span");
+  c.className = "od-dvd__card";
+  c.hidden = !p;
+  if (!p) return c;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const line = (cls: string, t: string) => { const e = document.createElement("span"); e.className = cls; e.textContent = t; c.appendChild(e); };
+  line("od-dvd__card-no", `Disc ${pad(s.series.indexOf(p) + 1)}/${pad(s.series.length)}`);
+  line("od-dvd__card-title", p.title);
+  if (p.year) line("od-dvd__card-no", String(p.year));
+  if (p.why) line("od-dvd__card-why", p.why);
+  return c;
+}
 
 export function makeDvd(el: HTMLElement) {
   el.classList.add("od-dvd__screen");
   el.setAttribute("aria-live", "polite");
-  let picture = document.createElement("span");
-  picture.className = "od-dvd__picture";
+  // the disc's title card (staging 27.09: the poster stays on the label)
+  let card = document.createElement("span");
+  card.className = "od-dvd__card";
+  card.hidden = true;
   const osd = document.createElement("span");
   osd.className = "od-dvd__osd";
   const title = document.createElement("span");
   title.className = "od-dvd__osd od-dvd__osd--title";
-  el.append(picture, osd, title);
+  el.append(card, osd, title);
   let tube: HTMLIFrameElement | null = null;
   let shownTitle = "";
   let corner = false;
@@ -46,16 +64,13 @@ export function makeDvd(el: HTMLElement) {
     if (clip) { el.setAttribute("role", "button"); el.setAttribute("aria-label", s.sound ? "Sound off" : "Sound on"); el.dataset.clip = ""; }
     else { el.removeAttribute("role"); el.removeAttribute("aria-label"); delete el.dataset.clip; }
     el.tabIndex = clip ? 0 : -1;
-    // a new disc: its picture comes on again (the animation restarts)
+    // a new disc: its card comes up again (the animations restart)
     const key = p?.title ?? "";
     if (key !== shownTitle) {
       shownTitle = key;
-      const fresh = document.createElement("span");
-      fresh.className = "od-dvd__picture";
-      fresh.style.backgroundImage = p?.poster ? `url(${p.poster})` : "";
-      fresh.hidden = !p?.poster;
-      picture.replaceWith(fresh);
-      picture = fresh;
+      const fresh = cardOf(p, s);
+      card.replaceWith(fresh);
+      card = fresh;
     }
     // the clip: a new one for a new disc, gone when the camera leaves
     const want = clip ? `https://www.youtube-nocookie.com/embed/${clip}?autoplay=1&mute=1&controls=0&playsinline=1&rel=0&iv_load_policy=3&loop=1&playlist=${clip}&enablejsapi=1` : null;
@@ -72,7 +87,9 @@ export function makeDvd(el: HTMLElement) {
     }
     tube?.toggleAttribute("data-sound", s.sound);
     osd.textContent = p ? (clip ? (s.sound ? "▶ PLAY · SOUND ON" : "▶ PLAY · CLICK FOR SOUND") : "▶ PLAY") : "KATE™ DVD";
-    title.textContent = p ? `${p.title}${p.year ? ` · ${p.year}` : ""}` : "";
+    // (the title along the bottom only over a clip; the card says it otherwise)
+    title.textContent = p && clip ? `${p.title}${p.year ? ` · ${p.year}` : ""}` : "";
+    title.hidden = !(p && clip);
   };
   const off = onRoom(sync);
   sync(roomState());

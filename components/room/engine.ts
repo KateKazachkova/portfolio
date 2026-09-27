@@ -798,7 +798,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
         hold = true;
         // once waited, it goes, whatever is still missing (previews stand in)
         const go = () => { if (!hold) return; hold = false; waited = true; evaluate(performance.now()); waited = false; };
-        Promise.all([want(missing, 0), discs]).then(go);
+        Promise.all([want(missing, 0), discs]).then(() => { if (missing.length) prewarmWay(to); go(); });
         setTimeout(go, 1500);
         waits++;
         if (view === "home" && !groupsShown) { buildGroups(); setGroupsShown(true); }
@@ -806,6 +806,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       }
     }
     if (hold) return;
+    // setting off: what the stop ahead lets go and this flight will not show goes now
+    if (!first && v !== view) { const need = new Set(flightSlots(poseOf(v), now)); for (const sl of RELEASE.get(v) ?? []) if (!need.has(sl)) evict(sl); }
     const leaving = view === "home" && v !== "home";
     if (leaving && !groupsShown) { buildGroups(); setGroupsShown(true); }
     const prevView = view;
@@ -860,6 +862,28 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   };
   layout();
   zones();
+  // What only one stop sees (memory pass 2, 27.09): Off Duty's corner —
+  // staging's shelf, books, tapes, helmet and comic, and what else only it
+  // shows — stays on the GPU only at Off Duty and on the way there or back;
+  // what only Case Files shows (the stacks, U15's parts) goes while the
+  // camera is at Off Duty. Each back to its preview; a flight that will show
+  // them waits for them (flightSlots), as for any picture not in, and draws
+  // its way once unseen before it sets off.
+  const localTo = (v: View) => {
+    const others = [...zoneSlots].filter(([w]) => w !== v).map(([, set]) => set);
+    return new Set([...(zoneSlots.get(v) ?? [])].filter((sl) => !binderOnly.has(sl) && !others.some((set) => set.has(sl))));
+  };
+  const RELEASE = new Map<View, Set<Slot>>();
+  {
+    const od = localTo("offduty");
+    for (const v of ["home", "files", "award", "profile"] as View[]) RELEASE.set(v, od);
+    // (at Off Duty: what Case Files shows that Off Duty does not — the desk's
+    // cases are seen from home too, so they are not Case Files' alone)
+    const here = zoneSlots.get("offduty") ?? new Set<Slot>();
+    RELEASE.set("offduty", new Set([...(zoneSlots.get("files") ?? [])].filter((sl) => !here.has(sl) && !binderOnly.has(sl))));
+  }
+  let released: View | null = null;
+  const letStopGo = (v: View) => { released = v; for (const sl of RELEASE.get(v) ?? []) evict(sl); };
 
   const V = new THREE.Matrix4(), P = new THREE.Matrix4();
   const frameTimes: number[] = [];
@@ -953,6 +977,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // at rest where no disc shows (home, where the corner is hidden; a stop
     // that does not see it), the discs' canvases go (painted again before a
     // flight that shows them: evaluate)
+    if (travelling || hold) released = null;
+    else if (released !== view && (view !== "home" || !groupsShown)) { letStopGo(view); dirty = true; }
     if (wallet && !wallet.parked() && !(travelling || hold) && view !== "offduty" && view !== "bike" && (view === "home" ? !groupsShown : !walletPlanes.some((p) => seenAt(p.item, pose.to, false)))) wallet.release();
     const nightMoving = nightActive();
     homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
@@ -1030,8 +1056,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const warmRT = new THREE.WebGLRenderTarget(64, 64, { depthBuffer: true });
   const warmCam = new THREE.PerspectiveCamera();
   warmCam.matrixAutoUpdate = false; warmCam.matrixWorldAutoUpdate = false;
-  const prewarm = (v: View) => {
-    const p = stopPose(v, 0);
+  const prewarm = (v: View) => prewarmAt(stopPose(v, 0));
+  // (a flight that waited for its pictures: its way, a few poses along it)
+  const prewarmWay = (to: Pose) => { const from = pose.value(performance.now()); for (const k of [0.33, 0.66, 1]) prewarmAt(lerpPose(from, to, k)); };
+  const prewarmAt = (p: Pose) => {
     warmCam.matrixWorldInverse.fromArray(viewMatrix(p)); warmCam.matrixWorld.copy(warmCam.matrixWorldInverse).invert();
     const { u } = geom;
     const W = innerWidth / u, H = innerHeight / u;
@@ -1053,7 +1081,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const nextZone = () => {
       const v = later.shift();
       if (!v) return;
-      want([...(zoneSlots.get(v) ?? [])], prio++).then(() => idle(() => { prewarm(v); idle(nextZone); }));
+      want([...(zoneSlots.get(v) ?? [])], prio++).then(() => idle(() => { prewarm(v); if (!pose.active && !hold) letStopGo(view); idle(nextZone); }));
     };
     idle(nextZone);
   });

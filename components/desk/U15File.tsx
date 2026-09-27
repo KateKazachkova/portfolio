@@ -36,9 +36,7 @@ export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 // it everything is in folder units (150 × 208); a unit is K desk px.
 const FOLDER = { w: 150, h: 208 };
 const K = 1.15;
-// screen px per desk px at the camera's height (× --u); on phones the camera
-// stops lower (DeskScene's spd())
-const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 645 : 860);
+const SPD = 2150 / 860;                       // screen px per desk px at the camera's height (× --u)
 
 // The round CSSDA seals, stuck on as die-cut stickers in their own colours;
 // MUSE Gold is printed in its foil and French Design Awards (no artwork) is a
@@ -172,7 +170,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     }
     const el = e.currentTarget;
     try { el.setPointerCapture(e.pointerId); } catch { /* a synthetic press has no pointer to capture */ }
-    const scale = (card.current!.offsetWidth / FOLDER.w) * spd();
+    const scale = (card.current!.offsetWidth / FOLDER.w) * SPD;
     const a = (r * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
     const from = drag[id] ?? { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;
     let moved = false, now = from;

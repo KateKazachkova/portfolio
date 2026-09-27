@@ -712,9 +712,6 @@ body::after {
   /* and 20px nearer the window's edge than the 48px it keeps from 1440 up
      (its left-6 is 24 inside a row that starts 24 in) */
   .hero-aside-wrap { left: 4px; }
-  /* the sheets under the column (DeskScene) lie ~40 screen px nearer the
-     viewer here: 21 desk px at this range's scale (about 2.4 × u)  */
-  .desk-paper { translate: 0 calc(21 * var(--u)); }
   /* the Profile binder 5% smaller in this range, about its centre */
   .pf-binder.desk-binder { scale: .95 .95 1; }   /* not in depth: the sheet under its first leaf keeps its place */
 }

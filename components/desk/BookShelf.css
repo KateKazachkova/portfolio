@@ -1,0 +1,90 @@
+/* Off Duty's shelf (BookShelf.tsx): the plank, the books spine out, the
+   comics face out. No filters on scene objects (see U15File). */
+.bs { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
+/* hidden where the wallet is: globals.css lists it with .od-wallet */
+.bs-top, .bs-front { position: absolute; display: block; pointer-events: auto; cursor: pointer; }
+.bs-shadow, .bs-bracket { position: absolute; display: block; pointer-events: none; }
+.bs-top { transform-origin: 50% 0; background: url("/items/off-duty/shelf-top.webp") center / 100% 100%; }
+.bs-front { max-width: none; }
+/* its shade on the wall: down from the plank, soft at either end (no
+   mask: it would take a surface of its own in the 3D context) */
+.bs-shadow { background: radial-gradient(ellipse 52% 100% at 50% 0, rgba(0, 0, 0, .55), rgba(0, 0, 0, .3) 60%, rgba(0, 0, 0, 0)); }
+.bs-bracket { border-radius: 0 0 calc(3 * var(--u)) calc(3 * var(--u));
+  background:
+    radial-gradient(circle at 50% 35%, #3a3a3a 0 calc(2 * var(--u)), transparent calc(2.4 * var(--u))),
+    radial-gradient(circle at 50% 72%, #3a3a3a 0 calc(2 * var(--u)), transparent calc(2.4 * var(--u))),
+    linear-gradient(90deg, #111, #262626 45%, #0c0c0c); }
+
+/* A book: the outer box slides it out of the row and back; the body
+   inside turns it cover out once it is clear of its neighbours, and back
+   before it slides home. */
+.bs-book { position: absolute; padding: 0; border: 0; background: none; font: inherit; color: inherit;
+  transform-style: preserve-3d; transform-origin: 50% 100%; pointer-events: auto; cursor: pointer;
+  transform: translateZ(calc(var(--z) * var(--u)));
+  transition: transform .45s cubic-bezier(.3, .6, .4, 1) .4s; }
+.bs-book[data-open] { z-index: 1; transition-delay: 0s;
+  transform: translate3d(calc(130 * var(--u)), calc(80 * var(--u)), calc((var(--z) + var(--d) + 420) * var(--u))); }
+.bs-book__body { position: absolute; inset: 0; transform-style: preserve-3d;
+  transform-origin: 50% 50% calc(var(--d) * -.5 * var(--u));
+  transition: transform .5s cubic-bezier(.4, 0, .2, 1), translate .3s ease, rotate .3s ease; }
+/* under the pointer it comes 1.5 cm out and tips toward you: on the body,
+   so it goes back at once (the box's slide home waits for the turn) */
+[data-desk="offduty"] .bs-book:not([data-open]):hover .bs-book__body {
+  translate: 0 0 calc(16 * var(--u)); rotate: x -4deg; }
+.bs-book[data-open] .bs-book__body { transform: rotateY(-90deg); transition-delay: .4s; }
+
+.bs-book__spine, .bs-book__cover, .bs-book__back, .bs-book__pages { position: absolute; display: block; }
+.bs-book__spine { inset: 0; box-sizing: border-box; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: calc(12 * var(--u)) 0 calc(9 * var(--u));
+  background: var(--bg); color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif; font-weight: 700; text-transform: uppercase; }
+/* a round spine: lighter where it faces the lamp, darker at the joints */
+.bs-book__spine::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(0,0,0,.28), rgba(255,255,255,.12) 30%, rgba(255,255,255,0) 55%, rgba(0,0,0,.3)); }
+.bs-book__title, .bs-book__author { writing-mode: vertical-rl; white-space: nowrap; line-height: 1; }
+.bs-book__title { font-size: calc(clamp(6, var(--w) * .42, 13) * var(--u)); letter-spacing: .06em;
+  max-height: 78%; overflow: hidden; text-overflow: ellipsis; }
+.bs-book__author { font-size: calc(clamp(5, var(--w) * .3, 8) * var(--u)); font-weight: 400; letter-spacing: .08em; opacity: .85; }
+.bs-book__cover { left: 100%; top: 0; width: calc(var(--d) * var(--u)); height: 100%;
+  transform-origin: 0 50%; transform: rotateY(90deg);
+  background: var(--bg) center / cover no-repeat; }
+.bs-book__back { left: 0; top: 0; width: calc(var(--d) * var(--u)); height: 100%;
+  transform-origin: 0 50%; transform: rotateY(90deg); background: var(--bg); }
+.bs-book__back::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,.35); }
+/* the top: page edges between the boards */
+.bs-book__pages { left: 0; top: 0; width: 100%; height: calc(var(--d) * var(--u));
+  transform-origin: 50% 0; transform: translateZ(calc(var(--d) * -1 * var(--u))) rotateX(90deg);
+  border-inline: calc(1.2 * var(--u)) solid var(--bg); box-sizing: border-box;
+  background: repeating-linear-gradient(90deg, #efe6d0 0 calc(.8 * var(--u)), #e2d7bd calc(.8 * var(--u)) calc(1.2 * var(--u))); }
+
+/* A comic: leans back against the wall on its foot; under the pointer it
+   comes upright toward you, as off a rack. */
+.bs-comic { position: absolute; padding: 0; border: 0; font: inherit; color: inherit;
+  transform-style: preserve-3d; transform-origin: 50% 100%; pointer-events: auto; cursor: pointer;
+  background: #ddd center / cover no-repeat; border-radius: calc(1 * var(--u));
+  box-shadow: inset 0 0 0 calc(.6 * var(--u)) rgba(0,0,0,.15);
+  transform: translateZ(calc(var(--z) * var(--u))) rotateX(var(--lean));
+  transition: transform .45s cubic-bezier(.3, .6, .4, 1); }
+[data-desk="offduty"] .bs-comic:not([data-open]):hover {
+  transform: translateZ(calc(var(--z) * var(--u))) rotateX(calc(var(--lean) - 10deg)); }
+.bs-comic[data-open] { z-index: 1;
+  transform: translate3d(calc(-40 * var(--u)), calc(-10 * var(--u)), calc((var(--z) + 480) * var(--u))) rotateX(0deg); }
+
+/* what it is, on a slip of paper beside it once it is off the shelf */
+.bs-card { position: absolute; display: flex; flex-direction: column; gap: calc(5 * var(--u));
+  width: calc(170 * var(--u)); box-sizing: border-box; padding: calc(12 * var(--u)) calc(13 * var(--u));
+  background: #f3efe6; color: #22283a; text-align: left; text-transform: none;
+  font-family: Arial, Helvetica, sans-serif; font-weight: 400;
+  box-shadow: 0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0,0,0,.35);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+.bs-book .bs-card { transform: translateZ(calc((var(--w) - var(--d)) * .5 * var(--u))); }
+[data-open] > .bs-card { opacity: 1; transition: opacity .35s ease .85s; }
+.bs-comic[data-open] > .bs-card { transition-delay: .4s; }
+.bs-card__title { font-size: calc(13 * var(--u)); font-weight: 700; line-height: 1.15; }
+.bs-card__meta { font-size: calc(10 * var(--u)); color: #5b6275; letter-spacing: .02em; }
+.bs-card__why { font-size: calc(11 * var(--u)); line-height: 1.4; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-book, .bs-book__body, .bs-comic, .bs-card { transition-duration: 0s !important; transition-delay: 0s !important; }
+}

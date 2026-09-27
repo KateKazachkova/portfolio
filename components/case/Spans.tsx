@@ -25,7 +25,7 @@ export default function Spans({ spans }: { spans: Para }) {
             </React.Fragment>
           );
         }
-        if ("mark" in s) return <mark key={i}>{s.mark}</mark>;
+        if ("mark" in s) return <mark key={i}>{s.strong ? <strong>{s.mark}</strong> : s.mark}</mark>;
         if ("pen" in s) return <span key={i} className="pen">{s.pen}</span>;
         if ("strong" in s) return <strong key={i}>{s.strong}</strong>;
         if ("code" in s) return <code key={i}>{s.code}</code>;

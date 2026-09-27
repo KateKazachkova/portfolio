@@ -14,6 +14,16 @@ export type WatchItem = {
   disc?: string | null;
 };
 
+/** A book or a comic on Off Duty's shelf: a WatchItem with who wrote it,
+ *  and, if given, its spine's colours and its size. */
+export type ShelfItem = WatchItem & {
+  author?: string;
+  /** the spine's colour and its lettering's, from a `Spine: #bg #ink` line */
+  spine?: [string, string] | null;
+  /** cm: height × thickness for a book, height × width for a comic */
+  size?: [number, number] | null;
+};
+
 // A label in public/posters/disc/ named after the title, however it is
 // spelt ("Outlander- Blood of My Blood.png", "sleepy-hollow.png"), with or
 // without a year in brackets, or after the poster's own file; any of the
@@ -43,7 +53,7 @@ function youtubeId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-function parseList(filename: string): WatchItem[] {
+function parseList(filename: string, keepOrder = false): ShelfItem[] {
   const filePath = path.join(process.cwd(), "content/about/films-and-series", filename);
 
   let raw = "";
@@ -64,8 +74,8 @@ function parseList(filename: string): WatchItem[] {
   // what a Markdown renderer does with it too.
   const body = raw.replace(/<!--[\s\S]*?-->/g, "").replace(/<!--[\s\S]*$/, "");
 
-  const items: WatchItem[] = [];
-  let current: WatchItem | null = null;
+  const items: ShelfItem[] = [];
+  let current: ShelfItem | null = null;
 
   for (const line of body.split("\n")) {
     const trimmed = line.trim();
@@ -83,6 +93,14 @@ function parseList(filename: string): WatchItem[] {
       current.poster = p ? "/" + p.replace(/^\/?posters\//, "posters/") : null;
     } else if (current && /^clip:/i.test(trimmed)) {
       current.clip = youtubeId(trimmed.replace(/^clip:/i, "").trim());
+    } else if (current && /^author:/i.test(trimmed)) {
+      current.author = trimmed.replace(/^author:/i, "").trim() || undefined;
+    } else if (current && /^spine:/i.test(trimmed)) {
+      const c = trimmed.match(/#[0-9a-f]{3,8}\b/gi);
+      current.spine = c && c.length >= 2 ? [c[0], c[1]] : null;
+    } else if (current && /^size:/i.test(trimmed)) {
+      const n = trimmed.match(/\d+(?:[.,]\d+)?/g)?.map((x) => parseFloat(x.replace(",", ".")));
+      current.size = n && n.length >= 2 ? [n[0], n[1]] : null;
     } else if (current && /^year:/i.test(trimmed)) {
       const y = parseInt(trimmed.replace(/^year:/i, "").trim(), 10);
       current.year = Number.isFinite(y) ? y : null;
@@ -94,6 +112,8 @@ function parseList(filename: string): WatchItem[] {
   // used to hide the comment bug above; it stays as a cheap guard for a
   // template pasted outside a comment.
   const filtered = items.filter((i) => i.title && i.title.toLowerCase() !== "title");
+  // the shelf keeps them the way the file lists them
+  if (keepOrder) return filtered;
 
   // Newest first; entries without a year sink to the bottom (alphabetical among themselves)
   return filtered.sort((a, b) => {
@@ -106,4 +126,15 @@ function parseList(filename: string): WatchItem[] {
 
 export function getSeries(): WatchItem[] {
   return parseList("series.md").map((s) => ({ ...s, disc: discFor(s) }));
+}
+
+/** Off Duty's shelf: the books spine out and the comics face out, in the
+ *  order their files list them. */
+export function getShelf(): { books: ShelfItem[]; comics: ShelfItem[] } {
+  return { books: parseList("books.md", true), comics: parseList("comics.md", true) };
+}
+
+/** The films, for the VHS stacks on Off Duty's corner. */
+export function getFilms(): WatchItem[] {
+  return parseList("films.md");
 }

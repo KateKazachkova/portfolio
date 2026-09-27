@@ -12,6 +12,8 @@ export const PROFILE_EVENT = "kate:profile";
 // aspect. x, y are its centre on the desk plane from its left/back corner.
 const BINDER = { x: 3031, y: 290, w: 560, r: 0 };
 const H = Math.round(BINDER.w * 2136 / 3717);
+/** its box on the desk (desk px, centre and size), for the sheet tucked into it (DeskScene) */
+export const BINDER_BOX = { x: BINDER.x, y: BINDER.y, w: BINDER.w, h: BINDER.w * 2136 / 3717 };
 
 // The sheet of paper under the index column at Profile, slipped in over the
 // board and under the first sheet (globals.css .desk-paper--tucked). An img,

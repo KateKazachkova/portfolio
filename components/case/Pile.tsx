@@ -9,21 +9,30 @@ import Spans from "./Spans";
  *
  * Everything is visible from the start — the reader never has to drag to see
  * a card. Dragging just moves one from place to place, and it stays where it
- * is put. Below 901px, and until this mounts, the same cards render as a plain
- * contact sheet: pushing things around a phone screen fights the scroll, and a
- * gesture is not a way to deliver content.
+ * is put. Until this mounts the same cards render as a plain contact sheet.
+ * On a phone they lie loose too (Kate, 27.09), smaller and three across; a
+ * card there takes only a drag that starts sideways, so an upward swipe over
+ * the pile still scrolls the page.
  */
 
 /** Where they were dropped, as fractions of the free space, so the scatter
- *  holds its shape at any width instead of spilling off the table. */
-const HOME = [
-  { x: 0.0, y: 0.06, r: -4.0 },
-  { x: 0.24, y: 0.4, r: 3.0 },
-  { x: 0.48, y: 0.0, r: -1.8 },
-  { x: 0.93, y: 0.26, r: 4.6 },
-  { x: 0.13, y: 0.98, r: 2.4 },
-  { x: 0.68, y: 0.88, r: -3.4 },
-];
+ *  holds its shape at any width instead of spilling off the table: a loose
+ *  grid, COLS across, each card knocked off its cell by a fixed amount (the
+ *  same every visit), in the archive's order. */
+const COLS = 5, COLS_NARROW = 3;
+const CARD_MAX_H = 330, CARD_MAX_H_NARROW = 200;
+const jig = (i: number, k: number) => {
+  const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
+  return v - Math.floor(v) - 0.5;   // -0.5 … 0.5
+};
+const homeOf = (i: number, n: number, cols: number) => {
+  const rows = Math.max(1, Math.ceil(n / cols) - 1), col = i % cols, row = Math.floor(i / cols);
+  const x = (col + jig(i, 1) * 0.7) / (cols - 1), y = (row + jig(i, 2) * 0.6) / rows;
+  return { x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)), r: jig(i, 3) * 9 };
+};
+/** the table grows with the pile: about 200px of it for every row (150 on a phone) */
+const tableH = (n: number, cols: number) =>
+  cols === COLS ? Math.max(520, Math.ceil(n / cols) * 200) : Math.max(420, Math.ceil(n / cols) * 150);
 
 type Pos = { x: number; y: number; r: number };
 
@@ -42,8 +51,9 @@ export default function Pile({
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const pos = useRef<Pos[]>([]);
   const drag = useRef<{ i: number; x: number; y: number } | null>(null);
-  const top = useRef(items.length + 1);
+  const top = useRef(items.length * 2 + 1);
   const [loose, setLoose] = useState(false);
+  const [cols, setCols] = useState(COLS);
 
   const paint = useCallback((i: number) => {
     const el = cardRefs.current[i];
@@ -57,8 +67,11 @@ export default function Pile({
     const box = stackRef.current?.getBoundingClientRect();
     const card = cardRefs.current[i]?.getBoundingClientRect();
     if (!box || !card) return { w: 0, h: 0 };
-    return { w: Math.max(0, box.width - card.width), h: Math.max(0, box.height - card.height) };
-  }, []);
+    // a card's picture may not have loaded yet (they are lazy): reckon on the
+    // tallest a card gets (260 of picture + caption, times its size), so none
+    // ends up hanging off the bottom once it has
+    return { w: Math.max(0, box.width - card.width), h: Math.max(0, box.height - Math.max(card.height, (cols === COLS ? CARD_MAX_H : CARD_MAX_H_NARROW) * (items[i].size ?? 1))) };
+  }, [items, cols]);
 
   const clamp = useCallback(
     (i: number) => {
@@ -73,12 +86,13 @@ export default function Pile({
   const reset = useCallback(
     (animate: boolean) => {
       items.forEach((_, i) => {
-        const home = HOME[i % HOME.length];
+        const home = homeOf(i, items.length, cols);
         const r = room(i);
         pos.current[i] = { x: home.x * r.w, y: home.y * r.h, r: home.r };
         const el = cardRefs.current[i];
         if (el) {
-          el.style.zIndex = String(i + 1);
+          // the ones made bigger lie on top of the rest
+          el.style.zIndex = String(items[i].size ? items.length + i + 1 : i + 1);
           if (animate) {
             el.classList.add("is-returning");
             window.setTimeout(() => el.classList.remove("is-returning"), 520);
@@ -86,15 +100,15 @@ export default function Pile({
         }
         paint(i);
       });
-      top.current = items.length + 1;
+      top.current = items.length * 2 + 1;
     },
     [items, paint, room],
   );
 
-  // Loose layout needs room. Below that the contact sheet is the better answer.
+  // Loose at every width; narrower, fewer across.
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 901px)");
-    const apply = () => setLoose(mq.matches);
+    const apply = () => { setCols(mq.matches ? COLS : COLS_NARROW); setLoose(true); };
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
@@ -185,6 +199,7 @@ export default function Pile({
       <div
         ref={stackRef}
         className="pile__stack"
+        style={loose ? { height: tableH(items.length, cols) } : undefined}
         role="group"
         aria-label="The archive, laid out"
         aria-describedby="pile-help"
@@ -198,13 +213,14 @@ export default function Pile({
             key={item.src}
             className="pcard"
             ref={(el) => { cardRefs.current[i] = el; }}
+            style={item.size ? ({ "--s": item.size } as React.CSSProperties) : undefined}
             tabIndex={loose ? 0 : undefined}
             onKeyDown={(e) => onKeyDown(e, i)}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.src} alt={item.alt} draggable={false} />
+            <img src={item.src} alt={item.alt} draggable={false} loading="lazy" />
             <figcaption>
-              <b>{String(i + 1).padStart(2, "0")}</b>&nbsp; {item.kind} – <Spans spans={item.caption} />
+              <b>{String(i + 1).padStart(2, "0")}</b>&nbsp; {item.kind}{item.caption && <> – <Spans spans={item.caption} /></>}
             </figcaption>
           </figure>
         ))}

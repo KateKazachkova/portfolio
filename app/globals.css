@@ -62,6 +62,12 @@
    transparent backdrop is a no-op, so the grain silently does nothing. */
 html { background-color: var(--bg); }
 
+/* No focus ring after a click, anywhere (Kate, 26.09); the keyboard still
+   gets one (:focus-visible). Things out of the tab order (tabindex -1: the
+   books, tapes, comics on the desk) are only ever reached by a click, so
+   they never show it. */
+:focus:not(:focus-visible), [tabindex="-1"]:focus { outline: none; }
+
 body {
   background-color: var(--bg);
   color: var(--fg);
@@ -439,18 +445,6 @@ body::after {
 .scene-hit:focus-visible, .case-world [tabindex="0"]:focus-visible {
   outline: 2px solid var(--accent-red, #e8212e); outline-offset: 2px; border-radius: 4px;
 }
-/* The wardrobe's hangers wear the ribbons' own slip (.award-ribbon::after):
-   one line over the lifted hanger's hook, at the case's own 11px (.inktip). */
-.hanger-tag {
-  position: absolute; z-index: 60; transform: translate(-50%, -100%);
-  width: max-content; max-width: 260px; white-space: nowrap; text-align: center;
-  padding: 5px 9px; border-radius: 3px;
-  background: rgba(250, 248, 243, .95); color: #22283a;
-  font: 500 11px / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .04em;
-  opacity: 0; pointer-events: none; transition: opacity .2s ease;
-}
-.hanger-tag[data-open="true"] { opacity: 1; }
-
 /* ═══════════════════════════════════════════════════════════════════════════
    The disc (components/DiscBody.tsx, in the Off Duty wallet and the player).
    Each disc is a stack of circular layers (printed label → fine grooves →
@@ -694,6 +688,9 @@ body::after {
    the case. Under 1024px the column stands above it instead, and the shift
    only pushed the case off the right of the screen. */
 @media (max-width: 1023px) { .case-stage { --case-x: 0px !important; } }
+/* Phones: the scene half as large again (Kate, 27.09) — the doors run a
+   little past the screen's edges; main clips them. */
+@media (max-width: 767px) { .case-stage { width: 132vw; flex-shrink: 0; } }
 /* Landscape tablets and small laptops (1024–1439px) get the desktop scene
    itself, just smaller: the case keeps its 1440px share of the width
    (1118 / 1440), so the column beside it and everything on the desk scale
@@ -715,14 +712,11 @@ body::after {
   /* and 20px nearer the window's edge than the 48px it keeps from 1440 up
      (its left-6 is 24 inside a row that starts 24 in) */
   .hero-aside-wrap { left: 4px; }
-  /* the sheets under the column (DeskScene) lie ~40 screen px nearer the
-     viewer here: 21 desk px at this range's scale (about 2.4 × u)  */
-  .desk-paper { translate: 0 calc(21 * var(--u)); }
   /* the Profile binder 5% smaller in this range, about its centre */
   .pf-binder.desk-binder { scale: .95 .95 1; }   /* not in depth: the sheet under its first leaf keeps its place */
   /* the sheet tucked into it stays where it lay on the desk, 21 down and
      full size: its box inside the smaller binder, ÷ .95 about its centre */
-  .pf-binder.desk-binder .desk-paper--tucked { left: -26.598%; top: 6.855%; width: 35.902%; height: 78.506%; }
+  .pf-binder.desk-binder .desk-paper--tucked { left: calc((50 + (var(--tuck-l, -22.768) - 50) / .95) * 1%); top: calc((50 + (var(--tuck-t, -3.67) - 50) / .95) * 1%); width: calc(var(--tuck-w, 34.107) / .95 * 1%); height: calc(var(--tuck-h, 74.58) / .95 * 1%); }
 }
 /* From 1280px the scene scales with the window both ways: its 1440px share
    of the width (1118 / 1440 — at which the window's edge cuts the Davey
@@ -821,7 +815,6 @@ body::after {
 :root[data-desk="award"] .night-cam     { --pool: -15% 10%; --pool-size: 110% 130%; }
 :root[data-desk="profile"] .night-cam   { --pool: -40% -10%; --pool-size: 140% 140%; --pool-k: .85; }
 :root[data-desk="offduty"] .night-cam   { --pool: 115% 5%; --pool-size: 110% 130%; }
-:root[data-desk="offduty"][data-desk-focus="bike"] .night-cam { --pool: 95% -20%; --pool-size: 120% 120%; }
 /* a label or the talk panel open: the room comes up, as it does at home */
 main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transition-duration: .4s; }
 /* Multiply needs something to land on. The stage is its own blend group (it
@@ -917,6 +910,30 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   mix-blend-mode: screen;
 }
 
+/* Phones: the case stands lower in a tall window, so the wall goes on up to
+   the top of the page – its own picture mirrored above it, seam to seam
+   (Kate, 27.09). Only at home: on the way down to the desk it would pass
+   behind the camera (see .desk-wall), so it fades as the camera leaves. */
+@media (max-width: 767px) {
+  .desk-wall:not(.desk-wall--hung)::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
+    height: calc(1600 * var(--u)); pointer-events: none;
+    /* the wall's ::before wash (its grain and its tint, screened) is laid
+       in too, or the join shows */
+    --wall-img: url("/scene/desk3d/wall.jpg");
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .92 0 0 0 0 .88 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      linear-gradient(rgba(52, 60, 58, .22), rgba(52, 60, 58, .22)),
+      var(--wall-img);
+    background-size: calc(240 * var(--u)) calc(240 * var(--u)), auto, 100% 50%;
+    background-blend-mode: screen, screen, normal;
+    transform: scaleY(-1); transition: opacity .3s ease;
+  }
+  .desk-wall.desk-ext::after { --wall-img: url("/scene/desk3d/wall-ext.jpg"); }
+  .desk-wall.desk-extl::after { --wall-img: url("/scene/desk3d/wall-extl.jpg"); }
+  :root[data-desk]:not([data-desk="closed"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
+}
+
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */
@@ -994,7 +1011,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .jury-card { position: absolute; left: 50%; top: 50%; z-index: 6; width: calc(120 * var(--eu)); display: block; box-sizing: border-box;
   transform: translate(-50%, -50%) rotate(-2deg);
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24);
   font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace;
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .jury-card { transform: translate(calc(-50% - 94 * var(--u)), -50%) rotate(-1deg); }
@@ -1013,36 +1030,53 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 .postcard { position: absolute; left: 50%; top: 50%; width: calc(159 * var(--u)); height: calc(113 * var(--u)); box-sizing: border-box;
   display: grid; grid-template-columns: 56% 44%; padding: calc(7 * var(--u)) calc(7 * var(--u)) calc(6 * var(--u));
   background: #f6f0e2; color: #2a241c; text-decoration: none;
-  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.3);
+  box-shadow: inset 0 calc(.35 * var(--u)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--u)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24);
   transform: translate(calc(-50% + var(--ux) * var(--u)), calc(-50% + var(--uy) * var(--u))) rotate(var(--ur));
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard {
   transform: translate(calc(-50% + 92 * var(--u)), calc(-50% + var(--fy) * var(--u))) rotate(var(--fr)); }
 .postcard__msg { display: flex; flex-direction: column; gap: calc(3 * var(--u)); padding-right: calc(6 * var(--u)); min-width: 0; position: relative; }
-/* the dividing line starts under the heading, which runs on to the stamp */
-.postcard__msg::after { content: ""; position: absolute; right: 0; top: calc(26 * var(--u)); bottom: 0; border-right: calc(.5 * var(--u)) solid #cfc5b0; }
+.postcard__msg::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; border-right: calc(.5 * var(--u)) solid #cfc5b0; }
 .postcard__from { font: 400 calc(4.2 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .14em; text-transform: uppercase; color: #6d6252; }
-.postcard__jury { width: calc(98 * var(--u)); white-space: nowrap; margin-bottom: calc(3 * var(--u));
-  font: 700 calc(6.4 * var(--u)) / 1 var(--font-typewriter), monospace; text-transform: uppercase; }
+/* kept to its own half: the logo takes the other */
+.postcard__jury { margin-bottom: calc(3 * var(--u));
+  font: 700 calc(6.4 * var(--u)) / 1.1 var(--font-typewriter), monospace; text-transform: uppercase; }
 .postcard__line { font: 400 calc(5 * var(--u)) / 1.1 var(--font-typewriter), monospace; color: #2c3a86; }
 .postcard__addr { position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: calc(4 * var(--u)); padding-left: calc(6 * var(--u)); }
 .postcard__to { display: block; border-bottom: calc(.4 * var(--u)) solid #cfc5b0; padding-bottom: calc(1 * var(--u));
   font: 400 calc(5 * var(--u)) / 1 var(--font-typewriter), monospace; color: #2c3a86; white-space: nowrap; overflow: hidden; }
-/* the stamp: a perforated edge, the jury's logo in its ink */
-.postcard__stamp { position: absolute; right: 0; top: 0; width: calc(40 * var(--u)); height: calc(46 * var(--u)); box-sizing: border-box;
-  display: flex; align-items: center; justify-content: center; padding: calc(4 * var(--u));
-  background: #fffaf0; border: calc(1.3 * var(--u)) dotted #d9cfba;
-  box-shadow: inset 0 0 0 calc(1.2 * var(--u)) #fffaf0, inset 0 0 0 calc(1.7 * var(--u)) var(--ink); }
-.postcard__stamp > span { display: block; width: 100%; background: var(--ink);
-  -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
-.postcard__postmark { position: absolute; right: calc(26 * var(--u)); top: calc(24 * var(--u)); width: calc(30 * var(--u)); height: calc(30 * var(--u));
-  display: flex; align-items: center; justify-content: center; border-radius: 50%; border: calc(.7 * var(--u)) solid rgba(40, 36, 50, .55);
-  font: 700 calc(6 * var(--u)) / 1 var(--font-typewriter), monospace; color: rgba(40, 36, 50, .6); transform: rotate(-14deg); }
+/* the jury's logo printed large in its ink, the year under it */
+.postcard__logo { position: absolute; left: calc(6 * var(--u)); right: 0; top: 0; height: calc(30 * var(--u)); display: block; background: var(--ink);
+  -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: left center; mask-position: left center; }
+.postcard__year { position: absolute; left: calc(6 * var(--u)); top: calc(34 * var(--u));
+  font: 700 calc(15 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .02em; color: var(--ink, #2a241c); }
 /* Links only once the camera is on the file: before, a click brings it. */
 a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 [data-desk="open"] .desk-card--stack[data-side="here"] :is(a.jury-card__row, .jury-tag, .postcard) { pointer-events: auto; cursor: pointer; }
 [data-desk="open"] .desk-card--stack[data-side="here"] a.jury-card__row:hover { background: rgba(179, 49, 42, .1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard:hover { z-index: 5 !important; }
+/* A pointer over a file not in focus: its postcards come a little way out
+   from under the card, and the card is tagged "In progress". */
+[data-desk="open"] .desk-card--stack:not([data-side]):hover .postcard {
+  transform: translate(calc(-50% + (var(--ux) + 34) * var(--u)), calc(-50% + (var(--uy) + var(--fy) * .45) * var(--u))) rotate(var(--fr)); }
+[data-desk="open"] .desk-card--stack:not([data-side]):hover .jury-card { transform: translate(calc(-50% - 16 * var(--u)), -50%) rotate(-2.5deg); }
+.stack-soon { position: absolute; left: 50%; top: 50%; z-index: 9; pointer-events: none; white-space: nowrap;
+  padding: calc(3 * var(--u)) calc(5 * var(--u)); background: #22283a; color: #f7f2e6; border-radius: calc(1.6 * var(--u));
+  font: 700 calc(4.4 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase;
+  transform: translate(calc(-50% - 16 * var(--u)), calc(-50% - 62 * var(--u))) rotate(-3deg);
+  opacity: 0; transition: opacity .2s ease; }
+[data-desk="open"] .desk-card--stack:not([data-side]):hover .stack-soon { opacity: 1; transition-delay: .12s; }
+/* With the camera on it, a sticky note over the card: what the project is,
+   and that its case study is still being written. */
+.stack-note { left: 50%; top: 50%; width: calc(104 * var(--u)); gap: calc(4 * var(--u)); padding: calc(7 * var(--u)) calc(7 * var(--u)) calc(8 * var(--u));
+  transform: translate(calc(-50% - 104 * var(--u)), calc(-50% - 118 * var(--u))) rotate(2deg);
+  opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+[data-desk="open"] .desk-card--stack[data-side="here"] .stack-note { opacity: 1; transition-delay: .45s; }
+.sticky-note__kicker { font: 700 calc(4.4 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: #8a2a12; }
+.sticky-note__text { font: 400 calc(5.6 * var(--u)) / 1.35 Arial, Helvetica, sans-serif; }
+.sticky-note__status { align-self: flex-start; margin-top: calc(1 * var(--u)); padding: calc(3 * var(--u)) calc(5 * var(--u));
+  border: calc(.6 * var(--u)) dashed #22283a; border-radius: calc(1.6 * var(--u));
+  font: 700 calc(4.2 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: #22283a; }
 /* BulkSource's sand under the stack (720 × 482) and the toy truck on it
    (933 × 428, ~11 cm long). The truck has no shadow of its own: a soft
    blob under it (no filter on scene objects). Fanned, it drives off the
@@ -1082,7 +1116,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   filter: none; box-shadow: none;
   transform: translate(calc(-50% - 44 * var(--u)), calc(-50% + 50 * var(--u))) rotate(-9deg);
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
-.payslip::before { content: ""; position: absolute; inset: 0; z-index: -1; box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28); }
+.payslip::before { content: ""; position: absolute; inset: 0; z-index: -1; box-shadow: 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .payslip { transform: translate(calc(-50% - 94 * var(--u)), calc(-50% + 99 * var(--u))) rotate(-2deg); }
 .payslip__paper { height: 100%; box-sizing: border-box; padding: calc(6 * var(--u)) calc(7 * var(--u));
   border-left: calc(.4 * var(--u)) dashed #b9b4a4; border-right: calc(.4 * var(--u)) dashed #b9b4a4;
@@ -1192,16 +1226,16 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
    standing above the cut. */
 .env__stack { position: absolute; display: block; }
 .env__stack--family { left: 5%; top: 1.5%; width: 47%; }
-.env__stack--after  { left: 47%; top: 8%; width: 47%; }
+.env__stack--after  { left: 43%; top: 8%; width: 47%; }
 .env__print-photo { position: absolute; left: 0; top: 0; width: 100%; display: block; box-sizing: border-box;
   padding: calc(2.2 * var(--eu)); background: #f4f0e6; transform: rotate(var(--t)); transform-origin: 50% 0;
-  box-shadow: 0 calc(.4 * var(--eu)) calc(.8 * var(--eu)) rgba(20,16,12,.3); }
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24); }
 .env__print-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* The library card, in front of the prints: buff card stock, a typed head,
    ruled rows, date stamps in violet ink. */
 .env__card { position: absolute; left: 10%; top: 14%; width: 80%; display: block; box-sizing: border-box;
   padding: calc(3 * var(--eu)) calc(3.5 * var(--eu)) calc(4 * var(--eu)); background: #efe3c4; color: #2a241c;
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24);
   font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace; }
 .env__card-head { display: flex; flex-direction: column; gap: calc(1 * var(--eu));
   padding-bottom: calc(1.8 * var(--eu)); border-bottom: calc(.5 * var(--eu)) solid #b3312a; }
@@ -1272,7 +1306,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env > .u15-sleeve { z-index: 5; }
 .env > .env__back, .env > .env__shadow { z-index: 0; }
 .env__shadow { position: absolute; left: 1.2%; top: .4%; right: 3.1%; bottom: 2.1%; display: block;
-  box-shadow: 0 calc(1 * var(--eu) / 3) calc(1.5 * var(--eu) / 3) rgba(20,16,12,.3); }
+  box-shadow: 0 calc(1 * var(--u)) calc(1 * var(--u)) rgba(20,16,12,.3), 0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-4 * var(--u)) rgba(20,16,12,.32); }
 .u15-hit { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
 /* the other files make room, and stay in sight at the right edge; opened,
    the folder's things lie over them */
@@ -1280,11 +1314,12 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
    little, so they stay just in sight at the right edge) */
 .desk-card--env[data-open] { z-index: 2; }
 
-/* each print: its own drag (--dx/--dy), and once out a little fan so the
-   stack reads as a stack */
+/* each print: its own drag (--dx/--dy), and once out the place it lands
+   on the desk (--sx/--sy from its stack, at --sr; U15File SPREAD) */
 .u15-print { --open: 0;
-  transform: translate(calc((var(--dx) + var(--fan) * 1.4 * var(--open)) * var(--eu)),
-                       calc((var(--dy) - var(--fan) * .9 * var(--open)) * var(--eu))) rotate(var(--t));
+  transform: translate(calc((var(--dx) + var(--sx) * var(--open)) * var(--eu)),
+                       calc((var(--dy) + var(--sy) * var(--open)) * var(--eu)))
+             rotate(calc(var(--t) + (var(--sr) - var(--t)) * var(--open)));
   transition: transform .8s cubic-bezier(.65, 0, .2, 1); touch-action: none; }
 .desk-card--env[data-open] .u15-print { --open: 1; cursor: grab; }
 .u15-print[data-held] { transition: none; cursor: grabbing;
@@ -1298,6 +1333,13 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   width: calc(44.6 * var(--eu)); height: calc(95.4 * var(--eu)); padding: 0; border: 0; background: none;
   cursor: pointer; z-index: 12 !important; }
 .desk-player img { display: block; width: 100%; height: 100%; }
+/* over it, what it plays: a paper label beside the player, while it is quiet */
+.desk-player__hint { position: absolute; right: 74%; top: 2%; white-space: nowrap; pointer-events: none;
+  padding: calc(2.2 * var(--eu)) calc(3.4 * var(--eu)); background: #22283a; color: #f7f2e6; border-radius: calc(1.3 * var(--eu));
+  font: 700 calc(3.2 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; rotate: -12deg;
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+  opacity: 0; transition: opacity .2s ease; }
+[data-desk="open"] .desk-player:not([data-playing]):not([data-held]):hover .desk-player__hint { opacity: 1; transition-delay: .1s; }
 .desk-player__lcd {
   position: absolute; left: 7.3%; top: 24.5%; width: 21.1%; height: 12.5%;
   display: flex; flex-direction: column; justify-content: center; gap: calc(.8 * var(--eu));
@@ -1319,20 +1361,34 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
 }
 
-/* The stack as home's camera sees it (U15Still): only while the camera is
-   home — gone at once when it moves, back once it has landed again. */
-.u15-still { position: absolute; display: block; max-width: none; pointer-events: none; z-index: 0;
-  transition: opacity .45s ease 1.6s; }
-:root[data-desk]:not([data-desk="closed"]) .u15-still { opacity: 0; transition: opacity .2s ease; }
-
-/* Opened, a paper tag out of the pocket: the case's own page. */
-.u15-tag { position: absolute; left: calc(52 * var(--eu)); top: calc(96 * var(--eu)); z-index: 9; display: block; white-space: nowrap;
-  padding: calc(2.7 * var(--eu)) calc(5.4 * var(--eu)); background: #c21f10; color: #f7f2e6; text-decoration: none;
-  font: 600 calc(4.2 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase;
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.3);
+/* Opened, a sticky note out of the pocket: what the project is, in a few
+   lines, and the button to the case's own page. */
+.sticky-note, .u15-note { position: absolute; z-index: 9; display: flex; flex-direction: column; box-sizing: border-box;
+  background: #f7e27a; color: #2a241c; text-align: left;
+  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28), inset 0 calc(-8 * var(--u)) calc(8 * var(--u)) calc(-8 * var(--u)) rgba(120, 90, 0, .18); }
+.u15-note { left: calc(52 * var(--eu)); top: calc(96 * var(--eu)); width: calc(74 * var(--eu)); gap: calc(3 * var(--eu));
+  padding: calc(5 * var(--eu)) calc(5 * var(--eu)) calc(5.5 * var(--eu));
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.28), inset 0 calc(-6 * var(--eu)) calc(6 * var(--eu)) calc(-6 * var(--eu)) rgba(120, 90, 0, .18);
   transform: translate(calc(var(--ox) * var(--eu)), calc(var(--oy) * var(--eu))) rotate(var(--rot));
   opacity: 0; pointer-events: none; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease; }
-.desk-card--env[data-phase="open"] .u15-tag { opacity: 1; pointer-events: auto; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease .5s; }
+.desk-card--env[data-phase="open"] .u15-note { opacity: 1; pointer-events: auto; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease .5s; }
+.u15-note[data-held] { transition: none; }
+.u15-note__kicker { font: 700 calc(3.2 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: #8a2a12; }
+.u15-note__text { font: 400 calc(4.2 * var(--eu)) / 1.35 Arial, Helvetica, sans-serif; }
+.u15-note__btn, .u15-view { align-self: flex-start; display: inline-block; white-space: nowrap; text-decoration: none; cursor: pointer;
+  background: #22283a; color: #f7f2e6; border: 0; border-radius: calc(1.3 * var(--eu));
+  font: 700 calc(3.6 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; }
+.u15-note__btn { padding: calc(3 * var(--eu)) calc(4.5 * var(--eu)); margin-top: calc(1 * var(--eu)); }
+.u15-note__btn:hover, .u15-view:hover { background: #c21f10; }
+.u15-note__btn:focus-visible { outline: calc(.6 * var(--eu)) solid #c21f10; outline-offset: calc(.6 * var(--eu)); }
+/* Closed, a pointer over the folder draws the card up out of the pocket and
+   puts a button to the case's page on it; the folder itself stays put. */
+.env__card { translate: 0 0; transition: transform .8s cubic-bezier(.65, 0, .2, 1), translate .35s cubic-bezier(.3, 0, .2, 1), z-index 0s .6s; }
+[data-desk="open"] .desk-card--env[data-phase="closed"]:has(:is(.u15-hit, .u15-view):hover) .env__card { translate: 0 calc(-18 * var(--eu)); }
+.u15-view { position: absolute; left: calc(92 * var(--eu)); top: calc(13 * var(--eu)); z-index: 31 !important;
+  padding: calc(2.6 * var(--eu)) calc(4 * var(--eu)); rotate: -2deg;
+  opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+[data-desk="open"] .desk-card--env[data-phase="closed"]:has(:is(.u15-hit, .u15-view):hover) .u15-view { opacity: 1; pointer-events: auto; transition: opacity .25s ease .12s; }
 @media (prefers-reduced-motion: reduce) {
   .u15-print, .u15-item { transition-duration: 0s !important; }
 }
@@ -1365,6 +1421,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
+/* from home (no data-desk yet, or "closed"), the files take a click: it
+   brings the camera to them */
+:root:is(:not([data-desk]), [data-desk="closed"]) .desk-cases > * { pointer-events: auto; cursor: pointer; }
 
 /* ── Recognition: the camera's second stop ──
    The trophy is big (56 cm), so the camera barely comes in: 10 cm, a
@@ -1410,7 +1469,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the desk's) the shadow is .desk-paper's doubled. Laid flat (RoomBinder)
    its place in the book is its place in the stack. */
 .desk-paper--tucked {
-  position: absolute; left: -22.768%; top: 2.486%; width: 34.107%; height: 74.58%; max-width: none;
+  position: absolute; max-width: none;
+  /* where DeskScene's DeskSheets lays it (a share of the binder's box, as it fits the index column); until then staging's own default, 191 × 240 at (2719, 237) */
+  left: calc(var(--tuck-l, -22.768) * 1%); top: calc(var(--tuck-t, -3.67) * 1%); width: calc(var(--tuck-w, 34.107) * 1%); height: calc(var(--tuck-h, 74.58) * 1%);
   transform: rotate(1.2deg) translateZ(calc(var(--t, 0px) + .4 * var(--u))); pointer-events: none;
   box-shadow: calc(2 * var(--u)) calc(3 * var(--u)) calc(4 * var(--u)) rgba(20, 16, 12, .16),
     calc(6 * var(--u)) calc(12 * var(--u)) calc(20 * var(--u)) calc(-6 * var(--u)) rgba(20, 16, 12, .2);
@@ -1424,37 +1485,48 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
   background: url(/items/desk-paper.webp) center / 100% 100% no-repeat;
   transform: rotate(var(--r, 0deg)) translateZ(.1px); pointer-events: none;
-  box-shadow: calc(1 * var(--u)) calc(1.5 * var(--u)) calc(2 * var(--u)) rgba(20, 16, 12, .16),
-    calc(3 * var(--u)) calc(6 * var(--u)) calc(10 * var(--u)) calc(-3 * var(--u)) rgba(20, 16, 12, .2);
+  box-shadow: inset 0 calc(.35 * var(--u)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--u)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24);
 }
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
 .desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
 
 /* ── Off Duty: the fourth stop, Recognition the other way ──
-   The eye stays at the case's height (y 226) and slides left to x -863,
-   210 cm nearer the wall (z 1600), tipping 8° down: the CD wallet (spine
-   at x -900 against the wall) and the cream player right of it (x -470)
-   fill the frame right of the index, 1.8 m off, a strip of desk under
-   them; the clock (x -62, nearer) is just out of shot on the right, the
-   case well out. translate O - C = (560 + 863, 0, 2150 - 1600).
-   A click on the bike computer on the desk in front (x -760, z 260)
-   brings the camera straight down over it, 0.56 m up (eye y 656 - 600),
-   its axis 60 px left of it: translate (560 + 820, 226 - 56, 2150 - 260). */
+   As at Recognition, the camera only slides (Kate, 26.09: no change of
+   angle between stops): the eye stays at the case's height (y 226), goes
+   left to x -863 and 10 cm nearer the wall (z 2050), tipping 4° down: the
+   shelf with the books and tapes, the CD wallet under it (spine at x -900
+   against the wall) and the cream player right of it fill the frame right
+   of the index, the helmet and the bike computer in front, under it.
+   translate O - C = (560 + 863, 0, 2150 - 2050). The bike computer is
+   read from here: no closer move onto it (Kate, 26.09). */
 [data-desk="offduty"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="offduty"] .desk-world,
 [data-desk="offduty"] .case-world {
-  transform: rotateX(-8deg) translate3d(calc(1423 * var(--u)), 0, calc(550 * var(--u)));
-}
-[data-desk="offduty"][data-desk-focus="bike"] .desk-world,
-[data-desk="offduty"][data-desk-focus="bike"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc(1380 * var(--u)), calc(170 * var(--u)), calc(1890 * var(--u)));
+  transform: rotateX(-4deg) translate3d(calc(1423 * var(--u)), 0, calc(100 * var(--u)));
 }
 [data-desk="offduty"] .case-world { pointer-events: none; }
-[data-desk="offduty"][data-desk-focus="bike"] .case-world { opacity: 0; transition: transform 1.4s cubic-bezier(.65, 0, .2, 1), opacity .4s ease; }
-/* the move down to the unit and back up happens after arrival */
-[data-desk="offduty"][data-desk-arrived] .desk-world,
-[data-desk="offduty"][data-desk-arrived] .case-world { transition: transform 1.4s cubic-bezier(.65, 0, .2, 1), opacity .4s ease; }
+/* Phones: a phone sees a strip of what a 1440px window does, so at the
+   wall's two stops and over Profile a finger pans along the room too
+   (--pan, desk px, from useDeskCamera), and Profile's axis is on the
+   binder's middle rather than 70 px left of it (Kate, 27.09). The planes
+   take the touch, so a drag on bare wall or desk is a pan. */
+@media (max-width: 767px) {
+  [data-desk="award"] .desk-world, [data-desk="award"] .case-world {
+    transform: rotateX(-4deg) translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), 0, calc(100 * var(--u)));
+  }
+  [data-desk="offduty"] .desk-world, [data-desk="offduty"] .case-world {
+    transform: rotateX(-4deg) translate3d(calc((1423 - var(--pan, 0)) * var(--u)), 0, calc(100 * var(--u)));
+  }
+  [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
+    transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
+  }
+  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
+  /* at the case the page still scrolls up and down, but a sideways swipe is
+     the room's: it walks to Recognition or Off Duty (useDeskCamera) */
+  :root:is(:not([data-desk]), [data-desk="closed"]) .scene-cam { touch-action: pan-y; }
+  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
+}
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
    the room about it. The player: a still standing on the desk, its screen
@@ -1535,20 +1607,35 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .od-dvd__base { transform-origin: 50% 0; }
 .od-dvd__lid > img:first-child, .od-dvd__base > img:first-child { display: block; width: 100%; height: 100%; }
 .od-dvd__bay { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); }
+[data-desk="offduty"] .od-dvd__bay[data-full] { cursor: pointer; }
 .od-dvd__bay .cd-body { transform: none; filter: none; box-shadow: 0 0 calc(2 * var(--u)) rgba(0,0,0,.25); }
 /* the flying disc, in the window's own space */
 .od-fly { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; transform-origin: 0 0; }
 .od-fly .cd-body { transform: none; filter: none; box-shadow: 0 10px 18px rgba(0,0,0,.35); }
-/* the picture: the poster, filling the panel, drifting in slowly */
+/* the title card: the disc's number, title, year and why, set in the
+   OSD's mono on a dark panel with scanlines; the lines come up in turn */
 .od-dvd__screen { overflow: hidden; }
-.od-dvd__picture { position: absolute; inset: 0; background: center / cover no-repeat; z-index: -1;
-  animation: od-on .5s ease-out both, od-drift 18s ease-in-out infinite alternate; }
-.od-dvd__picture::after { content: ""; position: absolute; inset: 0;
-  background: linear-gradient(transparent 55%, rgba(0,0,0,.55)), repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.08) 2px 3px); }
+.od-dvd__card { position: absolute; inset: 0; z-index: -1; box-sizing: border-box; padding: 14% 7% 6%;
+  display: flex; flex-direction: column; justify-content: center; gap: calc(2.4 * var(--u));
+  background: repeating-linear-gradient(transparent 0 2px, rgba(0,0,0,.18) 2px 3px),
+    radial-gradient(120% 90% at 30% 35%, #16233a, #070b14 75%);
+  color: rgba(225, 238, 255, .92); text-shadow: 0 0 calc(2 * var(--u)) rgba(120, 170, 255, .35);
+  animation: od-on .5s ease-out both; }
+.od-dvd__card > * { animation: od-line .4s ease-out both; }
+.od-dvd__card > :nth-child(2) { animation-delay: .25s; }
+.od-dvd__card > :nth-child(3) { animation-delay: .4s; }
+.od-dvd__card > :nth-child(4) { animation-delay: .6s; }
+.od-dvd__card-no { color: rgba(160, 200, 255, .72); }
+.od-dvd__card-title { font-size: calc(11 * var(--u)); line-height: 1.05; letter-spacing: .04em;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.od-dvd__card-why { font-weight: 500; line-height: 1.35; letter-spacing: .04em; text-transform: none;
+  color: rgba(200, 220, 245, .8);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 @keyframes od-on { from { opacity: 0; filter: brightness(3); } }
-@keyframes od-drift { to { transform: scale(1.12) translate(-2%, -1%); } }
+@keyframes od-line { from { opacity: 0; transform: translateY(calc(2 * var(--u))); } }
+@media (prefers-reduced-motion: reduce) { .od-dvd__card, .od-dvd__card > * { animation: none; } }
 .od-dvd__screen > .od-dvd__osd { position: relative; pointer-events: none; }
-/* the clip over the poster once it loads; the frame takes no clicks, the
+/* the clip over the title card once it loads; the frame takes no clicks, the
    screen does (sound on / off) */
 /* laid out three times the screen's size and scaled down, so YouTube's own
    title, buttons and logo come out a third as big */
@@ -1568,6 +1655,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   box-shadow: none; }
 /* the desk plane's y runs toward the room, so rotate(35°) swings a line
    from the spine out to the right and forward, as the right half goes */
+/* the wallet's shade (OffDutyShelf): soft on the wall behind it, darkest
+   low by the spine, and on the desk round its feet */
+.od-wallet-shade { position: absolute; display: block; pointer-events: none; }
+.od-wallet-shade--wall { background: radial-gradient(ellipse 50% 85% at 48% 100%, rgba(8,6,4,.5), rgba(8,6,4,.2) 55%, rgba(8,6,4,0)); }
+.od-wallet-shade--desk { transform-origin: 50% 0;
+  background: radial-gradient(ellipse 55% 75% at 48% 10%, rgba(10,8,6,.45), rgba(10,8,6,.18) 55%, rgba(10,8,6,0)); }
 .od-foot { position: absolute; height: calc(10 * var(--u)); margin-top: calc(-5 * var(--u)); transform-origin: 0 50%;
   pointer-events: none; border-radius: 999px;
   background: radial-gradient(closest-side, rgba(10,8,6,.75), rgba(10,8,6,.35) 60%, rgba(10,8,6,0)); }
@@ -1618,11 +1711,14 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"][data-desk-arrived] .desk-world:active { cursor: grabbing; }
 .desk-hint {
   position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20;
+  /* the index's own buttons (.nav-call: Let's Talk, CV) */
   display: flex; gap: 18px; align-items: center; pointer-events: none;
-  padding: 7px 14px; border-radius: 999px; background: rgba(250, 248, 243, .88);
-  box-shadow: 0 1px 2px rgba(20,16,12,.18), 0 6px 16px -8px rgba(20,16,12,.35);
-  font: 11px/1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .14em;
+  padding: 10.2px 14.4px; border-radius: 4px; border: 1.5px solid #22283a; background: #f3efe6;
+  font: 700 12px/15.6px var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em;
   text-transform: uppercase; color: #22283a;
+  /* left: 50% leaves it only half the window to fit in; on a phone that
+     broke it onto two lines */
+  width: max-content; white-space: nowrap;
   opacity: 0; transition: opacity .4s ease;
 }
 [data-desk="open"][data-desk-arrived] .desk-hint { opacity: 1; }
@@ -1636,11 +1732,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 }
 /* A file open or in focus on the desk: the pill turns into its way out. */
 .desk-hint__close { display: none; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit;
-  background: none; border: 0; padding: 7px 14px; margin: -7px -14px; cursor: pointer; }
+  background: none; border: 0; padding: 10.2px 14.4px; margin: -10.2px -14.4px; cursor: pointer; }
 :is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint { pointer-events: auto; }
 :is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint > span { display: none; }
 :is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint__close { display: inline; }
-:is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint:hover { background: #fff; }
+:is([data-u15="open"], [data-desk="open"][data-desk-focus]) .desk-hint:hover { background: #22283a; color: #f3efe6; }
 [data-desk="open"] .case-world { opacity: 0; pointer-events: none;
   transition: transform var(--cam-t) var(--cam-ease) var(--cam-wait), opacity .6s ease .7s; }
 [data-desk="open"] .desk-shadow { opacity: 0; transition: opacity .6s ease .5s; }
@@ -1651,15 +1747,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 }
 /* The folder lifts by its own outline, not the card's box — and not at all
    once it is open (the generic card hover must not reach it either). */
-[data-desk="open"] .desk-card--env:hover { box-shadow: none; border-color: transparent; }
-[data-desk="open"] .desk-card--env[data-open]:hover { transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateZ(.1px); }
-[data-desk="open"] .desk-card--env:not([data-open]):hover,
-[data-desk="open"] .desk-card--env:not([data-open]):focus-within {
-  box-shadow: none; transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateY(calc(-3 * var(--u))) translateZ(.1px);
-}
-[data-desk="open"] .desk-card--env:not([data-open]):hover .env__shadow {
-  box-shadow: 0 calc(6 * var(--eu) / 3) calc(8 * var(--eu) / 3) rgba(20,16,12,.24);
-}
+[data-desk="open"] .desk-card--env:hover { box-shadow: none; border-color: transparent; filter: none; }
+/* it stays where it lies: only its card comes up (see .u15-view) */
+[data-desk="open"] .desk-card--env:hover,
+[data-desk="open"] .desk-card--env:focus-within { transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateZ(.1px); }
 /* The page around it: the lines under the case step aside; the column —
    title, lead and index — stays as it is on every page, inked for the white
    desk (over the dark wall it keeps its own colours). */
@@ -1692,11 +1783,16 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   /* lifted over the room: the scene's planes are positioned and stacked, and
      a static block goes under all of them. Under the bar (z 60) so the bar
      still covers it once the page scrolls. */
-  .hero-aside-wrap { position: relative; z-index: 50; }
+  .hero-aside-wrap { position: relative; z-index: 50; transition: opacity .4s ease, visibility 0s linear .4s; }
+  /* It is the case's caption: once the camera leaves the case for any stop
+     on the desk, it stays behind rather than hanging over the new view
+     (Kate, 27.09). */
+  :root[data-desk]:not([data-desk="closed"]) .hero-aside-wrap { opacity: 0; visibility: hidden; }
+  :root:not([data-desk]) .hero-aside-wrap, :root[data-desk="closed"] .hero-aside-wrap { transition-delay: .6s, 0s; }
 }
-@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
+@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
-@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
+@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
 @media (prefers-reduced-motion: reduce) { .hero-aside-wrap { transition: none; } }
 /* Glass: one recipe for the column's pane and Kate's speech panel
    (.katetalk), so the two read as the same material — the scene behind
@@ -1742,10 +1838,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
     content: ""; position: absolute; inset: -22px -22px -22px -26px; z-index: -1;
     pointer-events: none;
   }
-  :is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
+  :is([data-desk="open"], [data-desk="profile"]) .hero-aside::before {
     --glass-tint: color-mix(in srgb, #f4ecdb 64%, transparent); border-color: color-mix(in srgb, #22283a 18%, transparent);
   }
-  :root[data-night]:is([data-desk="open"], [data-desk="profile"], [data-desk="offduty"][data-desk-focus="bike"]) .hero-aside::before {
+  :root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside::before {
     --glass-tint: color-mix(in srgb, #211d19 64%, transparent); border-color: color-mix(in srgb, #efe7d8 30%, transparent);
   }
   /* Pane off for now (Kate, 26.09): over the wall it cut the room. Kept, not
@@ -1800,13 +1896,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    under the index. At home it is not there; it is back the moment the
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
-:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-dvd) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
-[data-desk="award"] :is(.desk-extl, .od-wallet, .od-dvd),
-[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-dvd, .flip-clock-slot, .desk-lamp),
+:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
+[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
+[data-desk="award"] :is(.desk-extl, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
+[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
 [data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
-[data-desk="profile"] .case-world,
-[data-desk="offduty"][data-desk-focus="bike"] .case-world {
+[data-desk="profile"] .case-world {
   animation: desk-off 0s linear calc(var(--cam-t) + var(--cam-wait)) forwards;
 }
 
@@ -1882,9 +1977,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 }
 .flip-clock__half--am { top: 33.8%; }
 .flip-clock__half--pm { top: 42.6%; }
+/* on the printed sockets (flip-clock.webp: AM 18.2 / 37.7 %, PM 18.2 / 46.3 %) */
+.flip-clock__half--pm .flip-clock__lamp { top: 52.7%; }
 .flip-clock__half:hover, .flip-clock__half:focus-visible { background: rgba(45, 41, 36, .07); outline: none; }
 .flip-clock__lamp {
-  position: absolute; left: 70.5%; top: 50%; width: 1.7cqw; aspect-ratio: 1; border-radius: 50%;
+  position: absolute; left: 77.5%; top: 56%; width: 1.7cqw; aspect-ratio: 1; border-radius: 50%;
   transform: translate(-50%, -50%); background: transparent; transition: background .2s ease, box-shadow .2s ease;
 }
 .flip-clock__half.is-on .flip-clock__lamp { background: #d8352a; box-shadow: 0 0 .8cqw rgba(216, 53, 42, .75); }

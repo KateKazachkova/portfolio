@@ -50,7 +50,7 @@ Poster: posters/bridget-joness-diary.jpg
 ## The Mummy
 Year: 1999
 Why I like it:
-Poster: posters/the-mummy.jpg
+Poster: posters/the-mummy-v2.jpeg
 
 ## Raiders of the Lost Ark
 Year: 1981
@@ -66,3 +66,28 @@ Poster: posters/indiana-jones-temple-of-doom.jpg
 Year: 1989
 Why I like it:
 Poster: posters/indiana-jones-last-crusade.jpeg
+
+## The Lord of the Rings: The Fellowship of the Ring
+Year: 2001
+Why I like it:
+Poster: posters/lotr-fellowship.jpg
+
+## The Lord of the Rings: The Two Towers
+Year: 2002
+Why I like it:
+Poster: posters/lotr-two-towers.jpg
+
+## The Lord of the Rings: The Return of the King
+Year: 2003
+Why I like it:
+Poster: posters/lotr-return-of-the-king.jpg
+
+## Balto
+Year: 1995
+Why I like it:
+Poster: posters/balto.webp
+
+## Mulan
+Year: 1998
+Why I like it:
+Poster: posters/mulan.jpeg

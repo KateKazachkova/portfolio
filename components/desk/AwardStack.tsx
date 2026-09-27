@@ -4,10 +4,13 @@ import { AWARD_RECORDS, awardRows } from "@/lib/awards";
  * A case file not written up yet lies on the desk as its library card of
  * awards — the one from Ukrainska 15's folder, at the same size and in the
  * same hand, filled from lib/awards.ts — over a stack of postcards, one
- * from each jury: its logo as the stamp, the year as the postmark, what it
- * gave written on the back. With the camera on the file (data-side="here")
- * the card moves left, the postcards fan out to its right, and each
- * postcard (and each row of the card) opens the organiser's winner page.
+ * from each jury: its logo printed large with the year under it, what it
+ * gave written on the back. A pointer over the file spreads the postcards a
+ * little and tags the card "In progress" (the case is not written yet).
+ * With the camera on the file (data-side="here") the card moves left, the
+ * postcards fan out to its right, a sticky note above says what the project
+ * is, and each postcard (and each row of the card) opens the organiser's
+ * winner page.
  * Extras (a Behance tag, the case's own page) ride along as `links`, and a
  * picture postcard of the project itself can lie on top of the juries'.
  */
@@ -43,8 +46,10 @@ const hrefs = (project: string) =>
 // how the postcards lie under the card, and fanned out beside it
 const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 
-export default function AwardStack({ project, title, sub, links = [], picture }: {
+export default function AwardStack({ project, title, sub, about, links = [], picture }: {
   project: string; title: string; sub: string; links?: { label: string; href: string; external?: boolean }[];
+  /** what the project is, on the sticky note */
+  about: string;
   /** a picture postcard of the project itself, on top of the juries' */
   picture?: { src?: string; href: string; alt: string };
 }) {
@@ -70,11 +75,9 @@ export default function AwardStack({ project, title, sub, links = [], picture }:
             </span>
             <span className="postcard__addr">
               {stamp && (
-                <span className="postcard__stamp" style={{ "--ink": stamp.ink } as React.CSSProperties}>
-                  <span style={{ aspectRatio: stamp.ratio, WebkitMaskImage: `url(/stamps/awards/${stamp.key}.webp)`, maskImage: `url(/stamps/awards/${stamp.key}.webp)` }} />
-                </span>
+                <span className="postcard__logo" style={{ "--ink": stamp.ink, WebkitMaskImage: `url(/stamps/awards/${stamp.key}.webp)`, maskImage: `url(/stamps/awards/${stamp.key}.webp)` } as React.CSSProperties} />
               )}
-              {year && <span className="postcard__postmark">{year}</span>}
+              {year && <span className="postcard__year" style={{ "--ink": stamp?.ink } as React.CSSProperties}>{year}</span>}
               <span className="postcard__to">K. Kazachkova</span>
               <span className="postcard__to">{title}</span>
               <span className="postcard__to">&nbsp;</span>
@@ -108,6 +111,12 @@ export default function AwardStack({ project, title, sub, links = [], picture }:
             : <span key={i} className="jury-card__row">{cells}</span>;
         })}
       </div>
+      <span className="stack-soon" aria-hidden>In progress</span>
+      <span className="sticky-note stack-note">
+        <span className="sticky-note__kicker">{title}</span>
+        <span className="sticky-note__text">{about}</span>
+        <span className="sticky-note__status">Case study in progress</span>
+      </span>
       {links.map((l) => (
         <a key={l.href} className="jury-tag" href={l.href} tabIndex={-1}
           {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{l.label}</a>

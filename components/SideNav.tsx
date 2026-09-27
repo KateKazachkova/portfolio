@@ -144,30 +144,24 @@ export default function SideNav() {
               aria-expanded={open}
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
-              className={`flex flex-col items-center justify-center${inCaseFile ? "" : " border-2"}`}
-              style={{ width: 26, height: 26, borderColor: "var(--border)", gap: 3 }}
+              className="flex items-center justify-center uppercase font-bold"
+              style={{ minWidth: 26, height: 26, fontFamily: mono, fontSize: 12, letterSpacing: "0.14em", color: "var(--fg)" }}
             >
-              {/* Three ink rules that fold into a cross — same 2px ink as every
-                  border on the site, so it reads as a stamped control. */}
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  aria-hidden
-                  style={{
-                    display: "block",
-                    width: 14,
-                    height: 2,
-                    background: "var(--fg)",
-                    transition: "transform 0.22s ease, opacity 0.18s ease",
-                    transform: open
-                      ? i === 0 ? "translateY(5px) rotate(45deg)"
-                      : i === 2 ? "translateY(-5px) rotate(-45deg)"
-                      : "none"
-                      : "none",
-                    opacity: open && i === 1 ? 0 : 1,
-                  }}
-                />
-              ))}
+              {/* The word, not an icon (Kate, 27.09); open, it turns into a
+                  cross of two ink rules. */}
+              {open ? (
+                <span aria-hidden className="relative block" style={{ width: 16, height: 16 }}>
+                  {[45, -45].map((deg) => (
+                    <span
+                      key={deg}
+                      className="absolute left-0 right-0"
+                      style={{ top: 7, height: 2, background: "var(--fg)", transform: `rotate(${deg}deg)` }}
+                    />
+                  ))}
+                </span>
+              ) : (
+                <span aria-hidden>Menu</span>
+              )}
             </button>
           </div>
         </nav>
@@ -191,9 +185,11 @@ export default function SideNav() {
                 dropdown. */}
             <div
               id="nav-panel"
-              className="absolute left-0 right-0"
+              className="absolute left-0 right-0 overflow-y-auto"
               style={{
                 top: "100%",
+                // the whole screen under the bar, not a dropdown over the scene
+                height: "calc(100dvh - 56px)",
                 background: "var(--bg)",
                 borderBottom: "2px solid var(--border)",
               }}
@@ -201,7 +197,7 @@ export default function SideNav() {
               <div className="px-6 py-2">
                 {/* The same two lines the rail carries, so the menu reads the
                     same on every page and at every width. */}
-                <div style={{ padding: "18px 0 18px 14px", borderBottom: "1px solid var(--hairline)" }}>
+                <div style={{ padding: "18px 0", borderBottom: "1px solid var(--hairline)" }}>
                   <p className="t-title">{NAV_TITLE}</p>
                   <p className="t-body mt-2" style={{ color: "var(--fg)" }}>{NAV_LEAD}</p>
                 </div>
@@ -221,9 +217,6 @@ export default function SideNav() {
                       borderLeft: isActive(link.href) ? "2px solid var(--accent-red)" : "2px solid transparent",
                     }}
                   >
-                    <span style={{ fontSize: 10, color: "var(--muted)" }}>
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
                     {link.label}
                   </Link>
                 ))}

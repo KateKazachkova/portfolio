@@ -13,7 +13,6 @@ import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
 import { mono } from "@/components/ui/type";
 import { DeskPlanes, DeskHint, useDeskCamera } from "@/components/DeskScene";
-import U15Still from "@/components/desk/U15Still";
 import Tardis from "./Tardis";
 import AwardCubby from "./AwardCubby";
 import Wardrobe from "./Wardrobe";
@@ -139,9 +138,6 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
         </DeskPlanes>
         )}
         <div className="case-world">
-        {/* Ukrainska 15's stack as this camera sees it, over the live one */}
-        <U15Still />
-
         {/* The case does not sit flat on the floor: it stands on the feet at
             the outer bottom corners of the two doors, nearer the camera than
             the trunk's base. Its shadow at rest is the opening clip's last
@@ -267,7 +263,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
             centred and untouched beside it. Absolute on wide screens, so it
             cannot push the case off centre. */}
         <div
-          className="hero-aside-wrap basis-full order-first max-w-[34ch] mb-7 ml-[6vw] mr-auto min-[1024px]:pr-6 min-[1024px]:ml-0 min-[1024px]:mr-0 min-[1024px]:absolute min-[1024px]:top-0 min-[1024px]:left-6 min-[1024px]:order-none min-[1024px]:basis-auto min-[1024px]:mb-0 min-[1024px]:max-w-none min-[1024px]:w-[19.65vw] min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
+          className="hero-aside-wrap basis-full order-first max-w-[34ch] mb-7 ml-0 mr-auto min-[1024px]:pr-6 min-[1024px]:ml-0 min-[1024px]:mr-0 min-[1024px]:absolute min-[1024px]:top-0 min-[1024px]:left-6 min-[1024px]:order-none min-[1024px]:basis-auto min-[1024px]:mb-0 min-[1024px]:max-w-none min-[1024px]:w-[19.65vw] min-[1440px]:w-[min(420px,calc(50vw-min(44vw,559px)+122px))]">
           <HeroAside />
         </div>
       </div>

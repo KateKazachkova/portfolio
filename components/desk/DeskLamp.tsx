@@ -96,6 +96,8 @@ const pct = (x: number, y: number, w: number, h: number) => ({
   left: `${(x / 1118 * 100).toFixed(2)}%`, top: `${(y / 745 * 100).toFixed(2)}%`,
   width: `${(w / 1118 * 100).toFixed(2)}%`, height: `${(h / 745 * 100).toFixed(2)}%`,
 });
+// a click leaves no focus ring round the shade: only the keyboard focuses it
+const noFocus = (e: React.MouseEvent) => e.preventDefault();
 export function DeskLampSwitch() {
   const { on, toggle } = useLamp();
   const label = on ? "Desk lamp: on – switch it off" : "Desk lamp: off – switch it on";
@@ -106,13 +108,13 @@ export function DeskLampSwitch() {
   return (
     <>
       <button
-        type="button" className="desk-lamp-switch" onClick={toggle}
+        type="button" className="desk-lamp-switch" onClick={toggle} onMouseDown={noFocus}
         aria-pressed={on} aria-label={label} title={title}
         style={pct(HEAD_TL.x, HEAD_TL.y, HEAD_BR.x - HEAD_TL.x, Math.min(LID, HEAD_BR.y) - HEAD_TL.y)}
       />
       {ARM_BR.x > armL && (
         <button
-          type="button" className="desk-lamp-switch" onClick={toggle}
+          type="button" className="desk-lamp-switch" onClick={toggle} onMouseDown={noFocus}
           aria-hidden tabIndex={-1} title={title}
           style={pct(armL, ARM_TL.y, ARM_BR.x - armL, ARM_BR.y - ARM_TL.y)}
         />

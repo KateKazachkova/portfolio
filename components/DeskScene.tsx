@@ -6,10 +6,15 @@ import AwardRail from "@/components/AwardRail";
 import AwardStack from "@/components/desk/AwardStack";
 import { useWarm } from "@/components/desk/useWarm";
 import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
-import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
+import DeskBinder, { BINDER_BOX, PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
-import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
-import { isWritten } from "@/content/work/slugs";
+import BookShelf from "@/components/desk/BookShelf";
+import TapeStacks from "@/components/desk/TapeStacks";
+import Helmet from "@/components/desk/Helmet";
+import DeskComic from "@/components/desk/DeskComic";
+import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, DVD, DVD_DEPTH } from "@/components/desk/OffDutyShelf";
+// the desk in the wallet's V: its feet from the spine, the spine's place across
+const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 
 /**
@@ -68,10 +73,13 @@ const CASES = [
 ] as const;
 
 // Whose awards a stack holds (lib/awards.ts), and what rides along with it
-const PROJECT: Record<string, { name: string; sub: string }> = {
-  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS · K. Kazachkova" },
-  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS · K. Kazachkova" },
-  waypro: { name: "WayPro", sub: "Logistics iOS app · K. Kazachkova" },
+const PROJECT: Record<string, { name: string; sub: string; about: string }> = {
+  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS · K. Kazachkova",
+    about: "A B2B supply-chain platform for bulk materials – sand, gravel and the trucks that haul them. I designed it from the ground up as the sole product designer: research, UX, UI, the design system and handoff." },
+  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS · K. Kazachkova",
+    about: "Compliance and benefits SaaS for US government contractors. I have led its redesign since October 2024: support requests down 71%, onboarding completion up 76%." },
+  waypro: { name: "WayPro", sub: "Logistics iOS app · K. Kazachkova",
+    about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
 };
 // BulkSource moves sand and gravel: its stack lies in a spill of sand with
 // a toy dump truck parked on top (public/items/bulksource, generated).
@@ -82,12 +90,13 @@ const STACK_LINKS: Record<string, { label: string; href: string; external?: bool
 };
 
 // The first click brings the camera to a card; then its rows open the
-// winner pages, and a written case its page (content/work/slugs.ts).
+// winner pages.
 function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" }> }) {
   // the objects' pictures wait for the room's own first paint (useWarm)
   const warm = useWarm();
   const pic = (src: string) => (warm ? src : undefined);
-  const links = [...(STACK_LINKS[c.slug] ?? []), ...(isWritten(c.slug) ? [{ label: "Read the case →", href: `/work/${c.slug}` }] : [])];
+  // no "Read the case" yet: each note says the case study is in progress
+  const links = STACK_LINKS[c.slug] ?? [];
   return (
     <div
       className="desk-card desk-card--stack"
@@ -108,7 +117,7 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
         // eslint-disable-next-line @next/next/no-img-element
         <img className="stack-mush" src={pic("/items/waypro/mush.webp")} alt="" draggable={false} decoding="async" />
       )}
-      <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} links={links}
+      <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} about={PROJECT[c.slug].about} links={links}
         picture={c.slug === "waypro" ? { src: pic("/items/waypro/postcard.webp"), href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
       {c.slug === "waypro" && (
         <span className="stack-moss" aria-hidden>
@@ -203,6 +212,98 @@ function useStops() {
   return ready;
 }
 
+/** The sheets under the index column: where the column's box lands on the
+ *  desk at the two stops that look straight down on it (Case Files at pan 0,
+ *  Profile), so its words stand on paper at any window size. Looking straight
+ *  down, the desk maps to the window by one scale about the camera's axis —
+ *  2150 over the eye's height above the sheet — and the axis is the box's
+ *  (560, 226) plus the lens shift (useDeskCamera's --dx, --dy). Desk-top px.
+ *  Until measured, and under 1024 (the column stands over the case), the
+ *  values measured at 1440 × 900. Its own component, so a resize redraws
+ *  the two sheets and not the room. */
+type Sheet = { x: number; y: number; w: number; h: number };
+const SHEETS: Record<"files" | "profile", Sheet> = {
+  files: { x: 1191, y: 611, w: 155, h: 225 },
+  profile: { x: 2719, y: 237, w: 191, h: 240 },
+};
+// How far each sheet reaches past the column's box, in window px (measured
+// at 1440 × 900, where the sheets were laid by eye)
+const SHEET_PAD = { l: 76, t: 24, r: 52, b: 34 };
+// The Profile sheet runs in under the binder's first sheet: its right edge
+// stays there, on the desk, whatever the column does
+const PROFILE_SHEET_R = SHEETS.profile.x + SHEETS.profile.w / 2;
+const sheetStyle = (s: Sheet, r: string) => ({
+  left: `calc(${s.x} * var(--u))`, top: `calc(${s.y} * var(--u))`, "--r": r, "--w": s.w, "--h": s.h,
+} as React.CSSProperties);
+function DeskSheets({ files }: { files: boolean }) {
+  const [sheets, setSheets] = useState(SHEETS);
+  useEffect(() => {
+    const cam = document.querySelector<HTMLElement>(".scene-cam");
+    const stage = cam?.parentElement;
+    const col = document.querySelector<HTMLElement>(".hero-aside");
+    if (!cam || !stage || !col) return;
+    let raf = 0;
+    const fit = () => {
+      raf = 0;
+      if (innerWidth < 1024) { setSheets(SHEETS); return; }
+      const s = stage.getBoundingClientRect(), c = col.getBoundingClientRect();
+      const u = s.width / 1118;
+      // Measured on the stage, which scrolls with the column: the window's
+      // middle is the axis only at the scroll the lens shift was taken at
+      const dx = parseFloat(cam.style.getPropertyValue("--dx")) || 0;
+      const dy = parseFloat(cam.style.getPropertyValue("--dy")) || 0;
+      // the column's box in desk px about the camera's axis (the shot
+      // shifted by ox, oy), k screen px per desk px
+      const box = (ox: number, oy: number, k: number) => {
+        const d = (v: number, a: number) => (v - a) / (k * u);
+        const ax = s.left + 560 * u + dx + ox, ay = s.top + 226 * u + dy + oy;
+        return { l: d(c.left - SHEET_PAD.l, ax), r: d(c.right + SHEET_PAD.r, ax), t: d(c.top - SHEET_PAD.t, ay), b: d(c.bottom + SHEET_PAD.b, ay) };
+      };
+      // Case Files: the axis over desk-top (VIEW_X, 667.5)
+      const f = box(0, 0, SPD);
+      // Profile: eye 936 over the desk, the sheet 2.45 up in the binder, the
+      // axis over (2940, 290) and the shot 20 px left, 15 up
+      const p = box(-20, -15, 2150 / (936 - 2.45));
+      const pl = p.l + 2940;
+      const round = (v: number) => Math.round(v * 10) / 10;
+      const next = {
+        files: { x: round((f.l + f.r) / 2 + VIEW_X), y: round((f.t + f.b) / 2 + 667.5), w: round(f.r - f.l), h: round(f.b - f.t) },
+        profile: { x: round((pl + PROFILE_SHEET_R) / 2), y: round((p.t + p.b) / 2 + 290), w: round(PROFILE_SHEET_R - pl), h: round(p.b - p.t) },
+      };
+      setSheets((o) => (JSON.stringify(o) === JSON.stringify(next) ? o : next));
+    };
+    // the column's box and the stage's width change with the window; a
+    // resize waits a frame, for useDeskCamera's own handler to set the shift
+    const ro = new ResizeObserver(fit);
+    ro.observe(col);
+    ro.observe(stage);
+    const soon = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    addEventListener("resize", soon);
+    return () => { cancelAnimationFrame(raf); removeEventListener("resize", soon); ro.disconnect(); };
+  }, []);
+  // the Profile sheet's box as a share of the binder's (DeskBinder BINDER)
+  useEffect(() => {
+    const p = sheets.profile, r = document.documentElement.style;
+    const bx = BINDER_BOX.x - BINDER_BOX.w / 2, by = BINDER_BOX.y - BINDER_BOX.h / 2;
+    const pct = (v: number, of: number) => String(Math.round((v / of) * 1e5) / 1e3);
+    r.setProperty("--tuck-l", pct(p.x - p.w / 2 - bx, BINDER_BOX.w)); r.setProperty("--tuck-t", pct(p.y - p.h / 2 - by, BINDER_BOX.h));
+    r.setProperty("--tuck-w", pct(p.w, BINDER_BOX.w)); r.setProperty("--tuck-h", pct(p.h, BINDER_BOX.h));
+  }, [sheets]);
+  return (
+    <>
+      {/* A sheet of paper where the index column lands over the desk, so
+          its words stand on paper and not on the tiles' grout: left of the
+          case files (at pan 0) and left of the Profile binder. */}
+      {files && <div className="desk-paper" aria-hidden style={sheetStyle(sheets.files, "-1.5deg")} />}
+      {/* the Profile one is slipped into the binder, over its board and
+          under its first sheet, and runs 56 desk px (~100 screen px)
+          wider to reach in under the sheet: it is the binder's own img
+          (DeskBinder TUCKED, so the WebGL room's flat binder has it in the
+          same layer), laid where this works it out (globals.css --tuck-*) */}
+    </>
+  );
+}
+
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
   const warm = useWarm();
@@ -253,14 +354,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           left: `calc(${AWARD.x + 1052.5} * var(--u))`, top: `calc(${AWARD.z + 269} * var(--u))`,
           "--w": AWARD_W,
         } as React.CSSProperties} />
-        {/* A sheet of paper where the index column lands over the desk, so
-            its words stand on paper and not on the tiles' grout: left of the
-            case files (at pan 0) and left of the Profile binder. Desk-top px,
-            measured from the column's box at 1440 × 900. */}
-        {warm && <div className="desk-paper" aria-hidden style={{ left: "calc(1211 * var(--u))", top: "calc(611 * var(--u))", "--r": "-1.5deg", "--w": 155, "--h": 225 } as React.CSSProperties} />}
-        {/* the Profile one is slipped into the binder, over its board and
-            under its first sheet (DeskBinder: it is the binder's, so the
-            flat binder of the WebGL room has it in the same place) */}
+        <DeskSheets files={warm} />
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />
@@ -274,9 +368,15 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
             on the desk (desk-top px: box x + 1052.5, z + 269), and the bike
             computer lying in front of them */}
         {ready.has("offduty") && (<>
-        <div className="od-shadow" aria-hidden style={{
-          left: `calc(${WALLET.x + 1052.5} * var(--u))`, top: `calc(${WALLET.z + 85 + 269} * var(--u))`, "--w": 470, "--h": 150,
-        } as React.CSSProperties} />
+        {/* the desk inside the wallet's V, in the halves' shade: darkest at
+            the spine, gone by the open end (its sides run under the feet) */}
+        <div aria-hidden style={{
+          position: "absolute", pointerEvents: "none",
+          left: `calc(${WALLET.x + 1052.5 - V.l} * var(--u))`, top: `calc(${WALLET.z + 269} * var(--u))`,
+          width: `calc(${V.l + V.r} * var(--u))`, height: `calc(${V.d} * var(--u))`,
+          clipPath: `polygon(${V.sx}% 0, 0 ${(V.dl / V.d) * 100}%, 100% ${(V.dr / V.d) * 100}%)`,
+          background: `radial-gradient(ellipse 70% 120% at ${V.sx}% 0, rgba(10,8,6,.55), rgba(10,8,6,.25) 45%, rgba(10,8,6,0) 85%)`,
+        }} />
         {/* where each half's zip meets the desk: a dark line from the spine
             out along its foot, swung as far as the half is */}
         {([["l", -1], ["r", 1]] as const).map(([k, side]) => (
@@ -309,7 +409,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       <div className="desk-plane desk-ply" aria-hidden />
       <div className="desk-plane desk-under" aria-hidden />
       {/* Off Duty's corner, left of everything */}
-      {ready.has("offduty") && <OffDutyShelf />}
+      {ready.has("offduty") && <><OffDutyShelf /><BookShelf /><TapeStacks /><Helmet /><DeskComic /></>}
       {/* what home stands in the room itself: the flip clock */}
       {children}
     </div>
@@ -362,7 +462,15 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let pan = 0, target = 0, raf = 0, arrived = false;
     const u = () => el.getBoundingClientRect().width / 1118;
     const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (SPD * u())));
-    const clamp = (v: number) => Math.min(maxPan(), Math.max(0, v));
+    // On phones the wall's stops and Profile pan too, either side of where
+    // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
+    // Screen px per desk px there: ~1 on the wall, 2150 / 936 over Profile.
+    const narrow = () => matchMedia("(max-width: 767px)").matches;
+    const spdNow = () => (open.current === "files" ? SPD : open.current === "profile" ? 2150 / 936 : 1);
+    const reach = () => Math.max(0, (720 - innerWidth / 2 / u()) / spdNow());
+    const clamp = (v: number) => open.current === "files"
+      ? Math.min(maxPan(), Math.max(0, v))
+      : Math.min(reach(), Math.max(-reach(), v));
     const counter = document.querySelector<HTMLElement>(".desk-counter");
     const paint = () => {
       el.style.setProperty("--pan", pan.toFixed(2));
@@ -399,8 +507,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (slug) root.dataset.deskFocus = slug; else delete root.dataset.deskFocus;
     };
 
-    // only the desk pans; the wall is one still frame
-    const panning = () => arrived && open.current === "files";
+    // the desk pans; on wider screens the wall is one still frame
+    const panning = () => arrived && (open.current === "files" || (!!open.current && narrow()));
     const onWheel = (e: WheelEvent) => {
       if (!panning()) return;
       e.preventDefault();
@@ -416,7 +524,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onDown = (e: PointerEvent) => {
       if (!panning() || e.button !== 0) return;
       // a print being carried, or a page being turned, is not a pan
-      if ((e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
+      if (document.documentElement.dataset.u15 && (e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
       dragX = lastX = e.clientX; lastT = e.timeStamp; vel = 0;
       dragFrom = target; dragged = false;
     };
@@ -426,17 +534,24 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       const dt = e.timeStamp - lastT;
       if (dt > 0) { vel = vel * 0.6 + ((e.clientX - lastX) / dt) * 0.4; lastX = e.clientX; lastT = e.timeStamp; }
       if (Math.abs(dx) > 5) dragged = true;
-      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (SPD * u())); }
+      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (spdNow() * u())); }
     };
     const onUp = (e: PointerEvent) => {
       if (dragX === null) return;
       dragX = null;
       // a finger that stopped before it lifted throws nothing
       if (dragged && e.pointerType !== "mouse" && e.timeStamp - lastT < 80 && Math.abs(vel) > 0.3)
-        go(target - (vel * 260) / (SPD * u()));
+        go(target - (vel * 260) / (spdNow() * u()));
     };
     // a drag that ends on a card is not a click on it
     const onClick = (e: MouseEvent) => {
+      // from home, any of the files is a way in to Case Files, as the award
+      // in the case is to Recognition
+      if (!open.current && (e.target as HTMLElement).closest?.(".desk-cases > *")) {
+        e.preventDefault(); e.stopPropagation();
+        dispatchEvent(new Event(DESK_EVENT));
+        return;
+      }
       if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; return; }
       // the first click on a case brings the camera to it and lays it out;
       // a click on the case in focus goes on to its page
@@ -527,13 +642,30 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       e.preventDefault(); e.stopPropagation();
       close();
     };
+    // Phones: a swipe along the room walks from stop to stop – from the case
+    // to Recognition on its right or Off Duty on its left, and from either
+    // back to the case once the pan is already at that side (Kate, 27.09).
+    let sw: { x: number; y: number; atEdge: boolean } | null = null, swiped = false;
+    const onSwipeDown = (e: PointerEvent) => {
+      swiped = false;
+      if (!narrow() || e.pointerType === "mouse" || (open.current && open.current !== "award" && open.current !== "offduty")) { sw = null; return; }
+      const edge = open.current === "award" ? -reach() : reach();
+      sw = { x: e.clientX, y: e.clientY, atEdge: !open.current || Math.abs(target - edge) < 1 };
+    };
+    const onSwipeUp = (e: PointerEvent) => {
+      if (!sw || e.type !== "pointerup") { sw = null; return; }
+      const dx = e.clientX - sw.x, dy = e.clientY - sw.y, atEdge = sw.atEdge;
+      sw = null;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < 1.5 * Math.abs(dy)) return;
+      if (!open.current) { swiped = true; toggle(dx < 0 ? "award" : "offduty"); }
+      else if (atEdge && (open.current === "award" ? dx > 0 : dx < 0)) close();
+    };
+    const onSwipeClick = (e: MouseEvent) => { if (swiped) { swiped = false; e.preventDefault(); e.stopPropagation(); } };
     const onKey = (e: KeyboardEvent) => {
       if (!open.current) return;
       if (e.key === "Escape") {
         if (focus === U15) dispatchEvent(new Event(U15_CLOSE));
         else if (focus) setFocus(null);
-        // down over the bike computer: back up to the clock's corner
-        else if (root.dataset.deskFocus === "bike") delete root.dataset.deskFocus;
         else close();
       }
       else if (panning() && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
@@ -559,6 +691,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
     el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointerdown", onSwipeDown);
+    window.addEventListener("pointerup", onSwipeUp);
+    window.addEventListener("pointercancel", onSwipeUp);
+    el.addEventListener("click", onSwipeClick, true);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
@@ -580,6 +716,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("wheel", onWheel);
       el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointerdown", onSwipeDown);
+      window.removeEventListener("pointerup", onSwipeUp);
+      window.removeEventListener("pointercancel", onSwipeUp);
+      el.removeEventListener("click", onSwipeClick, true);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);

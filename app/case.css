@@ -344,6 +344,9 @@
      page still scrolls under a thumb moving up */
   .case .pile[data-ready] .pcard { width:calc(140px * var(--s, 1)); touch-action:pan-y }
   .case .pile[data-ready] .pcard img { max-height:calc(160px * var(--s, 1)) }
+  /* the captions ran over the prints beside them (Kate, 27.09); each
+     picture keeps its alt */
+  .case .pile[data-ready] .pcard figcaption { display:none }
 }
 /* ── The site footer, ported from components/Footer.tsx ── */
 .casenav { margin-top:110px; border-top:1px solid var(--hairline); padding:14px 0 0; display:flex; justify-content:space-between; gap:20px; font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase }

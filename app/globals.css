@@ -1507,6 +1507,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
     transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
   }
   :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
+  /* at the case the page still scrolls up and down, but a sideways swipe is
+     the room's: it walks to Recognition or Off Duty (useDeskCamera) */
+  :root:is(:not([data-desk]), [data-desk="closed"]) .scene-cam { touch-action: pan-y; }
   :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
 }
 

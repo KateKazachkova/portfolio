@@ -618,6 +618,25 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       e.preventDefault(); e.stopPropagation();
       close();
     };
+    // Phones: a swipe along the room walks from stop to stop – from the case
+    // to Recognition on its right or Off Duty on its left, and from either
+    // back to the case once the pan is already at that side (Kate, 27.09).
+    let sw: { x: number; y: number; atEdge: boolean } | null = null, swiped = false;
+    const onSwipeDown = (e: PointerEvent) => {
+      swiped = false;
+      if (!narrow() || e.pointerType === "mouse" || (open.current && open.current !== "award" && open.current !== "offduty")) { sw = null; return; }
+      const edge = open.current === "award" ? -reach() : reach();
+      sw = { x: e.clientX, y: e.clientY, atEdge: !open.current || Math.abs(target - edge) < 1 };
+    };
+    const onSwipeUp = (e: PointerEvent) => {
+      if (!sw || e.type !== "pointerup") { sw = null; return; }
+      const dx = e.clientX - sw.x, dy = e.clientY - sw.y, atEdge = sw.atEdge;
+      sw = null;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < 1.5 * Math.abs(dy)) return;
+      if (!open.current) { swiped = true; toggle(dx < 0 ? "award" : "offduty"); }
+      else if (atEdge && (open.current === "award" ? dx > 0 : dx < 0)) close();
+    };
+    const onSwipeClick = (e: MouseEvent) => { if (swiped) { swiped = false; e.preventDefault(); e.stopPropagation(); } };
     const onKey = (e: KeyboardEvent) => {
       if (!open.current) return;
       if (e.key === "Escape") {
@@ -648,6 +667,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
     el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointerdown", onSwipeDown);
+    window.addEventListener("pointerup", onSwipeUp);
+    window.addEventListener("pointercancel", onSwipeUp);
+    el.addEventListener("click", onSwipeClick, true);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
@@ -669,6 +692,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("wheel", onWheel);
       el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointerdown", onSwipeDown);
+      window.removeEventListener("pointerup", onSwipeUp);
+      window.removeEventListener("pointercancel", onSwipeUp);
+      el.removeEventListener("click", onSwipeClick, true);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);

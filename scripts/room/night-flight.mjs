@@ -12,7 +12,7 @@ const SITE = process.argv[2] ?? "http://localhost:3301";
 const LAMP = (process.argv[3] ?? "lamp=on").split("=")[1];
 const OUT = path.join(TESTS, `webgl-m5/night-flight-lamp-${LAMP}`);
 fs.mkdirSync(OUT, { recursive: true });
-const FIX = `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();
+const FIX = `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),23,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D; try{localStorage.setItem('lamp','${LAMP}')}catch(e){} })()`;
 const b = await launch({ headed: true, width: 1512, height: 860, dpr: 1 });

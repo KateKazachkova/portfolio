@@ -14,7 +14,7 @@ import { launch, sleep, log, TESTS } from "./cdp.mjs";
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const OUT = process.argv[3] ?? path.join(TESTS, "webgl-m6/stacks-gl");
 fs.mkdirSync(OUT, { recursive: true });
-const FIX = `(()=>{const O=Date, off=new O(2026,8,23,10,30).getTime()-O.now();
+const FIX = `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),10,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D;})()`;
 const FREEZE = `(()=>{document.querySelectorAll('video').forEach(v=>{v.pause()});document.getAnimations().forEach(a=>{try{const t=a.effect&&a.effect.getComputedTiming();if(t&&Number.isFinite(t.endTime))a.finish();else a.pause()}catch(e){}}); return 1})()`;

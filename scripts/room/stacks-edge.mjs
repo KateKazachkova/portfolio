@@ -29,7 +29,7 @@ const run = async (gl) => {
     frames.push({ f, t: m.params.metadata.timestamp });
     b.send("Page.screencastFrameAck", { sessionId: m.params.sessionId });
   });
-  await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,10,30).getTime()-O.now();
+  await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),10,30).getTime()-O.now();
     class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
     window.Date=D;})()` });
   await b.go(`${SITE}/?nointro&gl=${gl ? 1 : 0}`, 0);

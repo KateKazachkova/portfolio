@@ -26,7 +26,7 @@ if (process.env.MOBILE) {
   await b.send("Emulation.setCPUThrottlingRate", { rate: 4 });
 }
 // NIGHT=1: at 23:30 (the night edition: the room out, the lamp's pool), LAMP=off for the torch
-if (process.env.NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();
+if (process.env.NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),23,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D; try{localStorage.setItem('lamp','${process.env.LAMP ?? "on"}')}catch(e){} })()` });
 await b.go(`${SITE}/?nointro&gl=${MODE === "gl" ? 1 : 0}`, 3000);

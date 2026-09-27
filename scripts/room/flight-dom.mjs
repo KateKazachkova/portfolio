@@ -11,7 +11,7 @@ import { launch, sleep, log } from "./cdp.mjs";
 const SITE = process.argv[2] ?? "http://localhost:3301";
 const NIGHT = process.argv[3] === "night";
 const b = await launch({ headed: true, width: 1512, height: 860, dpr: 1 });
-if (NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}};window.Date=D;})()` });
+if (NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),23,30).getTime()-O.now();class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}};window.Date=D;})()` });
 const LIST = `(()=>{
   const drawn = (el) => { for (let n = el; n; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === 'none' || +cs.opacity < 0.002) return false; } const cs = getComputedStyle(el); if (cs.visibility === 'hidden') return false; const r = el.getBoundingClientRect(); return r.width > 1 && r.height > 1 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight; };
   const paints = (el) => { const cs = getComputedStyle(el); return el.tagName === 'IMG' || el.tagName === 'VIDEO' || el.tagName === 'CANVAS' || el instanceof SVGSVGElement || cs.backgroundImage !== 'none' || cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.boxShadow !== 'none' || cs.backdropFilter !== 'none' || cs.mixBlendMode !== 'normal' || [...el.childNodes].some((c) => c.nodeType === 3 && c.textContent.trim()); };

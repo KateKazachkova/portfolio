@@ -16,7 +16,7 @@ const OUT = process.argv[3] ?? path.join(TESTS, "webgl-m6/wallet-gl");
 const [W, H] = (process.argv[4] ?? "1512x860").split("x").map(Number);
 const DPR = +(process.argv[5] ?? 2);
 fs.mkdirSync(OUT, { recursive: true });
-const FIX = `(()=>{const O=Date, off=new O(2026,8,23,10,30).getTime()-O.now();
+const FIX = `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),10,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D;})()`;
 const FREEZE = `(()=>{document.getAnimations().forEach(a=>{try{const t=a.effect&&a.effect.getComputedTiming();if(t&&Number.isFinite(t.endTime))a.finish();else a.pause()}catch(e){}}); return 1})()`;

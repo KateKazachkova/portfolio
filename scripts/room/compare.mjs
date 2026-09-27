@@ -17,7 +17,7 @@ const DPR = +(process.argv[5] ?? 1);
 const NIGHT = process.argv.includes("--night");
 fs.mkdirSync(OUT, { recursive: true });
 // the same minute of the same day for both: a Wednesday morning (or 23:30)
-const FIX = `(()=>{const O=Date, off=new O(2026,8,23,${NIGHT ? "23,30" : "10,30"}).getTime()-O.now();
+const FIX = `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),${NIGHT ? "23,30" : "10,30"}).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D;})()`;
 const STOPS = [["home", ""], ["files", "#case-files"], ["award", "#recognition"], ["profile", "#profile"], ["offduty", "#off-duty"]];

@@ -30,7 +30,7 @@ b.handlers.add((m) => {
 const marks = [];
 const mark = async (label) => marks.push({ label, t: await b.ev("Date.now()/1000"), frame: frames.length });
 // NIGHT=1: at 23:30 (the night edition: the room out, the lamp's pool), LAMP=off for the torch
-if (process.env.NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,23,30).getTime()-O.now();
+if (process.env.NIGHT) await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),23,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D; try{localStorage.setItem('lamp','${process.env.LAMP ?? "on"}')}catch(e){} })()` });
 await b.send("Page.startScreencast", { format: "jpeg", quality: 85, maxWidth: 756, maxHeight: 430, everyNthFrame: 1 });

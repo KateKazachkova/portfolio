@@ -453,7 +453,15 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let pan = 0, target = 0, raf = 0, arrived = false;
     const u = () => el.getBoundingClientRect().width / 1118;
     const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (SPD * u())));
-    const clamp = (v: number) => Math.min(maxPan(), Math.max(0, v));
+    // On phones the wall's stops and Profile pan too, either side of where
+    // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
+    // Screen px per desk px there: ~1 on the wall, 2150 / 936 over Profile.
+    const narrow = () => matchMedia("(max-width: 767px)").matches;
+    const spdNow = () => (open.current === "files" ? SPD : open.current === "profile" ? 2150 / 936 : 1);
+    const reach = () => Math.max(0, (720 - innerWidth / 2 / u()) / spdNow());
+    const clamp = (v: number) => open.current === "files"
+      ? Math.min(maxPan(), Math.max(0, v))
+      : Math.min(reach(), Math.max(-reach(), v));
     const counter = document.querySelector<HTMLElement>(".desk-counter");
     const paint = () => {
       el.style.setProperty("--pan", pan.toFixed(2));
@@ -490,8 +498,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (slug) root.dataset.deskFocus = slug; else delete root.dataset.deskFocus;
     };
 
-    // only the desk pans; the wall is one still frame
-    const panning = () => arrived && open.current === "files";
+    // the desk pans; on wider screens the wall is one still frame
+    const panning = () => arrived && (open.current === "files" || (!!open.current && narrow()));
     const onWheel = (e: WheelEvent) => {
       if (!panning()) return;
       e.preventDefault();
@@ -517,14 +525,14 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       const dt = e.timeStamp - lastT;
       if (dt > 0) { vel = vel * 0.6 + ((e.clientX - lastX) / dt) * 0.4; lastX = e.clientX; lastT = e.timeStamp; }
       if (Math.abs(dx) > 5) dragged = true;
-      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (SPD * u())); }
+      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (spdNow() * u())); }
     };
     const onUp = (e: PointerEvent) => {
       if (dragX === null) return;
       dragX = null;
       // a finger that stopped before it lifted throws nothing
       if (dragged && e.pointerType !== "mouse" && e.timeStamp - lastT < 80 && Math.abs(vel) > 0.3)
-        go(target - (vel * 260) / (SPD * u()));
+        go(target - (vel * 260) / (spdNow() * u()));
     };
     // a drag that ends on a card is not a click on it
     const onClick = (e: MouseEvent) => {

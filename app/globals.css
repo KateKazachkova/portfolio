@@ -915,14 +915,15 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   .desk-wall:not(.desk-wall--hung)::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
     height: calc(1600 * var(--u)); pointer-events: none;
-    /* the wall's ::before wash (screen: its grain, then its tint) is laid in
-       too, as flat light, or the join shows */
+    /* the wall's ::before wash (its grain and its tint, screened) is laid
+       in too, or the join shows */
     --wall-img: url("/scene/desk3d/wall.jpg");
     background:
-      linear-gradient(rgba(237, 235, 224, .085), rgba(237, 235, 224, .085)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .92 0 0 0 0 .88 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
       linear-gradient(rgba(52, 60, 58, .22), rgba(52, 60, 58, .22)),
       var(--wall-img);
-    background-size: 100% 50%; background-blend-mode: screen, screen, normal;
+    background-size: calc(240 * var(--u)) calc(240 * var(--u)), auto, 100% 50%;
+    background-blend-mode: screen, screen, normal;
     transform: scaleY(-1); transition: opacity .3s ease;
   }
   .desk-wall.desk-ext::after { --wall-img: url("/scene/desk3d/wall-ext.jpg"); }
@@ -1490,6 +1491,24 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: rotateX(-4deg) translate3d(calc(1423 * var(--u)), 0, calc(100 * var(--u)));
 }
 [data-desk="offduty"] .case-world { pointer-events: none; }
+/* Phones: a phone sees a strip of what a 1440px window does, so at the
+   wall's two stops and over Profile a finger pans along the room too
+   (--pan, desk px, from useDeskCamera), and Profile's axis is on the
+   binder's middle rather than 70 px left of it (Kate, 27.09). The planes
+   take the touch, so a drag on bare wall or desk is a pan. */
+@media (max-width: 767px) {
+  [data-desk="award"] .desk-world, [data-desk="award"] .case-world {
+    transform: rotateX(-4deg) translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), 0, calc(100 * var(--u)));
+  }
+  [data-desk="offduty"] .desk-world, [data-desk="offduty"] .case-world {
+    transform: rotateX(-4deg) translate3d(calc((1423 - var(--pan, 0)) * var(--u)), 0, calc(100 * var(--u)));
+  }
+  [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
+    transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
+  }
+  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
+  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
+}
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
    the room about it. The player: a still standing on the desk, its screen

@@ -829,6 +829,41 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     else { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.remove("room-away"); }
   };
   let groupsAwayPending = false;
+  // …and while they are away, a group that changes on the page (the clock's
+  // minute, the TARDIS's charge and jump, the lamp) or runs an animation of
+  // its own (flap-fall, tardis-charge, the lamp's fade) is read again each
+  // frame until it is still (live, as the CSS room showed them in flight)
+  const GROUP_BASE = { lamp: 500, clock: 700, case: 1000 } as const;
+  const groupEl = { case: o.groups.case, clock: o.groups.clock, lamp: o.groups.lamp };
+  const groupChanged = new Set<keyof typeof GROUP_BASE>();
+  const moGroups = new MutationObserver((list) => {
+    if (!groupsShown) return;
+    for (const r of list) for (const k of Object.keys(groupEl) as (keyof typeof GROUP_BASE)[]) {
+      // (not the room's own putting it away and back)
+      if (r.target === groupEl[k] && r.attributeName === "class") continue;
+      if (groupEl[k]?.contains(r.target)) groupChanged.add(k);
+    }
+    kick();
+  });
+  for (const el of Object.values(groupEl)) if (el) moGroups.observe(el, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["class", "style", "src", "data-flip", "data-lit"] });
+  const animating = (el: HTMLElement) => el.getAnimations({ subtree: true }).some((a) => { const t = a.effect?.getComputedTiming(); return a.playState === "running" && !!t && Number.isFinite(t.endTime as number); });
+  const liveGroups = () => {
+    if (!groupsShown || forced) return false;
+    let any = false;
+    for (const k of Object.keys(groupEl) as (keyof typeof GROUP_BASE)[]) {
+      const el = groupEl[k];
+      if (!el || !(groupChanged.has(k) || animating(el))) continue;
+      groupChanged.delete(k);
+      const away = el.classList.contains("room-away");
+      if (away) el.classList.remove("room-away");
+      buildGroup(k, el, GROUP_BASE[k]);
+      if (away) el.classList.add("room-away");
+      for (const m of groupMeshes.get(k) ?? []) m.visible = true;
+      any = true;
+    }
+    if (any) applyGroupOpacity();
+    return any;
+  };
   // the groups read off the page while it has them put away: shown for the
   // read and put away again in one task, so no frame is drawn in between
   const remirror = () => {
@@ -1157,7 +1192,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (binderTurn?.veiled && !binderMoving && !binderTurn.busy(now)) binderTurn.veil(false);
     bud?.frame();
     const ribMoving = ribbons ? ribbons.frame(now) : false;
-    const shelfMoving = (shelf ? shelf.frame(now) : false) || stacksLook(now);
+    const shelfMoving = (shelf ? shelf.frame(now) : false) || stacksLook(now) || liveGroups();
     if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving || shelfMoving || binderMoving) { draw(now); dirty = false; }
     if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving || shelfMoving || binderMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
@@ -1415,7 +1450,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
-      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose(); binderTurn?.dispose(); moFlip.disconnect();
+      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose(); binderTurn?.dispose(); moFlip.disconnect(); moGroups.disconnect();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

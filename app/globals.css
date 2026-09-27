@@ -910,6 +910,29 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   mix-blend-mode: screen;
 }
 
+/* Phones: the case stands lower in a tall window, so the wall goes on up to
+   the top of the page – its own picture mirrored above it, seam to seam
+   (Kate, 27.09). Only at home: on the way down to the desk it would pass
+   behind the camera (see .desk-wall), so it fades as the camera leaves. */
+@media (max-width: 767px) {
+  .desk-wall:not(.desk-wall--hung)::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
+    height: calc(1600 * var(--u)); pointer-events: none;
+    /* the wall's ::before wash (screen: its grain, then its tint) is laid in
+       too, as flat light, or the join shows */
+    --wall-img: url("/scene/desk3d/wall.jpg");
+    background:
+      linear-gradient(rgba(237, 235, 224, .085), rgba(237, 235, 224, .085)),
+      linear-gradient(rgba(52, 60, 58, .22), rgba(52, 60, 58, .22)),
+      var(--wall-img);
+    background-size: 100% 50%; background-blend-mode: screen, screen, normal;
+    transform: scaleY(-1); transition: opacity .3s ease;
+  }
+  .desk-wall.desk-ext::after { --wall-img: url("/scene/desk3d/wall-ext.jpg"); }
+  .desk-wall.desk-extl::after { --wall-img: url("/scene/desk3d/wall-extl.jpg"); }
+  :root[data-desk]:not([data-desk="closed"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
+}
+
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */
@@ -1395,6 +1418,15 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
   transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
+}
+/* Phones: the camera stops half as high (430 desk px over the desk, not
+   860), so the files come out twice the size and the pan walks along them
+   (Kate, 27.09). DeskScene's spd() knows the same. */
+@media (max-width: 767px) {
+  [data-desk="open"] .desk-world,
+  [data-desk="open"] .case-world {
+    transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), 0, calc(1751.5 * var(--u)));
+  }
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 /* from home (no data-desk yet, or "closed"), the files take a click: it

@@ -36,7 +36,9 @@ export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 // it everything is in folder units (150 × 208); a unit is K desk px.
 const FOLDER = { w: 150, h: 208 };
 const K = 1.15;
-const SPD = 2150 / 860;                       // screen px per desk px at the camera's height (× --u)
+// screen px per desk px at the camera's height (× --u); on phones the camera
+// stops half as high (DeskScene's spd())
+const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 430 : 860);
 
 // The round CSSDA seals, stuck on as die-cut stickers in their own colours;
 // MUSE Gold is printed in its foil and French Design Awards (no artwork) is a
@@ -162,11 +164,15 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   // nothing moves; only the clicks work.
   const grab = (id: string, click?: (e: PointerEvent) => void) => (e: React.PointerEvent<HTMLElement>) => {
     if (e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
+    // closed, a press that travels is the desk's pan (a finger on a phone
+    // mostly lands on the folder), so it is let through to DeskScene
+    if (open) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const el = e.currentTarget;
     try { el.setPointerCapture(e.pointerId); } catch { /* a synthetic press has no pointer to capture */ }
-    const scale = (card.current!.offsetWidth / FOLDER.w) * SPD;
+    const scale = (card.current!.offsetWidth / FOLDER.w) * spd();
     const a = (r * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
     const from = drag[id] ?? { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;
     let moved = false, now = from;
@@ -179,8 +185,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     const bx = print ? 0 : Number(el.style.getPropertyValue("--ox")) - from.x;
     const by = print ? 0 : Number(el.style.getPropertyValue("--oy")) - from.y;
     const move = (m: PointerEvent) => {
-      if (!open) return;
       if (!moved && Math.hypot(m.clientX - sx, m.clientY - sy) < 5) return;
+      if (!open) { moved = true; return; }   // a pan, not a click
       if (!moved) { moved = true; z.current += 1; setTop((t) => ({ ...t, [id]: z.current })); setHeld(id); }
       const dx = (m.clientX - sx) / scale, dy = (m.clientY - sy) / scale;
       now = { x: from.x + dx * cos + dy * sin, y: from.y - dx * sin + dy * cos };
@@ -189,7 +195,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     const up = (u: PointerEvent) => {
       setHeld(null);
       el.removeEventListener("pointermove", move); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up);
-      if (moved) setDrag((d) => ({ ...d, [id]: now }));
+      if (moved) { if (open) setDrag((d) => ({ ...d, [id]: now })); }
       else if (u.type === "pointerup") click?.(u);
     };
     el.addEventListener("pointermove", move);

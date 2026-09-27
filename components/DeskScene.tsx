@@ -144,7 +144,9 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
 
 const ROW_END = 2149 + 185 + 70;   // right edge of the last stack fanned out, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
-const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
+// screen px per desk px at the end height (× --u): on phones the camera
+// stops half as high, 430 over the desk instead of 860 (globals.css)
+const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 430 : 860);
 
 export const DESK_EVENT = "kate:case-files";
 /** The desk hint's "Put the file away": the case in focus goes back. */
@@ -377,13 +379,13 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // camera has arrived — until then the move's own transition is running.
     let pan = 0, target = 0, raf = 0, arrived = false;
     const u = () => el.getBoundingClientRect().width / 1118;
-    const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (SPD * u())));
+    const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (spd() * u())));
     const clamp = (v: number) => Math.min(maxPan(), Math.max(0, v));
     const counter = document.querySelector<HTMLElement>(".desk-counter");
     const paint = () => {
       el.style.setProperty("--pan", pan.toFixed(2));
       if (counter) {
-        const centre = VIEW_X + pan + 120 / SPD;
+        const centre = VIEW_X + pan + 120 / spd();
         let best = 0;
         CASES.forEach((c, i) => { if (Math.abs(c.x - centre) < Math.abs(CASES[best].x - centre)) best = i; });
         counter.textContent = `${best + 1} / ${CASES.length}`;
@@ -422,7 +424,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       e.preventDefault();
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (focus && focus !== U15) setFocus(null);
-      go(target + d / (SPD * u()));
+      go(target + d / (spd() * u()));
     };
     // A drag with the mouse, or a swipe with a finger (the desk takes touch
     // for itself while it pans: touch-action in globals.css). A swipe let go
@@ -432,7 +434,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onDown = (e: PointerEvent) => {
       if (!panning() || e.button !== 0) return;
       // a print being carried, or a page being turned, is not a pan
-      if ((e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
+      if (document.documentElement.dataset.u15 && (e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
       dragX = lastX = e.clientX; lastT = e.timeStamp; vel = 0;
       dragFrom = target; dragged = false;
     };
@@ -442,14 +444,14 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       const dt = e.timeStamp - lastT;
       if (dt > 0) { vel = vel * 0.6 + ((e.clientX - lastX) / dt) * 0.4; lastX = e.clientX; lastT = e.timeStamp; }
       if (Math.abs(dx) > 5) dragged = true;
-      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (SPD * u())); }
+      if (dragged) { if (focus && focus !== U15) setFocus(null); go(dragFrom - dx / (spd() * u())); }
     };
     const onUp = (e: PointerEvent) => {
       if (dragX === null) return;
       dragX = null;
       // a finger that stopped before it lifted throws nothing
       if (dragged && e.pointerType !== "mouse" && e.timeStamp - lastT < 80 && Math.abs(vel) > 0.3)
-        go(target - (vel * 260) / (SPD * u()));
+        go(target - (vel * 260) / (spd() * u()));
     };
     // a drag that ends on a card is not a click on it
     const onClick = (e: MouseEvent) => {
@@ -472,7 +474,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onFocus = (e: FocusEvent) => {
       const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-x]");
       if (!a || !panning()) return;
-      go(Number(a.dataset.x) - VIEW_X - 120 / SPD);
+      go(Number(a.dataset.x) - VIEW_X - 120 / spd());
     };
     const world = el.querySelector<HTMLElement>(".desk-world");
     const onArrive = (e: TransitionEvent) => {

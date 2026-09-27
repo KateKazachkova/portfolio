@@ -1419,13 +1419,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-desk="open"] .case-world {
   transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
 }
-/* Phones: the camera stops half as high (430 desk px over the desk, not
-   860), so the files come out twice the size and the pan walks along them
-   (Kate, 27.09). DeskScene's spd() knows the same. */
+/* Phones: the camera stops lower (645 desk px over the desk, not 860), so
+   the files come out a third larger and the pan walks along them (Kate,
+   27.09: half as high was too close). DeskScene's spd() knows the same. */
 @media (max-width: 767px) {
   [data-desk="open"] .desk-world,
   [data-desk="open"] .case-world {
-    transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), 0, calc(1751.5 * var(--u)));
+    transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(215 * var(--u)), calc(1751.5 * var(--u)));
   }
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
@@ -1691,6 +1691,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   padding: 10.2px 14.4px; border-radius: 4px; border: 1.5px solid #22283a; background: #f3efe6;
   font: 700 12px/15.6px var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em;
   text-transform: uppercase; color: #22283a;
+  /* left: 50% leaves it only half the window to fit in; on a phone that
+     broke it onto two lines */
+  width: max-content; white-space: nowrap;
   opacity: 0; transition: opacity .4s ease;
 }
 [data-desk="open"][data-desk-arrived] .desk-hint { opacity: 1; }

@@ -145,8 +145,8 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
 const ROW_END = 2149 + 185 + 70;   // right edge of the last stack fanned out, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
 // screen px per desk px at the end height (× --u): on phones the camera
-// stops half as high, 430 over the desk instead of 860 (globals.css)
-const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 430 : 860);
+// stops lower, 645 over the desk instead of 860 (globals.css)
+const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 645 : 860);
 
 export const DESK_EVENT = "kate:case-files";
 /** The desk hint's "Put the file away": the case in focus goes back. */

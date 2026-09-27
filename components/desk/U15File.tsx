@@ -37,8 +37,8 @@ export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 const FOLDER = { w: 150, h: 208 };
 const K = 1.15;
 // screen px per desk px at the camera's height (× --u); on phones the camera
-// stops half as high (DeskScene's spd())
-const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 430 : 860);
+// stops lower (DeskScene's spd())
+const spd = () => 2150 / (matchMedia("(max-width: 767px)").matches ? 645 : 860);
 
 // The round CSSDA seals, stuck on as die-cut stickers in their own colours;
 // MUSE Gold is printed in its foil and French Design Awards (no artwork) is a

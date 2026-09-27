@@ -57,6 +57,12 @@ export async function launch({ headed = false, width = 1600, height = 1000, dpr 
   const metrics = (w, h, s) => send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: s, mobile: false });
   await metrics(width, height, dpr);
   await send("Page.enable");
+  // a day run is a day run whatever the hour (after dark the site is its
+  // night edition): today at 10:30 unless NIGHT is asked for (27.09 evening:
+  // "day" tests run after 21:00 were night ones, HEAD's as much as the new)
+  if (!process.env.NIGHT && process.env.ROOM_CLOCK !== "real") await send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),10,30).getTime()-O.now();
+  class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
+  window.Date=D;})()` });
   await send("Runtime.enable");
   const consoleLines = [];
   handlers.add((m) => {

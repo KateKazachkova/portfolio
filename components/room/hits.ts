@@ -40,6 +40,8 @@ export type Hit = {
   focus?: string; notFocus?: string;
   /** where it lies while a case is in focus, if not at m (a case laid out, the others moved aside) */
   byFocus?: Record<string, number[]>;
+  /** where it lies taken out (Off Duty's things: the page's element has data-open), if not at m */
+  open?: { m: number[]; w: number; h: number };
   w: number; h: number; m: number[];
   mask?: { w: number; h: number; bits: string };
 };
@@ -68,7 +70,13 @@ const ACTIONS: Record<string, (h: Hit) => void> = {
   case: (h) => dispatchEvent(new CustomEvent("room:case", { detail: h.slug })),
   "u15-toggle": () => toggleU15(),
   "u15-play": () => toggleSong(),
+  // Off Duty's things: the page's own button (mounted, not drawn) takes it
+  // out or puts it back, and all that follows is the page's (shelf.ts draws it)
+  "od-take": (h) => { legacyOf(h)?.click(); },
 };
+// the legacy element a control was read off (the CSS room is mounted under the flag, not drawn)
+const legacyOf = (h: Hit) => document.querySelectorAll<HTMLElement>(`.room-od ${h.of.sel}`)[h.of.i] ?? null;
+const odKey = (h: Hit) => `${h.type.slice(3)}-${h.of.i}`;
 
 // what changes on a control with the room's state: the Strava button opens
 // the ride on screen; a pocket's disc is the open spread's
@@ -198,6 +206,12 @@ export function startHits(o: {
       el.addEventListener("pointerleave", () => tell({ hover: false }));
       el.addEventListener("focus", () => tell({ focus: el.matches(":focus-visible") }));
       el.addEventListener("blur", () => tell({ focus: false }));
+    }
+    // Off Duty's things lift under the pointer (the page's :hover), drawn by WebGL (shelf.ts)
+    if (h.type.startsWith("od-")) {
+      const tell = (on: boolean) => dispatchEvent(new CustomEvent("room:od-hover", { detail: { key: odKey(h), on } }));
+      el.addEventListener("pointerenter", () => tell(true));
+      el.addEventListener("pointerleave", () => tell(false));
     }
     // a silhouette is hit-tested by the ray, not by the box
     if (h.mask) el.style.pointerEvents = "none";
@@ -341,6 +355,10 @@ export function startHits(o: {
   let last: Parameters<HitLayer["place"]>[0] = null;
   const mo = new MutationObserver(() => { if (last) layerApi.place(last); });
   mo.observe(root, { attributes: true, attributeFilter: ["data-desk-focus"] });
+  // …as does one of Off Duty's things taken out (its control goes where it is then)
+  // (the page's own things, RoomOffDuty.tsx: mounted once the camera is first at Off Duty)
+  const moOpen = new MutationObserver((l) => { if (last && l.some((r) => (r.target as Element).closest?.(".room-od"))) layerApi.place(last); });
+  if (o.hits.some((h) => h.open)) moOpen.observe(root, { attributes: true, subtree: true, attributeFilter: ["data-open"] });
 
   const layerApi: HitLayer = {
     suspend(type, on) {
@@ -359,8 +377,10 @@ export function startHits(o: {
         const el = els.get(h.id)!;
         if (!state || !h.at.includes(state.view)) continue;
         const { pose, shift, u } = state;
-        const m = h.byFocus?.[root.dataset.deskFocus ?? ""] ?? h.m;
-        const pts = [[0, 0], [h.w, 0], [h.w, h.h], [0, h.h]].map(([x, y]) => {
+        const out = h.open && legacyOf(h)?.hasAttribute("data-open") ? h.open : null;
+        const m = out?.m ?? h.byFocus?.[root.dataset.deskFocus ?? ""] ?? h.m;
+        const hw = out?.w ?? h.w, hh = out?.h ?? h.h;
+        const pts = [[0, 0], [hw, 0], [hw, hh], [0, hh]].map(([x, y]) => {
           const s = projectToStage(pose, [m[0] * x + m[4] * y + m[12], m[1] * x + m[5] * y + m[13], m[2] * x + m[6] * y + m[14]]);
           return s ? [s[0] * u + shift[0], s[1] * u + shift[1]] : [NaN, NaN];
         });
@@ -400,7 +420,7 @@ export function startHits(o: {
       removeEventListener("click", onClick, true);
       removeEventListener("keydown", onKey);
       off();
-      mo.disconnect();
+      mo.disconnect(); moOpen.disconnect();
       stopU15?.();
       for (const sf of surfaces.values()) sf.dispose();
       document.documentElement.classList.remove("room-pointer");

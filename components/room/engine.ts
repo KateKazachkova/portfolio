@@ -24,6 +24,7 @@ import { makeScreen } from "./screen";
 import { makeU15 } from "./u15gl";
 import { makeBud, type BudData } from "./budgl";
 import { makeRibbons } from "./ribbons";
+import { makeShelf, type OdThing } from "./shelf";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -42,10 +43,12 @@ type Item = {
   bud?: { n?: number; gloss?: boolean; q: [number, number] };
   /** an award ribbon, turned on hover (bake.mjs, ribbons.ts): its picture's offset in its element, the element's size (u) */
   rib?: { n: number; q: [number, number]; w: number; h: number };
+  /** one of Off Duty's things' planes (bake.mjs, shelf.ts): its thing, and whether it turns with the thing's body */
+  od?: { key: string; body: boolean };
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; tuck?: Record<"l" | "t" | "w" | "h", number | null>; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; tuck?: Record<"l" | "t" | "w" | "h", number | null>; od?: OdThing[]; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -173,6 +176,10 @@ export type Room = {
   dispose(): void;
   stats(): Record<string, unknown>;
   /** debugging: draw the flat groups in WebGL at home too (and hide the DOM) */
+  /** tests: Off Duty's things' composed end states against the bake's, u */
+  odCheck(): Record<string, number>;
+  /** tests: one of Off Duty's things' meshes (one per plane) */
+  odMeshes(key: string): THREE.Mesh[];
   forceGroups(on: boolean): void;
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
@@ -421,6 +428,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     });
     room.push({ meshes, item: it, k, slot, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
   }
+  // Off Duty's cards (what a thing taken out is) show only while it is out:
+  // their pictures are loaded then, and let go once it is back (shelf.ts)
+  const outOnly = new Set(room.filter((p) => /(^| )bs-card( |$)/.test(p.item.cls)).map((p) => p.slot));
+  for (const p of room) if (!/(^| )bs-card( |$)/.test(p.item.cls)) outOnly.delete(p.slot);
   // what is drawn live over its object, shown and faded with it: the bike
   // computer's screen, from the room's state, multiplied onto the unit as
   // the page's LCD is (the bake left the unit's own screen blank)
@@ -487,6 +498,21 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     redraw: () => { dirty = true; kick(); },
   }) : null;
   ribbons?.frame(performance.now());
+  // Off Duty's books, comics, tapes and omnibus, taken out and put back as the page's are (shelf.ts)
+  const shelf = data.od?.length ? makeShelf({
+    things: data.od,
+    planes: room.filter((p) => p.item.od).map((p) => ({
+      key: p.item.od!.key, body: p.item.od!.body, card: /(^| )bs-card( |$)/.test(p.item.cls),
+      meshes: p.meshes, mats: p.mats, m: p.item.m, w: p.item.w, h: p.item.h, k: p.k,
+      shown: () => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
+      op: () => p.op.value(performance.now()),
+      load: outOnly.has(p.slot) ? () => { want([p.slot], 0); } : undefined,
+      unload: outOnly.has(p.slot) ? () => evict(p.slot) : undefined,
+    })),
+    lifted, placed,
+    reduced: () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+    redraw: () => { dirty = true; kick(); },
+  }) : null;
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
@@ -774,7 +800,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const [v, pans] of ZONES) {
       const set = new Set<Slot>();
       // (a binder leaf that only another spread shows loads when it is turned to)
-      const shown = (p: Placed) => (isBinder(p) ? binderNeeds(p, binderAt) : p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf")));
+      const shown = (p: Placed) => !outOnly.has(p.slot) && (isBinder(p) ? binderNeeds(p, binderAt) : p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf")));
       for (const p of room) if (shown(p)) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan), v === "home")) { set.add(p.slot); break; }
       zoneSlots.set(v, set);
     }
@@ -785,7 +811,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const from = pose.value(now), need = new Set<Slot>();
     for (const k of [0, 0.25, 0.5, 0.75, 1]) {
       const pp = lerpPose(from, to, k);
-      for (const p of room) if (!need.has(p.slot) && (!isBinder(p) || binderNeeds(p, binderAt)) && seenAt(p.item, pp, false)) need.add(p.slot);
+      for (const p of room) if (!need.has(p.slot) && !outOnly.has(p.slot) && (!isBinder(p) || binderNeeds(p, binderAt)) && seenAt(p.item, pp, false)) need.add(p.slot);
     }
     return [...need];
   };
@@ -1003,8 +1029,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // (after the controls are laid: the binder's panel may have just taken over, or given back)
     bud?.frame();
     const ribMoving = ribbons ? ribbons.frame(now) : false;
-    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving) { draw(now); dirty = false; }
-    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving) raf = requestAnimationFrame(loop);
+    const shelfMoving = shelf ? shelf.frame(now) : false;
+    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving || shelfMoving) { draw(now); dirty = false; }
+    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving || shelfMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
   };
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
@@ -1177,6 +1204,17 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       dirty = true; kick();
       return c.toDataURL("image/png");
     },
+    // (tests: each Off Duty thing's end state as shelf.ts composes it against the bake's, u)
+    odCheck() {
+      const out: Record<string, number> = {};
+      for (const o of data.od ?? []) {
+        const mine = data.items.filter((it) => it.od?.key === o.key && it.src);
+        const got = shelf?.check(o.key, mine.map((it) => new THREE.Matrix4().fromArray(it.states?.[`od:${o.key}` as View]?.m ?? it.m)));
+        if (got) out[o.key] = +Math.max(0, ...got).toFixed(4);
+      }
+      return out;
+    },
+    odMeshes: (key: string) => shelf?.planesOf(key).map((p) => p.meshes[0]) ?? [],
     forceGroups(on) { forced = on; if (on) buildGroups(); setGroupsShown(on); dirty = true; kick(); },
     async reload(srcs) {
       const list = srcs.map((s) => slots.get(s)).filter((sl): sl is Slot => !!sl);
@@ -1205,7 +1243,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const sorted = [...ft].sort((a, b) => a - b);
       return { frames: ft.length, pending, textures: renderer.info.memory.textures, calls: renderer.info.render.calls, tris: renderer.info.render.triangles,
         p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0, max: sorted[sorted.length - 1] ?? 0, gpu: gl.getParameter(gl.RENDERER), pr: renderer.getPixelRatio(), view, groupsShown,
-        ribbons: ribbons?.tilted() ?? [],
+        ribbons: ribbons?.tilted() ?? [], od: shelf?.live() ?? [],
         k2: useK2, slots: slots.size, loaded: [...slots.values()].filter((sl) => sl.state === 2).length,
         // pictures nothing shows (a binder's leaves under the open spread)
         hidden: [...slots.values()].filter((sl) => sl.state === 0 && sl.prio === 9).length,
@@ -1218,7 +1256,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
-      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose();
+      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

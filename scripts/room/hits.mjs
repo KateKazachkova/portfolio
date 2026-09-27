@@ -41,6 +41,14 @@ const PICK = [
   { type: "sleeve", sel: ".od-hang", all: true, at: ["offduty"], kind: "button", action: "sleeve-turn", tab: false },
   { type: "disc", sel: ".od-disc", all: true, at: ["offduty"], kind: "button", action: "disc-pick" },
   { type: "dvd", sel: ".od-dvd__screen", at: ["offduty"], kind: "button" },
+  // Off Duty's shelf (M6): each book, comic and tape, and the omnibus on the
+  // desk — a click takes it out (the page's own button, BookShelf.tsx …),
+  // again puts it back; taken out, the control is over what shows then (a
+  // book's or a tape's cover, the rest themselves)
+  { type: "od-book", sel: ".bs-book", all: true, at: ["offduty"], kind: "button", action: "od-take", open: ".bs-book__cover" },
+  { type: "od-comic", sel: ".bs-comic", all: true, at: ["offduty"], kind: "button", action: "od-take", open: "" },
+  { type: "od-tape", sel: ".vt-tape", all: true, at: ["offduty"], kind: "button", action: "od-take", open: ".vt-tape__cover" },
+  { type: "od-omnibus", sel: ".od-comic", all: true, at: ["offduty"], kind: "button", action: "od-take", open: "" },
   { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
   // Case Files, left to right: Ukrainska 15's folder, its tag to the case
   // (out of the pocket once open) and its player; then each stack of
@@ -94,6 +102,7 @@ for (const p of PICK) {
       const file = path.join(path.resolve(import.meta.dirname, "../../public"), new URL(j.src).pathname);
       hit.mask = JSON.parse(execFileSync("python3", ["-c", `import json;from PIL import Image;im=Image.open(${JSON.stringify(file)}).convert('RGBA');w=64;h=max(1,round(im.height*w/im.width));a=im.resize((w,h)).getchannel('A');print(json.dumps({'w':w,'h':h,'bits':''.join('1' if v>96 else '0' for v in a.getdata())}))`]).toString());
     }
+    if (p.open !== undefined) Object.defineProperty(hit, "openSel", { value: p.open, enumerable: false });
     hits.push(hit);
   }
 }
@@ -117,6 +126,16 @@ for (const f of FOCI) {
     else if (!h.focus && !near(m, h.m)) (h.byFocus ??= {})[f] = m;
   }
   await b.ev(`dispatchEvent(new Event("kate:desk-put-away"))`); await sleep(1800);
+}
+// ── Off Duty, each thing taken out in turn: where what shows then lies ──
+await b.ev(`dispatchEvent(new Event("kate:off-duty"))`); await sleep(3500);
+for (const h of hits.filter((x) => x.openSel !== undefined)) {
+  const el = `document.querySelectorAll(${JSON.stringify(h.of.sel)})[${h.of.i}]`;
+  await b.ev(`${el}.click() || 1`); await sleep(1700);
+  if (!(await b.ev(`${el}.hasAttribute('data-open')`))) { log("did not come out", h.id); continue; }
+  const g = JSON.parse(await b.ev(`(()=>{const e=${h.openSel ? `${el}.querySelector(${JSON.stringify(h.openSel)})` : el};return JSON.stringify({m:window.__bkWorld(e),s:window.__bkSize(e)})})()`));
+  h.open = { m: g.m.map((v, i) => (i >= 12 && i <= 14 ? v / u : v)), w: g.s[0] / u, h: g.s[1] / u };
+  await b.ev(`${el}.click() || 1`); await sleep(1500);
 }
 fs.writeFileSync(OUT, JSON.stringify({ hits }));
 const n = {};

@@ -17,6 +17,7 @@ import Tardis from "./Tardis";
 import AwardCubby from "./AwardCubby";
 import Wardrobe from "./Wardrobe";
 import { RoomGL, useGl } from "@/components/room/RoomGL";
+import { RoomOffDuty } from "@/components/room/RoomOffDuty";
 import { RoomBinder } from "@/components/room/RoomBinder";
 import { RoomU15 } from "@/components/room/RoomU15";
 
@@ -123,6 +124,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
         {gl && <RoomGL cam={deskCam} home={roomHome} />}
         {gl && <RoomBinder />}
         {gl && <RoomU15 />}
+        {gl && <RoomOffDuty />}
         <div className="scene-cam" ref={deskCam}>
         {!gl && (
         <DeskPlanes>

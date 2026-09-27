@@ -57,6 +57,8 @@ html.bk .desk-player__lcd, html.bk .desk-player__lcd * { visibility: hidden !imp
 /* …and a stack in progress, its sticky note over the card (staging 27.09) */
 html.bk .stack-note { opacity: 1 !important; }
 html.bk .jury-tag { opacity: 1 !important; left: calc(50% - 94 * var(--u)) !important; }
+/* Off Duty's cards (what a book, a tape, the comic is) show only taken out: baked as they look then */
+html.bk .bs-card { opacity: 1 !important; }
 html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
 html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
 html.bk .od-sleeve { --stack: 0 0 transparent !important; }
@@ -128,6 +130,28 @@ await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", 
 states.pf1 = await b.ev(`JSON.stringify(window.__bkState("profile", undefined, "1"))`).then(JSON.parse);
 await b.ev(`[...${LEAVES}].forEach((l, i) => { const [t, h, f] = window.__pfWas[i]; l.toggleAttribute("data-turned", t); l.toggleAttribute("data-hidden", h); l.toggleAttribute("data-flying", f); }) || 1`);
 log("binder", binderN, "leaves, 7 spreads");
+// …and Off Duty's things each taken off the shelf (M6): a book, a comic, a
+// tape (the lying ones over it dropped into its gap), the omnibus picked
+// up, as the page's data-open / data-drop have them; each state only for
+// that thing's own planes. The engine (components/room/shelf.ts) runs the
+// page's transitions between them from each thing's frame and its CSS
+// numbers (scene.json `od`); these end states are for the densities (a
+// cover faces the camera only taken out) and for tests.
+const OD_KINDS = [["book", ".bs-book"], ["comic", ".bs-comic"], ["tape", ".vt-tape"], ["omnibus", ".od-comic"]];
+const odObjs = JSON.parse(await b.ev(`JSON.stringify(${JSON.stringify(OD_KINDS)}.flatMap(([kind,sel])=>[...document.querySelectorAll(sel)].map((el,n)=>{
+  const cs=getComputedStyle(el), num=(k)=>{const v=cs.getPropertyValue(k).trim();return v===''?null:parseFloat(v)};
+  const members=[el,...el.querySelectorAll('*')].flatMap(e=>['bk','bkbefore','bkafter'].filter(k=>e.dataset[k]!==undefined).map(k=>({i:+e.dataset[k],body:!!e.closest('.bs-book__body, .vt-tape__body')})));
+  return {key:kind+'-'+n,kind,sel,n,stand:el.hasAttribute('data-stand'),members,
+    v:Object.fromEntries(['--z','--d','--w','--h','--t','--dy','--lean','--r'].map(k=>[k.slice(2),num(k)]).filter(([,x])=>x!==null)),
+    m:window.__bkWorld(el),s:window.__bkSize(el)}})))`));
+for (const o of odObjs) {
+  await b.ev(`(()=>{const all=[...document.querySelectorAll(${JSON.stringify(o.sel)})];const el=all[${o.n}];el.setAttribute('data-open','');
+    if(${JSON.stringify(o.kind)}==='tape'&&!el.hasAttribute('data-stand'))all.forEach((e,i)=>{if(!e.hasAttribute('data-stand')&&i>${o.n})e.setAttribute('data-drop','')});return 1})()`);
+  states[`od:${o.key}`] = await b.ev(`JSON.stringify(window.__bkState("offduty", undefined, "1"))`).then(JSON.parse);
+  await b.ev(`(()=>{document.querySelectorAll(${JSON.stringify(o.sel)}).forEach(e=>{e.removeAttribute('data-open');e.removeAttribute('data-drop')});return 1})()`);
+}
+const odOf = new Map(odObjs.flatMap((o) => o.members.map((x) => [x.i, { key: o.key, body: x.body }])));
+log("od", odObjs.length, "things,", odOf.size, "planes");
 const sameM = (a, b) => a && b && a.every((v, i) => Math.abs(v - b[i]) < 1e-3);
 log("u", u.toFixed(4), "units", units.length, "flat", flat.length);
 
@@ -151,11 +175,11 @@ log("matrix check: worst", worst.toFixed(3), "px;", bad.length, "over 1 px", bad
 // ── how sharp each plane must be: the most screen px per u any stop asks ──
 const uRef = stageWidth(REF.w, REF.h) / 1118;
 const views = [["home"], ["files", 0], ["files", 900], ["award"], ["profile"], ["offduty"], ["bike"]];
-const needOf = (it) => {
+const needOf = (it, mOver) => {
   let best = 0;
   for (const [v, pan] of views) {
     const pose = stopPose(v, pan);
-    const P = (x, y) => { const m = it.m; return projectToStage(pose, [m[0] * x + m[4] * y + m[12], m[1] * x + m[5] * y + m[13], m[2] * x + m[6] * y + m[14]].map((c) => c / u)); };
+    const P = (x, y) => { const m = mOver ?? it.m; return projectToStage(pose, [m[0] * x + m[4] * y + m[12], m[1] * x + m[5] * y + m[13], m[2] * x + m[6] * y + m[14]].map((c) => c / u)); };
     const N = 6;
     for (let i = 0; i <= N; i++) for (let j = 0; j <= N; j++) {
       const x = (it.w * i) / N, y = (it.h * j) / N, e = Math.max(it.w, it.h) / 200;
@@ -172,7 +196,11 @@ const needOf = (it) => {
 };
 const STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6];
 for (const it of units) {
-  it.need = needOf(it);
+  // (a thing off Off Duty's shelf: taken out too, nearer the camera)
+  const od = odOf.get(it.i);
+  // (only what faces you then: a cover, its card, a comic; not the back or the ends)
+  const faces = /(^| )(bs-book__cover|vt-tape__cover|bs-card|bs-comic|od-comic)( |$)/.test(it.cls);
+  it.need = Math.max(needOf(it), od && faces && states[`od:${od.key}`]?.[it.i]?.m ? needOf(it, states[`od:${od.key}`][it.i].m) : 0);
   let rho = it.need / u; // texture px per CSS px of the bake page
   rho = STEPS.find((s) => s >= rho * 0.97) ?? STEPS[STEPS.length - 1];
   it.rho = rho;
@@ -194,15 +222,18 @@ out.live = [{ id: "bike-lcd", of: ".bike", m: toU(lcdBox.m, u), w: lcdBox.s[0] /
 // the bake's size (the WebGL room's binder panel lays it the same: engine.ts)
 out.tuck = JSON.parse(await b.ev(`JSON.stringify(Object.fromEntries(["l","t","w","h"].map(k=>[k,+document.documentElement.style.getPropertyValue("--tuck-"+k)||null])))`));
 log("tuck", JSON.stringify(out.tuck));
+// Off Duty's things (shelf.ts): each one's frame at rest, its size and CSS numbers, u
+out.od = odObjs.map(({ members, m, s, ...o }) => ({ ...o, m: toU(m, u), w: s[0] / u, h: s[1] / u }));
 const texName = (it) => `${String(it.i).padStart(3, "0")}-${(it.cls.split(" ").pop() || it.tag).replace(/[^a-z0-9_-]/gi, "").slice(0, 40)}`;
 
 if (OPT.only !== "flat") for (const it of units) {
-  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2) };
+  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}) };
   // how it differs at each stop, if it does (the local box stays: the quad's
   // own offset into its box is applied to each state's matrix alike)
   const diff = {};
   for (const [k, list] of Object.entries(states)) {
     if (k.startsWith("pf") && !(it.anc ?? "").split(" ").includes("desk-binder")) continue;
+    if (k.startsWith("od:") && odOf.get(it.i)?.key !== k.slice(3)) continue;
     const st = list[it.i]; if (!st) continue;
     const d = {};
     if (st.m && !sameM(st.m, states.home[it.i]?.m ?? it.m)) d.m = st.m;

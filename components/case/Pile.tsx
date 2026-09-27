@@ -9,28 +9,30 @@ import Spans from "./Spans";
  *
  * Everything is visible from the start — the reader never has to drag to see
  * a card. Dragging just moves one from place to place, and it stays where it
- * is put. Below 901px, and until this mounts, the same cards render as a plain
- * contact sheet: pushing things around a phone screen fights the scroll, and a
- * gesture is not a way to deliver content.
+ * is put. Until this mounts the same cards render as a plain contact sheet.
+ * On a phone they lie loose too (Kate, 27.09), smaller and three across; a
+ * card there takes only a drag that starts sideways, so an upward swipe over
+ * the pile still scrolls the page.
  */
 
 /** Where they were dropped, as fractions of the free space, so the scatter
  *  holds its shape at any width instead of spilling off the table: a loose
  *  grid, COLS across, each card knocked off its cell by a fixed amount (the
  *  same every visit), in the archive's order. */
-const COLS = 5;
-const CARD_MAX_H = 330;
+const COLS = 5, COLS_NARROW = 3;
+const CARD_MAX_H = 330, CARD_MAX_H_NARROW = 200;
 const jig = (i: number, k: number) => {
   const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
   return v - Math.floor(v) - 0.5;   // -0.5 … 0.5
 };
-const homeOf = (i: number, n: number) => {
-  const rows = Math.max(1, Math.ceil(n / COLS) - 1), col = i % COLS, row = Math.floor(i / COLS);
-  const x = (col + jig(i, 1) * 0.7) / (COLS - 1), y = (row + jig(i, 2) * 0.6) / rows;
+const homeOf = (i: number, n: number, cols: number) => {
+  const rows = Math.max(1, Math.ceil(n / cols) - 1), col = i % cols, row = Math.floor(i / cols);
+  const x = (col + jig(i, 1) * 0.7) / (cols - 1), y = (row + jig(i, 2) * 0.6) / rows;
   return { x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)), r: jig(i, 3) * 9 };
 };
-/** the table grows with the pile: about 200px of it for every row */
-const tableH = (n: number) => Math.max(520, Math.ceil(n / COLS) * 200);
+/** the table grows with the pile: about 200px of it for every row (150 on a phone) */
+const tableH = (n: number, cols: number) =>
+  cols === COLS ? Math.max(520, Math.ceil(n / cols) * 200) : Math.max(420, Math.ceil(n / cols) * 150);
 
 type Pos = { x: number; y: number; r: number };
 
@@ -51,6 +53,7 @@ export default function Pile({
   const drag = useRef<{ i: number; x: number; y: number } | null>(null);
   const top = useRef(items.length * 2 + 1);
   const [loose, setLoose] = useState(false);
+  const [cols, setCols] = useState(COLS);
 
   const paint = useCallback((i: number) => {
     const el = cardRefs.current[i];
@@ -67,8 +70,8 @@ export default function Pile({
     // a card's picture may not have loaded yet (they are lazy): reckon on the
     // tallest a card gets (260 of picture + caption, times its size), so none
     // ends up hanging off the bottom once it has
-    return { w: Math.max(0, box.width - card.width), h: Math.max(0, box.height - Math.max(card.height, CARD_MAX_H * (items[i].size ?? 1))) };
-  }, [items]);
+    return { w: Math.max(0, box.width - card.width), h: Math.max(0, box.height - Math.max(card.height, (cols === COLS ? CARD_MAX_H : CARD_MAX_H_NARROW) * (items[i].size ?? 1))) };
+  }, [items, cols]);
 
   const clamp = useCallback(
     (i: number) => {
@@ -83,7 +86,7 @@ export default function Pile({
   const reset = useCallback(
     (animate: boolean) => {
       items.forEach((_, i) => {
-        const home = homeOf(i, items.length);
+        const home = homeOf(i, items.length, cols);
         const r = room(i);
         pos.current[i] = { x: home.x * r.w, y: home.y * r.h, r: home.r };
         const el = cardRefs.current[i];
@@ -102,10 +105,10 @@ export default function Pile({
     [items, paint, room],
   );
 
-  // Loose layout needs room. Below that the contact sheet is the better answer.
+  // Loose at every width; narrower, fewer across.
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 901px)");
-    const apply = () => setLoose(mq.matches);
+    const apply = () => { setCols(mq.matches ? COLS : COLS_NARROW); setLoose(true); };
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
@@ -196,7 +199,7 @@ export default function Pile({
       <div
         ref={stackRef}
         className="pile__stack"
-        style={loose ? { height: tableH(items.length) } : undefined}
+        style={loose ? { height: tableH(items.length, cols) } : undefined}
         role="group"
         aria-label="The archive, laid out"
         aria-describedby="pile-help"

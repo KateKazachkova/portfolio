@@ -133,7 +133,7 @@ function Block({ section, data }: { section: Section; data: Case }) {
           <Rail n={section.n} label={section.label} notes={section.notes} />
           <div className={section.rule ? "body rule" : "body"}>
             <Body section={section} />
-            {section.items.map((d) => (
+            {section.items.map((d, di) => (
               <div className="decision" key={d.label}>
                 {/* a sticky note: the number and the title in hand */}
                 <div className="d-sticker">
@@ -147,6 +147,11 @@ function Block({ section, data }: { section: Section; data: Case }) {
                   </div>
                 )}
                 {d.player && <CasePlayer />}
+                {/* on a phone the margin's prints come here, in the first
+                    decision over its screen, instead of after all four */}
+                {di === 0 && section.photos && (
+                  <div className="d-photos"><SidePhotos photos={section.photos} /></div>
+                )}
                 {d.tablet && (
                   <div className="d-tablet">
                     {/* eslint-disable-next-line @next/next/no-img-element */}

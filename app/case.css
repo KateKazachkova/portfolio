@@ -218,6 +218,14 @@
    they come after the section's text as before. */
 @media (min-width:901px) { .case .row > .side:has(.side-shot, .case-player) { height:0; position:relative; z-index:1 } }
 @media (max-width:900px) { .case .side-print { max-width:200px } .case .side-shot:first-of-type { margin-top:24px } }
+/* the same prints, in decision 01 on a phone; the margin's copy goes */
+.case .d-photos { display:none }
+@media (max-width:900px) {
+  .case .d-photos { display:flex; flex-wrap:wrap; gap:18px; margin-top:24px }
+  .case .d-photos .side-shot { flex:1 1 140px; margin:0 }
+  .case .d-photos .side-shot:first-of-type { margin-top:0 }
+  .case .row:has(.d-photos) > .side .side-shot { display:none }
+}
 /* the live site on the tablet, before the text */
 .case .tablet-row { margin-top:20px }
 .case .tablet-row + .title-block { margin-top:28px }
@@ -331,7 +339,11 @@
 }
 @media (max-width:900px) {
   .case .pile__stack { grid-template-columns:1fr 1fr }
-  .case .pcard img { height:170px }
+  .case .pile:not([data-ready]) .pcard img { height:170px }
+  /* loose on a phone: smaller, and a drag has to start sideways, so the
+     page still scrolls under a thumb moving up */
+  .case .pile[data-ready] .pcard { width:calc(140px * var(--s, 1)); touch-action:pan-y }
+  .case .pile[data-ready] .pcard img { max-height:calc(160px * var(--s, 1)) }
 }
 /* ── The site footer, ported from components/Footer.tsx ── */
 .casenav { margin-top:110px; border-top:1px solid var(--hairline); padding:14px 0 0; display:flex; justify-content:space-between; gap:20px; font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase }

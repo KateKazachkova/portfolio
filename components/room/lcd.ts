@@ -6,7 +6,10 @@
  *
  * The layout is the page's own: an unseen copy of the LCD in BikeComputer's
  * markup and classes (globals.css .bike__*) is laid out by the browser, and
- * its text, rules and the ride's map are drawn where it put them.
+ * its text, rules and the ride's map are drawn where it put them. Its CSS
+ * animations run in that copy too (unseen is not stopped): the ride's map
+ * drawn in over 1.6 s (bike-draw, each new ride), SEARCHING GPS / NO SIGNAL
+ * blinking (bike-blink) — read off it and drawn again while they change.
  */
 import { bikePages, bikeRide, onRoom, roomState, type RoomState } from "./state";
 
@@ -29,7 +32,7 @@ function lcdHtml(s: RoomState): string {
   }
   const r = bikeRide(s);
   if (!r) return bar;
-  return bar + (r.path ? `<svg class="bike__map" viewBox="0 0 100 100"><path d="${esc(r.path)}"/></svg>` : "")
+  return bar + (r.path ? `<svg class="bike__map" viewBox="0 0 100 100"><path d="${esc(r.path)}" pathLength="1"/></svg>` : "")
     + `<div class="bike__grid"><div class="bike__field"><span class="bike__k">DIST</span><span class="bike__v">${r.distanceKm}<small>km</small></span></div>`
     + `<div class="bike__field"><span class="bike__k">TIME</span><span class="bike__v">${hm(r.movingMin)}</span></div></div>`
     + `<div class="bike__date">${day(r.date)}</div>`;
@@ -70,7 +73,7 @@ export function makeLcd(w: number, h: number, px = 10): Lcd {
       if (bb) { const [x, y] = at(r.left, r.bottom - bb); ctx.fillRect(x, y, r.width * sx, bb * sy); }
       if (bt) { const [x, y] = at(r.left, r.top); ctx.fillRect(x, y, r.width * sx, bt * sy); }
     }
-    // the ride's map, whole (the page draws it in over 1.6 s)
+    // the ride's map, as far as the page's has been drawn in (bike-draw)
     const svg = lcd.querySelector("svg.bike__map"), path = svg?.querySelector("path");
     if (svg && path) {
       const r = svg.getBoundingClientRect(), cs = getComputedStyle(path);
@@ -80,6 +83,9 @@ export function makeLcd(w: number, h: number, px = 10): Lcd {
       ctx.translate(x, y); ctx.scale(k * sx, k * sy);
       ctx.strokeStyle = getComputedStyle(svg).color; ctx.lineWidth = parseFloat(cs.strokeWidth) || 2.2;
       ctx.lineJoin = "round"; ctx.lineCap = "round";
+      // (pathLength 1: the page's dash and offset are fractions of the whole)
+      const L = (path as SVGPathElement).getTotalLength(), off = parseFloat(cs.strokeDashoffset) || 0;
+      if (off > 1e-4) { ctx.setLineDash([L, L]); ctx.lineDashOffset = off * L; }
       ctx.stroke(new Path2D(path.getAttribute("d") ?? ""));
       ctx.restore();
     }
@@ -112,16 +118,35 @@ export function makeLcd(w: number, h: number, px = 10): Lcd {
     }
     listener?.();
   };
+  // what of it moves now: the map's offset, the blinking text's opacity
+  const look = () => {
+    const p = lcd.querySelector("svg.bike__map path"), w = lcd.querySelector(".bike__wait");
+    return `${p ? getComputedStyle(p).strokeDashoffset : ""}|${w ? getComputedStyle(w).opacity : ""}`;
+  };
+  let last = "", raf = 0;
+  const watch = () => {
+    raf = 0;
+    const now = look();
+    if (now !== last) { last = now; draw(); }
+    // (on while the map draws in or the text blinks; off once it is all still)
+    const p = lcd.querySelector("svg.bike__map path");
+    if (lcd.querySelector(".bike__wait") || (p && (parseFloat(getComputedStyle(p).strokeDashoffset) || 0) > 1e-4)) raf = requestAnimationFrame(watch);
+  };
+  let html = "";
   const render = (s: RoomState) => {
-    lcd.innerHTML = lcdHtml(s);
+    // the markup anew only when it changes (the page's map starts over only for a new ride)
+    const h = lcdHtml(s);
+    if (h === html) return;
+    html = h;
+    lcd.innerHTML = h;
     // the page's fonts first, or the first draw is in the fallback
-    document.fonts.ready.then(draw);
+    document.fonts.ready.then(() => { draw(); last = look(); if (!raf) raf = requestAnimationFrame(watch); });
   };
   const off = onRoom(render);
   render(roomState());
   return {
     canvas,
     onChange(f) { listener = f; },
-    dispose() { off(); host.remove(); },
+    dispose() { off(); cancelAnimationFrame(raf); host.remove(); },
   };
 }

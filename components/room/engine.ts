@@ -829,6 +829,17 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     else { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.remove("room-away"); }
   };
   let groupsAwayPending = false;
+  // the groups read off the page while it has them put away: shown for the
+  // read and put away again in one task, so no frame is drawn in between
+  const remirror = () => {
+    const els = [o.groups.case, o.groups.clock, o.groups.lamp].filter((e): e is HTMLElement => !!e && e.classList.contains("room-away"));
+    for (const el of els) el.classList.remove("room-away");
+    buildGroups();
+    for (const el of els) el.classList.add("room-away");
+    for (const ms of groupMeshes.values()) for (const m of ms) m.visible = true;
+    applyGroupOpacity();
+    dirty = true;
+  };
 
   // ── the night (night.ts): its layers' opacities, the lamp, the torch and
   // NightCam's pool, timed as globals.css times the page's ──
@@ -958,6 +969,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (leaving && !groupsShown) { buildGroups(); setGroupsShown(true); }
     const prevView = view;
     view = v;
+    // setting off home from a stop: the case, clock and lamp read off the page
+    // again (a minute may have gone: the clock would change at the hand-over)
+    if (!first && v === "home" && prevView !== "home" && groupsShown && !forced) remirror();
     // (away from Case Files no stack is under the pointer: its control is gone)
     if (v !== "files") hoverSlug = null;
     lookTo(now);

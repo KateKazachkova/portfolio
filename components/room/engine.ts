@@ -267,8 +267,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const m of sl.mats) m.uniforms.map.value = tex;
     if (sl.loTex) { sl.loTex.dispose(); sl.loTex = undefined; }
     for (const f of sl.wait.splice(0)) f();
+    afterArrive?.(sl);
     dirty = true; kick();
   };
+  // (the binder lets a picture go that came in after its spread was left: below)
+  let afterArrive: ((sl: Slot) => void) | null = null;
   let inflight = 0;
   const pump = () => {
     while (inflight < 6) {
@@ -482,6 +485,29 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (f) return p.item.states?.[`files:${f}` as View] ?? {};
     return p.item.states?.[v] ?? {};
   };
+  // What of the binder can show: a spread shows a plane if it is on show
+  // there and, a sleeve's face, faces up (the back of a turned-under sleeve
+  // never does: 069's front, the certificates' backs). Only the open
+  // spread's pictures are kept on the GPU (the memory pass, 26.09): a turn
+  // loads the new spread's — its previews standing in meanwhile — and once
+  // they are in lets the others go.
+  const faceUp = (p: Placed, m: number[]) => !p.item.back || m[2] * m[4] - m[0] * m[6] < 0;
+  const binderNeeds = (p: Placed, at: number) => { const st = p.item.states?.[`pf${at}`] ?? {}; return (st.vis ?? p.item.vis !== false) && faceUp(p, st.m ?? p.item.m); };
+  const SPREADS = Math.max(1, ...data.items.flatMap((it) => Object.keys(it.states ?? {}).filter((k) => /^pf\d+$/.test(k)).map((k) => +k.slice(2))));
+  const binderOnly = new Set<Slot>();
+  { const other = new Set(room.filter((p) => !isBinder(p)).map((p) => p.slot)); for (const p of room) if (isBinder(p) && !other.has(p.slot)) binderOnly.add(p.slot); }
+  const binderSlotsAt = (at: number) => new Set(room.filter((p) => isBinder(p) && binderNeeds(p, at)).map((p) => p.slot));
+  const never = new Set([...binderOnly].filter((sl) => !Array.from({ length: SPREADS }, (_, k) => binderSlotsAt(k + 1)).some((set) => set.has(sl))));
+  /** a picture back to its preview, off the GPU */
+  const evict = (sl: Slot) => {
+    if (sl.state !== 2) return;
+    if (sl.tex !== EMPTY) sl.tex.dispose();
+    sl.tex = EMPTY; sl.state = 0; sl.bytes = 0; sl.prio = 9;
+    for (const m of sl.mats) m.uniforms.map.value = EMPTY;
+    if (sl.lo) previews([sl]);
+  };
+  const letBinderGo = () => { const keep = binderSlotsAt(binderAt); for (const sl of binderOnly) if (!keep.has(sl)) evict(sl); };
+  afterArrive = (sl) => { if (binderOnly.has(sl) && !binderSlotsAt(binderAt).has(sl)) evict(sl); };
   // the page's own transitions when the case in focus changes, per thing:
   // the card slides aside (.6 s), its parts fan out (.7 s), the truck
   // drives (.8 s), a tag fades in once it lies there (.3 s after .35 s)
@@ -725,7 +751,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const [v, pans] of ZONES) {
       const set = new Set<Slot>();
       // (a binder leaf that only another spread shows loads when it is turned to)
-      const shown = (p: Placed) => p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf"));
+      const shown = (p: Placed) => (isBinder(p) ? binderNeeds(p, binderAt) : p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf")));
       for (const p of room) if (shown(p)) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan), v === "home")) { set.add(p.slot); break; }
       zoneSlots.set(v, set);
     }
@@ -736,23 +762,33 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const from = pose.value(now), need = new Set<Slot>();
     for (const k of [0, 0.25, 0.5, 0.75, 1]) {
       const pp = lerpPose(from, to, k);
-      for (const p of room) if (!need.has(p.slot) && seenAt(p.item, pp, false)) need.add(p.slot);
+      for (const p of room) if (!need.has(p.slot) && (!isBinder(p) || binderNeeds(p, binderAt)) && seenAt(p.item, pp, false)) need.add(p.slot);
     }
     return [...need];
   };
   let hold = false, waited = false, lastFocus = "";
+  // the wallet's sleeves: whether a flight from here to `to` (or the stop) shows them
+  const walletPlanes = room.filter((p) => /^od-hang od-hang--/.test(p.item.cls));
+  const walletSeen = (to: Pose, now: number) => {
+    const from = pose.value(now);
+    return [0, 0.25, 0.5, 0.75, 1].some((k) => walletPlanes.some((p) => seenAt(p.item, lerpPose(from, to, k), false)));
+  };
   const evaluate = (now: number) => {
     const desk = root.dataset.desk, focus = root.dataset.deskFocus, arrived = root.dataset.deskArrived !== undefined;
     const v = viewOfState(desk, focus);
     // a move to a stop whose pictures are not on the GPU yet waits for them
     // (at most 1.5 s), as the CSS camera waits its 0.2 s beat
     if (!first && v !== view && !hold && !waited) {
-      const missing = flightSlots(stopPose(v, v === "files" ? readVar("--pan") : 0), now).filter((sl) => sl.state !== 2);
-      if (missing.length) {
+      const to = stopPose(v, v === "files" ? readVar("--pan") : 0);
+      const missing = flightSlots(to, now).filter((sl) => sl.state !== 2);
+      // (the wallet's discs, let go away from Off Duty, painted again first
+      // if the flight will show them)
+      const discs = wallet?.parked() && walletSeen(to, now) ? wallet.restore() : null;
+      if (missing.length || discs) {
         hold = true;
         // once waited, it goes, whatever is still missing (previews stand in)
         const go = () => { if (!hold) return; hold = false; waited = true; evaluate(performance.now()); waited = false; };
-        want(missing, 0).then(go);
+        Promise.all([want(missing, 0), discs]).then(go);
         setTimeout(go, 1500);
         waits++;
         if (view === "home" && !groupsShown) { buildGroups(); setGroupsShown(true); }
@@ -904,6 +940,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (rest) root.dataset.glRest = view === "home" ? "home" : "stop"; else delete root.dataset.glRest;
       dirty = true;
     }
+    // at rest where no disc shows (home, where the corner is hidden; a stop
+    // that does not see it), the discs' canvases go (painted again before a
+    // flight that shows them: evaluate)
+    if (wallet && !wallet.parked() && !(travelling || hold) && view !== "offduty" && view !== "bike" && (view === "home" ? !groupsShown : !walletPlanes.some((p) => seenAt(p.item, pose.to, false)))) wallet.release();
     const nightMoving = nightActive();
     homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
     // (the wallet's own movements neither hide the controls nor count as the camera's)
@@ -942,8 +982,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     binderAt = at;
     const now = performance.now();
     arrange(view, null, now, isBinder);
-    // its sheets now on show, to the GPU first
-    want(room.filter((p) => isBinder(p) && (stateOf(p, view).vis ?? p.item.vis !== false)).map((p) => p.slot), 1);
+    // its sheets now on show, to the GPU first; then the others go
+    want([...binderSlotsAt(at)], 0).then(() => { if (binderAt === at) letBinderGo(); });
     dirty = true; kick();
   };
   addEventListener("room:binder-at", onBinder);
@@ -994,7 +1034,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // what the first view shows, now; the rest once it is in, while idle
   const t0 = performance.now();
   let homeAt = 0;
-  previews([...slots.values()]).then(() => { root.dataset.glPreviews = "1"; });
+  previews([...slots.values()].filter((sl) => !never.has(sl))).then(() => { root.dataset.glPreviews = "1"; });
   want([...(zoneSlots.get(view) ?? [])], 0).then(() => {
     homeAt = performance.now() - t0;
     root.dataset.glZone = "1";

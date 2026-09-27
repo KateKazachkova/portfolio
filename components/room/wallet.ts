@@ -159,14 +159,17 @@ export function makeWallet(o: WalletCtx) {
   Promise.all(Object.entries(D.layers).map(([k, l]) => load(l!.src).then((im) => { if (im) layers[k] = [im, l!]; }))).then(() => { layersIn = true; for (const t of texes.keys()) repaint(t); });
 
   // the discs' canvases, by title and look; the spreads near the open one kept
-  const texes = new Map<string, { c: HTMLCanvasElement; t: THREE.CanvasTexture; used: number }>();
+  const texes = new Map<string, { c: HTMLCanvasElement; t: THREE.CanvasTexture; used: number; ready: Promise<void> }>();
+  // (let go while the camera is where no disc shows, painted again before it sets off to one: engine.ts)
+  let parked = false;
   const keyOf = (s: Series, look: Look) => `${look}|${s.title}`;
-  const repaint = (key: string) => {
-    const e = texes.get(key); if (!e) return;
+  const repaint = (key: string): Promise<void> => {
+    const e = texes.get(key); if (!e) return Promise.resolve();
     const [look, ...rest] = key.split("|"); const title = rest.join("|");
     const s = roomState().series.find((x) => x.title === title) ?? roomState().picked ?? roomState().flying?.item;
     const src = s?.disc ?? s?.poster;
-    (src ? load(src) : Promise.resolve(null)).then((im) => {
+    return (src ? load(src) : Promise.resolve(null)).then((im) => {
+      if (texes.get(key) !== e) return;
       paintDisc(e.c, im, title, look as Look, body, layers);
       e.t.needsUpdate = true; o.upload(e.t); o.redraw();
     });
@@ -178,9 +181,9 @@ export function makeWallet(o: WalletCtx) {
       const c = document.createElement("canvas"); c.width = c.height = CPX;
       const t = new THREE.CanvasTexture(c);
       t.premultiplyAlpha = true; t.colorSpace = THREE.NoColorSpace; t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 4;
-      e = { c, t, used: 0 };
+      e = { c, t, used: 0, ready: Promise.resolve() };
       texes.set(key, e);
-      if (layersIn) repaint(key);
+      if (layersIn) e.ready = repaint(key);
     }
     e.used = performance.now();
     return e.t;
@@ -259,6 +262,7 @@ export function makeWallet(o: WalletCtx) {
 
   // the textures of the spreads around the open one (and the player's disc)
   const prepare = (s: RoomState) => {
+    if (parked) return;
     const n = spreads(s), keep = new Set<string>();
     for (let sp = Math.max(0, s.spread - 1); sp <= Math.min(n - 1, s.spread + 1); sp++)
       for (let i = 0; i < PER_SPREAD; i++) { const d = s.series[sp * PER_SPREAD + i]; if (d) { texOf(d, "wallet"); keep.add(keyOf(d, "wallet")); } }
@@ -270,7 +274,9 @@ export function makeWallet(o: WalletCtx) {
 
   const under = (spread: number, side: "l" | "r") => (side === "r" ? spreads() - 1 - spread : spread);
   /** lays everything as the state is at `now`; true while something moves */
+  const all = () => [...inPocket, ...turners.flatMap((tr) => tr.discs.map((td) => td.d)), onBay, flyer];
   const frame = (now: number) => {
+    if (parked) { for (const d of all()) d.mesh.visible = false; return false; }
     const s = roomState();
     const shown = o.under.l.shown() || o.under.r.shown();
     const out = discOut(s);
@@ -340,6 +346,22 @@ export function makeWallet(o: WalletCtx) {
   };
   return {
     frame,
+    parked: () => parked,
+    /** the discs' canvases off the GPU (the state stays: state.ts) */
+    release() {
+      if (parked) return;
+      parked = true;
+      for (const e of texes.values()) e.t.dispose();
+      texes.clear();
+      for (const d of all()) { d.title = null; d.mat.uniforms.map.value = EMPTY; d.mesh.visible = false; }
+    },
+    /** painted again for the state as it is; resolves once they are */
+    restore() {
+      if (!parked) return Promise.resolve();
+      parked = false;
+      prepare(roomState());
+      return Promise.all([...texes.values()].map((e) => e.ready)).then(() => o.redraw());
+    },
     dispose() {
       off(); removeEventListener("room:disc-tilt", onTilt);
       for (const e of texes.values()) e.t.dispose();

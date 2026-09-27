@@ -71,6 +71,8 @@ html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) { background: none 
 html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) > .pf-sheet, html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) > .pf-sheet * { visibility: hidden !important; }
 html.bk.bk-bud .desk-binder :is(.pf-face, .pf-face__full, .pf-sheet):has(.pf-prints) { overflow: visible !important; }
 html.bk.bk-bud .desk-binder .pf-print { transform: none !important; }
+/* the award ribbons tilt on hover: baked on their own, the lattice without them */
+html.bk:not(.bk-rib) .award-ribbon, html.bk:not(.bk-rib) .award-ribbon * { visibility: hidden !important; }
 html.bk .bk-anc { opacity: 1 !important; mix-blend-mode: normal !important; }
 html.bk, html.bk body, html.bk main { background: transparent !important; }
 html.bk::before, html.bk::after, html.bk body::before, html.bk body::after { display: none !important; }
@@ -472,6 +474,47 @@ if (OPT.only !== "flat") {
     out.items.splice(at + 1, 0, ...items);
     out.bud = { face: faceI, off: [face.off[0] / u, face.off[1] / u], box: geo.box, sheet: geo.sheet };
     log("bud", prints.length, "prints,", gloss ? "gloss" : "no gloss", JSON.stringify(out.bud));
+  }
+}
+
+// ── the award ribbons (M6): each its own plane ───────────────────────────
+// A ribbon tilts on hover and focus at Recognition (AwardRail.css), so the
+// lattice's plane is baked above without them, and here each ribbon on its
+// own, untransformed (its drop-shadow in full, as it turns with it). Alike
+// ribbons (the same satin, tint and logo) share one picture. The engine
+// (components/room/ribbons.ts) lays each from its element's frame, turned
+// about its origin as the page's :hover. The paper tags stay in the
+// lattice: a tilted ribbon's top stays ≥5 u under its tag's shadow.
+if (OPT.only !== "flat") {
+  const hung = units.find((x) => (" " + x.cls + " ").includes(" desk-wall--hung "));
+  const at = out.items.findIndex((x) => x.i === hung?.i);
+  if (!hung || at < 0) log("no award lattice");
+  else {
+    const lattice = out.items[at];
+    const sigs = JSON.parse(await b.ev(`JSON.stringify([...document.querySelectorAll('.award-ribbon')].map(r=>{const l=r.querySelector('.award-ribbon__logo');return r.className+'|'+r.style.getPropertyValue('--tint')+'|'+(l?l.style.getPropertyValue('--logo'):'')+'|'+r.textContent}))`));
+    await b.ev("document.documentElement.classList.add('bk-rib') || 1");
+    const pics = new Map();
+    for (const [n, sg] of sigs.entries()) {
+      if (pics.has(sg)) continue;
+      const i = 9600 + n;
+      await b.ev(`(()=>{document.querySelectorAll('.award-ribbon')[${n}].dataset.bk=${i};return 1})()`);
+      const got = await bakeAs({ i, rho: hung.rho }, `ribbon-${String(pics.size).padStart(2, "0")}`, "1", "1");
+      await b.ev(`(()=>{delete document.querySelectorAll('.award-ribbon')[${n}].dataset.bk;return 1})()`);
+      pics.set(sg, got);
+    }
+    await b.ev("document.documentElement.classList.remove('bk-rib') || 1");
+    await unpose();
+    const frames = JSON.parse(await b.ev("JSON.stringify([...document.querySelectorAll('.award-ribbon')].map(r=>({m:window.__bkWorld(r),s:window.__bkSize(r)})))"));
+    const items = [];
+    for (const [n, sg] of sigs.entries()) {
+      const g = pics.get(sg), f = frames[n];
+      if (!g || !f.m) { log("ribbon empty", n); continue; }
+      items.push({ ...lattice, i: 9600 + n, cls: `award-ribbon ribbon-${n}`, type: "tex", src: g.src, px: g.px, rho: g.rho, w: g.w, h: g.h,
+        off: [g.ox, g.oy], m: toU(mulLocal(f.m, g.ox, g.oy), u), _diff: lattice._diff,
+        rib: { n, q: [g.ox / u, g.oy / u], w: f.s[0] / u, h: f.s[1] / u } });
+    }
+    out.items.splice(at + 1, 0, ...items);
+    log("ribbons", items.length, "planes,", pics.size, "pictures");
   }
 }
 

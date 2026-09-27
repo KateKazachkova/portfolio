@@ -23,6 +23,7 @@ import { makeWallet, type Host, type WalletData } from "./wallet";
 import { makeScreen } from "./screen";
 import { makeU15 } from "./u15gl";
 import { makeBud, type BudData } from "./budgl";
+import { makeRibbons } from "./ribbons";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -39,6 +40,8 @@ type Item = {
   u15?: { sel: string; key: string; q: [number, number]; chain: { cls: "env" | "stack" | "item"; dx: number; dy: number }[] };
   /** one of the БУДЬ prints, or their sleeve's plastic (bake.mjs, budgl.ts) */
   bud?: { n?: number; gloss?: boolean; q: [number, number] };
+  /** an award ribbon, turned on hover (bake.mjs, ribbons.ts): its picture's offset in its element, the element's size (u) */
+  rib?: { n: number; q: [number, number]; w: number; h: number };
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
@@ -400,8 +403,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     for (const m of mats) slot.mats.add(m);
     if (slot.state === 2) for (const m of mats) m.uniforms.map.value = slot.tex;
-    // (the БУДЬ prints lie on their sheet as budgl.ts lays them: no lift of their own)
-    const k = it.bud ? 0 : liftCount(it.m);
+    // (the БУДЬ prints lie on their sheet as budgl.ts lays them, the ribbons
+    // on their lattice as ribbons.ts does: no lift of their own)
+    const k = it.bud || it.rib ? 0 : liftCount(it.m);
     const meshes = mats.map((mat) => {
       const mesh = new THREE.Mesh(geo, mat);
       mesh.matrixAutoUpdate = false;
@@ -474,6 +478,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     data: data.bud,
     redraw: () => { dirty = true; kick(); },
   }) : null;
+  // the award ribbons, turned as the page's :hover / :focus-visible (ribbons.ts)
+  const latticeP = room.find((p) => (" " + p.item.cls + " ").includes(" desk-wall--hung "));
+  const ribbons = latticeP && room.some((p) => p.item.rib) ? makeRibbons({
+    lattice: { meshes: latticeP.meshes, k: latticeP.k },
+    ribbons: room.filter((p) => p.item.rib).map((p) => ({ meshes: p.meshes, mats: p.mats, m: p.item.m, w: p.item.w, h: p.item.h, rib: p.item.rib! })),
+    lifted,
+    redraw: () => { dirty = true; kick(); },
+  }) : null;
+  ribbons?.frame(performance.now());
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
@@ -989,8 +1002,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (u15 && document.querySelector(".room-hit--u15panel[data-away]")) u15.frame();
     // (after the controls are laid: the binder's panel may have just taken over, or given back)
     bud?.frame();
-    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving) { draw(now); dirty = false; }
-    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving) raf = requestAnimationFrame(loop);
+    const ribMoving = ribbons ? ribbons.frame(now) : false;
+    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving) { draw(now); dirty = false; }
+    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
   };
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
@@ -1191,6 +1205,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const sorted = [...ft].sort((a, b) => a - b);
       return { frames: ft.length, pending, textures: renderer.info.memory.textures, calls: renderer.info.render.calls, tris: renderer.info.render.triangles,
         p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0, max: sorted[sorted.length - 1] ?? 0, gpu: gl.getParameter(gl.RENDERER), pr: renderer.getPixelRatio(), view, groupsShown,
+        ribbons: ribbons?.tilted() ?? [],
         k2: useK2, slots: slots.size, loaded: [...slots.values()].filter((sl) => sl.state === 2).length,
         // pictures nothing shows (a binder's leaves under the open spread)
         hidden: [...slots.values()].filter((sl) => sl.state === 0 && sl.prio === 9).length,
@@ -1203,7 +1218,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
-      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose();
+      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

@@ -190,6 +190,15 @@ export function startHits(o: {
       el.addEventListener("pointerleave", () => tell({ off: true }));
       el.addEventListener("click", () => tell({ off: true }));
     }
+    // a ribbon turns on its hook under the pointer and with the keyboard's
+    // focus (AwardRail.css :hover, :focus-visible), drawn by WebGL (ribbons.ts)
+    if (h.type === "ribbon") {
+      const tell = (d: object) => dispatchEvent(new CustomEvent("room:ribbon-tilt", { detail: { i: h.of.i, ...d } }));
+      el.addEventListener("pointerenter", () => tell({ hover: true }));
+      el.addEventListener("pointerleave", () => tell({ hover: false }));
+      el.addEventListener("focus", () => tell({ focus: el.matches(":focus-visible") }));
+      el.addEventListener("blur", () => tell({ focus: false }));
+    }
     // a silhouette is hit-tested by the ray, not by the box
     if (h.mask) el.style.pointerEvents = "none";
     layer.appendChild(el);
@@ -198,7 +207,7 @@ export function startHits(o: {
     // clipped to its outline, the label must not be)
     if (h.hover) {
       const lab = document.createElement("span");
-      lab.className = "room-hit__label";
+      lab.className = `room-hit__label room-hit__label--${h.type}`;
       lab.textContent = h.hover;
       lab.setAttribute("aria-hidden", "true");
       lab.hidden = true;
@@ -373,6 +382,8 @@ export function startHits(o: {
           const k = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]) / (h.w * u);
           Object.assign(lab.style, { left: `${(x0 + x1) / 2}px`, top: `${y1 + h.h * u * k * 0.04}px` });
           lab.style.setProperty("--k", String(k));
+          // (a ribbon's turns with it, about the ribbon's own origin: 50% 3%)
+          lab.style.setProperty("--oy", `${-(y1 + h.h * u * k * 0.04 - (y0 + (y1 - y0) * 0.03))}px`);
         }
       }
       refresh(roomState());

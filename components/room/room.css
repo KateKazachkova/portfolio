@@ -68,3 +68,6 @@ html.room-pointer, html.room-pointer * { cursor: pointer; }
   opacity: 0; transition: opacity .2s ease; --u: calc(100cqw / 1118);
 }
 .room-hit:is(:hover, :focus-visible) + .room-hit__label { opacity: 1; }
+/* …turned with its ribbon, as the ribbon's own ::after is (AwardRail.css) */
+.room-hit__label--ribbon { transform-origin: 50% var(--oy, 0px); transition: opacity .2s ease, transform .35s cubic-bezier(.3, 1.6, .5, 1); }
+.room-hit--ribbon:is(:hover, :focus-visible) + .room-hit__label { transform: translateX(-50%) rotate(-4deg) translateY(calc(-2 * var(--k) * var(--u))); }

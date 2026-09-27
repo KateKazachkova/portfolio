@@ -21,12 +21,15 @@ export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 
 /** Where each stop puts the world (translate in u) and how far the picture
  *  is shifted besides the lens shift (px). Files' x runs with the pan. */
-export function stopPose(view: View, pan = 0): Pose {
+export function stopPose(view: View, pan = 0, narrow = false): Pose {
+  // (on a phone, under 768 px, the wall's two stops and Profile pan along the
+  // room too, and Profile's axis is on the binder's middle: globals.css)
+  const p = narrow ? pan : 0;
   switch (view) {
     case "files": return { rx: -90, t: [200 - pan, 430, 1751.5], sx: 0, sy: 0 };
-    case "award": return { rx: -4, t: [-1040, 0, 100], sx: 0, sy: 0 };
-    case "profile": return { rx: -90, t: [-1327.5, 506, 2129], sx: -20, sy: -15 };
-    case "offduty": return { rx: -8, t: [1423, 0, 550], sx: 0, sy: 0 };
+    case "award": return { rx: -4, t: [-1040 - p, 0, 100], sx: 0, sy: 0 };
+    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15 };
+    case "offduty": return { rx: -4, t: [1423 - p, 0, 100], sx: 0, sy: 0 };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0 };
     default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0 };
   }

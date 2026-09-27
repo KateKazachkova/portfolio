@@ -53,10 +53,11 @@ const EVENT = { files: "kate:case-files", award: "kate:recognition", offduty: "k
 // the stops below a stop: down over the bike computer
 const FOCUS = { bike: "bike" };
 // Ukrainska 15's own controls are the page's, on its panel (M6, RoomU15.tsx)
-const PANEL = { u15: ".u15-hit", player: ".desk-player", "u15-tag": ".u15-tag" };
+const PANEL = { u15: ".u15-hit", player: ".desk-player", "u15-tag": ".u15-note__btn" };
 const sel = (id) => (PANEL[id] ? `.room-hit--u15panel:not([data-away]) ${PANEL[id]}` : `.room-hit[data-hit="${id}"]`);
+// (the tag is the button on the folder's sticky note: the note is what fades)
 const shown = (id) => PANEL[id]
-  ? `(e=>!!e&&+getComputedStyle(e).opacity>0.5&&getComputedStyle(e).visibility!=='hidden')(document.querySelector('${sel(id)}'))`
+  ? `(e=>!!e&&+getComputedStyle(e.closest('.u15-note')??e).opacity>0.5&&getComputedStyle(e).visibility!=='hidden')(document.querySelector('${sel(id)}'))`
   : `(e=>e&&!e.hidden)(document.querySelector('.room-hit[data-hit="${id}"]'))`;
 const goto = async (gl, stop) => {
   await b.go(`${SITE}/?nointro&gl=${gl}`, 1500);
@@ -220,35 +221,26 @@ if (run("award")) {
 // ── Off Duty: the bike computer, a quad in perspective ──
 if (run("offduty")) {
   if ((await st()).desk !== "offduty") { await b.ev(`dispatchEvent(new Event('kate:off-duty'))`); await arrive("offduty"); }
-  const bi = await rect("bike");
-  ok(!!bi && bi.clip.startsWith("polygon"), "offduty: bike control clipped to its projected outline", bi?.clip.slice(0, 80));
+  const bi = await rect("bike-unit");
+  ok(!!bi && bi.clip.startsWith("polygon"), "offduty: the bike computer's control clipped to its projected outline", bi?.clip.slice(0, 80));
   if (bi) {
-    // its box's corner is outside a rotated quad: a click there does nothing
-    await click(bi.x + 2, bi.y + 2); await sleep(700);
-    ok((await st()).focus !== "bike", "offduty: click in its box but outside its outline does nothing");
-    await click(bi.x + bi.w / 2, bi.y + bi.h / 2); await sleep(1800);
-    ok((await st()).focus === "bike", "offduty: click on the unit brings the camera down to it");
+    await until("document.querySelector('.room-live')?.textContent.startsWith('Totals')");
+    const w = () => b.ev("document.querySelector('.room-live').textContent");
+    const w0 = await w();
+    // its box's corner is outside the leaning unit's outline: a click there does nothing
+    await click(bi.x + 2, bi.y + 2); await sleep(400);
+    ok((await w()) === w0 && (await st()).desk === "offduty", "offduty: a click in its box but outside its outline does nothing");
     await b.shot(path.join(OUT, "offduty-bike.png"));
-    await key("Escape"); await sleep(1800);
-    ok((await st()).focus === null, "offduty: Escape brings it back up");
-    // the keyboard: focus the unit, Enter
-    await b.ev("document.querySelector('.room-hit--bike').focus()");
-    await b.shot(path.join(OUT, "offduty-bike-focus.png"), { x: bi.x - 30, y: bi.y - 30, width: bi.w + 60, height: bi.h + 60, scale: 1 });
-    await key("Enter"); await sleep(1800);
-    ok((await st()).focus === "bike", "offduty: Enter on the focused unit does the same");
-    await key("Escape"); await sleep(1600);
   }
 }
 // ── down over the bike computer: its buttons page through the screens ──
 if (run("bike")) {
   await goto(1, "offduty");
-  // the keyboard's way down: Enter on the unit, and the first button has focus there
-  await b.ev("document.querySelector('.room-hit--bike').focus()"); await sleep(150);
-  await key("Enter");
+  // read from Off Duty itself (staging 27.09): its buttons are there, no camera down over it
   await until(shown("bike-prev"));
   await sleep(300);
   let s = await st();
-  ok(s.focus === "bike" && s.hit === "bike-prev", "bike: Enter on the unit brings the camera down, focus on its first button", JSON.stringify({ focus: s.focus, hit: s.hit }));
+  ok(s.desk === "offduty" && !s.focus && ["bike-prev", "bike-strava", "bike-next"].every((x) => HITS.some((h) => h.id === x && h.at.includes("offduty"))), "bike: its buttons are there at Off Duty, the camera stays", JSON.stringify({ focus: s.focus }));
   // (the walk starts from where focus was: read it as a loop, from the first)
   const walk = (await tabWalk(40)).filter((a) => a.startsWith("bike"));
   const reached = walk.slice(walk.indexOf("bike-prev")).filter((a, i, all) => all.indexOf(a) === i);
@@ -273,10 +265,6 @@ if (run("bike")) {
   const un = await rect("bike-unit");
   await click(un.x + un.w * 0.5, un.y + un.h * 0.35); await sleep(200);
   ok((await words()).startsWith("Totals"), "bike: a click on the screen goes on to the next", await words());
-  await key("ArrowRight"); await sleep(100);
-  ok((await words()).startsWith("Longest ride 1"), "bike: → pages on");
-  await key("ArrowLeft"); await sleep(100);
-  ok((await words()).startsWith("Totals"), "bike: ← pages back");
   const ax = await b.send("Accessibility.getFullAXTree");
   const nodes = (ax.result?.nodes ?? []).filter((x) => !x.ignored).map((x) => `${x.role?.value}: ${x.name?.value ?? ""}`);
   fs.writeFileSync(path.join(OUT, "ax-bike.txt"), nodes.join("\n"));
@@ -366,7 +354,7 @@ if (run("wallet")) {
 // ── Case Files: the folder, its song, the stacks laid out one at a time ──
 if (run("files")) {
   await goto(1, "files");
-  const vis = () => b.ev(`JSON.stringify([...[...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden&&!e.hasAttribute('data-away')).map(e=>e.dataset.hit).filter(h=>!['u15','player','u15-tag','u15panel'].includes(h)), ...Object.entries(${JSON.stringify(PANEL)}).filter(([k,s])=>(e=>!!e&&+getComputedStyle(e).opacity>0.5)(document.querySelector('.room-hit--u15panel:not([data-away]) '+s))).map(([k])=>k)])`).then(JSON.parse);
+  const vis = () => b.ev(`JSON.stringify([...[...document.querySelectorAll('.room-hit')].filter(e=>!e.hidden&&!e.hasAttribute('data-away')).map(e=>e.dataset.hit).filter(h=>!['u15','player','u15-tag','u15panel'].includes(h)), ...Object.entries(${JSON.stringify(PANEL)}).filter(([k,s])=>(e=>!!e&&+getComputedStyle(e.closest('.u15-note')??e).opacity>0.5)(document.querySelector('.room-hit--u15panel:not([data-away]) '+s))).map(([k])=>k)])`).then(JSON.parse);
   const attr = (id, a) => b.ev(`document.querySelector('${sel(id)}').getAttribute('${a}')`);
   const pan = () => b.ev("+getComputedStyle(document.querySelector('.scene-cam')).getPropertyValue('--pan')");
   // a point of the control's own, where nothing lies over it (the centre first)
@@ -404,18 +392,19 @@ if (run("files")) {
   await key("Enter"); await until(shown("row-waypro-0"), 3000); await sleep(300);
   let s = await st();
   v = await vis();
-  ok(s.focus === "waypro" && !v.includes("case-waypro") && v.filter((x) => x.startsWith("row-waypro")).length === 6 && v.filter((x) => x.startsWith("postcard-waypro")).length === 5 && v.includes("jury-tag-waypro-1"), "files: Enter on it lays it out, its rows, postcards and tags there", `${s.focus} ${v.length}`);
+  ok(s.focus === "waypro" && !v.includes("case-waypro") && v.filter((x) => x.startsWith("row-waypro")).length === 6 && v.filter((x) => x.startsWith("postcard-waypro")).length === 5 && v.includes("jury-tag-waypro-0"), "files: Enter on it lays it out, its rows, postcards and tags there", `${s.focus} ${v.length}`);
   await b.shot(path.join(OUT, "files-waypro.png"));
   const tw = (await tabWalk(40)).filter((x) => x.includes("waypro"));
-  ok(tw.includes("row-waypro-0") && tw.includes("postcard-waypro-4") && tw.includes("jury-tag-waypro-1"), "files: Tab reaches the laid-out case's links", [...new Set(tw)].length + "");
+  ok(tw.includes("row-waypro-0") && tw.includes("postcard-waypro-4") && tw.includes("jury-tag-waypro-0"), "files: Tab reaches the laid-out case's links", [...new Set(tw)].length + "");
   const before = newTabs.length;
   await clickHit("row-waypro-3"); await sleep(1500);
   ok(newTabs.slice(before).some((u) => u.includes("daveyawards.com")), "files: a row opens its winner page in a new tab", newTabs.slice(-1)[0] ?? "");
   await b.send("Page.bringToFront"); await sleep(400);
-  await b.ev("window.__mark = 1");
-  await clickHit("jury-tag-waypro-1"); await sleep(2500);
-  s = await st();
-  ok(s.path === "/work/waypro" && s.mark, "files: its tag opens the case, client-side", s.path);
+  // (WayPro's case is not written yet: its tag opens the project on Behance, staging 27.09)
+  const beforeTag = newTabs.length;
+  await clickHit("jury-tag-waypro-0"); await sleep(1500);
+  ok(newTabs.slice(beforeTag).some((u) => u.includes("behance.net")), "files: its tag opens the project in a new tab", newTabs.slice(-1)[0] ?? "");
+  await b.send("Page.bringToFront"); await sleep(400);
   await goto(1, "files");
   // another stack: the one laid out goes back
   await use("case-bulksource"); await until(shown("row-bulksource-0"), 3000); await sleep(200);
@@ -556,9 +545,10 @@ if (run("binder")) {
 // ── the bike computer's screen, live (M4): WebGL's against the legacy LCD ──
 if (run("lcd")) {
   const shotLcd = async (gl, page, file) => {
-    await goto(gl, "bike");
+    await goto(gl, "offduty");
     if (!gl) await sleep(800);
-    for (let i = 0; i < page; i++) { await key("ArrowRight"); await sleep(gl ? 300 : 2200); }
+    // (paged by its own next button, the page's or the room's)
+    for (let i = 0; i < page; i++) { await b.ev(gl ? "document.querySelector('.room-hit[data-hit=\"bike-next\"]').click()" : "document.querySelectorAll('.desk-world .bike__btn')[2].click()"); await sleep(gl ? 300 : 2200); }
     await sleep(600);
     const r = JSON.parse(await b.ev(`JSON.stringify((r=>[r.x,r.y,r.width,r.height])(document.querySelector(${JSON.stringify(gl ? "[data-hit=bike-unit]" : ".bike")}).getBoundingClientRect()))`));
     // the screen, 26–75 % across and 24–69 % down the unit's box, and its middle

@@ -363,7 +363,7 @@ if (OPT.only !== "flat") {
       { key: "back", els: [".env__back", ".env__shadow"] },
       ...PRINTS.map((p) => ({ key: `print-${p}`, els: [`.env__print-photo[data-item="${p}"]`] })),
       { key: "card", els: [".env__card"] },
-      { key: "tag", els: [".u15-tag"], prep: "document.querySelector('.u15-tag').style.setProperty('opacity','1','important')", undo: "document.querySelector('.u15-tag').style.removeProperty('opacity')" },
+      { key: "note", els: [".u15-note"], prep: "document.querySelector('.u15-note').style.setProperty('opacity','1','important')", undo: "document.querySelector('.u15-note').style.removeProperty('opacity')" },
       { key: "front", els: [".env > .env__layer:not(.env__back)", ".env__print", ".env__stamps"] },
       { key: "player", els: [".desk-player"] },
     ];

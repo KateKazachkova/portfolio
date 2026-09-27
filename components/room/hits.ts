@@ -88,7 +88,8 @@ const SHOWN: Record<string, (s: RoomState, h: Hit) => boolean> = {
 };
 // what a stop says, as its screen changes (polite: after what is being read)
 const LIVE: Partial<Record<View, (s: RoomState) => string>> = {
-  bike: bikeWords,
+  // (the bike computer is read from Off Duty itself, staging 27.09)
+  offduty: bikeWords,
 };
 // panels with content of their own
 type Surface = { corner(on: boolean): void; dispose(): void };

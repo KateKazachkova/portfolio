@@ -728,6 +728,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   let first = true;
   let waits = 0;
   const readVar = (name: string) => parseFloat(o.cam.style.getPropertyValue(name)) || 0;
+  // a stop's pose as the CSS has it now: the pan along the desk at Case Files,
+  // and on a phone at the wall's stops and Profile too (useDeskCamera's --pan)
+  const narrow = () => innerWidth < 768;
+  const poseOf = (v: View) => stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty" || v === "profile")) ? readVar("--pan") : 0, narrow());
 
   // ── what each stop sees, for loading and for the flights' wait ──
   const seenAt = (it: Item, p: Pose, home: boolean) => {
@@ -745,7 +749,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     return any && x1 >= r[0] && x0 <= r[2] && y1 >= r[1] && y0 <= r[3];
   };
-  const ZONES: [View, number[]][] = [["home", [0]], ["files", [0, 450, 900]], ["profile", [0]], ["offduty", [0]], ["award", [0]], ["bike", [0]]];
+  const ZONES: [View, number[]][] = [["home", [0]], ["files", [0, 450, 900]], ["profile", [0]], ["offduty", [0]], ["award", [0]]];
+  // (no bike zone: staging reads the bike computer from Off Duty, 27.09)
   const zoneSlots = new Map<View, Set<Slot>>();
   const zones = () => {
     for (const [v, pans] of ZONES) {
@@ -779,7 +784,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // a move to a stop whose pictures are not on the GPU yet waits for them
     // (at most 1.5 s), as the CSS camera waits its 0.2 s beat
     if (!first && v !== view && !hold && !waited) {
-      const to = stopPose(v, v === "files" ? readVar("--pan") : 0);
+      const to = poseOf(v);
       const missing = flightSlots(to, now).filter((sl) => sl.state !== 2);
       // (the wallet's discs, let go away from Off Duty, painted again first
       // if the flight will show them)
@@ -803,7 +808,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const still = reduced();
     const def: Rule = still ? null : { dur: CAM.t, delay: CAM.wait, ease: EASE.cam };
     const poseRule: Rule = still ? null : arrived && desk === "offduty" ? { dur: CAM.bikeT, delay: 0, ease: EASE.bike } : arrived ? null : def;
-    pose.retarget(stopPose(v, v === "files" ? readVar("--pan") : 0), poseRule, now);
+    pose.retarget(poseOf(v), poseRule, now);
     const sh = v === "home" ? [0, 0] : [readVar("--dx"), readVar("--dy")];
     shift.retarget(sh, def, now);
     // the case fades out at the desk and at Profile, as .case-world does
@@ -899,7 +904,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     lastT = now;
     // the pan and the lens shift change without a change of state
     if (view !== "home") {
-      const want = stopPose(view, view === "files" ? readVar("--pan") : 0);
+      const want = poseOf(view);
       if (!samePose(want, pose.to)) evaluate(now);
       const sh = [readVar("--dx"), readVar("--dy")];
       if (!same2(sh, shift.to)) evaluate(now);
@@ -1004,7 +1009,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // start where the page is (a direct visit to /#off-duty lands there)
   const v0 = viewOfState(root.dataset.desk, root.dataset.deskFocus);
   if (v0 !== "home") {
-    pose.retarget(stopPose(v0, readVar("--pan")), null, 0);
+    pose.retarget(poseOf(v0), null, 0);
     shift.retarget([readVar("--dx"), readVar("--dy")], null, 0);
     caseOp.retarget(v0 === "profile" || v0 === "files" || v0 === "bike" ? 0 : 1, null, 0);
     view = v0;

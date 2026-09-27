@@ -29,13 +29,13 @@ const PICK = [
   { type: "binder", sel: ".desk-binder", at: ["award"], kind: "button", action: "profile", name: "Profile binder — Profile" },
   // …and at Profile, the panel the page's own binder is laid flat on (M4)
   { type: "pf", sel: ".desk-binder", at: ["profile"], kind: "button" },
-  // Off Duty: the bike computer, a way down to it; down over it, the unit
-  // (a click anywhere: the next screen) and its three buttons over it
-  { type: "bike", sel: ".bike", at: ["offduty"], kind: "button", action: "offduty-bike" },
-  { type: "bike-unit", sel: ".bike", at: ["bike"], kind: "button", action: "bike-next", tab: false },
-  { type: "bike-prev", sel: ".bike__btn", i: 0, at: ["bike"], kind: "button", action: "bike-prev" },
-  { type: "bike-strava", sel: ".bike__btn", i: 1, at: ["bike"], kind: "link" },
-  { type: "bike-next", sel: ".bike__btn", i: 2, at: ["bike"], kind: "button", action: "bike-next" },
+  // Off Duty: the bike computer, read from there (staging 27.09: no camera
+  // down over it): the unit (a click anywhere: the next screen) and its
+  // three buttons over it
+  { type: "bike-unit", sel: ".bike", at: ["offduty"], kind: "button", action: "bike-next", tab: false },
+  { type: "bike-prev", sel: ".bike__btn", i: 0, at: ["offduty"], kind: "button", action: "bike-prev" },
+  { type: "bike-strava", sel: ".bike__btn", i: 1, at: ["offduty"], kind: "link" },
+  { type: "bike-next", sel: ".bike__btn", i: 2, at: ["offduty"], kind: "button", action: "bike-next" },
   // the CD wallet: its two sleeves (a click on a margin turns the spread),
   // the open spread's eight discs over them, and the player's screen
   { type: "sleeve", sel: ".od-hang", all: true, at: ["offduty"], kind: "button", action: "sleeve-turn", tab: false },
@@ -50,7 +50,7 @@ const PICK = [
   // RoomU15.tsx): its box, the card's
   { type: "u15panel", sel: ".desk-card--env", at: ["files"], kind: "button", slug: "ukrainska-15" },
   { type: "u15", sel: ".u15-hit", at: ["files"], kind: "button", action: "u15-toggle", slug: "ukrainska-15" },
-  { type: "u15-tag", sel: ".u15-tag", at: ["files"], kind: "link", slug: "ukrainska-15", here: true },
+  { type: "u15-tag", sel: ".u15-note__btn", at: ["files"], kind: "link", slug: "ukrainska-15", here: true },
   { type: "player", sel: ".desk-player", at: ["files"], kind: "button", action: "u15-play", slug: "ukrainska-15" },
   ...["bulksource", "onsisoft", "waypro"].flatMap((slug) => {
     const card = `.desk-card--stack[data-slug="${slug}"]`;

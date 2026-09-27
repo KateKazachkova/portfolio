@@ -91,7 +91,12 @@ export function makeU15(o: U15Ctx) {
   /** each link's matrix now: offset · origin · transform · −origin (u) */
   const linkM = (el: Element, l: Link, u: number) => {
     const cs = getComputedStyle(el);
-    const t = cs.transform && cs.transform !== "none" ? new DOMMatrix(cs.transform) : new DOMMatrix();
+    // (translate, rotate and scale apply before transform, in that order)
+    const t = new DOMMatrix();
+    if (cs.translate && cs.translate !== "none") { const [x, y, z] = cs.translate.split(" ").map(px); t.translateSelf(x || 0, y || 0, z || 0); }
+    if (cs.rotate && cs.rotate !== "none") t.multiplySelf(new DOMMatrix(`rotate(${cs.rotate})`));
+    if (cs.scale && cs.scale !== "none") { const [x, y, z] = cs.scale.split(" ").map(Number); t.scaleSelf(x, y ?? x, z ?? 1); }
+    if (cs.transform && cs.transform !== "none") t.multiplySelf(new DOMMatrix(cs.transform));
     const [ox, oy, oz] = cs.transformOrigin.split(" ").map((v) => px(v) / u);
     const m = new THREE.Matrix4().fromArray(Array.from(t.toFloat64Array()));
     m.elements[12] /= u; m.elements[13] /= u; m.elements[14] /= u;

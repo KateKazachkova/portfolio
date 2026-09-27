@@ -7,9 +7,10 @@
  * (html[data-u15], which U15File sets); the old controls' actions, should
  * one run, press the panel's own.
  */
+import { U15_SONG } from "@/lib/u15Song";
 import { setRoom } from "./state";
 
-export const SONG_TITLE = "Still live in my mind";
+export const SONG_TITLE = U15_SONG.title;
 
 const press = (sel: string) => document.querySelector<HTMLElement>(`.room-hit--u15panel ${sel}`)?.click();
 export const toggleU15 = () => press(".u15-hit");

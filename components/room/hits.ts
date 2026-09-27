@@ -125,6 +125,9 @@ export type HitLayer = {
   place(state: { view: View; pose: Pose; shift: [number, number]; u: number } | null): void;
   /** keep the controls of a type out of sight for now (Ukrainska 15's panel while its card slides aside) */
   suspend(type: string, on: boolean): void;
+  /** a panel made transparent while WebGL draws what it stands for (the binder's turn), still
+   *  under the pointer and the keyboard; WebGL's own is not put away meanwhile */
+  veil(type: string, on: boolean): void;
   dispose(): void;
 };
 
@@ -311,6 +314,7 @@ export function startHits(o: {
   const placed = new Set<string>();
   const awayT = new Map<string, ReturnType<typeof setTimeout>>();
   const suspended = new Set<string>();
+  const veiled = new Set<string>();
   const refresh = (s: RoomState) => {
     const had = document.activeElement instanceof HTMLElement && layer.contains(document.activeElement) ? document.activeElement : null;
     for (const h of o.hits) {
@@ -342,7 +346,7 @@ export function startHits(o: {
       if (!c) continue;
       const el = els.get(h.id)!, on = !el.hidden && !el.hasAttribute("data-away");
       clearTimeout(awayT.get(h.id));
-      if (on) awayT.set(h.id, setTimeout(() => { const e = els.get(h.id)!; if (!e.hidden && !e.hasAttribute("data-away")) o.away?.(c, true); }, 150));
+      if (on && !veiled.has(h.type)) awayT.set(h.id, setTimeout(() => { const e = els.get(h.id)!; if (!e.hidden && !e.hasAttribute("data-away") && !veiled.has(h.type)) o.away?.(c, true); }, 150));
       else o.away?.(c, false);
     }
     const say = active ? LIVE[active] : undefined;
@@ -368,6 +372,21 @@ export function startHits(o: {
   if (o.hits.some((h) => h.open)) moOpen.observe(root, { attributes: true, subtree: true, attributeFilter: ["data-open"] });
 
   const layerApi: HitLayer = {
+    veil(type, on) {
+      if (veiled.has(type) === on) return;
+      if (on) veiled.add(type); else veiled.delete(type);
+      for (const h of o.hits) {
+        if (h.type !== type) continue;
+        const el = els.get(h.id)!, c = STANDS_FOR[h.type];
+        el.style.opacity = on ? "0" : "";
+        if (!c) continue;
+        clearTimeout(awayT.get(h.id));
+        // veiled, WebGL's shows at once; shown again, it goes a moment after (as refresh)
+        if (on) o.away?.(c, false);
+        else if (!el.hidden && !el.hasAttribute("data-away")) awayT.set(h.id, setTimeout(() => { const e = els.get(h.id)!; if (!e.hidden && !veiled.has(h.type)) o.away?.(c, true); }, 150));
+      }
+      o.redraw();
+    },
     suspend(type, on) {
       if (suspended.has(type) === on) return;
       if (on) suspended.add(type); else suspended.delete(type);

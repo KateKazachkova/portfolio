@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useState } from "react";
+import { startTransition, useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BinderBook, useBinder } from "@/components/profile/Binder";
 import { SPREADS } from "@/components/profile/spreads";
@@ -48,8 +48,10 @@ export function RoomBinder() {
     const id = requestAnimationFrame(go);
     return () => cancelAnimationFrame(id);
   }, [host, warm]);
-  // WebGL's binder lies at the same spread (engine.ts), for the flight away
-  useEffect(() => { dispatchEvent(new CustomEvent("room:binder-at", { detail: at })); }, [at]);
+  // WebGL's binder lies at the same spread (engine.ts), for the flight away;
+  // told before the panel paints the new spread, so the room can veil it and
+  // draw the turn (binderturn.ts)
+  useLayoutEffect(() => { dispatchEvent(new CustomEvent("room:binder-at", { detail: at })); }, [at]);
   if (!host || !warm) return null;
   // the sheets' text selects here (it is what M4 is for); a click that ends
   // a selection is not a click to turn the page

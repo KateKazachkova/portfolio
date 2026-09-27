@@ -18,7 +18,7 @@ import { budPrints, onBudPrints } from "@/components/profile/PhotoStack";
 type Plane = { meshes: THREE.Mesh[]; mats: THREE.ShaderMaterial[]; w: number; h: number; q: [number, number] };
 export type BudData = { face: number; off: [number, number]; box: [number, number, number, number]; sheet: [number, number, number, number] };
 export type BudCtx = {
-  face: { meshes: THREE.Mesh[]; w: number; h: number };
+  face: { meshes: THREE.Mesh[]; w: number; h: number; shown?: () => boolean };
   prints: (Plane & { n: number })[];
   gloss: Plane | null;
   data: BudData;
@@ -56,7 +56,7 @@ export function makeBud(o: BudCtx) {
   };
   const frame = () => {
     const fm = o.face.meshes[0];
-    const vis = fm.visible;
+    const vis = o.face.shown ? o.face.shown() : fm.visible;
     // the face element's own frame: back from its picture's quad
     E.copy(fm.matrix).multiply(R.makeScale(1 / o.face.w, 1 / o.face.h, 1)).multiply(T.makeTranslation(-o.face.w / 2, -o.face.h / 2, 0))
       .multiply(T.makeTranslation(-off[0], -off[1], LIFT));

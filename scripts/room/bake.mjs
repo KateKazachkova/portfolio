@@ -140,7 +140,7 @@ const stackOf = new Map(JSON.parse(await b.ev(`JSON.stringify([...document.query
 // show: WebGL turns at once, and the leaves under them, which a turning
 // leaf uncovers, would lie over them in its fixed order. Put back after.
 const LEAVES = "document.querySelectorAll('.desk-binder .pf-leaf')";
-await b.ev(`window.__pfWas = [...${LEAVES}].map((l) => [l.hasAttribute("data-turned"), l.hasAttribute("data-hidden"), l.hasAttribute("data-flying")]) && 1`);
+await b.ev(`(window.__pfWas = [...${LEAVES}].map((l) => [l.hasAttribute("data-turned"), l.hasAttribute("data-hidden"), l.hasAttribute("data-flying")])) && 1`);
 const binderN = await b.ev(`${LEAVES}.length`);
 for (let k = 2; k <= 7; k++) {
   await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", i < ${k}); l.toggleAttribute("data-hidden", !(i === ${k - 1} || i === ${k})); l.removeAttribute("data-flying"); }) || 1`);
@@ -151,6 +151,23 @@ await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", 
 states.pf1 = await b.ev(`JSON.stringify(window.__bkState("profile", undefined, "1"))`).then(JSON.parse);
 await b.ev(`[...${LEAVES}].forEach((l, i) => { const [t, h, f] = window.__pfWas[i]; l.toggleAttribute("data-turned", t); l.toggleAttribute("data-hidden", h); l.toggleAttribute("data-flying", f); }) || 1`);
 log("binder", binderN, "leaves, 7 spreads");
+// …and each leaf's own frame (M6, the turn: components/room/binderturn.ts):
+// with its transform off (P) and as it lies now (W0, the page at spread 1),
+// its box; and which leaf, face and hung sheet each of its planes is
+const leafMeta = JSON.parse(await b.ev(`(()=>{
+  const leaves=[...${LEAVES}];
+  const W0=leaves.map(l=>window.__bkWorld(l)), s=leaves.map(l=>window.__bkSize(l));
+  const st=document.createElement('style');st.textContent='.desk-binder .pf-leaf{transform:none!important;transition:none!important}';document.head.appendChild(st);void document.body.offsetHeight;
+  const P=leaves.map(l=>window.__bkWorld(l));
+  st.remove();void document.body.offsetHeight;
+  const of={};
+  leaves.forEach((l,i)=>[...l.querySelectorAll('*')].forEach(e=>['bk','bkbefore','bkafter'].filter(k=>e.dataset[k]!==undefined).forEach(k=>{
+    const hl=e.closest('.pf-hangleaf'), face=e.closest('.pf-whole > .pf-face');
+    of[e.dataset[k]]={i,part:hl?(e.closest('.pf-hang__face--rev')?'rev':'hang'):face?(face.classList.contains('pf-face--back')?'back':'front'):'rigid',
+      ...(hl?{hang:i+'.'+[...l.querySelectorAll(':scope > .pf-hangleaf')].indexOf(hl)}:{})};
+  })));
+  return JSON.stringify({W0,P,s,of})})()`));
+log("leaves", leafMeta.P.length, Object.keys(leafMeta.of).length, "planes");
 // …and Off Duty's things each taken off the shelf (M6): a book, a comic, a
 // tape (the lying ones over it dropped into its gap), the omnibus picked
 // up, as the page's data-open / data-drop have them; each state only for
@@ -244,11 +261,12 @@ out.live = [{ id: "bike-lcd", of: ".bike", m: toU(lcdBox.m, u), w: lcdBox.s[0] /
 out.tuck = JSON.parse(await b.ev(`JSON.stringify(Object.fromEntries(["l","t","w","h"].map(k=>[k,+document.documentElement.style.getPropertyValue("--tuck-"+k)||null])))`));
 log("tuck", JSON.stringify(out.tuck));
 // Off Duty's things (shelf.ts): each one's frame at rest, its size and CSS numbers, u
+out.leaves = leafMeta.P.map((P, i) => ({ P: toU(P, u), W0: toU(leafMeta.W0[i], u), w: leafMeta.s[i][0] / u, h: leafMeta.s[i][1] / u }));
 out.od = odObjs.map(({ members, m, s, ...o }) => ({ ...o, m: toU(m, u), w: s[0] / u, h: s[1] / u }));
 const texName = (it) => `${String(it.i).padStart(3, "0")}-${(it.cls.split(" ").pop() || it.tag).replace(/[^a-z0-9_-]/gi, "").slice(0, 40)}`;
 
 if (OPT.only !== "flat") for (const it of units) {
-  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}), ...(stackOf.has(it.i) ? { stack: stackOf.get(it.i) } : {}) };
+  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}), ...(stackOf.has(it.i) ? { stack: stackOf.get(it.i) } : {}), ...(leafMeta.of[it.i] ? { leaf: leafMeta.of[it.i] } : {}) };
   // how it differs at each stop, if it does (the local box stays: the quad's
   // own offset into its box is applied to each state's matrix alike)
   const diff = {};

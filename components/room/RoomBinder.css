@@ -3,7 +3,8 @@
    sleeve is the same sheet mirrored about that line (scaleX(-1), origin
    -9.3% 50%), and every face that 3D shows or hides by its back is shown or
    hidden by the parity of its mirrors. No 3D context anywhere: the panel is
-   one flat layer. A turn is instant (WebGL draws the turning in M6). */
+   one flat layer. A turn is instant here: meanwhile the room veils this panel
+   and WebGL draws the turn, the certificates going over too (binderturn.ts). */
 .room-binder { perspective: none; cursor: pointer; box-shadow: none; }
 /* its text is text (Binder.css keeps the book itself from selecting) */
 .room-binder .pf-sheet { user-select: text; -webkit-user-select: text; cursor: text; }

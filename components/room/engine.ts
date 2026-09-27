@@ -25,6 +25,7 @@ import { makeU15 } from "./u15gl";
 import { makeBud, type BudData } from "./budgl";
 import { makeRibbons } from "./ribbons";
 import { makeShelf, type OdThing } from "./shelf";
+import { makeBinderTurn, type LeafFrame } from "./binderturn";
 
 type State = { m?: number[]; op?: number; vis?: boolean };
 type Item = {
@@ -47,10 +48,12 @@ type Item = {
   od?: { key: string; body: boolean };
   /** the award stack it is part of (Case Files: the page's :hover brightens the stack) */
   stack?: string;
+  /** a Profile binder leaf's plane (bake.mjs, binderturn.ts): its leaf, which face or hung sheet */
+  leaf?: { i: number; part: "front" | "back" | "rev" | "hang" | "rigid"; hang?: string };
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; tuck?: Record<"l" | "t" | "w" | "h", number | null>; od?: OdThing[]; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; tuck?: Record<"l" | "t" | "w" | "h", number | null>; od?: OdThing[]; leaves?: LeafFrame[]; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -180,6 +183,9 @@ export type Room = {
   /** debugging: draw the flat groups in WebGL at home too (and hide the DOM) */
   /** tests: Off Duty's things' composed end states against the bake's, u */
   odCheck(): Record<string, number>;
+  /** tests: the binder's leaves as binderturn.ts composes them, against the bake's spreads, u */
+  binderCheck(): Record<string, number> | null;
+  binderPlanes(): unknown[];
   /** tests: one of Off Duty's things' meshes (one per plane) */
   odMeshes(key: string): THREE.Mesh[];
   forceGroups(on: boolean): void;
@@ -421,6 +427,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       mesh.matrix.copy(placed(lifted(it.m, k), it.w, it.h));
       mesh.matrixWorldNeedsUpdate = true;
       mesh.visible = it.vis !== false && it.op > 0.001;
+      mesh.name = it.cls;
       // a plane's own ::before (the wall's haze) is painted before anything
       // laid on the plane, as the page paints it: three would sort its big
       // quad by its middle, after the trophy's shadow on the wall
@@ -481,11 +488,31 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // the bake had it (DeskSheets fits it to the column at any size, but the
   // room's binder is baked at 1600 px: the hand-over must meet it)
   if (data.tuck) for (const [k, v] of Object.entries(data.tuck)) if (v !== null) root.style.setProperty(`--tuck-${k}`, String(v));
+  // the binder's turns and its certificates turned over (binderturn.ts)
+  const binderTurn = data.leaves?.length ? makeBinderTurn({
+    scene, leaves: data.leaves,
+    planes: room.filter((p) => p.item.leaf && !p.item.bud).map((p) => {
+      const ud = p.meshes[0].userData;
+      return {
+        meshes: p.meshes, mats: p.mats, m: p.item.m, w: p.item.w, h: p.item.h, k: p.k, leaf: p.item.leaf!,
+        visAt: (at: number) => at >= 1 && at <= SPREADS && (p.item.states?.[`pf${at}`]?.vis ?? p.item.vis !== false),
+        vis: () => ud.vis !== false, away: () => !!ud.away, op: () => p.op.value(performance.now()),
+        watch: (mat: THREE.ShaderMaterial) => { p.slot.mats.add(mat); mat.uniforms.map.value = p.slot.tex; },
+      };
+    }),
+    lifted, placed,
+    reduced: () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+    redraw: () => { dirty = true; kick(); },
+    panel: () => document.querySelector<HTMLElement>(".room-binder"),
+    veil: (on) => hitLayer?.veil("pf", on),
+  }) : null;
   // the БУДЬ prints, where the page's store has them (budgl.ts)
   const budFace = data.bud ? room.find((p) => p.item.i === data.bud!.face && !p.item.bud) : undefined;
   const budOf = (p: Placed) => ({ meshes: p.meshes, mats: p.mats, w: p.item.w, h: p.item.h, q: p.item.bud!.q });
   const bud = data.bud && budFace ? makeBud({
-    face: { meshes: budFace.meshes, w: budFace.item.w, h: budFace.item.h },
+    face: { meshes: budFace.meshes, w: budFace.item.w, h: budFace.item.h,
+      // (its sheet in the air is drawn in bands: the prints lie on it all the same)
+      shown: () => budFace.meshes[0].visible || (!!budFace.item.leaf && binderTurn?.shownAir(budFace.item.leaf.i) === true && budFace.meshes[0].userData.vis !== false && !budFace.meshes[0].userData.away) },
     prints: room.filter((p) => p.item.bud && !p.item.bud.gloss).map((p) => ({ ...budOf(p), n: p.item.bud!.n! })),
     gloss: ((p) => (p ? budOf(p) : null))(room.find((p) => p.item.bud?.gloss)),
     data: data.bud,
@@ -543,7 +570,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // loads the new spread's — its previews standing in meanwhile — and once
   // they are in lets the others go.
   const faceUp = (p: Placed, m: number[]) => !p.item.back || m[2] * m[4] - m[0] * m[6] < 0;
-  const binderNeeds = (p: Placed, at: number) => { const st = p.item.states?.[`pf${at}`] ?? {}; return (st.vis ?? p.item.vis !== false) && faceUp(p, st.m ?? p.item.m); };
+  const binderNeeds = (p: Placed, at: number) => {
+    // (a certificate turned over shows its back: binderturn.ts)
+    if (p.item.leaf?.part === "rev") return !!p.item.leaf.hang && !!binderTurn?.flipped().includes(p.item.leaf.hang);
+    const st = p.item.states?.[`pf${at}`] ?? {}; return (st.vis ?? p.item.vis !== false) && faceUp(p, st.m ?? p.item.m);
+  };
   const SPREADS = Math.max(1, ...data.items.flatMap((it) => Object.keys(it.states ?? {}).filter((k) => /^pf\d+$/.test(k)).map((k) => +k.slice(2))));
   const binderOnly = new Set<Slot>();
   { const other = new Set(room.filter((p) => !isBinder(p)).map((p) => p.slot)); for (const p of room) if (isBinder(p) && !other.has(p.slot)) binderOnly.add(p.slot); }
@@ -557,8 +588,18 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const m of sl.mats) m.uniforms.map.value = EMPTY;
     if (sl.lo) previews([sl]);
   };
-  const letBinderGo = () => { const keep = binderSlotsAt(binderAt); for (const sl of binderOnly) if (!keep.has(sl)) evict(sl); };
-  afterArrive = (sl) => { if (binderOnly.has(sl) && !binderSlotsAt(binderAt).has(sl)) evict(sl); };
+  // what of the binder stays: the spread at, the one asked for (its turn
+  // waits for its pictures), and while a turn runs the one it left
+  let binderAsked = binderAt;
+  const binderKeep = () => {
+    const keep = binderSlotsAt(binderAt);
+    if (binderAsked !== binderAt) for (const sl of binderSlotsAt(binderAsked)) keep.add(sl);
+    const t = binderTurn;
+    if (t && t.busy(performance.now())) for (const sl of binderSlotsAt(t.from())) keep.add(sl);
+    return keep;
+  };
+  const letBinderGo = () => { const keep = binderKeep(); for (const sl of binderOnly) if (!keep.has(sl)) evict(sl); };
+  afterArrive = (sl) => { if (binderOnly.has(sl) && !binderKeep().has(sl)) evict(sl); };
   // the page's own transitions when the case in focus changes, per thing:
   // the card slides aside (.6 s), its parts fan out (.7 s), the truck
   // drives (.8 s), a tag fades in once it lies there (.3 s after .35 s)
@@ -1072,11 +1113,14 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // (only while the panel is out of sight: at rest at Case Files it is the folder)
     if (u15 && document.querySelector(".room-hit--u15panel[data-away]")) u15.frame();
     // (after the controls are laid: the binder's panel may have just taken over, or given back)
+    const binderMoving = binderTurn ? binderTurn.frame(now) : false;
+    // the page's panel veiled while a turn runs at rest, shown again once it is over
+    if (binderTurn?.veiled && !binderMoving && !binderTurn.busy(now)) binderTurn.veil(false);
     bud?.frame();
     const ribMoving = ribbons ? ribbons.frame(now) : false;
     const shelfMoving = (shelf ? shelf.frame(now) : false) || stacksLook(now);
-    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving || shelfMoving) { draw(now); dirty = false; }
-    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving || shelfMoving) raf = requestAnimationFrame(loop);
+    if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving || shelfMoving || binderMoving) { draw(now); dirty = false; }
+    if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving || shelfMoving || binderMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
   };
   const kick = () => { if (raf === 0) raf = requestAnimationFrame(loop); };
@@ -1098,16 +1142,45 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     upload: (t) => renderer.initTexture(t),
   }) : null;
 
+  // (the binder's sheets once a turn is over: the spread's own kept, the rest let go)
+  const binderSettled = (at: number) => { const t = () => { if (binderAt !== at) return; if (binderTurn?.busy(performance.now())) { setTimeout(t, 200); return; } letBinderGo(); }; t(); };
   const onBinder = (e: Event) => {
     const at = (e as CustomEvent<number>).detail;
-    if (at === binderAt) return;
-    binderAt = at;
-    const now = performance.now();
-    arrange(view, null, now, isBinder);
-    // its sheets now on show, to the GPU first; then the others go
-    want([...binderSlotsAt(at)], 0).then(() => { if (binderAt === at) letBinderGo(); });
+    if (at === binderAsked) return;
+    binderAsked = at;
+    // at rest the page's panel has turned at once: veiled at once (this is
+    // the page's layout effect, before it paints), WebGL draws the turn
+    binderTurn?.hold(performance.now(), 200);
+    if (binderTurn && hitLayer && view === "profile" && rest) binderTurn.veil(true);
+    // the turn starts once the new spread's pictures are in (at most 150 ms):
+    // the leaf it uncovers would otherwise show its preview for a few frames
+    let started = false;
+    const start = () => {
+      if (started || binderAsked !== at) return;
+      started = true;
+      const now = performance.now();
+      binderAt = at;
+      arrange(view, null, now, isBinder);
+      binderTurn?.turnTo(at, now);
+      binderSettled(at);
+      dirty = true; kick();
+    };
+    if (!binderTurn) { start(); want([...binderSlotsAt(at)], 0); return; }
+    want([...binderSlotsAt(at)], 0).then(start);
+    setTimeout(start, 150);
     dirty = true; kick();
   };
+  // a certificate on the rings turned over (or back) in the page's panel
+  const moFlip = new MutationObserver(() => {
+    if (!binderTurn || !binderTurn.readFlips(performance.now())) return;
+    if (hitLayer && view === "profile" && rest) binderTurn.veil(true);
+    want([...binderSlotsAt(binderAt)], 0);
+    dirty = true; kick();
+  });
+  // (data-flipped only: the page sets a certificate's --o in the same render,
+  // and a watch on every style change cost the flight to Profile a frame
+  // as the page's binder was built)
+  moFlip.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["data-flipped"] });
   addEventListener("room:binder-at", onBinder);
   const mo = new MutationObserver(() => evaluate(performance.now()));
   mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-focus", "data-desk-arrived"] });
@@ -1259,6 +1332,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       }
       return out;
     },
+    binderCheck: () => binderTurn ? Object.fromEntries(Array.from({ length: SPREADS }, (_, k) => [`pf${k + 1}`, +binderTurn.check(k + 1, (p) => { const it = room.find((q) => q.meshes === p.meshes)!.item; return it.states?.[`pf${k + 1}` as View]?.m ?? it.m; }).toFixed(4)])) : null,
+    binderPlanes: () => binderTurn?.planesNow() ?? [],
     odMeshes: (key: string) => shelf?.planesOf(key).map((p) => p.meshes[0]) ?? [],
     forceGroups(on) { forced = on; if (on) buildGroups(); setGroupsShown(on); dirty = true; kick(); },
     async reload(srcs) {
@@ -1288,7 +1363,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const sorted = [...ft].sort((a, b) => a - b);
       return { frames: ft.length, pending, textures: renderer.info.memory.textures, calls: renderer.info.render.calls, tris: renderer.info.render.triangles,
         p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0, max: sorted[sorted.length - 1] ?? 0, gpu: gl.getParameter(gl.RENDERER), pr: renderer.getPixelRatio(), view, groupsShown,
-        ribbons: ribbons?.tilted() ?? [], od: shelf?.live() ?? [],
+        ribbons: ribbons?.tilted() ?? [], od: shelf?.live() ?? [], binder: binderTurn ? { at: binderTurn.at(), busy: binderTurn.busy(performance.now()), veiled: binderTurn.veiled, flipped: binderTurn.flipped() } : null,
         k2: useK2, slots: slots.size, loaded: [...slots.values()].filter((sl) => sl.state === 2).length,
         // pictures nothing shows (a binder's leaves under the open spread)
         hidden: [...slots.values()].filter((sl) => sl.state === 0 && sl.prio === 9).length,
@@ -1301,7 +1376,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();
-      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose();
+      wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose(); binderTurn?.dispose(); moFlip.disconnect();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;

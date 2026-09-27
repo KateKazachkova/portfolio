@@ -41,7 +41,8 @@ export function viewOfState(desk: string | undefined, focus: string | undefined)
     case "open": return "files";
     case "award": return "award";
     case "profile": return "profile";
-    case "offduty": return focus === "bike" ? "bike" : "offduty";
+    // (no camera down over the bike computer since staging 27.09)
+    case "offduty": return "offduty";
     default: return "home";
   }
 }

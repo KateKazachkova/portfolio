@@ -36,10 +36,7 @@ await expect("Forward → recognition", { desk: "award", view: "award", arrived:
 await key("Escape"); await sleep(3200);
 await expect("Escape → home", { desk: "closed", view: "home" });
 await ev("kate:off-duty"); await sleep(3000);
-await b.ev("document.documentElement.dataset.deskFocus='bike'"); await sleep(1800);
-await expect("bike", { desk: "offduty", focus: "bike", view: "bike" });
-await key("Escape"); await sleep(1800);
-await expect("Escape → off duty", { desk: "offduty", focus: null, view: "offduty" });
+await expect("off duty (the bike computer read from here: no stop below it, staging 27.09)", { desk: "offduty", focus: null, view: "offduty" });
 // resize at a stop: the camera stays on it
 await b.metrics(1200, 800, 1); await sleep(800);
 await expect("resize at off duty", { desk: "offduty", view: "offduty" });

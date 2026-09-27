@@ -109,6 +109,11 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const [phase, setPhase] = useState<"closed" | "spill" | "open">("closed");
   const open = phase !== "closed";
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // the phase as of now, for the camera's events: a reset (leaving the desk)
+  // followed at once by a close (the focus let go) must not find the folder
+  // still open in the DOM and put it away the long way (WebGL room, 27.09)
+  const phaseNow = useRef(phase);
+  useEffect(() => { phaseNow.current = phase; }, [phase]);
   const [drag, setDrag] = useState<Record<string, Pt>>({});
   const [top, setTop] = useState<Record<string, number>>({});
   const [held, setHeld] = useState<string | null>(null);
@@ -147,8 +152,8 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   };
   const putAway = () => { setDrag({}); setTop({}); go("spill", "closed", GATHER_MS); };
   useEffect(() => {
-    const reset = () => { clearTimeout(timer.current); setDrag({}); setTop({}); setPhase("closed"); };
-    const close = () => document.querySelector<HTMLElement>(".desk-card--env[data-phase=open] .u15-hit")?.click();
+    const reset = () => { clearTimeout(timer.current); setDrag({}); setTop({}); phaseNow.current = "closed"; setPhase("closed"); };
+    const close = () => { if (phaseNow.current === "open") document.querySelector<HTMLElement>(".desk-card--env[data-phase=open] .u15-hit")?.click(); };
     addEventListener(U15_RESET, reset);
     addEventListener(U15_CLOSE, close);
     return () => { removeEventListener(U15_RESET, reset); removeEventListener(U15_CLOSE, close); clearTimeout(timer.current); delete document.documentElement.dataset.u15; };

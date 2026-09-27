@@ -54,6 +54,8 @@ html.bk .bike__lcd, html.bk .bike__lcd * { visibility: hidden !important; }
 html.bk .od-dvd__screen, html.bk .od-dvd__screen * { visibility: hidden !important; }
 html.bk .desk-player__lcd, html.bk .desk-player__lcd * { visibility: hidden !important; }
 /* a stack's paper tags show only laid out: baked as they look then */
+/* …and a stack in progress, its sticky note over the card (staging 27.09) */
+html.bk .stack-note { opacity: 1 !important; }
 html.bk .jury-tag { opacity: 1 !important; left: calc(50% - 94 * var(--u)) !important; }
 html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
 html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
@@ -186,6 +188,10 @@ const out = { version: 1, u, stage: { w: stage.width / u, h: stage.height / u },
 // screen, baked blank (BAKE_CSS), its box here for components/room/lcd.ts
 const lcdBox = JSON.parse(await b.ev("(()=>{const e=document.querySelector('.bike__lcd');return JSON.stringify({m:window.__bkWorld(e),s:window.__bkSize(e)})})()"));
 out.live = [{ id: "bike-lcd", of: ".bike", m: toU(lcdBox.m, u), w: lcdBox.s[0] / u, h: lcdBox.s[1] / u }];
+// the sheet under the index column at Profile, where DeskSheets fits it at
+// the bake's size (the WebGL room's binder panel lays it the same: engine.ts)
+out.tuck = JSON.parse(await b.ev(`JSON.stringify(Object.fromEntries(["l","t","w","h"].map(k=>[k,+document.documentElement.style.getPropertyValue("--tuck-"+k)||null])))`));
+log("tuck", JSON.stringify(out.tuck));
 const texName = (it) => `${String(it.i).padStart(3, "0")}-${(it.cls.split(" ").pop() || it.tag).replace(/[^a-z0-9_-]/gi, "").slice(0, 40)}`;
 
 if (OPT.only !== "flat") for (const it of units) {

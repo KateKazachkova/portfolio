@@ -66,8 +66,6 @@ for (let pass = 0; pass < 2; pass++) {
   await flight(`files→award #${pass}`, () => go("award"));
   await flight(`award→profile #${pass}`, () => go("profile"));
   await flight(`profile→offduty #${pass}`, () => go("offduty"));
-  await flight(`offduty→bike #${pass}`, () => go("bike"), 1900);
-  await flight(`bike→offduty #${pass}`, () => go("unbike"), 1900);
   await flight(`offduty→profile #${pass}`, () => go("profile"));
   await flight(`profile→home #${pass}`, () => go("home"), 3200);
 }

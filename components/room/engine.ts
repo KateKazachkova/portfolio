@@ -42,7 +42,7 @@ type Item = {
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; tuck?: Record<"l" | "t" | "w" | "h", number | null>; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -460,6 +460,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     lcd: data.u15.lcd, material, liftTop,
     shown: (p) => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
   }) : null;
+  // the sheet under the index column at Profile, in the binder's panel where
+  // the bake had it (DeskSheets fits it to the column at any size, but the
+  // room's binder is baked at 1600 px: the hand-over must meet it)
+  if (data.tuck) for (const [k, v] of Object.entries(data.tuck)) if (v !== null) root.style.setProperty(`--tuck-${k}`, String(v));
   // the БУДЬ prints, where the page's store has them (budgl.ts)
   const budFace = data.bud ? room.find((p) => p.item.i === data.bud!.face && !p.item.bud) : undefined;
   const budOf = (p: Placed) => ({ meshes: p.meshes, mats: p.mats, w: p.item.w, h: p.item.h, q: p.item.bud!.q });
@@ -516,6 +520,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const c = p.item.cls, a = p.item.anc ?? "";
     if (reduced()) return { m: null, op: null };
     if (/(^| )jury-tag( |$)/.test(c)) return { m: null, op: { dur: 300, delay: 350, ease: EASE_T } };
+    if (/(^| )stack-note( |$)/.test(c)) return { m: null, op: { dur: 300, delay: 450, ease: EASE_T } };
     if (/stack-truck/.test(a) || /stack-truck/.test(c)) return { m: { dur: 800, delay: 0, ease: FAN }, op: null };
     if (/^(jury-card|postcard|payslip|calc|stack-moss|stack-mush)/.test(c) || /(^| )(calc|stack-moss|jury-card|postcard|payslip)( |$)/.test(a)) return { m: { dur: 700, delay: 0, ease: FAN }, op: null };
     return { m: { dur: 600, delay: 0, ease: FAN }, op: null };

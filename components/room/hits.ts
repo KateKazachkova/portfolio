@@ -207,6 +207,13 @@ export function startHits(o: {
       el.addEventListener("focus", () => tell({ focus: el.matches(":focus-visible") }));
       el.addEventListener("blur", () => tell({ focus: false }));
     }
+    // a stack under the pointer while none is in focus: its postcards a
+    // little way out, "In progress" over it (the page's :hover, engine.ts)
+    if (h.type === "case" && h.slug) {
+      const tell = (on: boolean) => dispatchEvent(new CustomEvent("room:case-hover", { detail: { slug: h.slug, on } }));
+      el.addEventListener("pointerenter", () => tell(true));
+      el.addEventListener("pointerleave", () => tell(false));
+    }
     // Off Duty's things lift under the pointer (the page's :hover), drawn by WebGL (shelf.ts)
     if (h.type.startsWith("od-")) {
       const tell = (on: boolean) => dispatchEvent(new CustomEvent("room:od-hover", { detail: { key: odKey(h), on } }));

@@ -59,6 +59,8 @@ html.bk .stack-note { opacity: 1 !important; }
 html.bk .jury-tag { opacity: 1 !important; left: calc(50% - 94 * var(--u)) !important; }
 /* Off Duty's cards (what a book, a tape, the comic is) show only taken out: baked as they look then */
 html.bk .bs-card { opacity: 1 !important; }
+/* a stack's "In progress" shows only under the pointer: baked as it looks then */
+html.bk .stack-soon { opacity: 1 !important; }
 html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
 html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
 html.bk .od-sleeve { --stack: 0 0 transparent !important; }
@@ -111,6 +113,25 @@ for (const f of ["ukrainska-15", "bulksource", "onsisoft", "waypro"]) {
   states[`files:${f}`] = await b.ev(`JSON.stringify(window.__bkState("open", ${JSON.stringify(f)}, "1"))`).then(JSON.parse);
   await b.ev("document.querySelectorAll('.desk-card[data-slug]').forEach(c=>delete c.dataset.side) || 1");
 }
+// …and a pointer over each stack while none is in focus (M6: its postcards
+// come a little way out, the card is tagged "In progress"): the page's
+// :hover, forced by DevTools. (Its filter — brightness(1.05) saturate(1.04),
+// the generic card's :hover — would flatten the stack's 3D, the truck's
+// standing side and lifted top, into the card: the geometry is read without
+// it, and the engine draws the filter itself; each stack's planes carry
+// their slug for that.)
+await b.send("DOM.enable"); await b.send("CSS.enable");
+await b.ev("(()=>{const st=document.createElement('style');st.id='bk-nofilter';st.textContent='.desk-card--stack{filter:none!important}';document.head.appendChild(st);return 1})()");
+const docRoot = (await b.send("DOM.getDocument", { depth: 0 })).result.root.nodeId;
+for (const f of ["bulksource", "onsisoft", "waypro"]) {
+  const nodeId = (await b.send("DOM.querySelector", { nodeId: docRoot, selector: `.desk-card--stack[data-slug="${f}"]` })).result?.nodeId;
+  if (!nodeId) { log("no stack", f); continue; }
+  await b.send("CSS.forcePseudoState", { nodeId, forcedPseudoClasses: ["hover"] });
+  states[`files:hover-${f}`] = await b.ev(`JSON.stringify(window.__bkState("open", undefined, "1"))`).then(JSON.parse);
+  await b.send("CSS.forcePseudoState", { nodeId, forcedPseudoClasses: [] });
+}
+await b.ev("document.getElementById('bk-nofilter').remove() || 1");
+const stackOf = new Map(JSON.parse(await b.ev(`JSON.stringify([...document.querySelectorAll('.desk-card--stack[data-slug]')].flatMap(c=>[c,...c.querySelectorAll('*')].flatMap(e=>['bk','bkbefore','bkafter'].filter(k=>e.dataset[k]!==undefined).map(k=>[+e.dataset[k],c.dataset.slug]))))`)));
 // …and the Profile binder open at each of its spreads (pf2 … pf7; pf1 is
 // how it lies anywhere): the WebGL room shows the spread the page's own
 // binder was left at (components/room/RoomBinder.tsx), so neither is ahead
@@ -227,7 +248,7 @@ out.od = odObjs.map(({ members, m, s, ...o }) => ({ ...o, m: toU(m, u), w: s[0] 
 const texName = (it) => `${String(it.i).padStart(3, "0")}-${(it.cls.split(" ").pop() || it.tag).replace(/[^a-z0-9_-]/gi, "").slice(0, 40)}`;
 
 if (OPT.only !== "flat") for (const it of units) {
-  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}) };
+  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}), ...(stackOf.has(it.i) ? { stack: stackOf.get(it.i) } : {}) };
   // how it differs at each stop, if it does (the local box stays: the quad's
   // own offset into its box is applied to each state's matrix alike)
   const diff = {};

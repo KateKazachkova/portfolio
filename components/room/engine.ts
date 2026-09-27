@@ -45,6 +45,8 @@ type Item = {
   rib?: { n: number; q: [number, number]; w: number; h: number };
   /** one of Off Duty's things' planes (bake.mjs, shelf.ts): its thing, and whether it turns with the thing's body */
   od?: { key: string; body: boolean };
+  /** the award stack it is part of (Case Files: the page's :hover brightens the stack) */
+  stack?: string;
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
@@ -522,10 +524,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // one laid out, the others moved aside); what that state leaves out lies
   // as at home
   const focusOf = (v: View) => (v === "files" ? root.dataset.deskFocus : undefined);
+  // …and with a pointer over a stack while none is in focus, the bake's
+  // files:hover-<slug> (the page's :hover: its postcards a little way out,
+  // "In progress" over it)
+  let hoverSlug: string | null = null;
+  const HOVERS = new Set(data.items.flatMap((it) => Object.keys(it.states ?? {}).filter((k) => k.startsWith("files:hover-")).map((k) => k.slice(12))));
   const stateOf = (p: Placed, v: View) => {
     if (isBinder(p)) return p.item.states?.[`pf${binderAt}`] ?? {};
     const f = focusOf(v);
     if (f) return p.item.states?.[`files:${f}` as View] ?? {};
+    if (v === "files" && hoverSlug && HOVERS.has(hoverSlug)) return p.item.states?.[`files:hover-${hoverSlug}` as View] ?? {};
     return p.item.states?.[v] ?? {};
   };
   // What of the binder can show: a spread shows a plane if it is on show
@@ -563,6 +571,40 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (/stack-truck/.test(a) || /stack-truck/.test(c)) return { m: { dur: 800, delay: 0, ease: FAN }, op: null };
     if (/^(jury-card|postcard|payslip|calc|stack-moss|stack-mush)/.test(c) || /(^| )(calc|stack-moss|jury-card|postcard|payslip)( |$)/.test(a)) return { m: { dur: 700, delay: 0, ease: FAN }, op: null };
     return { m: { dur: 600, delay: 0, ease: FAN }, op: null };
+  };
+  // the page's transitions as the pointer comes over a stack or leaves it:
+  // its postcards and card as when laid out (.7 s), "In progress" .2 s (after .12 s coming)
+  const hoverRule = (p: Placed): { m: Rule; op: Rule } => {
+    if (reduced()) return { m: null, op: null };
+    if (/(^| )stack-soon( |$)/.test(p.item.cls)) return { m: null, op: { dur: 200, delay: hoverSlug ? 120 : 0, ease: EASE_T } };
+    return focusRule(p);
+  };
+  const onCaseHover = (e: Event) => {
+    const d = (e as CustomEvent<{ slug: string; on: boolean }>).detail;
+    const was = hoverSlug;
+    if (d.on) hoverSlug = d.slug; else if (hoverSlug === d.slug) hoverSlug = null;
+    if (hoverSlug === was || view !== "files" || root.dataset.deskFocus || root.dataset.desk !== "open") return;
+    arrange("files", hoverRule, performance.now());
+    lookTo(performance.now());
+    dirty = true; kick();
+  };
+  addEventListener("room:case-hover", onCaseHover);
+  // …and the generic card's :hover filter, brightness(1.05) saturate(1.04), .3 s ease
+  const stackLook = new Map<string, Channel<number>>();
+  for (const p of room) if (p.item.stack && !stackLook.has(p.item.stack)) stackLook.set(p.item.stack, new Channel(0, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4));
+  const stackPlanes = room.filter((p) => p.item.stack);
+  const lookTo = (now: number) => {
+    const on = view === "files" && root.dataset.desk === "open" && !root.dataset.deskFocus ? hoverSlug : null;
+    for (const [slug, ch] of stackLook) ch.retarget(slug === on ? 1 : 0, reduced() ? null : { dur: 300, delay: 0, ease: EASE_T }, now);
+  };
+  /** the stacks' filter this frame; true while one changes */
+  const stacksLook = (now: number) => {
+    let moving = false;
+    for (const ch of stackLook.values()) moving ||= ch.active;
+    if (!moving && !stackPlanes.some((p) => p.mats[0]?.uniforms.brightness.value !== 1 + 0.05 * stackLook.get(p.item.stack!)!.value(now))) return false;
+    for (const p of stackPlanes) { const e = stackLook.get(p.item.stack!)!.value(now); for (const mat of p.mats) { mat.uniforms.brightness.value = 1 + 0.05 * e; mat.uniforms.saturate.value = 1 + 0.04 * e; } }
+    for (const ch of stackLook.values()) ch.tick(now);
+    return true;
   };
   const arrange = (v: View, rule: Rule | ((p: Placed) => { m: Rule; op: Rule }), now: number, only?: (p: Placed) => boolean) => {
     for (const p of room) {
@@ -851,6 +893,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (leaving && !groupsShown) { buildGroups(); setGroupsShown(true); }
     const prevView = view;
     view = v;
+    // (away from Case Files no stack is under the pointer: its control is gone)
+    if (v !== "files") hoverSlug = null;
+    lookTo(now);
     const still = reduced();
     const def: Rule = still ? null : { dur: CAM.t, delay: CAM.wait, ease: EASE.cam };
     const poseRule: Rule = still ? null : arrived && desk === "offduty" ? { dur: CAM.bikeT, delay: 0, ease: EASE.bike } : arrived ? null : def;
@@ -1029,7 +1074,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // (after the controls are laid: the binder's panel may have just taken over, or given back)
     bud?.frame();
     const ribMoving = ribbons ? ribbons.frame(now) : false;
-    const shelfMoving = shelf ? shelf.frame(now) : false;
+    const shelfMoving = (shelf ? shelf.frame(now) : false) || stacksLook(now);
     if (moving || dirty || video || arrivedNow || nightMoving || walletMoving || ribMoving || shelfMoving) { draw(now); dirty = false; }
     if (moving || video || view !== "home" || pending > 0 || nightMoving || walletMoving || ribMoving || shelfMoving) raf = requestAnimationFrame(loop);
     else { raf = 0; lastT = 0; }
@@ -1261,6 +1306,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       document.removeEventListener("pointerout", onPointerOut);
       delete root.dataset.glRest;
       removeEventListener("room:binder-at", onBinder);
+      removeEventListener("room:case-hover", onCaseHover);
       for (const l of lives) { l.lcd.dispose(); l.tex.dispose(); }
       hitLayer?.dispose();
       removeEventListener("resize", onResize);

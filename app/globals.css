@@ -688,6 +688,9 @@ body::after {
    the case. Under 1024px the column stands above it instead, and the shift
    only pushed the case off the right of the screen. */
 @media (max-width: 1023px) { .case-stage { --case-x: 0px !important; } }
+/* Phones: the scene half as large again (Kate, 27.09) — the doors run a
+   little past the screen's edges; main clips them. */
+@media (max-width: 767px) { .case-stage { width: 132vw; flex-shrink: 0; } }
 /* Landscape tablets and small laptops (1024–1439px) get the desktop scene
    itself, just smaller: the case keeps its 1440px share of the width
    (1118 / 1440), so the column beside it and everything on the desk scale
@@ -1720,7 +1723,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   /* lifted over the room: the scene's planes are positioned and stacked, and
      a static block goes under all of them. Under the bar (z 60) so the bar
      still covers it once the page scrolls. */
-  .hero-aside-wrap { position: relative; z-index: 50; }
+  .hero-aside-wrap { position: relative; z-index: 50; transition: opacity .4s ease, visibility 0s linear .4s; }
+  /* It is the case's caption: once the camera leaves the case for any stop
+     on the desk, it stays behind rather than hanging over the new view
+     (Kate, 27.09). */
+  :root[data-desk]:not([data-desk="closed"]) .hero-aside-wrap { opacity: 0; visibility: hidden; }
+  :root:not([data-desk]) .hero-aside-wrap, :root[data-desk="closed"] .hero-aside-wrap { transition-delay: .6s, 0s; }
 }
 @media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */

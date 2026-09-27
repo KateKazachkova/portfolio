@@ -217,6 +217,12 @@ export function startHits(o: {
       el.addEventListener("pointerenter", () => tell(true));
       el.addEventListener("pointerleave", () => tell(false));
     }
+    // a postcard of a stack laid out comes over the others under the pointer (engine.ts)
+    if (h.type === "postcard" && h.slug) {
+      const tell = (on: boolean) => dispatchEvent(new CustomEvent("room:postcard-hover", { detail: { slug: h.slug, i: h.of.i, on } }));
+      el.addEventListener("pointerenter", () => tell(true));
+      el.addEventListener("pointerleave", () => tell(false));
+    }
     // Off Duty's things lift under the pointer (the page's :hover), drawn by WebGL (shelf.ts)
     if (h.type.startsWith("od-")) {
       const tell = (on: boolean) => dispatchEvent(new CustomEvent("room:od-hover", { detail: { key: odKey(h), on } }));

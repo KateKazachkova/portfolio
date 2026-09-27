@@ -630,6 +630,25 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     dirty = true; kick();
   };
   addEventListener("room:case-hover", onCaseHover);
+  // a postcard under the pointer in a stack laid out comes over the others
+  // (the page's .postcard:hover { z-index: 5 }: still under the card, 6):
+  // half a lift over the highest it goes over, at once
+  const postcards = new Map<string, Placed[]>();
+  for (const p of room) if (p.item.stack && /^postcard( |$)/.test(p.item.cls)) postcards.set(p.item.stack, [...(postcards.get(p.item.stack) ?? []), p]);
+  const cardK = new Map<Placed, number>();
+  const onPostcard = (e: Event) => {
+    const d = (e as CustomEvent<{ slug: string; i: number; on: boolean }>).detail;
+    const list = postcards.get(d.slug), p = list?.[d.i];
+    if (!list || !p) return;
+    if (!cardK.has(p)) cardK.set(p, p.k);
+    // (each lies at z-index i + 1, AwardStack.tsx; hovered, 5: over those under 5,
+    // and over a 5 only if that one comes before it)
+    const own = cardK.get(p)!;
+    const under = list.filter((q, j) => j !== d.i && (j + 1 < 5 || (j + 1 === 5 && j < d.i))).map((q) => cardK.get(q) ?? q.k);
+    p.k = d.on && under.some((k) => k > own) ? Math.max(...under) + 0.5 : own;
+    p.meshes[0].userData.dirty = true; dirty = true; kick();
+  };
+  addEventListener("room:postcard-hover", onPostcard);
   // …and the generic card's :hover filter, brightness(1.05) saturate(1.04), .3 s ease
   const stackLook = new Map<string, Channel<number>>();
   for (const p of room) if (p.item.stack && !stackLook.has(p.item.stack)) stackLook.set(p.item.stack, new Channel(0, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4));
@@ -802,9 +821,14 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const ms of groupMeshes.values()) for (const m of ms) m.visible = on;
     applyGroupOpacity();
     // (a class, not visibility on the group: a child that sets its own
-    // visibility — the niche's clip — would still be drawn)
-    for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.toggle("room-away", on);
+    // visibility — the niche's clip — would still be drawn). Put away in the
+    // frame WebGL has drawn them (draw(), right after render): put away at a
+    // change of state that came after this frame's rAF, the page showed a
+    // frame with neither (a flash of the empty room, 27.09)
+    if (on) { groupsAwayPending = true; dirty = true; kick(); }
+    else { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.remove("room-away"); }
   };
+  let groupsAwayPending = false;
 
   // ── the night (night.ts): its layers' opacities, the lamp, the torch and
   // NightCam's pool, timed as globals.css times the page's ──
@@ -1043,6 +1067,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
     }
     renderer.render(scene, camera);
+    if (groupsAwayPending && groupsShown) { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.add("room-away"); }
     // the still of the room goes the frame WebGL has drawn it all
     if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
   };
@@ -1382,6 +1407,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       delete root.dataset.glRest;
       removeEventListener("room:binder-at", onBinder);
       removeEventListener("room:case-hover", onCaseHover);
+      removeEventListener("room:postcard-hover", onPostcard);
       for (const l of lives) { l.lcd.dispose(); l.tex.dispose(); }
       hitLayer?.dispose();
       removeEventListener("resize", onResize);

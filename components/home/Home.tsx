@@ -109,7 +109,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
               stands in the room itself, not on the case's plate, so the camera
               can turn to it (Off Duty lies beside it). */}
           <div className="flip-clock-slot">
-            <FlipClock time={clockShown} live={clock === null} onChange={setClockTime} onNow={clockNow} />
+            <FlipClock time={clockShown} now={now} live={clock === null} onChange={setClockTime} onNow={clockNow} />
           </div>
           {/* The desk lamp behind it, the room's light switch: see DeskLamp */}
           <DeskLamp />

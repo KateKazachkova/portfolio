@@ -212,6 +212,10 @@ function useStops() {
   return ready;
 }
 
+// the room's extensions past the plate: right of it where Recognition looks,
+// left where Off Duty does, twice each way for wide windows (globals.css)
+const EXTS = ["desk-ext desk-side-r", "desk-extl desk-side-l", "desk-ext2 desk-side-r", "desk-extl2 desk-side-l"];
+
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
   return (
@@ -228,11 +232,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
         }} />
       </div>
-      <div className="desk-plane desk-wall desk-ext" aria-hidden />
-      <div className="desk-plane desk-wall desk-extl" aria-hidden />
-      {/* and once more each way, for wide windows (globals.css .desk-ext2) */}
-      <div className="desk-plane desk-wall desk-ext2" aria-hidden />
-      <div className="desk-plane desk-wall desk-extl2" aria-hidden />
+      {/* the room past the plate's edges, twice each way (globals.css .desk-side-r / -l) */}
+      {EXTS.map((e) => <div key={e} className={`desk-plane desk-wall ${e}`} aria-hidden />)}
       {/* the wall once more, bare, over both halves of it: what hangs there
           runs across the seam and must not be covered by the extension */}
       <div className="desk-plane desk-wall desk-wall--hung">
@@ -252,14 +253,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
         <img src="/artefacts/cert-indigo-women-in-design-2026.webp" alt="" draggable={false} />
       </a>
       )}
-      <div className="desk-plane desk-top desk-ext" aria-hidden />
-      <div className="desk-plane desk-ply desk-ext" aria-hidden />
-      <div className="desk-plane desk-top desk-extl" aria-hidden />
-      <div className="desk-plane desk-ply desk-extl" aria-hidden />
-      <div className="desk-plane desk-top desk-ext2" aria-hidden />
-      <div className="desk-plane desk-ply desk-ext2" aria-hidden />
-      <div className="desk-plane desk-top desk-extl2" aria-hidden />
-      <div className="desk-plane desk-ply desk-extl2" aria-hidden />
+      {EXTS.flatMap((e) => ["desk-top", "desk-ply"].map((p) => <div key={p + e} className={`desk-plane ${p} ${e}`} aria-hidden />))}
       <div className="desk-plane desk-top">
         <div className="desk-shadow" aria-hidden />
         {/* the trophy's contact shadow, on the desk under its base (desk-top

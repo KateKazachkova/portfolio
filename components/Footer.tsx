@@ -16,7 +16,7 @@ export default function Footer() {
     // footer, so a border and a second tone cut the page in two. The gap above
     // is padding, not margin — a margin would leave a strip the footer cannot
     // paint, and on home that strip reads as a line across the floor.
-    <footer className="pt-10">
+    <footer className="pt-10 mt-auto">
       <div className={box}>
         {/* top row */}
         <div className="flex flex-wrap items-start justify-between gap-8 mb-10">

@@ -45,6 +45,9 @@ const H = 745;
 const POOL = { x: LAMP_MOUTH.x - 120, y: 440 };
 // how far above the lid the shade's glow fades out (box px)
 const LID_FADE = 40;
+// the lit shade's glow: an ellipse about the lamp's mouth, and its box
+const GLOW = { cx: LAMP_MOUTH.x, cy: LAMP_MOUTH.y - 0.25 * LAMP_HEAD.h, rx: 0.6 * LAMP_HEAD.w, ry: 0.75 * LAMP_HEAD.h };
+const SHADE = { x: GLOW.cx - GLOW.rx, y: GLOW.cy - GLOW.ry, w: 2 * GLOW.rx };
 
 export default function NightRoom({ edition }: { edition: string }) {
   const { themePref } = useTime();
@@ -136,8 +139,9 @@ export default function NightRoom({ edition }: { edition: string }) {
           <stop offset="0" stopColor="#fff" />
           <stop offset="1" stopColor="#000" />
         </linearGradient>
-        <mask id="nr-over-lid" maskUnits="userSpaceOnUse" x="-3000" y="-3000" width="7118" height={3000 + LID}>
-          <rect x="-3000" y="-3000" width="7118" height={3000 + LID} fill="url(#nr-lid-fade)" />
+        {/* (only over the glow's own box: the mask is drawn off-screen) */}
+        <mask id="nr-over-lid" maskUnits="userSpaceOnUse" x={SHADE.x} y={SHADE.y} width={SHADE.w} height={LID - SHADE.y}>
+          <rect x={SHADE.x} y={SHADE.y} width={SHADE.w} height={LID - SHADE.y} fill="url(#nr-lid-fade)" />
         </mask>
         <filter id="nr-soft" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3.5" />
@@ -152,7 +156,7 @@ export default function NightRoom({ edition }: { edition: string }) {
       {/* the lamp, when it is on */}
       <g className="night-room__lamp">
         <rect x="-3000" y="-2000" width="7118" height="6000" fill="url(#nr-pool)" />
-        <ellipse cx={LAMP_MOUTH.x} cy={LAMP_MOUTH.y - 0.25 * LAMP_HEAD.h} rx={0.6 * LAMP_HEAD.w} ry={0.75 * LAMP_HEAD.h} fill="url(#nr-shade)" mask="url(#nr-over-lid)" />
+        <ellipse cx={GLOW.cx} cy={GLOW.cy} rx={GLOW.rx} ry={GLOW.ry} fill="url(#nr-shade)" mask="url(#nr-over-lid)" />
       </g>
 
       {/* the window, out of frame on the left: its panes and their cross laid

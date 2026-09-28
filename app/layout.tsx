@@ -122,7 +122,9 @@ export default function RootLayout({
             <SideNav />
             {/* the footer in the page's own column: left of the page's
                 content only the navigation */}
-            <div className="flex-1 min-w-0">
+            {/* (a column of its own, so on a short page the footer still
+                sits at its foot: Footer's mt-auto) */}
+            <div className="flex-1 min-w-0 flex flex-col">
               {children}
               <Footer />
             </div>

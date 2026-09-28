@@ -914,8 +914,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    desk: there it would pass behind the camera (see .desk-wall), so it fades
    as the camera sets off for Case Files or Profile — on phones for any stop,
    whose pans run wide. */
-@media all {
-  .desk-wall:not(.desk-wall--hung)::after {
+.desk-wall:not(.desk-wall--hung)::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
     height: calc(1600 * var(--u)); pointer-events: none;
     /* the wall's ::before wash (its grain and its tint, screened) is laid
@@ -928,13 +927,12 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
     background-size: calc(240 * var(--u)) calc(240 * var(--u)), auto, 100% 50%;
     background-blend-mode: screen, screen, normal;
     transform: scaleY(-1); transition: opacity .3s ease;
-  }
-  .desk-wall.desk-ext::after { --wall-img: url("/scene/desk3d/wall-ext.jpg"); }
-  .desk-wall.desk-extl::after { --wall-img: url("/scene/desk3d/wall-extl.jpg"); }
-  .desk-wall.desk-ext2::after { --wall-img: url("/scene/desk3d/wall-ext2.jpg"); }
-  .desk-wall.desk-extl2::after { --wall-img: url("/scene/desk3d/wall-extl2.jpg"); }
-  :root:is([data-desk="open"], [data-desk="profile"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
 }
+.desk-wall.desk-ext::after { --wall-img: url("/scene/desk3d/wall-ext.jpg"); }
+.desk-wall.desk-extl::after { --wall-img: url("/scene/desk3d/wall-extl.jpg"); }
+.desk-wall.desk-ext2::after { --wall-img: url("/scene/desk3d/wall-ext2.jpg"); }
+.desk-wall.desk-extl2::after { --wall-img: url("/scene/desk3d/wall-extl2.jpg"); }
+:root:is([data-desk="open"], [data-desk="profile"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
 @media (max-width: 767px) {
   :root[data-desk]:not([data-desk="closed"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
 }
@@ -942,43 +940,32 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
 /* The room goes on past the plate's right edge (x 2172), where Recognition
    looks: 700 px more of wall, desk and ply, each the plate's own last 700 px
    mirrored, so the seam is its own reflection. */
-.desk-ext { left: calc(2172.5 * var(--u)); width: calc(700 * var(--u)); }
-.desk-wall.desk-ext { background-image: url("/scene/desk3d/wall-ext.jpg"); }
-.desk-top.desk-ext  { background-image:
+/* (every extension, either side — .desk-side-r / -l: 700 px, its tiles'
+   lines --gx px in from its left, its desk picture --deep) */
+:is(.desk-side-r, .desk-side-l) { width: calc(700 * var(--u)); }
+.desk-top:is(.desk-side-r, .desk-side-l) { background-image:
                 linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
                 linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-ext-deep.jpg"); }
+                var(--deep);
+              background-position: calc(var(--gx) * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
+.desk-ext { left: calc(2172.5 * var(--u)); --gx: 52.75; --deep: url("/scene/desk3d/desk-ext-deep.jpg"); }
+.desk-wall.desk-ext { background-image: url("/scene/desk3d/wall-ext.jpg"); }
 .desk-ply.desk-ext  { background-image: url("/scene/desk3d/ply-ext.jpg"); }
 /* …and past its left edge (x -1052.5), where Off Duty looks: 700 px more,
    the plate's first 700 px mirrored. The tiles' lines carry on across the
    seam: 700 px is 6½ tiles, so here they start 0.25 px in. */
-.desk-extl { left: calc(-1752.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-extl { left: calc(-1752.5 * var(--u)); --gx: .25; --deep: url("/scene/desk3d/desk-extl-deep.jpg"); }
 .desk-wall.desk-extl { background-image: url("/scene/desk3d/wall-extl.jpg"); }
-.desk-top.desk-extl  { background-image:
-                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
-                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-extl-deep.jpg");
-              background-position: calc(.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
 .desk-ply.desk-extl  { background-image: url("/scene/desk3d/ply-extl.jpg"); }
 /* …and 700 px more again each way, for a wide, short window, whose stage
    is small and sees past both (Kate, 28.09): each the extension beside it
    mirrored back, so again the seam is its own reflection; the tiles' lines
    carry on (105.25 and 55.25 px in) */
-.desk-ext2 { left: calc(2872.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-ext2 { left: calc(2872.5 * var(--u)); --gx: 105.25; --deep: url("/scene/desk3d/desk-ext2-deep.jpg"); }
 .desk-wall.desk-ext2 { background-image: url("/scene/desk3d/wall-ext2.jpg"); }
-.desk-top.desk-ext2  { background-image:
-                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
-                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-ext2-deep.jpg");
-              background-position: calc(105.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
 .desk-ply.desk-ext2  { background-image: url("/scene/desk3d/ply-ext2.jpg"); }
-.desk-extl2 { left: calc(-2452.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-extl2 { left: calc(-2452.5 * var(--u)); --gx: 55.25; --deep: url("/scene/desk3d/desk-extl2-deep.jpg"); }
 .desk-wall.desk-extl2 { background-image: url("/scene/desk3d/wall-extl2.jpg"); }
-.desk-top.desk-extl2  { background-image:
-                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
-                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
-                url("/scene/desk3d/desk-extl2-deep.jpg");
-              background-position: calc(55.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
 .desk-ply.desk-extl2  { background-image: url("/scene/desk3d/ply-extl2.jpg"); }
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
               background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
@@ -1496,7 +1483,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .pf-binder.desk-binder .pf-leaf { --lift: calc(var(--t) + .6 * var(--u)); }
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
-.desk-top:not(.desk-ext, .desk-ext2), .desk-cases { transform-style: preserve-3d; }
+.desk-top:not(.desk-side-r), .desk-cases { transform-style: preserve-3d; }
 
 /* ── Off Duty: the fourth stop, Recognition the other way ──
    As at Recognition, the camera only slides (Kate, 26.09: no change of
@@ -1865,23 +1852,23 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    nothing moves. The desk's colour behind the column at each stop, by day,
    under the lamp at night, and in the dark with the torch. */
 @media (min-width: 1024px) {
+  .hero-aside { --aside-strip: transparent; }
   .hero-aside :is(.aside-strip, .nav-index a[data-stop]) {
     -webkit-box-decoration-break: clone; box-decoration-break: clone;
     padding-right: .35em; margin-right: -.35em;
-    background: linear-gradient(var(--strip), var(--strip)) 50% 50% / 100% var(--strip-h, 1.25em) no-repeat;
-    --strip: transparent;
+    background: linear-gradient(var(--aside-strip), var(--aside-strip)) 50% 50% / 100% var(--strip-h, 1.25em) no-repeat;
   }
   .hero-aside .aside-strip { padding-left: .35em; margin-left: -.35em; }
   .hero-aside .t-title .aside-strip { --strip-h: .96em; }
-  :root[data-desk-arrived][data-desk="open"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(225 221 213); }
-  :root[data-desk-arrived][data-desk="profile"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(202 198 192); }
+  :root[data-desk-arrived][data-desk="open"] .hero-aside { --aside-strip: rgb(225 221 213); }
+  :root[data-desk-arrived][data-desk="profile"] .hero-aside { --aside-strip: rgb(202 198 192); }
   /* at night the desk under the lamp is a warm gradient no one colour
      matches: dark see-through strips there, as on the wall (Kate, 28.09) */
-  :root[data-night][data-desk-arrived]:is([data-desk="open"], [data-desk="profile"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(20 20 24 / .72); }
+  :root[data-night][data-desk-arrived]:is([data-desk="open"], [data-desk="profile"]) .hero-aside { --aside-strip: rgb(20 20 24 / .72); }
   /* at the wall's stops the column may stand over the case's door or the
      trophy: the strips in the wall's slate there (Kate, 28.09) */
-  :root[data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(40 40 38); }
-  :root[data-night][data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(20 20 24); }
+  :root[data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside { --aside-strip: rgb(40 40 38); }
+  :root[data-night][data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside { --aside-strip: rgb(20 20 24); }
 }
 
 /* On home the index lights the stop the camera is at; off home, the route.
@@ -1932,10 +1919,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
 :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-top.desk-extl2, .desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
-[data-desk="award"] :is(.desk-extl, .desk-extl2, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
-[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-extl2, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
-[data-desk="offduty"] :is(.desk-ext, .desk-ext2, .desk-wall--hung, .desk-cert, .desk-award),
+[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-side-l,.desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
+[data-desk="award"] :is(.desk-side-l,.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
+[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-side-l,.desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
+[data-desk="offduty"] :is(.desk-side-r,.desk-wall--hung, .desk-cert, .desk-award),
 [data-desk="profile"] .case-world {
   animation: desk-off 0s linear calc(var(--cam-t) + var(--cam-wait)) forwards;
 }

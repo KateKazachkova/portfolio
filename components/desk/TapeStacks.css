@@ -121,10 +121,10 @@
   /* the lift is its own property, so it can run ahead of the turn: up
      before the book stands, down only once it lies flat again — together,
      its lower edge dipped into the desk halfway */
-  transition: transform .6s cubic-bezier(.4, 0, .2, 1), translate .35s cubic-bezier(.4, 0, .2, 1) .25s; }
+  transition: transform .6s cubic-bezier(.4, 0, .2, 1), translate .35s cubic-bezier(.4, 0, .2, 1) .25s, box-shadow .4s ease .2s; }
 .od-comic[data-open] { z-index: 1; box-shadow: 0 0 calc(3 * var(--u)) rgba(0,0,0,.35);
   translate: 0 calc((var(--h) + 30) * -1 * var(--u)) calc(260 * var(--u));
   transform: translateZ(calc(var(--z) * var(--u))) rotateX(0deg) rotateZ(0deg);
-  transition: transform .6s cubic-bezier(.4, 0, .2, 1), translate .35s cubic-bezier(.4, 0, .2, 1); }
+  transition: transform .6s cubic-bezier(.4, 0, .2, 1), translate .35s cubic-bezier(.4, 0, .2, 1), box-shadow .3s ease; }
 .od-comic__card { left: calc(100% + 14 * var(--u)); top: 0; }
 @media (prefers-reduced-motion: reduce) { .od-comic, .od-comic[data-open] { transition-duration: 0s; transition-delay: 0s; } }

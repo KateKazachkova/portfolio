@@ -5,6 +5,13 @@
 
    The case maps the site's own tokens onto short local names — it introduces
    no new colours of its own. -------------------------------------------- */
+/* the grid — the site footer's too, on a case file (.case-foot, below) */
+.case, .case-foot {
+  --rail: 214px;   /* margin rail: notes, numerals, labels */
+  --col:  600px;   /* the measure */
+  --gut:  40px;
+  --side: 300px;   /* annotation field */
+}
 .case {
   /* voices */
   --serif: Arial, Helvetica, sans-serif; /* the site's own text face — no serif on case files */
@@ -13,11 +20,6 @@
   --hand:  var(--font-chalk), cursive;
   /* the annotation ink — the site's existing accent, nothing new */
   --ink-red: var(--accent-red);
-  /* the grid */
-  --rail: 214px;   /* margin rail: notes, numerals, labels */
-  --col:  600px;   /* the measure */
-  --gut:  40px;
-  --side: 300px;   /* annotation field */
 
   font-family: var(--serif);
   font-size: 14px;
@@ -353,23 +355,21 @@
 .casenav a span { color:var(--ink-red) }
 /* the site footer on a case file (components/Footer.tsx): the sheet's own
    box, so its edges are the page's — left of it only the index. It is not
-   inside .case, so the grid's numbers are its own copy of .case's */
-.case-foot { --rail:214px; --col:600px; --gut:40px; --side:300px;
-  max-width:calc(var(--rail) + var(--gut) + var(--col) + var(--gut) + var(--side)); margin:0 auto; padding:40px }
-@media (min-width:1280px) { .page-row:has(> .nav-rail) .case-foot { --side:240px; padding:40px 40px 40px 0 } }
-@media (max-width:1180px) { .case-foot { --rail:170px; --col:520px; --side:220px } }
+   inside .case, so it takes the grid's numbers where .case sets them */
+.case-foot { max-width:calc(var(--rail) + var(--gut) + var(--col) + var(--gut) + var(--side)); margin:0 auto; padding:40px }
+@media (min-width:1280px) { .page-row:has(> .nav-rail) .case-foot { padding:40px 40px 40px 0 } }
 @media (max-width:900px) { .case-foot { padding:40px 22px } }
 /* Beside the site's index rail (SideNav, from 1280px): the page gives up
    376px on the left, so the case's own margin shrinks to its numerals and
    the measure keeps its 600. */
 @media (min-width:1280px) {
-  .page-row:has(> .nav-rail) .case { --side:240px }
+  .page-row:has(> .nav-rail) :is(.case, .case-foot) { --side:240px }
   .page-row:has(> .nav-rail) .case .sheet { padding:0 40px 0 0 }
 }
 /* ─────────────────────────── responsive ─────────────────────────── */
 /* ─────────────────────────── responsive ─────────────────────────── */
 @media (max-width:1180px) {
-  .case { --rail:170px; --col:520px; --side:220px }
+  :is(.case, .case-foot) { --rail:170px; --col:520px; --side:220px }
   .case .marker { font-size:62px }
 }
 @media (max-width:900px) {

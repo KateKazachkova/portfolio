@@ -29,9 +29,9 @@ const DAY_MIN = 24 * 60;
 
 export type ClockTime = { day: number; minutes: number };
 
-/** The scene's clock as a real Date: this week's `day`, at `minutes`. */
-export function clockDate(t: ClockTime): Date {
-  const d = new Date();
+/** The scene's clock as a real Date: `now`'s week's `day`, at `minutes`. */
+export function clockDate(t: ClockTime, now = new Date()): Date {
+  const d = new Date(now);
   d.setDate(d.getDate() + (t.day - d.getDay()));
   d.setHours(Math.floor(t.minutes / 60), t.minutes % 60, 0, 0);
   return d;
@@ -79,17 +79,18 @@ function SetFlap({ value, label, onStep }: { value: string; label: string; onSte
 }
 
 export default function FlipClock({
-  time, live, onChange, onNow,
+  time, now, live, onChange, onNow,
 }: {
-  time: ClockTime; live: boolean;
+  time: ClockTime; now: Date | null; live: boolean;
   onChange: (t: ClockTime) => void; onNow: () => void;
 }) {
   const h24 = Math.floor(time.minutes / 60);
   const h12 = (h24 % 12) || 12;
   const mm = time.minutes % 60;
-  const date = clockDate(time);
   const hhmm = `${h12}:${String(mm).padStart(2, "0")} ${h24 < 12 ? "AM" : "PM"}`;
-  const dayText = `${DAYS[time.day]} ${date.getDate()}`;
+  // The date's number only once the page knows today (`now`, after mount):
+  // the server's HTML is built on another day than it is read (#418).
+  const dayText = now ? `${DAYS[time.day]} ${clockDate(time, now).getDate()}` : DAYS[time.day];
 
   const set = (minutes: number, day = time.day) =>
     onChange({ day: ((day % 7) + 7) % 7, minutes: ((minutes % DAY_MIN) + DAY_MIN) % DAY_MIN });

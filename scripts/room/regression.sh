@@ -45,4 +45,5 @@ run formats node scripts/room/formats.mjs $S
 run firefox node scripts/room/firefox.mjs $S
 run firefox-hits node scripts/room/firefox-hits.mjs $S
 run safari node scripts/room/safari.mjs $S
+run hydrate node scripts/room/hydrate.mjs $S
 echo "DONE $(date +%H:%M:%S)" >> $L/summary.txt

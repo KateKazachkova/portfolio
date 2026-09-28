@@ -326,10 +326,23 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (sl.state === 0) { sl.prio = Math.min(sl.prio, 1); pump(); }
     return sl.tex;
   };
+  // three (r1xx) counts a picture's mip levels from img.width — its laid-out
+  // size — but allocates it at its natural size: laid out a level larger
+  // (the niche's poster, 196 × 504 shown at 204 × 523) the texture asks for
+  // one level too many and is refused (INVALID_OPERATION, drawn clear). Such
+  // a picture goes to the GPU as a copy at its natural size.
+  const naturalSized = (el: HTMLImageElement): HTMLImageElement | HTMLCanvasElement => {
+    const nw = el.naturalWidth, nh = el.naturalHeight;
+    if (!nw || !nh || Math.floor(Math.log2(Math.max(el.width, el.height))) <= Math.floor(Math.log2(Math.max(nw, nh)))) return el;
+    const c = document.createElement("canvas");
+    c.width = nw; c.height = nh;
+    c.getContext("2d")!.drawImage(el, 0, 0);
+    return c;
+  };
   const elementTexture = (el: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement) => {
     let t = texCache.get(el);
     if (t) return t;
-    t = el instanceof HTMLVideoElement ? new THREE.VideoTexture(el) : el instanceof HTMLCanvasElement ? new THREE.CanvasTexture(el) : new THREE.Texture(el);
+    t = el instanceof HTMLVideoElement ? new THREE.VideoTexture(el) : el instanceof HTMLCanvasElement ? new THREE.CanvasTexture(el) : new THREE.Texture(naturalSized(el));
     t.colorSpace = THREE.NoColorSpace; t.premultiplyAlpha = true; t.anisotropy = aniso;
     if (el instanceof HTMLVideoElement) { t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; } else { t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; }
     t.needsUpdate = true;

@@ -112,6 +112,27 @@ for (const it of scene.items) {
       Object.assign(res, { k2out: `/room/ktx2/${name}-out.ktx2`, k2outpx: [io.w, io.h], k2outbytes: fs.statSync(outO).size });
     }
   }
+  // a Profile binder sheet's blank face, for before the first visit
+  // (bake.mjs, engine.ts warmBinder): as its own, at the same size
+  if (it.blank) {
+    const bn = path.basename(it.blank).replace(/\.webp$/, "");
+    const bm = path.join(MASTER, bn + ".png"), outB = path.join(OUT, bn + ".ktx2"), rawB = path.join(TMP, bn + ".rgba");
+    if (fs.existsSync(bm)) {
+      const ib = JSON.parse(execFileSync("python3", [path.join(import.meta.dirname, "prep.py"), bm, rawB, String(want[0]), String(want[1]), soft(it) ? "soft" : "sharp"]).toString());
+      if (ib.w === info.w && ib.h === info.h) {
+        if (OPT.force || !fs.existsSync(outB) || fs.statSync(outB).mtimeMs < fs.statSync(bm).mtimeMs) {
+          const k2 = await encodeToKTX2(new Uint8Array(fs.readFileSync(rawB)), {
+            imageDecoder: async (buf) => ({ width: ib.w, height: ib.h, data: buf }),
+            isUASTC: mode === "uastc", generateMipmap: true, isYFlip: true, isPerceptual: true, isSetKTX2SRGBTransferFunc: false,
+            needSupercompression: mode === "uastc", uastcLDRQualityLevel: 2, enableRDO: mode === "uastc", rdoQualityLevel: 2.0, qualityLevel: 200, compressionLevel: 2,
+          });
+          fs.writeFileSync(outB, k2);
+          log(bn.padEnd(36), mode, `${ib.sw}×${ib.sh} → ${ib.w}×${ib.h}`, `${(fs.statSync(outB).size / 1024).toFixed(0)} KB`);
+        }
+        Object.assign(res, { k2blank: `/room/ktx2/${bn}.ktx2` });
+      } else log("blank: not its sheet's size, not used", bn);
+    }
+  }
   done.set(it.src, res);
   Object.assign(it, res);
   totalIn += fs.statSync(master).size; totalOut += bytes; gpu += g;

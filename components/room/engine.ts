@@ -48,6 +48,8 @@ type Item = {
   od?: { key: string; body: boolean };
   /** a cover's sharper picture for when its thing is taken out (textures.mjs) */
   k2out?: string;
+  /** a Profile binder sheet as it lies before the first visit: blank (bake.mjs, textures.mjs) */
+  blank?: string; k2blank?: string;
   /** the award stack it is part of (Case Files: the page's :hover brightens the stack) */
   stack?: string;
   /** a Profile binder leaf's plane (bake.mjs, binderturn.ts): its leaf, which face or hung sheet */
@@ -621,7 +623,30 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     return keep;
   };
   const letBinderGo = () => { const keep = binderKeep(); for (const sl of binderOnly) if (!keep.has(sl)) evict(sl); };
-  afterArrive = (sl) => { if (binderOnly.has(sl) && !binderKeep().has(sl)) evict(sl); };
+  // the binder's sheets before the camera first sets off for Profile: blank,
+  // as the page's DeskBinder lays its BLANK spreads until then (Kate, 28.09);
+  // from then on its own. The planes stay on their own slots (zones, flights,
+  // eviction as ever): only what their materials show is the blank picture
+  // until then (warmBinder, evaluate), which then goes
+  // (only the faces up at the spread it lies open at: nothing turns it before)
+  const blanks = room.filter((p) => (p.item.blank || p.item.k2blank) && binderNeeds(p, binderAt)).map((p) => ({ p, sl: slotOf(useK2 && p.item.k2blank ? p.item.k2blank : p.item.blank!) }));
+  const blankSlots = new Set(blanks.map((b) => b.sl));
+  let binderWarm = !blanks.length || root.dataset.desk === "profile";
+  if (!binderWarm) {
+    for (const { p, sl } of blanks) for (const m of p.mats) { p.slot.mats.delete(m); sl.mats.add(m); m.uniforms.map.value = sl.tex; }
+    want([...blankSlots], 0);
+  }
+  const warmBinder = () => {
+    if (binderWarm) return;
+    binderWarm = true;
+    for (const { p, sl } of blanks) for (const m of p.mats) { sl.mats.delete(m); p.slot.mats.add(m); m.uniforms.map.value = p.slot.tex; }
+    for (const sl of blankSlots) { if (sl.state === 0) sl.prio = 9; evict(sl); }
+    dirty = true; kick();
+  };
+  afterArrive = (sl) => {
+    if (binderOnly.has(sl) && !binderKeep().has(sl)) evict(sl);
+    if (binderWarm && blankSlots.has(sl)) evict(sl);
+  };
   // the page's own transitions when the case in focus changes, per thing:
   // the card slides aside (.6 s), its parts fan out (.7 s), the truck
   // drives (.8 s), a tag fades in once it lies there (.3 s after .35 s)
@@ -1005,6 +1030,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   };
   const evaluate = (now: number) => {
     const desk = root.dataset.desk, focus = root.dataset.deskFocus, arrived = root.dataset.deskArrived !== undefined;
+    // (setting off for Profile the first time: its sheets filled in, and the
+    // flight below waits for them as for any picture it will see)
+    if (desk === "profile") warmBinder();
     const v = viewOfState(desk, focus);
     // a move to a stop whose pictures are not on the GPU yet waits for them
     // (at most 1.5 s), as the CSS camera waits its 0.2 s beat
@@ -1146,7 +1174,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     renderer.render(scene, camera);
     if (groupsAwayPending && groupsShown) { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.add("room-away"); }
     // the still of the room goes the frame WebGL has drawn it all
-    if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
+    if (o.poster && !posterGone && zoneReady(view) && (binderWarm || [...blankSlots].every((sl) => sl.state === 2))) { posterGone = true; o.poster.style.visibility = "hidden"; }
   };
   let posterGone = false;
   let placedKey = "";

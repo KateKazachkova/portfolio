@@ -83,6 +83,8 @@ html.bk::before, html.bk::after, html.bk body::before, html.bk body::after { dis
 html.bk .scene-cam { perspective: none !important; transform: none !important; }
 html.bk .desk-world { transform-origin: 0 0 0 !important; }
 html.bk .case-world { transform: none !important; }
+/* the binder's sheets as they lie before the first visit to Profile: blank (DeskBinder's BLANK spreads keep the sheet, not what is on it) */
+html.bk.bk-blank .desk-binder .pf-sheet * { visibility: hidden !important; }
 `;
 
 const b = await launch({ width: VW, height: VH, dpr: 1 });
@@ -317,6 +319,35 @@ if (OPT.only !== "flat") for (const it of units) {
   });
   out.items.push(item);
   if (n % 10 === 0) log("baked", n);
+}
+
+// ── the Profile binder's sheets before its first visit (M7) ───────────────
+// DeskBinder lays BLANK spreads (each sheet there, nothing on it) until the
+// camera first sets off for Profile; the room does the same (engine.ts
+// warmBinder): each sleeve face shown at rest, baked again with what is on
+// its sheet hidden — the same box, or it is not used
+if (OPT.only !== "flat") {
+  await b.ev("document.documentElement.classList.add('bk-blank')");
+  for (const x of out.items.filter((x) => x.type === "tex" && /^pf-face\b/.test(x.cls) && (x.anc ?? "").split(" ").includes("desk-binder") && x.vis !== false)) {
+    const it = units.find((y) => y.i === x.i);
+    await b.ev(`window.__bk.pose(${it.i}, ${JSON.stringify(it.mode)})`);
+    const r = await b.ev(`window.__bk.bounds(${it.i})`);
+    if (!r) continue;
+    const grow = Math.ceil(Math.max(8, Math.min(60, Math.max(r.w, r.h) * 0.08)));
+    const box = { x: Math.floor(r.x - grow), y: Math.floor(r.y - grow), w: Math.ceil(r.w + 2 * grow), h: Math.ceil(r.h + 2 * grow) };
+    const png = await capture({ i: `${it.i}-blank` }, box, x.rho);
+    const name = texName(it) + "-blank";
+    const res = JSON.parse(execFileSync("python3", [pyStitch, "trim", png, path.join(MASTER, "png", name + ".png"), path.join(OUT, "tex", name + ".webp"), String(x.rho)]).toString());
+    const ox = box.x + res.x / x.rho, oy = box.y + res.y / x.rho;
+    if (!res.w || res.w !== x.px[0] || res.h !== x.px[1] || Math.abs(ox - x.off[0]) > 0.5 || Math.abs(oy - x.off[1]) > 0.5) {
+      log("blank: not the sheet's box, not used", x.cls, x.i, JSON.stringify({ px: [res.w, res.h], was: x.px, o: [ox, oy], off: x.off }));
+      fs.rmSync(path.join(MASTER, "png", name + ".png"), { force: true }); fs.rmSync(path.join(OUT, "tex", name + ".webp"), { force: true });
+      continue;
+    }
+    x.blank = `/room/tex/${name}.webp`;
+  }
+  await b.ev("document.documentElement.classList.remove('bk-blank')");
+  log("binder blank sheets", out.items.filter((x) => x.blank).length);
 }
 
 // ── Off Duty (M6): the wallet's sleeves in layers, the discs apart ────────

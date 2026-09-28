@@ -1860,7 +1860,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    of the desk's own colour, so the tiles' grout does not run through the
    words — the sheets of paper that lay under the column are gone (Kate,
    28.09). Only once the camera is there. A band a line high, not the
-   line's whole box (the title's lines stand 1em apart and would cover each
+   line box as a whole (the title's lines stand 1em apart and would cover each
    other); its ends padded out and pulled back by as much, on every line, so
    nothing moves. The desk's colour behind the column at each stop, by day,
    under the lamp at night, and in the dark with the torch. */
@@ -1875,9 +1875,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   .hero-aside .t-title .aside-strip { --strip-h: .96em; }
   :root[data-desk-arrived][data-desk="open"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(225 221 213); }
   :root[data-desk-arrived][data-desk="profile"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(202 198 192); }
-  :root[data-night][data-desk-arrived][data-desk="open"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(160 136 110); }
-  :root[data-night][data-desk-arrived][data-desk="profile"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(125 106 90); }
-  :root[data-night][data-lamp="off"][data-desk-arrived]:is([data-desk="open"], [data-desk="profile"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(58 60 82); }
+  /* at night the desk under the lamp is a warm gradient no one colour
+     matches: dark see-through strips there, as on the wall (Kate, 28.09) */
+  :root[data-night][data-desk-arrived]:is([data-desk="open"], [data-desk="profile"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(20 20 24 / .72); }
   /* at the wall's stops the column may stand over the case's door or the
      trophy: the strips in the wall's slate there (Kate, 28.09) */
   :root[data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(40 40 38); }

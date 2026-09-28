@@ -44,4 +44,5 @@ NIGHT=1 run depart-night node scripts/room/depart.mjs $S 10
 run formats node scripts/room/formats.mjs $S
 run firefox node scripts/room/firefox.mjs $S
 run firefox-hits node scripts/room/firefox-hits.mjs $S
+run safari node scripts/room/safari.mjs $S
 echo "DONE $(date +%H:%M:%S)" >> $L/summary.txt

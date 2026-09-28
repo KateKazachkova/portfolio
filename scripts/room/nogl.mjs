@@ -32,11 +32,11 @@ for (const [ev, desk] of [["recognition", "award"], ["profile", "profile"], ["of
 await b.ev("dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}))"); await sleep(3500);
 s = await state();
 check("Escape → home", s.desk === "closed" && s.css3dShown, s);
-// a reload in the same tab: the failed start dropped the tab's flag, so
-// the CSS room from the first paint
+// a reload in the same tab (no ?gl, WebGL by default): the failed start
+// kept the tab on the CSS room, so the CSS room from the first paint
 await b.go(`${SITE}/?nointro`, 4000);
 s = await state();
-check("reload: the CSS room, the flag dropped", !s.gl && s.flag === null && s.css3dShown && !s.canvas, s);
+check("reload: the CSS room, the tab kept off WebGL", !s.gl && s.flag === "0" && s.css3dShown && !s.canvas, s);
 const errs = b.console.filter((l) => /^(error|EXC)/.test(l) && !/^error (room|THREE\.WebGLRenderer)/.test(l));
 check("no other console errors", errs.length === 0, errs.slice(0, 5));
 b.close();

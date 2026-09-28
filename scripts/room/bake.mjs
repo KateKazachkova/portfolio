@@ -93,7 +93,7 @@ const b = await launch({ width: VW, height: VH, dpr: 1 });
 await b.send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(2026,8,23,10,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D;})()` });
-await b.go(SITE + "/?nointro", 5000);
+await b.go(SITE + "/?nointro&gl=0", 5000);
 // the stops' own pieces are built lazily: visit each, then come home
 for (const e of ["kate:case-files", "kate:recognition", "kate:off-duty", "kate:profile"]) { await b.ev(`dispatchEvent(new Event("${e}"))`); await sleep(3200); }
 await b.ev("history.back()"); await sleep(3500);

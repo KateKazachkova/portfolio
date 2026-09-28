@@ -46,4 +46,6 @@ run firefox node scripts/room/firefox.mjs $S
 run firefox-hits node scripts/room/firefox-hits.mjs $S
 run safari node scripts/room/safari.mjs $S
 run hydrate node scripts/room/hydrate.mjs $S
+run device node scripts/room/device.mjs $S
+run a11y node scripts/room/a11y.mjs $S
 echo "DONE $(date +%H:%M:%S)" >> $L/summary.txt

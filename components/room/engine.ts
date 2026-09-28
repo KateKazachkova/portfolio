@@ -450,7 +450,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (slot.state === 2) for (const m of mats) m.uniforms.map.value = slot.tex;
     // (the БУДЬ prints lie on their sheet as budgl.ts lays them, the ribbons
     // on their lattice as ribbons.ts does: no lift of their own)
-    const k = it.bud || it.rib ? 0 : liftCount(it.m);
+    // (a mirror's face is turned, its y flipped: lifted the other way, so its
+    // wash lies on it as the wall's does, not behind it)
+    const k = it.bud || it.rib ? 0 : liftCount(it.m) * (it.cls.endsWith(" room-mirror") ? -1 : 1);
     const meshes = mats.map((mat) => {
       const mesh = new THREE.Mesh(geo, mat);
       mesh.matrixAutoUpdate = false;
@@ -576,6 +578,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
   const isBinder = (p: Placed) => (p.item.anc ?? "").split(" ").includes("desk-binder");
+  const phoneBinder = matchMedia("(max-width: 760px)");
   let binderAt = 1;
   // Case Files with a case in focus lies as the bake's files:<slug> (M6: the
   // one laid out, the others moved aside); what that state leaves out lies
@@ -719,13 +722,19 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const ch of stackLook.values()) ch.tick(now);
     return true;
   };
+  // Phones (globals.css, max-width 767px): the wall's mirror above its top
+  // is for home only; at any stop it fades (.3 s ease) as the stop is asked
+  // for, as .desk-wall::after does there
+  const phoneWall = matchMedia("(max-width: 767px)");
+  const isMirror = (p: Placed) => p.item.cls.endsWith(" room-mirror");
   const arrange = (v: View, rule: Rule | ((p: Placed) => { m: Rule; op: Rule }), now: number, only?: (p: Placed) => boolean) => {
     for (const p of room) {
       if (only && !only(p)) continue;
       const st = stateOf(p, v);
       const r = typeof rule === "function" ? rule(p) : { m: rule, op: rule };
       p.m.retarget(st.m ?? p.item.m, r.m, now);
-      p.op.retarget(st.op ?? p.item.op, r.op, now);
+      if (isMirror(p)) p.op.retarget(phoneWall.matches && v !== "home" ? 0 : st.op ?? p.item.op, rule && !reduced() ? { dur: 300, delay: 0, ease: EASE.ease } : null, now);
+      else p.op.retarget(st.op ?? p.item.op, r.op, now);
       const vis = st.vis ?? p.item.vis !== false;
       const ud = p.meshes[0].userData;
       // What home does not show (Off Duty's corner) goes once the camera is
@@ -1173,6 +1182,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const pl = poolCh.value(now);
       nu.pool.value.set(pl[0], pl[1], pl[2], pl[3]); nu.poolK.value = pl[4];
     }
+    // Phones (Binder.css, max-width 760px): the page has no binder, on the
+    // desk or anywhere (.pf-binder display: none)
+    if (phoneBinder.matches) for (const m of binderMeshes) m.visible = false;
     for (const l of lives) {
       l.mesh.visible = l.host.meshes[0].visible;
       (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
@@ -1327,6 +1339,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // the night, the lamp: toggled at rest (the page's layers show it), kept for the flight
   const moNight = new MutationObserver(() => { nightTo(view, performance.now(), rest); dirty = true; kick(); });
   moNight.observe(root, { attributes: true, attributeFilter: ["data-night", "data-lamp"] });
+  // a phone turned across either width: the binder and the wall's mirror as the page's then
+  const binderMeshes = room.filter(isBinder).flatMap((p) => p.meshes);
+  const onPhone = () => {
+    const now = performance.now();
+    for (const p of room) if (isBinder(p)) p.meshes[0].userData.dirty = true;
+    arrange(view, null, now, isMirror);
+    dirty = true; kick();
+  };
+  phoneBinder.addEventListener("change", onPhone);
+  phoneWall.addEventListener("change", onPhone);
   const onResize = () => { layout(); kick(); };
   addEventListener("resize", onResize);
   const ro = new ResizeObserver(onResize);
@@ -1535,6 +1557,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       for (const l of lives) { l.lcd.dispose(); l.tex.dispose(); }
       hitLayer?.dispose();
       removeEventListener("resize", onResize);
+      phoneBinder.removeEventListener("change", onPhone);
+      phoneWall.removeEventListener("change", onPhone);
       setGroupsShown(false);
       for (const t of texCache.values()) t.dispose();
       for (const sl of slots.values()) sl.tex.dispose();

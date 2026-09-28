@@ -1,5 +1,5 @@
 """A texture's pixels for the encoder (textures.mjs): the source, scaled
-down (never up) to the size the closest camera needs, premultiplied by its
+down (never up, but for the round up to a multiple of 4) to the size the closest camera needs, premultiplied by its
 alpha (a compressed texture cannot be premultiplied on upload, and
 filtering needs it), as raw RGBA.
 
@@ -31,12 +31,17 @@ def psnr(x, y):
     mse = float((d * d).mean())
     return 99.0 if mse < 1e-12 else 10 * np.log10(1.0 / mse)
 
+# every size a multiple of 4: a block-compressed texture's top level must
+# be one where the browser can only take BC1–3 (Firefox on a Mac: S3TC
+# only), or the texture is refused and draws black (M7, 28.09); at most 3 px
+# more than the camera needs, from the source as ever
+r4 = lambda v: max(4, -(-v // 4) * 4)
 k = min(1.0, w / sw, h / sh)
-tw, th = max(4, round(sw * k)), max(4, round(sh * k))
+tw, th = r4(round(sw * k)), r4(round(sh * k))
 base = pm if (tw, th) == pm.size else pm.resize((tw, th), Image.LANCZOS)
 cur = base
 while soft and min(cur.size) > 16:
-    nw, nh = max(4, round(cur.size[0] * 0.75)), max(4, round(cur.size[1] * 0.75))
+    nw, nh = r4(round(cur.size[0] * 0.75)), r4(round(cur.size[1] * 0.75))
     small = base.resize((nw, nh), Image.LANCZOS)
     if psnr(small.resize(base.size, Image.LANCZOS), base) < 40.0:
         break

@@ -7,7 +7,7 @@
 // accessibility tree). Screenshots for the report.
 //
 //   node scripts/room/hits-test.mjs http://localhost:3301 [only]
-// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, binder, lcd, flight)
+// only: a comma list of sections (parity, trophy, award, offduty, bike, wallet, files, binder, things, lcd, flight)
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -543,6 +543,30 @@ if (run("binder")) {
   await arrive("closed");
 }
 // ── the bike computer's screen, live (M4): WebGL's against the legacy LCD ──
+// ── Off Duty's things (M6 group 6): the page's own, mounted unseen (RoomOffDuty.tsx) ──
+if (run("things")) {
+  if ((await st()).desk !== "offduty") { await b.ev(`dispatchEvent(new Event('kate:off-duty'))`); await arrive("offduty"); }
+  await until("document.querySelector('.room-od .bs-book')", 5000);
+  const things = HITS.filter((h) => h.type.startsWith("od-"));
+  const labels = JSON.parse(await b.ev(`JSON.stringify(${JSON.stringify(things.map((h) => [h.id, h.of.sel, h.of.i]))}.map(([id,s,i])=>{const c=document.querySelector('.room-hit[data-hit="'+id+'"]'),e=document.querySelectorAll('.room-od '+s)[i];return [id,c&&c.getAttribute('aria-label'),e&&e.getAttribute('aria-label'),c&&!c.hidden,c&&c.tabIndex]}))`));
+  const bad = labels.filter(([, a, b2, vis, tab]) => !a || a !== b2 || !vis || tab !== 0).map(([id]) => id);
+  ok(!bad.length, `things: ${things.length} controls, each shown, in the tab order, named as the page's own`, bad.join(" "));
+  // Enter on the first book takes it out; its control goes to the cover; Escape puts it back
+  await b.ev(`document.querySelector('.room-hit[data-hit="od-book-0"]').focus()`);
+  const r0 = await rect("od-book-0");
+  await key("Enter"); await sleep(1500);
+  const out = await b.ev("!!document.querySelector('.room-od .bs-book')?.hasAttribute('data-open')");
+  const r1 = await rect("od-book-0");
+  ok(out, "things: Enter on a book takes it out (the page's own data-open)");
+  ok(!!r0 && !!r1 && r1.w > r0.w * 2, "things: taken out, its control lies over its cover", JSON.stringify({ w0: r0?.w, w1: r1?.w }));
+  await key("Escape"); await sleep(1500);
+  ok(!(await b.ev("!!document.querySelector('.room-od .bs-book')?.hasAttribute('data-open')")) && (await st()).desk === "offduty", "things: Escape puts it back and stays at Off Duty");
+  // one at a time: a tape out, then the omnibus: the tape goes back
+  await b.ev(`document.querySelector('.room-hit[data-hit="od-tape-3"]').click()`); await sleep(1200);
+  await b.ev(`document.querySelector('.room-hit[data-hit="od-omnibus-0"]').click()`); await sleep(1200);
+  ok(!(await b.ev("document.querySelectorAll('.room-od .vt-tape')[3].hasAttribute('data-open')")) && (await b.ev("document.querySelector('.room-od .od-comic').hasAttribute('data-open')")), "things: one out at a time (the omnibus puts the tape back)");
+  await key("Escape"); await sleep(1200);
+}
 if (run("lcd")) {
   const shotLcd = async (gl, page, file) => {
     await goto(gl, "offduty");

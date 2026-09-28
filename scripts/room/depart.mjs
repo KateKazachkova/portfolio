@@ -1,8 +1,10 @@
 // The first departure from home after a load, many times over: the leg
 // flash.mjs opens with (home→files, 6 s after the load), each run a fresh
 // load with the screencast on from the start, as there. Per run: flashes
-// (flashes.py), the leg's largest jump, and the page's frame intervals
-// just after setting off (rAF, ms). For the rare night frame (HANDOFF §10).
+// (flashes.py; flashAt: screencast frames after setting off), the leg's
+// largest jump, the page's frame intervals just after setting off (rAF, ms)
+// and the room's state each frame (state.json). Found the rare night frame
+// (HANDOFF §10: a first flight's wait for its pictures, fixed 28.09).
 //
 //   NIGHT=1 node scripts/room/depart.mjs http://localhost:3301 [runs] [OUTDIR]
 import path from "node:path";
@@ -50,8 +52,6 @@ for (let r = 0; r < RUNS; r++) {
   const res = JSON.parse(execFileSync("python3", [path.join(import.meta.dirname, "flashes.py"), dir]).toString());
   const leg = res.legs.find((l) => l.leg === "home→files");
   const dt = ts.slice(1).map((t, i) => +(t - ts[i]).toFixed(1));
-  // the screencast frames' times against the page's frames
-  const t0 = frames[marks[1].frame]?.t;
   const row = { flashAt: res.flashes.map((x) => x.frame - marks[1].frame), run: r, frames: res.frames, flashes: res.flashes.length, maxJump: leg?.maxJump, dtMax: Math.max(...dt.slice(0, 10)), dt: dt.slice(0, 8) };
   results.push(row);
   log(JSON.stringify(row));

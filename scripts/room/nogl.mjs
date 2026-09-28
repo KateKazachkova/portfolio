@@ -40,5 +40,29 @@ check("reload: the CSS room, the flag dropped", !s.gl && s.flag === null && s.cs
 const errs = b.console.filter((l) => /^(error|EXC)/.test(l) && !/^error (room|THREE\.WebGLRenderer)/.test(l));
 check("no other console errors", errs.length === 0, errs.slice(0, 5));
 b.close();
+
+// a WebGL room that runs, then loses its context for good at Recognition
+// (WEBGL_lose_context, never restored): after engine.ts's 5 s the CSS room
+// takes over there, and moving on works
+const c = await launch({ headed: true, width: 1512, height: 860, dpr: 2 });
+const cstate = async () => JSON.parse(await c.ev(`JSON.stringify({gl: document.documentElement.hasAttribute('data-gl'), failed: document.documentElement.dataset.glFailed ?? null, lost: document.documentElement.dataset.glLost ?? null, desk: document.documentElement.dataset.desk ?? null, arrived: document.documentElement.dataset.deskArrived ?? null, css3dShown: (() => { const w = document.querySelector('.desk-world'); return !!w && getComputedStyle(w).display !== 'none'; })(), canvas: !!document.querySelector('.room-canvas'), hits: !!document.querySelector('.room-hits'), room: !!window.__room})`));
+await c.go(`${SITE}/?nointro&gl=1`, 5000);
+await c.ev("dispatchEvent(new Event('kate:recognition'))"); await sleep(3500);
+s = await cstate();
+check("lost: the WebGL room at Recognition first", s.gl && s.canvas && s.desk === "award" && s.arrived === "1", s);
+await c.ev("window.__lose = window.__room.renderer.getContext().getExtension('WEBGL_lose_context'); window.__lose.loseContext()");
+await sleep(1500);
+s = await cstate();
+check("lost: still waiting for it to come back (1.5 s)", s.gl && s.lost === "1", s);
+await sleep(5000);
+s = await cstate();
+check("lost for good: the CSS room at Recognition, no WebGL left", !s.gl && s.failed === "1" && s.css3dShown && !s.canvas && !s.hits && !s.room && s.desk === "award", s);
+await c.shot(path.join(OUT, "lost-award.png"));
+await c.ev("dispatchEvent(new Event('kate:off-duty'))"); await sleep(3500);
+s = await cstate();
+check("lost for good: on to Off Duty in the CSS room", s.desk === "offduty" && s.arrived === "1" && s.css3dShown, s);
+const cerrs = c.console.filter((l) => /^(error|EXC)/.test(l) && !/^error room/.test(l));
+check("lost for good: no other console errors", cerrs.length === 0, cerrs.slice(0, 5));
+c.close();
 log(fails ? `${fails} failed` : "all passed");
 process.exit(fails ? 1 : 0);

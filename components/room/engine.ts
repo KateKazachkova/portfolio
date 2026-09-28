@@ -206,6 +206,9 @@ export type Room = {
   renderRegion(x: number, y: number, w: number, h: number, W: number, H: number): string;
 };
 
+/** how long a lost WebGL context may stay lost before the page gives up on it */
+const LOST_MS = 5000;
+
 export async function startRoom(o: RoomOptions): Promise<Room> {
   const root = document.documentElement;
   const params = new URLSearchParams(location.search);
@@ -1294,8 +1297,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   addEventListener("resize", onResize);
   const ro = new ResizeObserver(onResize);
   ro.observe(o.stage);
-  const onLost = (e: Event) => { e.preventDefault(); root.dataset.glLost = "1"; };
-  const onRestored = () => { delete root.dataset.glLost; dirty = true; kick(); };
+  // (a context the browser does not give back — a GPU reset it gave up on,
+  // too many losses — would leave the room empty: after LOST_MS the page is
+  // told, and RoomGL puts the CSS room in its place)
+  let lostTimer = 0;
+  const onLost = (e: Event) => {
+    e.preventDefault(); root.dataset.glLost = "1";
+    clearTimeout(lostTimer); lostTimer = window.setTimeout(() => { if (root.dataset.glLost) dispatchEvent(new Event("room:lost")); }, LOST_MS);
+  };
+  const onRestored = () => { clearTimeout(lostTimer); delete root.dataset.glLost; dirty = true; kick(); };
   canvas.addEventListener("webglcontextlost", onLost);
   canvas.addEventListener("webglcontextrestored", onRestored);
 
@@ -1477,6 +1487,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
         homeMs: Math.round(homeAt), waits, poster: posterGone, previews: [...slots.values()].filter((sl) => sl.loTex).length };
     },
     dispose() {
+      clearTimeout(lostTimer);
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); ro.disconnect(); moNight.disconnect();

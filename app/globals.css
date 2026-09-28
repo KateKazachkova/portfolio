@@ -907,11 +907,14 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   mix-blend-mode: screen;
 }
 
-/* Phones: the case stands lower in a tall window, so the wall goes on up to
-   the top of the page – its own picture mirrored above it, seam to seam
-   (Kate, 27.09). Only at home: on the way down to the desk it would pass
-   behind the camera (see .desk-wall), so it fades as the camera leaves. */
-@media (max-width: 767px) {
+/* The wall goes on up to the top of the window – its own picture mirrored
+   above it, seam to seam: on phones the case stands lower in a tall window
+   (Kate, 27.09), and on a desktop a wide, short window saw over the wall's
+   top at the stops that look at it (Kate, 28.09). Not on the way down to the
+   desk: there it would pass behind the camera (see .desk-wall), so it fades
+   as the camera sets off for Case Files or Profile — on phones for any stop,
+   whose pans run wide. */
+@media all {
   .desk-wall:not(.desk-wall--hung)::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
     height: calc(1600 * var(--u)); pointer-events: none;
@@ -928,6 +931,11 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   }
   .desk-wall.desk-ext::after { --wall-img: url("/scene/desk3d/wall-ext.jpg"); }
   .desk-wall.desk-extl::after { --wall-img: url("/scene/desk3d/wall-extl.jpg"); }
+  .desk-wall.desk-ext2::after { --wall-img: url("/scene/desk3d/wall-ext2.jpg"); }
+  .desk-wall.desk-extl2::after { --wall-img: url("/scene/desk3d/wall-extl2.jpg"); }
+  :root:is([data-desk="open"], [data-desk="profile"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
+}
+@media (max-width: 767px) {
   :root[data-desk]:not([data-desk="closed"]) .desk-wall:not(.desk-wall--hung)::after { opacity: 0; }
 }
 
@@ -952,6 +960,26 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
                 url("/scene/desk3d/desk-extl-deep.jpg");
               background-position: calc(.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
 .desk-ply.desk-extl  { background-image: url("/scene/desk3d/ply-extl.jpg"); }
+/* …and 700 px more again each way, for a wide, short window, whose stage
+   is small and sees past both (Kate, 28.09): each the extension beside it
+   mirrored back, so again the seam is its own reflection; the tiles' lines
+   carry on (105.25 and 55.25 px in) */
+.desk-ext2 { left: calc(2872.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-wall.desk-ext2 { background-image: url("/scene/desk3d/wall-ext2.jpg"); }
+.desk-top.desk-ext2  { background-image:
+                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
+                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
+                url("/scene/desk3d/desk-ext2-deep.jpg");
+              background-position: calc(105.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
+.desk-ply.desk-ext2  { background-image: url("/scene/desk3d/ply-ext2.jpg"); }
+.desk-extl2 { left: calc(-2452.5 * var(--u)); width: calc(700 * var(--u)); }
+.desk-wall.desk-extl2 { background-image: url("/scene/desk3d/wall-extl2.jpg"); }
+.desk-top.desk-extl2  { background-image:
+                linear-gradient(90deg, var(--line) 0 calc(2 * var(--u)), transparent 0),
+                linear-gradient(var(--line) 0 calc(2 * var(--u)), transparent 0),
+                url("/scene/desk3d/desk-extl2-deep.jpg");
+              background-position: calc(55.25 * var(--u)) 0, 0 calc(57.3 * var(--u)), 0 0; }
+.desk-ply.desk-extl2  { background-image: url("/scene/desk3d/ply-extl2.jpg"); }
 .desk-under { top: calc(683 * var(--u)); height: calc(1200 * var(--u));
               background: linear-gradient(#1e1a16, #100e0c calc(60 * var(--u)));
               transform: translateZ(calc(1145 * var(--u))); }
@@ -1465,7 +1493,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .pf-binder.desk-binder .pf-leaf { --lift: calc(var(--t) + .6 * var(--u)); }
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
-.desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
+.desk-top:not(.desk-ext, .desk-ext2), .desk-cases { transform-style: preserve-3d; }
 
 /* ── Off Duty: the fourth stop, Recognition the other way ──
    As at Recognition, the camera only slides (Kate, 26.09: no change of
@@ -1897,10 +1925,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    camera sets off for any stop. Visibility, not opacity: below 1, opacity
    would flatten the wallet's halves out of 3D. */
 :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
-[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
-[data-desk="award"] :is(.desk-extl, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
-[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
-[data-desk="offduty"] :is(.desk-ext, .desk-wall--hung, .desk-cert, .desk-award),
+[data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-extl, .desk-top.desk-extl2, .desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
+[data-desk="award"] :is(.desk-extl, .desk-extl2, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
+[data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-extl, .desk-extl2, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
+[data-desk="offduty"] :is(.desk-ext, .desk-ext2, .desk-wall--hung, .desk-cert, .desk-award),
 [data-desk="profile"] .case-world {
   animation: desk-off 0s linear calc(var(--cam-t) + var(--cam-wait)) forwards;
 }

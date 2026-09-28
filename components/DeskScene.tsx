@@ -230,6 +230,9 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       </div>
       <div className="desk-plane desk-wall desk-ext" aria-hidden />
       <div className="desk-plane desk-wall desk-extl" aria-hidden />
+      {/* and once more each way, for wide windows (globals.css .desk-ext2) */}
+      <div className="desk-plane desk-wall desk-ext2" aria-hidden />
+      <div className="desk-plane desk-wall desk-extl2" aria-hidden />
       {/* the wall once more, bare, over both halves of it: what hangs there
           runs across the seam and must not be covered by the extension */}
       <div className="desk-plane desk-wall desk-wall--hung">
@@ -253,6 +256,10 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       <div className="desk-plane desk-ply desk-ext" aria-hidden />
       <div className="desk-plane desk-top desk-extl" aria-hidden />
       <div className="desk-plane desk-ply desk-extl" aria-hidden />
+      <div className="desk-plane desk-top desk-ext2" aria-hidden />
+      <div className="desk-plane desk-ply desk-ext2" aria-hidden />
+      <div className="desk-plane desk-top desk-extl2" aria-hidden />
+      <div className="desk-plane desk-ply desk-extl2" aria-hidden />
       <div className="desk-plane desk-top">
         <div className="desk-shadow" aria-hidden />
         {/* the trophy's contact shadow, on the desk under its base (desk-top

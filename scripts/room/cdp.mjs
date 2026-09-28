@@ -60,6 +60,8 @@ export async function launch({ headed = false, width = 1600, height = 1000, dpr 
   // a day run is a day run whatever the hour (after dark the site is its
   // night edition): today at 10:30 unless NIGHT is asked for (27.09 evening:
   // "day" tests run after 21:00 were night ones, HEAD's as much as the new)
+  // ROOM_CSS: a style laid over the page from the start (A/B measurements only)
+  if (process.env.ROOM_CSS) await send("Page.addScriptToEvaluateOnNewDocument", { source: `document.addEventListener("DOMContentLoaded",()=>{const s=document.createElement("style");s.textContent=${JSON.stringify(process.env.ROOM_CSS)};document.head.appendChild(s)})` });
   if (!process.env.NIGHT && process.env.ROOM_CLOCK !== "real") await send("Page.addScriptToEvaluateOnNewDocument", { source: `(()=>{const O=Date, off=new O(new O().getFullYear(),new O().getMonth(),new O().getDate(),10,30).getTime()-O.now();
   class D extends O{constructor(...a){a.length?super(...a):super(O.now()+off)} static now(){return O.now()+off}}
   window.Date=D;})()` });

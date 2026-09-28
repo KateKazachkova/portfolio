@@ -251,7 +251,7 @@ No binder texture/network optimisation; no bake viewport change; don't fix the a
 - Responsive 1024–1439: staging's `.pf-binder.desk-binder { scale: .95 }` and the index sheets' `translate 21u` are not in the 1600 px bake (profile compare 35–39 % there).
 - Profile arrival-DOM spike (25–41 ms, 2 frames after arrival): recheck on a weaker device; arrival-DOM budget.
 - `gpu/shared_images` (~772–862 MB): break down what it holds, re-measure without legacy.
-- Menu glass `backdrop-filter` over the canvas: benchmark (it blurs the canvas every flight frame).
+- Menu glass `backdrop-filter` over the canvas: **measured 28.09 — nothing to do**: `.hero-aside`'s computed `backdrop-filter` is `none` at home and at Case Files (flight-dom's line names the rule, not a live filter); bench A/B with `ROOM_CSS='.hero-aside{backdrop-filter:none!important}'` (cdp.mjs hook): mean 8.37 both, p95 avg 9.37–9.55 vs 9.37–9.44 (noise).
 - Binder texture/network optimisation (after the binder transition); network total 31 MB vs legacy 8.9.
 - Bake/responsive text hand-over (sheets laid out at 1600 px vs live DOM).
 - Safari, Firefox, iPad QA; real mobile device test and the mobile decision (known: case visible at Case Files in GL on mobile; Profile differs ~50 %).

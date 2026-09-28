@@ -1,7 +1,7 @@
 #!/bin/zsh
 # The whole regression (HANDOFF §8), one script after another, against the
 # running build on :3301 (rebuild first): logs and summary.txt under
-# ~/portfolio-test-output/regression. ≈75 min.  sh scripts/room/regression.sh
+# ~/portfolio-test-output/regression. ≈75 min.  zsh scripts/room/regression.sh
 cd ~/Documents/portfolio-webgl
 L=${ROOM_TESTS:-$HOME/portfolio-test-output}/regression; mkdir -p $L; rm -f $L/summary.txt
 S=http://localhost:3301

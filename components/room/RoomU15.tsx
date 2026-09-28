@@ -48,6 +48,18 @@ export function RoomU15() {
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk"] });
     return () => { cancelAnimationFrame(id); mo.disconnect(); };
   }, [host, warm]);
+  // its pictures decoded while it is still out of sight: shown on arrival
+  // undecoded, its first paint waited for the big prints' decodes (21–26 ms
+  // each, the first-visit Case Files frame of 25 ms)
+  useEffect(() => {
+    if (!host || !warm) return;
+    // (and each picture it swaps in later: the envelope's full copy, U15File's near)
+    const dec = (i: HTMLImageElement) => { i.decode().catch(() => {}); };
+    const onLoad = (e: Event) => { if (e.target instanceof HTMLImageElement) dec(e.target); };
+    host.addEventListener("load", onLoad, true);
+    const id = requestAnimationFrame(() => host.querySelectorAll("img").forEach(dec));
+    return () => { cancelAnimationFrame(id); host.removeEventListener("load", onLoad, true); };
+  }, [host, warm]);
   if (!host || !warm) return null;
   return createPortal(<div className="room-u15"><U15File x={AT.x} y={AT.y} r={AT.r} /></div>, host);
 }

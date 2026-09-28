@@ -1198,7 +1198,10 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .stack-moss > img:first-child { display: block; width: 100%; height: auto; }
 .stack-moss .stack-side { left: 15%; width: 70%; aspect-ratio: 600 / 415; }
 [data-desk="open"] .desk-card--stack[data-side="here"] .stack-moss { transform: translate(calc(-50% - 44 * var(--u)), calc(-50% - 58 * var(--u))) rotate(12deg); }
-.stack-mush { z-index: 0; width: calc(74 * var(--u)); transform: translate(calc(-50% + 136 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-18deg); }
+.stack-mush { z-index: 0; width: calc(74 * var(--u)); transform: translate(calc(-50% + 136 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-18deg);
+  /* lying on the desk they have a body (Kate, 28.09): caps and stems a
+     little thick toward the camera, and their shadow */
+  filter: drop-shadow(0 calc(.9 * var(--u)) 0 rgba(96, 40, 30, .55)) drop-shadow(0 calc(1.8 * var(--u)) 0 rgba(70, 44, 34, .35)) drop-shadow(0 calc(3 * var(--u)) calc(3.5 * var(--u)) rgba(20, 16, 12, .38)); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .stack-mush { transform: translate(calc(-50% + 214 * var(--u)), calc(-50% + 96 * var(--u))) rotate(-10deg); }
 /* Paper tags under the stack: Behance, the case's own page. */
 .jury-tag { position: absolute; left: 50%; top: 100%; z-index: 9; transform: translate(-50%, calc(50 * var(--u))) rotate(-2deg);

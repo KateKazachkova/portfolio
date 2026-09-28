@@ -37,4 +37,10 @@ run od-gl node scripts/room/od-gl.mjs $S
 run stacks-hover node scripts/room/stacks-hover.mjs $S
 run binder-turn node scripts/room/binder-turn.mjs $S
 run clock-return node scripts/room/clock-return.mjs $S
+# M7: no WebGL, the first departure at night, other GPUs' formats, Firefox
+run nogl node scripts/room/nogl.mjs $S
+NIGHT=1 run depart-night node scripts/room/depart.mjs $S 10
+run formats node scripts/room/formats.mjs $S
+run firefox node scripts/room/firefox.mjs $S
+run firefox-hits node scripts/room/firefox-hits.mjs $S
 echo "DONE $(date +%H:%M:%S)" >> $L/summary.txt

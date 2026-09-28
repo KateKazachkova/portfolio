@@ -1785,6 +1785,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   :root:not([data-desk]) .hero-aside-wrap, :root[data-desk="closed"] .hero-aside-wrap { transition-delay: .6s, 0s; }
 }
 @media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
+/* …and under 1024 px the bar over the desk (logo, Menu): home's ink is the
+   night's, cream, and the bar is bare — by day on the paper of Case Files
+   it takes the desk's ink too, while the menu is shut (open, it stands on
+   the page's own dark). */
+@media (max-width: 1023px) { :root[data-desk="open"]:not([data-night]) header:not(:has(#nav-panel)) > nav { --fg: #22283a; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
 @media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
 @media (prefers-reduced-motion: reduce) { .hero-aside-wrap { transition: none; } }

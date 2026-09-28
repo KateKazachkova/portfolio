@@ -238,8 +238,14 @@ for (const it of units) {
   const od = odOf.get(it.i);
   // (only what faces you then: a cover, its card, a comic; not the back or the ends)
   const faces = /(^| )(bs-book__cover|vt-tape__cover|bs-card|bs-comic|od-comic)( |$)/.test(it.cls);
-  it.need = Math.max(needOf(it), od && faces && states[`od:${od.key}`]?.[it.i]?.m ? needOf(it, states[`od:${od.key}`][it.i].m) : 0);
-  let rho = it.need / u; // texture px per CSS px of the bake page
+  const out = od && faces && states[`od:${od.key}`]?.[it.i]?.m ? needOf(it, states[`od:${od.key}`][it.i].m) : 0;
+  it.need = needOf(it);
+  // taken out it wants more: a card shows only then (its need is that one);
+  // a cover or a comic keeps the shelf's for its resident picture, and gets a
+  // second, sharper one only while out (textures.mjs -out, shelf.ts)
+  if (/(^| )bs-card( |$)/.test(it.cls)) it.need = Math.max(it.need, out);
+  else if (out > it.need * 1.2) it.needOut = out;
+  let rho = Math.max(it.need, it.needOut ?? 0) / u; // texture px per CSS px of the bake page
   rho = STEPS.find((s) => s >= rho * 0.97) ?? STEPS[STEPS.length - 1];
   it.rho = rho;
 }
@@ -266,7 +272,7 @@ out.od = odObjs.map(({ members, m, s, ...o }) => ({ ...o, m: toU(m, u), w: s[0] 
 const texName = (it) => `${String(it.i).padStart(3, "0")}-${(it.cls.split(" ").pop() || it.tag).replace(/[^a-z0-9_-]/gi, "").slice(0, 40)}`;
 
 if (OPT.only !== "flat") for (const it of units) {
-  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}), ...(stackOf.has(it.i) ? { stack: stackOf.get(it.i) } : {}), ...(leafMeta.of[it.i] ? { leaf: leafMeta.of[it.i] } : {}) };
+  const item = { i: it.i, cls: it.cls, anc: it.anc, back: it.back || undefined, tag: it.tag, w: it.w / u, h: it.h / u, m: toU(it.m, u), op: it.op, blend: it.blend, order: it.order, need: +it.need.toFixed(2), ...(it.needOut ? { needOut: +it.needOut.toFixed(2) } : {}), ...(odOf.has(it.i) ? { od: odOf.get(it.i) } : {}), ...(stackOf.has(it.i) ? { stack: stackOf.get(it.i) } : {}), ...(leafMeta.of[it.i] ? { leaf: leafMeta.of[it.i] } : {}) };
   // how it differs at each stop, if it does (the local box stays: the quad's
   // own offset into its box is applied to each state's matrix alike)
   const diff = {};

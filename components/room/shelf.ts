@@ -28,7 +28,7 @@ type List = Fn[];
 type Rule = { dur: number; delay: number; ease: (x: number) => number };
 export type OdThing = { key: string; kind: "book" | "comic" | "tape" | "omnibus"; sel: string; n: number; stand: boolean; v: Record<string, number>; m: number[]; w: number; h: number };
 type Plane = { meshes: THREE.Mesh[]; mats: THREE.ShaderMaterial[]; m: number[]; w: number; h: number; k: number; body: boolean; card: boolean; shown: () => boolean; op: () => number;
-  /** a card's picture: on the GPU only while its thing is out */
+  /** a card's picture (on the GPU only while its thing is out), or a cover's sharper one then */
   load?: () => void; unload?: () => void };
 export type ShelfCtx = {
   things: OdThing[];

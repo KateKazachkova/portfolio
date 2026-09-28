@@ -94,6 +94,24 @@ for (const it of scene.items) {
   // on the GPU: 1 byte a px for ASTC 4×4 / BC7 / ETC2 RGBA, and a third for mipmaps
   const g = Math.ceil(info.w / 4) * 4 * Math.ceil(info.h / 4) * 4 * (4 / 3);
   const res = { k2: `/room/ktx2/${name}.ktx2`, k2px: [info.w, info.h], k2mode: mode, k2bytes: bytes, lo: preview(master, name) };
+  // Off Duty's covers taken out: a second, sharper picture, loaded only then (shelf.ts)
+  if (it.needOut) {
+    const wo = [Math.ceil(it.needOut * it.w * MARGIN), Math.ceil(it.needOut * it.h * MARGIN)];
+    const outO = path.join(OUT, name + "-out.ktx2"), rawO = path.join(TMP, name + "-out.rgba");
+    const io = JSON.parse(execFileSync("python3", [path.join(import.meta.dirname, "prep.py"), master, rawO, String(wo[0]), String(wo[1]), "sharp"]).toString());
+    if (io.w > info.w * 1.1) {
+      if (OPT.force || !fs.existsSync(outO) || fs.statSync(outO).mtimeMs < fs.statSync(master).mtimeMs) {
+        const k2 = await encodeToKTX2(new Uint8Array(fs.readFileSync(rawO)), {
+          imageDecoder: async (buf) => ({ width: io.w, height: io.h, data: buf }),
+          isUASTC: true, generateMipmap: true, isYFlip: true, isPerceptual: true, isSetKTX2SRGBTransferFunc: false,
+          needSupercompression: true, uastcLDRQualityLevel: 2, enableRDO: true, rdoQualityLevel: 2.0, qualityLevel: 200, compressionLevel: 2,
+        });
+        fs.writeFileSync(outO, k2);
+        log((name + "-out").padEnd(36), "uastc", `${io.sw}×${io.sh} → ${io.w}×${io.h}`, `${(fs.statSync(outO).size / 1024).toFixed(0)} KB`);
+      }
+      Object.assign(res, { k2out: `/room/ktx2/${name}-out.ktx2`, k2outpx: [io.w, io.h], k2outbytes: fs.statSync(outO).size });
+    }
+  }
   done.set(it.src, res);
   Object.assign(it, res);
   totalIn += fs.statSync(master).size; totalOut += bytes; gpu += g;

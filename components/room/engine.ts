@@ -46,6 +46,8 @@ type Item = {
   rib?: { n: number; q: [number, number]; w: number; h: number };
   /** one of Off Duty's things' planes (bake.mjs, shelf.ts): its thing, and whether it turns with the thing's body */
   od?: { key: string; body: boolean };
+  /** a cover's sharper picture for when its thing is taken out (textures.mjs) */
+  k2out?: string;
   /** the award stack it is part of (Case Files: the page's :hover brightens the stack) */
   stack?: string;
   /** a Profile binder leaf's plane (bake.mjs, binderturn.ts): its leaf, which face or hung sheet */
@@ -535,8 +537,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       meshes: p.meshes, mats: p.mats, m: p.item.m, w: p.item.w, h: p.item.h, k: p.k,
       shown: () => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
       op: () => p.op.value(performance.now()),
-      load: outOnly.has(p.slot) ? () => { want([p.slot], 0); } : undefined,
-      unload: outOnly.has(p.slot) ? () => evict(p.slot) : undefined,
+      ...(outOnly.has(p.slot) ? { load: () => { want([p.slot], 0); }, unload: () => evict(p.slot) }
+        // a cover taken out: its sharper picture while out, the shelf's one again after
+        : p.item.k2out && useK2 ? ((out: Slot) => ({
+          load: () => { for (const m of p.mats) out.mats.add(m); if (out.state === 2) for (const m of p.mats) m.uniforms.map.value = out.tex; else want([out], 0); },
+          unload: () => { for (const m of p.mats) { out.mats.delete(m); m.uniforms.map.value = p.slot.tex; } evict(out); },
+        }))(slotOf(p.item.k2out)) : {}),
     })),
     lifted, placed,
     reduced: () => matchMedia("(prefers-reduced-motion: reduce)").matches,

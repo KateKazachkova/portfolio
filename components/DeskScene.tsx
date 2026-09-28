@@ -6,7 +6,7 @@ import AwardRail from "@/components/AwardRail";
 import AwardStack from "@/components/desk/AwardStack";
 import { useWarm } from "@/components/desk/useWarm";
 import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
-import DeskBinder, { BINDER_BOX, PROFILE_EVENT } from "@/components/profile/DeskBinder";
+import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 import BookShelf from "@/components/desk/BookShelf";
 import TapeStacks from "@/components/desk/TapeStacks";
@@ -212,101 +212,12 @@ function useStops() {
   return ready;
 }
 
-/** The sheets under the index column: where the column's box lands on the
- *  desk at the two stops that look straight down on it (Case Files at pan 0,
- *  Profile), so its words stand on paper at any window size. Looking straight
- *  down, the desk maps to the window by one scale about the camera's axis —
- *  2150 over the eye's height above the sheet — and the axis is the box's
- *  (560, 226) plus the lens shift (useDeskCamera's --dx, --dy). Desk-top px.
- *  Until measured, and under 1024 (the column stands over the case), the
- *  values measured at 1440 × 900. Its own component, so a resize redraws
- *  the two sheets and not the room. */
-type Sheet = { x: number; y: number; w: number; h: number };
-const SHEETS: Record<"files" | "profile", Sheet> = {
-  files: { x: 1191, y: 611, w: 155, h: 225 },
-  profile: { x: 2719, y: 237, w: 191, h: 240 },
-};
-// How far each sheet reaches past the column's box, in window px (measured
-// at 1440 × 900, where the sheets were laid by eye)
-const SHEET_PAD = { l: 76, t: 24, r: 52, b: 34 };
-// The Profile sheet runs in under the binder's first sheet: its right edge
-// stays there, on the desk, whatever the column does
-const PROFILE_SHEET_R = SHEETS.profile.x + SHEETS.profile.w / 2;
-const sheetStyle = (s: Sheet, r: string) => ({
-  left: `calc(${s.x} * var(--u))`, top: `calc(${s.y} * var(--u))`, "--r": r, "--w": s.w, "--h": s.h,
-} as React.CSSProperties);
-function DeskSheets({ files }: { files: boolean }) {
-  const [sheets, setSheets] = useState(SHEETS);
-  useEffect(() => {
-    const cam = document.querySelector<HTMLElement>(".scene-cam");
-    const stage = cam?.parentElement;
-    const col = document.querySelector<HTMLElement>(".hero-aside");
-    if (!cam || !stage || !col) return;
-    let raf = 0;
-    const fit = () => {
-      raf = 0;
-      if (innerWidth < 1024) { setSheets(SHEETS); return; }
-      const s = stage.getBoundingClientRect(), c = col.getBoundingClientRect();
-      const u = s.width / 1118;
-      // Measured on the stage, which scrolls with the column: the window's
-      // middle is the axis only at the scroll the lens shift was taken at
-      const dx = parseFloat(cam.style.getPropertyValue("--dx")) || 0;
-      const dy = parseFloat(cam.style.getPropertyValue("--dy")) || 0;
-      // the column's box in desk px about the camera's axis (the shot
-      // shifted by ox, oy), k screen px per desk px
-      const box = (ox: number, oy: number, k: number) => {
-        const d = (v: number, a: number) => (v - a) / (k * u);
-        const ax = s.left + 560 * u + dx + ox, ay = s.top + 226 * u + dy + oy;
-        return { l: d(c.left - SHEET_PAD.l, ax), r: d(c.right + SHEET_PAD.r, ax), t: d(c.top - SHEET_PAD.t, ay), b: d(c.bottom + SHEET_PAD.b, ay) };
-      };
-      // Case Files: the axis over desk-top (VIEW_X, 667.5)
-      const f = box(0, 0, SPD);
-      // Profile: eye 936 over the desk, the sheet 2.45 up in the binder, the
-      // axis over (2940, 290) and the shot 20 px left, 15 up
-      const p = box(-20, -15, 2150 / (936 - 2.45));
-      const pl = p.l + 2940;
-      const round = (v: number) => Math.round(v * 10) / 10;
-      const next = {
-        files: { x: round((f.l + f.r) / 2 + VIEW_X), y: round((f.t + f.b) / 2 + 667.5), w: round(f.r - f.l), h: round(f.b - f.t) },
-        profile: { x: round((pl + PROFILE_SHEET_R) / 2), y: round((p.t + p.b) / 2 + 290), w: round(PROFILE_SHEET_R - pl), h: round(p.b - p.t) },
-      };
-      setSheets((o) => (JSON.stringify(o) === JSON.stringify(next) ? o : next));
-    };
-    // the column's box and the stage's width change with the window; a
-    // resize waits a frame, for useDeskCamera's own handler to set the shift
-    const ro = new ResizeObserver(fit);
-    ro.observe(col);
-    ro.observe(stage);
-    const soon = () => { if (!raf) raf = requestAnimationFrame(fit); };
-    addEventListener("resize", soon);
-    return () => { cancelAnimationFrame(raf); removeEventListener("resize", soon); ro.disconnect(); };
-  }, []);
-  // the Profile sheet's box as a share of the binder's (DeskBinder BINDER)
-  useEffect(() => {
-    const p = sheets.profile, r = document.documentElement.style;
-    const bx = BINDER_BOX.x - BINDER_BOX.w / 2, by = BINDER_BOX.y - BINDER_BOX.h / 2;
-    const pct = (v: number, of: number) => String(Math.round((v / of) * 1e5) / 1e3);
-    r.setProperty("--tuck-l", pct(p.x - p.w / 2 - bx, BINDER_BOX.w)); r.setProperty("--tuck-t", pct(p.y - p.h / 2 - by, BINDER_BOX.h));
-    r.setProperty("--tuck-w", pct(p.w, BINDER_BOX.w)); r.setProperty("--tuck-h", pct(p.h, BINDER_BOX.h));
-  }, [sheets]);
-  return (
-    <>
-      {/* A sheet of paper where the index column lands over the desk, so
-          its words stand on paper and not on the tiles' grout: left of the
-          case files (at pan 0) and left of the Profile binder. */}
-      {files && <div className="desk-paper" aria-hidden style={sheetStyle(sheets.files, "-1.5deg")} />}
-      {/* the Profile one is slipped into the binder, over its board and
-          under its first sheet, and runs 56 desk px (~100 screen px)
-          wider to reach in under the sheet: it is the binder's own img
-          (DeskBinder TUCKED, so the WebGL room's flat binder has it in the
-          same layer), laid where this works it out (globals.css --tuck-*) */}
-    </>
-  );
-}
+// the room's extensions past the plate: right of it where Recognition looks,
+// left where Off Duty does, twice each way for wide windows (globals.css)
+const EXTS = ["desk-ext desk-side-r", "desk-extl desk-side-l", "desk-ext2 desk-side-r", "desk-extl2 desk-side-l"];
 
 export function DeskPlanes({ children }: { children?: React.ReactNode }) {
   const ready = useStops();
-  const warm = useWarm();
   return (
     <div className="desk-world">
       <div className="desk-plane desk-wall" aria-hidden>
@@ -321,8 +232,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           width: `calc(${AWARD_W} * var(--u))`, height: `calc(${AWARD.h} * var(--u))`,
         }} />
       </div>
-      <div className="desk-plane desk-wall desk-ext" aria-hidden />
-      <div className="desk-plane desk-wall desk-extl" aria-hidden />
+      {/* the room past the plate's edges, twice each way (globals.css .desk-side-r / -l) */}
+      {EXTS.map((e) => <div key={e} className={`desk-plane desk-wall ${e}`} aria-hidden />)}
       {/* the wall once more, bare, over both halves of it: what hangs there
           runs across the seam and must not be covered by the extension */}
       <div className="desk-plane desk-wall desk-wall--hung">
@@ -342,10 +253,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
         <img src="/artefacts/cert-indigo-women-in-design-2026.webp" alt="" draggable={false} />
       </a>
       )}
-      <div className="desk-plane desk-top desk-ext" aria-hidden />
-      <div className="desk-plane desk-ply desk-ext" aria-hidden />
-      <div className="desk-plane desk-top desk-extl" aria-hidden />
-      <div className="desk-plane desk-ply desk-extl" aria-hidden />
+      {EXTS.flatMap((e) => ["desk-top", "desk-ply"].map((p) => <div key={p + e} className={`desk-plane ${p} ${e}`} aria-hidden />))}
       <div className="desk-plane desk-top">
         <div className="desk-shadow" aria-hidden />
         {/* the trophy's contact shadow, on the desk under its base (desk-top
@@ -354,7 +262,6 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           left: `calc(${AWARD.x + 1052.5} * var(--u))`, top: `calc(${AWARD.z + 269} * var(--u))`,
           "--w": AWARD_W,
         } as React.CSSProperties} />
-        <DeskSheets files={warm} />
         <nav className="desk-cases" aria-label="Case files">
           {CASES.map((c) => c.img === "envelope" ? (
             <U15File key={c.slug} x={c.x} y={c.y} r={c.r} />

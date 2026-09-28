@@ -43,6 +43,11 @@ const H = 745;
 // and points down, so the pool is on the desk in front of the case, a little
 // left of the head, and wide enough to take in the whole desk
 const POOL = { x: LAMP_MOUTH.x - 120, y: 440 };
+// how far above the lid the shade's glow fades out (box px)
+const LID_FADE = 40;
+// the lit shade's glow: an ellipse about the lamp's mouth, and its box
+const GLOW = { cx: LAMP_MOUTH.x, cy: LAMP_MOUTH.y - 0.25 * LAMP_HEAD.h, rx: 0.6 * LAMP_HEAD.w, ry: 0.75 * LAMP_HEAD.h };
+const SHADE = { x: GLOW.cx - GLOW.rx, y: GLOW.cy - GLOW.ry, w: 2 * GLOW.rx };
 
 export default function NightRoom({ edition }: { edition: string }) {
   const { themePref } = useTime();
@@ -127,10 +132,17 @@ export default function NightRoom({ edition }: { edition: string }) {
           <stop offset="0.5" stopColor="rgb(240,214,178)" stopOpacity="0.9" />
           <stop offset="1" stopColor="rgb(236,208,170)" stopOpacity="0" />
         </radialGradient>
-        {/* the head shows only over the lid; below it is the case */}
-        <clipPath id="nr-over-lid">
-          <rect x="-3000" y="-3000" width="7118" height={3000 + LID} />
-        </clipPath>
+        {/* the head shows only over the lid; below it is the case. Faded out
+            over the last stretch above the lid, not cut: a clip drew the
+            shade's glow off in a straight line across the wall (Kate, 28.09) */}
+        <linearGradient id="nr-lid-fade" x1="0" y1={LID - LID_FADE} x2="0" y2={LID} gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#fff" />
+          <stop offset="1" stopColor="#000" />
+        </linearGradient>
+        {/* (only over the glow's own box: the mask is drawn off-screen) */}
+        <mask id="nr-over-lid" maskUnits="userSpaceOnUse" x={SHADE.x} y={SHADE.y} width={SHADE.w} height={LID - SHADE.y}>
+          <rect x={SHADE.x} y={SHADE.y} width={SHADE.w} height={LID - SHADE.y} fill="url(#nr-lid-fade)" />
+        </mask>
         <filter id="nr-soft" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3.5" />
         </filter>
@@ -144,13 +156,16 @@ export default function NightRoom({ edition }: { edition: string }) {
       {/* the lamp, when it is on */}
       <g className="night-room__lamp">
         <rect x="-3000" y="-2000" width="7118" height="6000" fill="url(#nr-pool)" />
-        <ellipse cx={LAMP_MOUTH.x} cy={LAMP_MOUTH.y - 0.25 * LAMP_HEAD.h} rx={0.6 * LAMP_HEAD.w} ry={0.75 * LAMP_HEAD.h} fill="url(#nr-shade)" clipPath="url(#nr-over-lid)" />
+        <ellipse cx={GLOW.cx} cy={GLOW.cy} rx={GLOW.rx} ry={GLOW.ry} fill="url(#nr-shade)" mask="url(#nr-over-lid)" />
       </g>
 
       {/* the window, out of frame on the left: its panes and their cross laid
           long across the desk in front of the case. Only the desk: a second
           set on the wall would be a second window. */}
-      <g filter="url(#nr-soft)" fill="url(#nr-moon-floor)" opacity="0.9">
+      {/* (with the lamp on, the moon's light is added to the lamp's, and is
+          the fainter of the two — not panes laid cold over the warm pool:
+          Kate, 28.09) */}
+      <g filter="url(#nr-soft)" fill="url(#nr-moon-floor)" opacity={lamp ? 0.35 : 0.9} style={lamp ? { mixBlendMode: "screen" } : undefined}>
         <path d="M-150 640 L40 612 L150 690 L-60 726 Z" />
         <path d="M58 609 L240 582 L360 654 L168 687 Z" />
         <path d="M-40 742 L170 704 L300 800 L70 846 Z" />

@@ -64,11 +64,9 @@ function Band({ k, front, back }: { k: number; front: React.ReactNode; back: Rea
   );
 }
 
-export function BinderBook({ spreads, at, go, className = "", style, onClick, tucked }: {
+export function BinderBook({ spreads, at, go, className = "", style, onClick }: {
   spreads: Spread[]; at: number; go: (to: number) => void;
   className?: string; style?: React.CSSProperties;
-  /** slipped in over the board and under the first sheet (the desk's binders) */
-  tucked?: React.ReactNode;
   /** return true to take the click instead of turning a page */
   onClick?: () => boolean;
 }) {
@@ -142,7 +140,6 @@ export function BinderBook({ spreads, at, go, className = "", style, onClick, tu
           <path d="M3 28 C3 3 57 3 57 28" fill="none" stroke={`url(#pf-steel-${y})`} strokeWidth="3.4" strokeLinecap="round" />
         </svg>
       ))}
-      {tucked}
       {leaves.map((l, i) => {
         const air = flying && i >= flying.from && i < flying.to;
         // a jump of several spreads lets them go one after another

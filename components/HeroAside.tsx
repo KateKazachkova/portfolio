@@ -24,14 +24,16 @@ export default function HeroAside({
         className="font-black uppercase tracking-tight leading-none"
         style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}
       >
-        <Link href="/" aria-label="KATE™ – home" style={{ color: "inherit" }}>
+        <Link href="/" aria-label="KATE™ – home" className="aside-strip" style={{ color: "inherit" }}>
           KATE<span style={{ color: "var(--accent-red)" }}>™</span>
         </Link>
       </p>
-      <h2 className="t-title mt-[124px]">{title}</h2>
+      {/* (their words in spans: over the desk each line gets a strip of the
+          desk under it, globals.css .aside-strip) */}
+      <h2 className="t-title mt-[124px]"><span className="aside-strip">{title}</span></h2>
       {/* Full ink, not the muted grey .t-body carries elsewhere: on the hero
           this line is the second half of the title, not body copy. */}
-      <p className="t-body mt-4" style={{ color: "var(--fg)" }}>{lead}</p>
+      <p className="t-body mt-4" style={{ color: "var(--fg)" }}><span className="aside-strip">{lead}</span></p>
 
       {/* The index itself — the same component the rail down every other page
           uses, because the rail is this column. */}

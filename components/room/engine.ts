@@ -57,7 +57,7 @@ type Item = {
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
-type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; tuck?: Record<"l" | "t" | "w" | "h", number | null>; od?: OdThing[]; leaves?: LeafFrame[]; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
+type Scene = { u: number; items: Item[]; flat: Baked[]; groups?: Record<string, number[]>; live?: Live[]; wallet?: WalletData; od?: OdThing[]; leaves?: LeafFrame[]; u15?: { card: number[]; lcd: { x: number; y: number; w: number; h: number } }; bud?: BudData };
 
 export type RoomOptions = {
   stage: HTMLElement; // .case-stage
@@ -504,10 +504,6 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     lcd: data.u15.lcd, material, liftTop,
     shown: (p) => { const ud = p.meshes[0].userData; return ud.vis !== false && !ud.away; },
   }) : null;
-  // the sheet under the index column at Profile, in the binder's panel where
-  // the bake had it (DeskSheets fits it to the column at any size, but the
-  // room's binder is baked at 1600 px: the hand-over must meet it)
-  if (data.tuck) for (const [k, v] of Object.entries(data.tuck)) if (v !== null) root.style.setProperty(`--tuck-${k}`, String(v));
   // the binder's turns and its certificates turned over (binderturn.ts)
   const binderTurn = data.leaves?.length ? makeBinderTurn({
     scene, leaves: data.leaves,

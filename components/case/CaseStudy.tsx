@@ -231,8 +231,8 @@ export default function CaseStudyPage({ data }: { data: Case }) {
           </nav>
           <nav className="flip" aria-label="Case studies">
             <Link className="flip__prev" href={`/work/${prev.slug}`} aria-label={`Previous case: ${prev.title}`}>←</Link>
-            <Link className="flip__next" href={`/work/${next.slug}`}>
-              <span className="flip__k">Next project</span> {next.title} <span aria-hidden>→</span>
+            <Link href={`/work/${next.slug}`}>
+              Next: {next.title} <span aria-hidden>→</span>
             </Link>
           </nav>
         </div>

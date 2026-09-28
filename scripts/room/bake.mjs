@@ -264,10 +264,6 @@ const out = { version: 1, u, stage: { w: stage.width / u, h: stage.height / u },
 // screen, baked blank (BAKE_CSS), its box here for components/room/lcd.ts
 const lcdBox = JSON.parse(await b.ev("(()=>{const e=document.querySelector('.bike__lcd');return JSON.stringify({m:window.__bkWorld(e),s:window.__bkSize(e)})})()"));
 out.live = [{ id: "bike-lcd", of: ".bike", m: toU(lcdBox.m, u), w: lcdBox.s[0] / u, h: lcdBox.s[1] / u }];
-// the sheet under the index column at Profile, where DeskSheets fits it at
-// the bake's size (the WebGL room's binder panel lays it the same: engine.ts)
-out.tuck = JSON.parse(await b.ev(`JSON.stringify(Object.fromEntries(["l","t","w","h"].map(k=>[k,+document.documentElement.style.getPropertyValue("--tuck-"+k)||null])))`));
-log("tuck", JSON.stringify(out.tuck));
 // Off Duty's things (shelf.ts): each one's frame at rest, its size and CSS numbers, u
 out.leaves = leafMeta.P.map((P, i) => ({ P: toU(P, u), W0: toU(leafMeta.W0[i], u), w: leafMeta.s[i][0] / u, h: leafMeta.s[i][1] / u }));
 out.od = odObjs.map(({ members, m, s, ...o }) => ({ ...o, m: toU(m, u), w: s[0] / u, h: s[1] / u }));

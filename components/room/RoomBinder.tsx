@@ -4,7 +4,6 @@ import { startTransition, useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BinderBook, useBinder } from "@/components/profile/Binder";
 import { SPREADS } from "@/components/profile/spreads";
-import { TUCKED } from "@/components/profile/DeskBinder";
 import "./RoomBinder.css";
 
 /**
@@ -67,7 +66,7 @@ export function RoomBinder() {
   };
   return createPortal(
     <div className="room-binder__hold" onClickCapture={keep}>
-      <BinderBook spreads={SPREADS} at={at} go={go} className="room-binder" style={{ width: "100%" }} tucked={TUCKED} />
+      <BinderBook spreads={SPREADS} at={at} go={go} className="room-binder" style={{ width: "100%" }} />
     </div>,
     host,
   );

@@ -83,6 +83,8 @@ html.bk::before, html.bk::after, html.bk body::before, html.bk body::after { dis
 html.bk .scene-cam { perspective: none !important; transform: none !important; }
 html.bk .desk-world { transform-origin: 0 0 0 !important; }
 html.bk .case-world { transform: none !important; }
+/* the wall's mirrored picture above its top (globals.css .desk-wall::after) is not baked: it lies above the page, out of any screenshot; the WebGL room mirrors the wall's own planes (engine.ts) */
+html.bk .desk-wall::after { display: none !important; }
 /* the binder's sheets as they lie before the first visit to Profile: blank (DeskBinder's BLANK spreads keep the sheet, not what is on it) */
 html.bk.bk-blank .desk-binder .pf-sheet * { visibility: hidden !important; }
 `;

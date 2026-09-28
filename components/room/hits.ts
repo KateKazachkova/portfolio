@@ -410,6 +410,9 @@ export function startHits(o: {
         if (!state || !h.at.includes(state.view)) continue;
         const { pose, shift, u } = state;
         const out = h.open && legacyOf(h)?.hasAttribute("data-open") ? h.open : null;
+        // (said on the control too: a press on the thing out is not a press
+        // elsewhere, which puts it back — components/desk/offduty.ts)
+        if (h.open) el.toggleAttribute("data-open", !!out);
         const m = out?.m ?? h.byFocus?.[root.dataset.deskFocus ?? ""] ?? h.m;
         const hw = out?.w ?? h.w, hh = out?.h ?? h.h;
         const pts = [[0, 0], [hw, 0], [hw, hh], [0, hh]].map(([x, y]) => {

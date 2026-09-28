@@ -80,7 +80,8 @@ void main() {
       vec2 e = (b - vec2(mouth.x, mouth.y - 0.25 * head.y)) / vec2(0.6 * head.x, 0.75 * head.y);
       float te = length(e);
       float ae = te < 0.7 ? 1.0 : clamp(1.0 - (te - 0.7) / 0.3, 0.0, 1.0);
-      if (b.y < lid) c = over(c, vec3(1.0), ae * lamp);
+      // (faded out over the last 40 above the lid, as NightRoom's mask does)
+      c = over(c, vec3(1.0), ae * lamp * clamp((lid - b.y) / 40.0, 0.0, 1.0));
     }
     // the window's panes of moonlight on the desk
     vec2 m0 = vec2(-120.0, 600.0), m1 = vec2(420.0, 820.0);
@@ -90,7 +91,9 @@ void main() {
                        sdQuad(b, vec2(58.0, 609.0), vec2(240.0, 582.0), vec2(360.0, 654.0), vec2(168.0, 687.0))),
                    min(sdQuad(b, vec2(-40.0, 742.0), vec2(170.0, 704.0), vec2(300.0, 800.0), vec2(70.0, 846.0)),
                        sdQuad(b, vec2(188.0, 700.0), vec2(380.0, 666.0), vec2(520.0, 758.0), vec2(318.0, 796.0))));
-    c = over(c, moon, 0.9 * soft(sd, 3.5));
+    // (with the lamp on, screened over its pool at .35, as NightRoom's panes)
+    float am = soft(sd, 3.5);
+    c = mix(over(c, moon, 0.9 * am), over(c, 1.0 - (1.0 - c.rgb) * (1.0 - moon), 0.35 * am), lamp);
     // the torch, at the pointer
     if (torchOp > 0.001) {
       vec2 tb = (torch - stage.xy) / stage.zw * vec2(1118.0, 745.0);

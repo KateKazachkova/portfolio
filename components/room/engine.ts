@@ -215,6 +215,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const root = document.documentElement;
   const params = new URLSearchParams(location.search);
   const data: Scene = await (await fetch(o.sceneUrl ?? "/room/scene.json")).json();
+  // The wall goes on up past its top, its pictures mirrored above it seam to
+  // seam, as the page's .desk-wall::after does (globals.css; not baked: it
+  // lies above the page). Each wall plane and its wash again, flipped about
+  // its top edge. (In the CSS room it fades on the way down to the desk, to
+  // spare the browser a plane behind the camera: nothing to spare here.)
+  for (const it of [...data.items]) {
+    if (!/^desk-plane desk-wall(?! desk-wall--hung)/.test(it.cls) || /::after/.test(it.cls) || it.m[13] > -100) continue;
+    const m = it.m.slice(); for (const k of [4, 5, 6, 7]) m[k] = -m[k];
+    data.items.push({ ...it, cls: it.cls + " room-mirror", m, lo: undefined });
+  }
 
   const canvas = document.createElement("canvas");
   canvas.className = "room-canvas";

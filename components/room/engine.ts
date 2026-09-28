@@ -827,9 +827,19 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const ms of groupMeshes.values()) for (const m of ms) m.visible = on;
     applyGroupOpacity();
     // (a class, not visibility on the group: a child that sets its own
-    // visibility — the niche's clip — would still be drawn)
-    for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.toggle("room-away", on);
+    // visibility — the niche's clip — would still be drawn). By day put away
+    // in the frame WebGL has drawn them (draw(), after the render): at the
+    // change of state, which can come after this frame's rAF, the page showed
+    // the empty room for a frame (1 in 10 day runs). At night at the change
+    // of state still: the page's night goes with them there, and a swap
+    // inside the rAF let a long first-departure frame show no night at all
+    // (2–4 in 5 night runs; HANDOFF §0, 8b)
+    const byDay = on && !root.hasAttribute("data-night");
+    groupsAwayPending = byDay;
+    if (byDay) { dirty = true; kick(); }
+    else for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.toggle("room-away", on);
   };
+  let groupsAwayPending = false;
 
   // …and while they are away, a group that changes on the page (the clock's
   // minute, the TARDIS's charge and jump, the lamp) or runs an animation of
@@ -1118,6 +1128,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
     }
     renderer.render(scene, camera);
+    if (groupsAwayPending && groupsShown) { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.add("room-away"); }
     // the still of the room goes the frame WebGL has drawn it all
     if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
   };

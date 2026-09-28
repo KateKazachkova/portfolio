@@ -245,6 +245,7 @@ export function collect(SIG) {
   window.__bkWorld = (el) => { measure(); const m = worldOf(el, world); return m ? Array.from(m.toFloat64Array()) : null; };
   window.__bkSize = (el) => size.get(el) ?? [el.offsetWidth, el.offsetHeight];
   const groupM = {};
-  for (const [k, sel] of [["clock", ".flip-clock-slot"], ["lamp", ".desk-lamp"]]) { const g = document.querySelector(sel); if (g) groupM[k] = Array.from(worldOf(g, world).toFloat64Array()); }
+  // (on a phone the clock and the lamp are not in the room's chain: none then)
+  for (const [k, sel] of [["clock", ".flip-clock-slot"], ["lamp", ".desk-lamp"]]) { const g = document.querySelector(sel); const m = g && worldOf(g, world); if (m) groupM[k] = Array.from(m.toFloat64Array()); }
   return { groupM, u, stage: { left: S.left, top: S.top, width: S.width, height: S.height }, world: { left: W.left, top: W.top }, units, flat };
 }

@@ -120,9 +120,13 @@ export default function RootLayout({
               bar would line up beside the page instead of above it. */}
           <div className="flex-1 page-row">
             <SideNav />
-            <div className="flex-1 min-w-0">{children}</div>
+            {/* the footer in the page's own column: left of the page's
+                content only the navigation */}
+            <div className="flex-1 min-w-0">
+              {children}
+              <Footer />
+            </div>
           </div>
-          <Footer />
         </TimeProvider>
       </body>
     </html>

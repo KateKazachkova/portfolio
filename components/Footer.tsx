@@ -6,7 +6,10 @@ import { mono } from "@/components/ui/type";
 export default function Footer() {
   // Home ends on the case: its own column already carries the links and the
   // contact call, so the footer would only repeat them under the floor.
-  if (usePathname() === "/") return null;
+  const path = usePathname();
+  if (path === "/") return null;
+  // a case file's foot is as wide as its sheet, its edges the page's (app/case.css .case-foot)
+  const box = path.startsWith("/work/") ? "case-foot" : "max-w-6xl mx-auto px-6 py-10";
 
   return (
     // No rule of its own: on home the studio floor runs straight through the
@@ -14,7 +17,7 @@ export default function Footer() {
     // is padding, not margin — a margin would leave a strip the footer cannot
     // paint, and on home that strip reads as a line across the floor.
     <footer className="pt-10">
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className={box}>
         {/* top row */}
         <div className="flex flex-wrap items-start justify-between gap-8 mb-10">
           <div>

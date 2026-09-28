@@ -1875,6 +1875,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   :root[data-night][data-desk-arrived][data-desk="open"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(160 136 110); }
   :root[data-night][data-desk-arrived][data-desk="profile"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(125 106 90); }
   :root[data-night][data-lamp="off"][data-desk-arrived]:is([data-desk="open"], [data-desk="profile"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(58 60 82); }
+  /* at the wall's stops the column may stand over the case's door or the
+     trophy: the strips in the wall's slate there (Kate, 28.09) */
+  :root[data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(40 40 38); }
+  :root[data-night][data-desk-arrived]:is([data-desk="award"], [data-desk="offduty"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(20 20 24); }
 }
 
 /* On home the index lights the stop the camera is at; off home, the route.

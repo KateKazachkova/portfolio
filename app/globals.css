@@ -1329,7 +1329,10 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .desk-player { position: absolute; left: calc(151.2 * var(--eu)); top: calc(73.8 * var(--eu));
   width: calc(44.6 * var(--eu)); height: calc(95.4 * var(--eu)); padding: 0; border: 0; background: none;
   cursor: pointer; z-index: 12 !important; }
-.desk-player img { display: block; width: 100%; height: 100%; }
+.desk-player img { display: block; width: 100%; height: 100%;
+  /* a body on the desk (Kate, 28.09): its side, a hair below it, and its
+     shadow, as the prints beside it throw theirs */
+  filter: drop-shadow(0 calc(.9 * var(--eu)) 0 rgba(84, 86, 94, .85)) drop-shadow(0 calc(2.4 * var(--eu)) calc(3 * var(--eu)) rgba(20, 16, 12, .42)); }
 /* over it, what it plays: a paper label beside the player, while it is quiet */
 .desk-player__hint { position: absolute; right: 74%; top: 2%; white-space: nowrap; pointer-events: none;
   padding: calc(2.2 * var(--eu)) calc(3.4 * var(--eu)); background: #22283a; color: #f7f2e6; border-radius: calc(1.3 * var(--eu));

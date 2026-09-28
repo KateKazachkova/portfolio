@@ -26,14 +26,16 @@ for (const at of DATES) for (const path of PATHS) {
   await b.go(base + path, 4000);
   const hash = path.includes("#");
   for (let i = 0; i < 20; i++) {
-    if (await b.ev(`document.documentElement.hasAttribute("data-desk-arrived") || !location.hash`)) break;
+    if (await b.ev(`document.documentElement.hasAttribute("data-desk-arrived") || !location.hash`, 15000)) break;
     await sleep(500);
   }
-  const st = JSON.parse(await b.ev(`JSON.stringify({ clock: document.querySelector(".flip-clock")?.getAttribute("aria-label") ?? null,
+  const raw = await b.ev(`JSON.stringify({ clock: document.querySelector(".flip-clock")?.getAttribute("aria-label") ?? null,
     desk: document.documentElement.dataset.desk ?? null, arrived: document.documentElement.hasAttribute("data-desk-arrived"),
-    glReady: document.documentElement.hasAttribute("data-gl-ready"), night: document.documentElement.hasAttribute("data-night") })`));
+    glReady: document.documentElement.hasAttribute("data-gl-ready"), night: document.documentElement.hasAttribute("data-night") })`, 15000);
+  // a page that does not answer (a hung renderer) is a failure, not a crash
+  const st = raw ? JSON.parse(raw) : { hung: true };
   const errs = b.console.filter((l) => /error|EXC|418|hydrat|mismatch/i.test(l));
-  const bad = errs.length > 0 || (hash && !st.arrived) || (path.includes("gl=1") && !st.glReady);
+  const bad = !raw || errs.length > 0 || (hash && !st.arrived) || (path.includes("gl=1") && !st.glReady);
   if (bad) fails++;
   log(bad ? "FAIL" : "ok  ", at, path, JSON.stringify(st));
   for (const e of errs) log("    " + e.slice(0, 1200));

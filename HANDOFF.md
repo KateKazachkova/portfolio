@@ -255,7 +255,7 @@ No binder texture/network optimisation; no bake viewport change; don't fix the a
 - Binder texture/network optimisation (after the binder transition); network total 31 MB vs legacy 8.9.
 - Bake/responsive text hand-over (sheets laid out at 1600 px vs live DOM).
 - Safari, Firefox, iPad QA; real mobile device test and the mobile decision (known: case visible at Case Files in GL on mobile; Profile differs ~50 %).
-- WebGL context loss (`data-gl-lost` handled minimally) and a no-WebGL fallback (idea: per-stop baked stills + the same flat DOM layer; not built).
+- WebGL context loss: **tested 28.09** (`WEBGL_lose_context` at Recognition: `data-gl-lost=1`, then `restoreContext()`): the room is drawn again as before (three re-uploads every texture; pending 0, 148 loaded) and a flight to Off Duty afterwards is normal; no console errors. A no-WebGL fallback (idea: per-stop baked stills + the same flat DOM layer) is not built. Also: U15 player LCD — already drawn from the page's (title scroll, time), nothing to do.
 - VoiceOver manual QA (Kate).
 - PageSpeed / LCP with the flag (poster is first paint).
 - Bake source decision before legacy removal (scene.json + masters become the source).

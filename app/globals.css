@@ -1460,18 +1460,6 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    sheet sits halfway, at 4.9. The binder's u is half the desk's (its --u is
    read against a container half as wide), hence 2.45 here. */
 .pf-binder.desk-binder .pf-leaf { --lift: calc(var(--t) + .6 * var(--u)); }
-.desk-paper.desk-paper--tucked { transform: rotate(var(--r, 0deg)) translateZ(calc(2.45 * var(--u) + .1px)); }
-/* the sheets under the index column (DeskScene): 135 × 240 desk px unless
-   set, the generated sheet stretched a little taller than A-size to hold the
-   column (the camera over the case files is lower: its sheet is smaller) */
-.desk-paper {
-  --w: 135; --h: 240;
-  position: absolute; width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
-  margin: calc(var(--h) * -.5 * var(--u)) 0 0 calc(var(--w) * -.5 * var(--u));
-  background: url(/items/desk-paper.webp) center / 100% 100% no-repeat;
-  transform: rotate(var(--r, 0deg)) translateZ(.1px); pointer-events: none;
-  box-shadow: inset 0 calc(.35 * var(--u)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--u)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--u)) calc(.5 * var(--u)) rgba(20,16,12,.32), 0 calc(2.5 * var(--u)) calc(5 * var(--u)) calc(-1 * var(--u)) rgba(20,16,12,.24);
-}
 /* the desk keeps what lies on it in 3D, so the binder and the folder can
    stand their edges up off it (they are edge-on from the camera overhead) */
 .desk-top:not(.desk-ext), .desk-cases { transform-style: preserve-3d; }
@@ -1832,6 +1820,30 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   /* Pane off for now (Kate, 26.09): over the wall it cut the room. Kept, not
      removed: drop this line to bring it back. */
   .hero-aside::before { display: none; }
+}
+
+/* The index over the desk (Case Files, Profile): each line of it on a strip
+   of the desk's own colour, so the tiles' grout does not run through the
+   words — the sheets of paper that lay under the column are gone (Kate,
+   28.09). Only once the camera is there. A band a line high, not the
+   line's whole box (the title's lines stand 1em apart and would cover each
+   other); its ends padded out and pulled back by as much, on every line, so
+   nothing moves. The desk's colour behind the column at each stop, by day,
+   under the lamp at night, and in the dark with the torch. */
+@media (min-width: 1024px) {
+  .hero-aside :is(.aside-strip, .nav-index a[data-stop]) {
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+    padding-right: .35em; margin-right: -.35em;
+    background: linear-gradient(var(--strip), var(--strip)) 50% 50% / 100% var(--strip-h, 1.25em) no-repeat;
+    --strip: transparent;
+  }
+  .hero-aside .aside-strip { padding-left: .35em; margin-left: -.35em; }
+  .hero-aside .t-title .aside-strip { --strip-h: .96em; }
+  :root[data-desk-arrived][data-desk="open"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(225 221 213); }
+  :root[data-desk-arrived][data-desk="profile"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(202 198 192); }
+  :root[data-night][data-desk-arrived][data-desk="open"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(160 136 110); }
+  :root[data-night][data-desk-arrived][data-desk="profile"] .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(125 106 90); }
+  :root[data-night][data-lamp="off"][data-desk-arrived]:is([data-desk="open"], [data-desk="profile"]) .hero-aside :is(.aside-strip, .nav-index a[data-stop]) { --strip: rgb(58 60 82); }
 }
 
 /* On home the index lights the stop the camera is at; off home, the route.

@@ -179,7 +179,7 @@ Home's 3D room (desk, wall, stops Case Files / Recognition / Profile / Off Duty)
 - **M5 — night, lamp, shadows, TARDIS, room DOM out of flight:** `night.ts` (NightRoom + NightCam as one multiply pass drawn last; CSS timings .6/1.2/.9/.35/.5 s; NightCam pool moves over .9 s instead of jumping; torch at the pointer); DOM night only at rest (`data-gl-rest`); trophy wall shadow (a plane's own `::before` haze drawn first, `renderOrder -1`); TARDIS glow (all baked group looks fetched at idle); `.warm` already carried by the mirror; night shader pre-drawn at idle.
 
 ### 5. Baseline (1512×860 @2, M4 Pro, headed Chrome, 120 Hz) — do not regress
-- **Current baseline: §0 (27.09, sync 3 + memory pass 2).** The lines below are the history, older first where marked.
+- **Current baseline: §0 — the M6 ACCEPTANCE block (28.09) and the M7 lines after it (Off Duty 63.9 MB, network 46.5 MB); hits-test is 117 checks now (a `things` section).** The lines below are the history, older first where marked.
 - **Flights:** p95 **9.3 ms** at PR 2 / 1.5 / 1, day, night (lamp) and night (torch). Max **≤17.5 ms** for every flight except **award→profile #0** = first paint of the DOM binder after arrival (25–41 ms, accepted, M7). 0 frames >33 ms otherwise. First departure at night ≤17.4.
 - **Flashes:** 0 — samples: day 0/2860 frames, night 0/2944, torch 0/2929 (`flash.mjs`, legs incl. home→profile→home and a mid-flight reversal; max leg jump ~22–30, profile→home 27.4).
 - **GPU:** room textures **73.9–75.4 MB**; mirror/DOM groups **21–27 MB**; `gpu/shared_images` **772–862 MB**; `skia/gpu_resources` is a noisy cache (99–342 MB) — not a budget.

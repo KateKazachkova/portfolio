@@ -16,6 +16,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 // the desk in the wallet's V: its feet from the spine, the spine's place across
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
+import { glOn, onGl } from "@/lib/room/flag";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -495,6 +496,17 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // the WebGL room (?gl=1) has no CSS move to end: it says when it is there
     const onGlArrive = () => { if (!open.current) return; arrived = true; root.dataset.deskArrived = "1"; };
     window.addEventListener("room:arrive", onGlArrive);
+    // the WebGL room gave up (no WebGL, or its context lost for good) with the
+    // camera at a stop: the CSS world is built there, already where it is
+    // sent, so no move ends — once it stands still, it has arrived
+    const offGl = onGl(() => {
+      if (glOn() || !open.current) return;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const w = el.querySelector(".desk-world");
+        const moving = !!w?.getAnimations().some((a) => (a as CSSTransition).transitionProperty === "transform");
+        if (open.current && !arrived && !moving) { arrived = true; root.dataset.deskArrived = "1"; }
+      }));
+    });
     const set = (v: View | null) => {
       if (v === open.current) return;
       if (v && !open.current) window.scrollTo({ top: 0 });
@@ -635,6 +647,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       el.removeEventListener("focusin", onFocus);
       el.removeEventListener("transitionend", onArrive);
       window.removeEventListener("room:arrive", onGlArrive);
+      offGl();
       window.removeEventListener("room:case", onGlCase);
       window.removeEventListener("room:case-focus", onGlCaseFocus);
       cancelAnimationFrame(raf);

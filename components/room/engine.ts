@@ -821,14 +821,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const ms of groupMeshes.values()) for (const m of ms) m.visible = on;
     applyGroupOpacity();
     // (a class, not visibility on the group: a child that sets its own
-    // visibility — the niche's clip — would still be drawn). Put away in the
-    // frame WebGL has drawn them (draw(), right after render): put away at a
-    // change of state that came after this frame's rAF, the page showed a
-    // frame with neither (a flash of the empty room, 27.09)
-    if (on) { groupsAwayPending = true; dirty = true; kick(); }
-    else { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.remove("room-away"); }
+    // visibility — the niche's clip — would still be drawn)
+    for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.toggle("room-away", on);
   };
-  let groupsAwayPending = false;
+
   // …and while they are away, a group that changes on the page (the clock's
   // minute, the TARDIS's charge and jump, the lamp) or runs an animation of
   // its own (flap-fall, tardis-charge, the lamp's fade) is read again each
@@ -1116,7 +1112,6 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
     }
     renderer.render(scene, camera);
-    if (groupsAwayPending && groupsShown) { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.add("room-away"); }
     // the still of the room goes the frame WebGL has drawn it all
     if (o.poster && !posterGone && zoneReady(view)) { posterGone = true; o.poster.style.visibility = "hidden"; }
   };
@@ -1437,6 +1432,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const sorted = [...ft].sort((a, b) => a - b);
       return { frames: ft.length, pending, textures: renderer.info.memory.textures, calls: renderer.info.render.calls, tris: renderer.info.render.triangles,
         p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0, max: sorted[sorted.length - 1] ?? 0, gpu: gl.getParameter(gl.RENDERER), pr: renderer.getPixelRatio(), view, groupsShown,
+        nightNow: { vis: night.mesh.visible, ho: +homeOp.value(performance.now()).toFixed(3), co: +camOp.value(performance.now()).toFixed(3), rest, hold, away: !!o.groups.case?.classList.contains("room-away"), shown: groupsShown },
         ribbons: ribbons?.tilted() ?? [], od: shelf?.live() ?? [], binder: binderTurn ? { at: binderTurn.at(), busy: binderTurn.busy(performance.now()), veiled: binderTurn.veiled, flipped: binderTurn.flipped() } : null,
         k2: useK2, slots: slots.size, loaded: [...slots.values()].filter((sl) => sl.state === 2).length,
         // pictures nothing shows (a binder's leaves under the open spread)

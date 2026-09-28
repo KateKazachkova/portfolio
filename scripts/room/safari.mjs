@@ -76,7 +76,10 @@ print(json.dumps(r))`;
   const cmp = JSON.parse(execFileSync("python3", ["-c", py, OUT, CR]).toString());
   log("canvas vs Chrome over8 %", JSON.stringify(cmp));
   const bad = Object.values(cmp).filter((v) => typeof v === "number" && v > 5);
-  check("safari: WebGL layer as Chrome's (over8 ≤ 5 % at every stop)", !bad.length, cmp);
+  // Chrome's layer (firefox.mjs, cdp.mjs) is at a faked 10:30; Safari runs
+  // on the real clock, so after dark the two are not the same room
+  if (st.night) log("skip safari vs Chrome: Safari is at night, Chrome's reference by day", JSON.stringify(cmp));
+  else check("safari: WebGL layer as Chrome's (over8 ≤ 5 % at every stop)", !bad.length, cmp);
   fs.writeFileSync(path.join(OUT, "report.json"), JSON.stringify({ size, st, gpu, cmp, glErr }, null, 1));
 } catch (e) {
   fails++; log("FAIL", String(e).slice(0, 400));

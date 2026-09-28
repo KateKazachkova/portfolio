@@ -1160,8 +1160,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const arrivedNow = pose.tick(now);
     shift.tick(now); caseOp.tick(now);
     if (arrivedNow && view !== "home") o.onArrive();
-    // home and still: the page's own case, clock and lamp again
-    if (view === "home" && !pose.active && !shift.active && !caseOp.active) {
+    // home and still: the page's own case, clock and lamp again — not while
+    // a departure waits for its pictures (hold): evaluate has handed the
+    // groups to WebGL already, and handing them back for the wait left the
+    // page's night off (it goes with data-desk) and WebGL's not drawn — the
+    // rare bright first departure at night (HANDOFF §10)
+    if (view === "home" && !hold && !pose.active && !shift.active && !caseOp.active) {
       if (groupsShown && !forced) setGroupsShown(false);
       for (const p of room) { const ud = p.meshes[0].userData; if (ud.hideAtHome) { ud.hideAtHome = false; ud.vis = false; ud.dirty = true; dirty = true; } }
       if (dirty) settle(now);

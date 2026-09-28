@@ -18,6 +18,8 @@ import "./RoomBinder.css";
  * draws it. Its sheets are fetched the first time the camera sets off for
  * Profile, as DeskBinder's.
  */
+const LEAVES = ["leaf-r", "leaf-l", "leaf-gloss-r", "leaf-gloss-l"];
+
 export function RoomBinder() {
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [live, setLive] = useState(false);
@@ -44,6 +46,10 @@ export function RoomBinder() {
   useEffect(() => {
     if (!host || !warm) return;
     const imgs = [...host.querySelectorAll("img")];
+    // (and the sleeves' own pictures, Binder.css backgrounds: the panel is
+    // display none until the camera is there, so they were fetched and
+    // decoded on arrival, 30–32 ms each)
+    for (const n of LEAVES) { const i = new Image(); i.src = `/profile/binder/${n}.webp`; imgs.push(i); }
     const go = () => imgs.forEach((i) => i.decode().catch(() => {}));
     const id = requestAnimationFrame(go);
     return () => cancelAnimationFrame(id);

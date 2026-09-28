@@ -578,12 +578,13 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(c.x - VIEW_X - 120 / SPD); };
     window.addEventListener("room:case", onGlCase);
     window.addEventListener("room:case-focus", onGlCaseFocus);
-    const world = el.querySelector<HTMLElement>(".desk-world");
+    // on the camera, not the world: under ?gl=1 the world is only built if
+    // the WebGL room fails to start (RoomGL), after this has run
     const onArrive = (e: TransitionEvent) => {
-      if (e.target !== world || e.propertyName !== "transform" || !open.current) return;
+      if (!(e.target as Element).classList?.contains("desk-world") || e.propertyName !== "transform" || !open.current) return;
       arrived = true; root.dataset.deskArrived = "1";
     };
-    world?.addEventListener("transitionend", onArrive);
+    el.addEventListener("transitionend", onArrive);
     // the WebGL room (?gl=1) has no CSS move to end: it says when it is there
     const onGlArrive = () => { if (!open.current) return; arrived = true; root.dataset.deskArrived = "1"; };
     window.addEventListener("room:arrive", onGlArrive);
@@ -725,7 +726,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("pointercancel", onUp);
       el.removeEventListener("click", onClick, true);
       el.removeEventListener("focusin", onFocus);
-      world?.removeEventListener("transitionend", onArrive);
+      el.removeEventListener("transitionend", onArrive);
       window.removeEventListener("room:arrive", onGlArrive);
       window.removeEventListener("room:case", onGlCase);
       window.removeEventListener("room:case-focus", onGlCaseFocus);

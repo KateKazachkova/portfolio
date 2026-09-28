@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { glOn } from "@/lib/room/flag";
+import { glOff, glOn, onGl } from "@/lib/room/flag";
 import "./room.css";
 
 /** Whether the WebGL room is on: false on the server and the first render
- *  (so hydration matches), then what the boot script decided. */
-const noSubscribe = () => () => {};
+ *  (so hydration matches), then what the boot script decided — until the
+ *  room fails to start (glOff). */
 export function useGl() {
-  return useSyncExternalStore(noSubscribe, glOn, () => false);
+  return useSyncExternalStore(onGl, glOn, () => false);
 }
 
 /**
@@ -36,7 +36,15 @@ export function RoomGL({ cam, home }: { cam: React.RefObject<HTMLDivElement | nu
       }),
     ).then((r) => {
       if (dead) r.dispose(); else { room = r; (window as unknown as { __room: unknown }).__room = r; document.documentElement.dataset.glReady = "1"; }
-    }).catch((e) => { console.error("room", e); document.documentElement.dataset.glFailed = "1"; });
+    }).catch((e) => {
+      console.error("room", e);
+      if (dead) return;
+      // no WebGL here (or the room broke on the way up): the CSS room instead
+      document.documentElement.dataset.glFailed = "1";
+      stage.querySelectorAll(".room-canvas, .room-hits").forEach((n) => n.remove());
+      document.querySelectorAll(".room-away").forEach((n) => n.classList.remove("room-away"));
+      glOff();
+    });
     return () => { dead = true; room?.dispose(); delete document.documentElement.dataset.glReady; };
   }, [cam, home]);
   return null;

@@ -250,7 +250,7 @@ No binder texture/network optimisation; no bake viewport change; don't fix the a
 - Binder DOM first paint on arrival: for one frame the first sheet's plastic sleeve edge and the binder's shadow differ (5.96 % of the paper strip in `profile-edge.mjs`), before and after the paper fix.
 - Responsive 1024–1439: staging's `.pf-binder.desk-binder { scale: .95 }` and the index sheets' `translate 21u` are not in the 1600 px bake (profile compare 35–39 % there).
 - Profile arrival-DOM spike (25–41 ms, 2 frames after arrival): recheck on a weaker device; arrival-DOM budget.
-- `gpu/shared_images` (~772–862 MB): break down what it holds, re-measure without legacy.
+- `gpu/shared_images`: **measured 28.09 (cold.mjs memory-infra dump, same build, 1512@2):** WebGL gpu 2847 MB · gpu/angle 1540 · shared_images 785 · iosurface 747 · cc 351 · skia 324 — legacy (?gl=0) gpu 3705 · angle 1615 · shared_images 1122 · iosurface 978 · cc 824 · skia 505; first flight WebGL p95 9 / max 18 vs legacy 66.7 / 158 (23 frames >33 ms); network 46.5 vs 12.0 MB. What shared_images holds under WebGL (the canvas swap chain, the DOM layers, video frames) is still to be broken down with a trace (`disabled-by-default-memory-infra`).
 - Menu glass `backdrop-filter` over the canvas: **measured 28.09 — nothing to do**: `.hero-aside`'s computed `backdrop-filter` is `none` at home and at Case Files (flight-dom's line names the rule, not a live filter); bench A/B with `ROOM_CSS='.hero-aside{backdrop-filter:none!important}'` (cdp.mjs hook): mean 8.37 both, p95 avg 9.37–9.55 vs 9.37–9.44 (noise).
 - Binder texture/network optimisation (after the binder transition); network total 31 MB vs legacy 8.9.
 - Bake/responsive text hand-over (sheets laid out at 1600 px vs live DOM).
@@ -260,7 +260,7 @@ No binder texture/network optimisation; no bake viewport change; don't fix the a
 - PageSpeed / LCP with the flag (poster is first paint).
 - Bake source decision before legacy removal (scene.json + masters become the source).
 - Final generated-assets strategy (KTX2/WebP/masters in git or not).
-- Remaining visual gaps from reports: mirrored case/TARDIS snapshot at departure; ghost of the fading case seen on home→profile around 0.9 s (compare with legacy); U15 player LCD time.
+- Remaining visual gaps from reports: mirrored case/TARDIS snapshot at departure (**done in group 8c/8d**: re-read setting off home, live while away); ghost of the fading case on home→profile around 0.9 s — **compared 28.09**: WebGL fades on the declared timing (.6 s after .7 s, as globals.css), legacy lags it by ~150–200 ms (its first-flight jank), so WebGL is the correct one; U15 player LCD time (not looked at).
 - Then: switch the default (Kate's OK) and remove legacy (list: DeskPlanes, CSS room rules, 3D components; see the M1–M2 report, section 10).
 
 ### 11. Artefacts, tools, data (exact paths)

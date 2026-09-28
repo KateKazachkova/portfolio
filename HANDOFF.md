@@ -282,7 +282,7 @@ No binder texture/network optimisation; no bake viewport change; don't fix the a
 2. `git -C ~/Documents/portfolio-webgl status` → clean (untracked scratch only); `git -C ~/Documents/portfolio-webgl log --oneline -5` → a `HANDOFF:` commit on top; check staging: `git -C ~/Documents/portfolio log --oneline 59e38a7..staging` (anything new → a sync first, §0 Base).
 3. Plug in (AC), `pkill -f 'user-data-dir=/tmp/cdp-room-'` (orphaned test Chromes), `sysctl -n vm.loadavg` (≲8), then `cd ~/Documents/portfolio-webgl && npx next build && sh scripts/room/serve.sh 3301 </dev/null >/dev/null 2>&1`.
 4. Baseline check: `node scripts/room/hits-test.mjs http://localhost:3301` (117/117) and one `node scripts/room/flash.mjs http://localhost:3301 gl` (0, ≥2800 frames). Tests fake today 10:30 (cdp.mjs) unless NIGHT=1.
-5. Then: Kate's M6 review notes if she left any; otherwise M7 items that need no decision of hers (§10). The whole regression in one go: `~/portfolio-test-output/m6-accept.sh` (≈75 min; logs in `~/portfolio-test-output/m6-accept/`). Nothing pushed or merged.
+5. Then: Kate's M6 review notes if she left any; otherwise M7 items that need no decision of hers (§10). The whole regression in one go: `zsh scripts/room/regression.sh` (≈75 min; logs in `~/portfolio-test-output/regression/`). Nothing pushed or merged.
 
 ## Conventions / gotchas
 - British English everywhere. Button labels Title Case. No fabricated data (neutral placeholders).

@@ -315,6 +315,13 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // (the binder lets a picture go that came in after its spread was left: below)
   let afterArrive: ((sl: Slot) => void) | null = null;
   let inflight = 0;
+  // What the room lets go of and takes back (RELEASE below: Off Duty's
+  // corner, Case Files' own) keeps its file's bytes — compressed, in memory,
+  // not on the GPU — so taking it back is a transcode, not a round trip: the
+  // server has every /room file revalidated (max-age=0), and 129 of them at
+  // six at a time held the first flight to Off Duty ~1.3 s on a real network
+  const raw = new Map<string, ArrayBuffer>();
+  let rawKeep = new Set<Slot>();
   const pump = () => {
     while (inflight < 6) {
       let next: Slot | null = null;
@@ -323,12 +330,19 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const sl = next;
       sl.state = 1; inflight++; pending++;
       const done = () => { inflight--; pending--; pump(); };
-      if (sl.src.endsWith(".ktx2")) ktx2.load(sl.src, (t) => { arrive(sl, t); done(); }, undefined, () => { sl.state = 2; for (const f of sl.wait.splice(0)) f(); done(); });
+      const failed = () => { sl.state = 2; for (const f of sl.wait.splice(0)) f(); done(); };
+      if (sl.src.endsWith(".ktx2") && rawKeep.has(sl)) {
+        const have = raw.get(sl.src);
+        (have ? Promise.resolve(have) : fetch(sl.src).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.arrayBuffer(); }).then((b) => { raw.set(sl.src, b); return b; }))
+          // (the transcoder takes the buffer it is given: a copy)
+          .then((b) => ktx2.parse(b.slice(0), (t) => { arrive(sl, t); done(); }, failed), failed);
+      }
+      else if (sl.src.endsWith(".ktx2")) ktx2.load(sl.src, (t) => { arrive(sl, t); done(); }, undefined, failed);
       else {
         const img = new Image();
         img.decoding = "async";
         img.onload = () => img.decode().catch(() => {}).then(() => { const t = new THREE.Texture(img); arrive(sl, t); done(); });
-        img.onerror = () => { sl.state = 2; for (const f of sl.wait.splice(0)) f(); done(); };
+        img.onerror = failed;
         img.src = sl.src;
       }
     }
@@ -1167,6 +1181,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const here = zoneSlots.get("offduty") ?? new Set<Slot>();
     RELEASE.set("offduty", new Set([...(zoneSlots.get("files") ?? [])].filter((sl) => !here.has(sl) && !binderOnly.has(sl))));
   }
+  rawKeep = new Set([...RELEASE.values()].flatMap((set) => [...set]));
   let released: View | null = null;
   const letStopGo = (v: View) => { released = v; for (const sl of RELEASE.get(v) ?? []) evict(sl); };
 
@@ -1554,6 +1569,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
         // pictures nothing shows (a binder's leaves under the open spread)
         hidden: [...slots.values()].filter((sl) => sl.state === 0 && sl.prio === 9).length,
         roomMB: +([...slots.values()].reduce((a, sl) => a + sl.bytes, 0) / 2 ** 20).toFixed(1),
+        rawMB: +([...raw.values()].reduce((a, b) => a + b.byteLength, 0) / 2 ** 20).toFixed(1),
         groupMB: +([...texCache.values()].reduce((a, t) => a + bytesOf(t), 0) / 2 ** 20).toFixed(1),
         zones: Object.fromEntries([...zoneSlots].map(([v, set]) => [v, { n: set.size, ready: zoneReady(v), MB: +([...set].reduce((a, sl) => a + sl.bytes, 0) / 2 ** 20).toFixed(1) }])),
         homeMs: Math.round(homeAt), waits, poster: posterGone, previews: [...slots.values()].filter((sl) => sl.loTex).length };

@@ -237,6 +237,13 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const pr = () => (prParam ? +prParam : Math.min(devicePixelRatio, 2));
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const gl = renderer.getContext();
+  // a software GL (no GPU: SwiftShader, llvmpipe) draws the room at ~1 fps
+  // and holds the page: the CSS room instead (RoomGL's fallback)
+  {
+    const info = gl.getExtension("WEBGL_debug_renderer_info");
+    const name = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(name)) { renderer.dispose(); throw new Error(`room: software GL (${name})`); }
+  }
 
   const scene = new THREE.Scene();
   const geo = quadGeometry();

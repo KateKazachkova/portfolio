@@ -107,5 +107,14 @@ for (const [when, at] of [["day", today("10:30")], ["night", today("23:30")]]) {
   check("no WebGL, refresh: the CSS room from the first paint", !s.gl && s.css3d && !s.canvas && s.desk === "open" && s.arrived, s);
   b.close();
 }
+// 6. a software GL (SwiftShader, as in PageSpeed's lab): the CSS room, not a room at ~1 fps
+{
+  const b = await open(today("10:30"), ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]);
+  await b.go(`${SITE}/?nointro#recognition`, 5000);
+  const s = await b.arrive();
+  check("software GL: the CSS room at the stop", !s.gl && s.failed === "1" && s.css3d && !s.canvas && s.desk === "award" && s.arrived, s);
+  check("software GL: no console errors", b.errors().length === 0, b.errors().slice(0, 3));
+  b.close();
+}
 log(fails ? `${fails} FAILED` : "all passed");
 process.exit(fails ? 1 : 0);

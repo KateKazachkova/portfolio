@@ -37,7 +37,8 @@ export function RoomGL({ cam, home }: { cam: React.RefObject<HTMLDivElement | nu
     ).then((r) => {
       if (dead) r.dispose(); else { room = r; (window as unknown as { __room: unknown }).__room = r; document.documentElement.dataset.glReady = "1"; }
     }).catch((e) => {
-      console.error("room", e);
+      // (a software GL is not a failure: the CSS room is meant for it)
+      if (/software GL/.test(String(e))) console.info(String(e)); else console.error("room", e);
       if (!dead) fallBack();
     });
     // no WebGL here, the room broke on the way up, or its context was lost

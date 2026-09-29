@@ -763,8 +763,65 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (v === "home" && !vis && ud.vis !== false) ud.hideAtHome = true;
       else { ud.vis = vis; ud.hideAtHome = false; }
       ud.dirty = true;
+      if (held) { const d = heldOf.get(p); if (d) { p.m.retarget(d.clone().multiply(m4(st.m ?? p.item.m)).toArray(), null, now); p.op.retarget(0, null, now); } }
     }
   };
+  // Home loading as a scene (IntroOpen, globals.css "Loading as a scene"):
+  // until <html data-load> carries "files" the case files are held off the
+  // desk's near edge, as the page's .desk-cases > * are (460 u toward the
+  // viewer in the desk's plane, turned 5°, the even ones −5°, unseen); at
+  // "files" each slides home as the page's do (.8 s, 150 ms apart), and
+  // data-load gone (a click, a key) lands them at once.
+  const heldOf = new Map<Placed, THREE.Matrix4>(), caseOf = new Map<Placed, number>();
+  {
+    const byCase = new Map<string, Placed[]>();
+    for (const p of room) {
+      if (!(p.item.anc ?? "").split(" ").includes("desk-cases")) continue;
+      const key = p.item.stack ?? "env";
+      byCase.set(key, [...(byCase.get(key) ?? []), p]);
+    }
+    const cases = [...byCase.values()].map((ps) => {
+      // the desk's axes off the case's largest face (lying flat in it), its
+      // middle off all its planes' middles
+      const face = ps.reduce((a, b) => (b.item.w * b.item.h > a.item.w * a.item.h ? b : a));
+      const f = m4(face.item.m), x = new THREE.Vector3(), y = new THREE.Vector3(), z = new THREE.Vector3();
+      f.extractBasis(x, y, z);
+      const c = new THREE.Vector3();
+      for (const p of ps) c.add(new THREE.Vector3(p.item.w / 2, p.item.h / 2, 0).applyMatrix4(m4(p.item.m)));
+      c.divideScalar(ps.length);
+      return { ps, x, y, c };
+    }).sort((a, b) => a.c.dot(a.x) - b.c.dot(a.x));
+    cases.forEach(({ ps, x, y, c }, k) => {
+      const t = (k % 2 ? -5 : 5) * Math.PI / 180, cos = Math.cos(t), sin = Math.sin(t);
+      const ux = x.clone().normalize(), uy = y.clone().normalize();
+      // turned by t in the desk's plane (CSS rotate: x toward y), about the middle
+      const turn = (v: THREE.Vector3) => {
+        const a = v.dot(ux), b = v.dot(uy);
+        return v.clone().addScaledVector(ux, (cos - 1) * a - sin * b).addScaledVector(uy, (cos - 1) * b + sin * a);
+      };
+      const R = new THREE.Matrix4().makeBasis(turn(new THREE.Vector3(1, 0, 0)), turn(new THREE.Vector3(0, 1, 0)), turn(new THREE.Vector3(0, 0, 1)));
+      const at = c.clone().addScaledVector(y, 460);
+      const D = new THREE.Matrix4().makeTranslation(at.x, at.y, at.z).multiply(R).multiply(new THREE.Matrix4().makeTranslation(-c.x, -c.y, -c.z));
+      for (const p of ps) { heldOf.set(p, D); caseOf.set(p, k); }
+    });
+  }
+  const loadHolds = () => { const l = root.dataset.load; return l !== undefined && !l.split(" ").includes("files"); };
+  let held = heldOf.size > 0 && loadHolds();
+  const PUSH = bezier(0.2, 0.85, 0.25, 1.04);
+  const moLoad = new MutationObserver(() => {
+    if (!held || loadHolds()) return;
+    held = false;
+    const now = performance.now(), land = root.dataset.load === undefined || reduced();
+    for (const [p] of heldOf) {
+      const st = stateOf(p, view), delay = 150 * (caseOf.get(p) ?? 0);
+      p.m.retarget(st.m ?? p.item.m, land ? null : { dur: 800, delay, ease: PUSH }, now);
+      p.op.retarget(st.op ?? p.item.op, land ? null : { dur: 200, delay, ease: EASE.ease }, now);
+      p.meshes[0].userData.dirty = true;
+    }
+    moLoad.disconnect();
+    dirty = true; kick();
+  });
+  if (held) moLoad.observe(root, { attributes: true, attributeFilter: ["data-load"] });
   const settle = (now: number) => {
     let moving = false;
     for (const p of room) {
@@ -1578,7 +1635,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       clearTimeout(lostTimer);
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
-      mo.disconnect(); ro.disconnect(); moNight.disconnect();
+      mo.disconnect(); ro.disconnect(); moNight.disconnect(); moLoad.disconnect();
       wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose(); binderTurn?.dispose(); moFlip.disconnect(); moGroups.disconnect();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);

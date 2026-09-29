@@ -38,7 +38,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * another once the doors have stopped ("clothes").
  *
  * On every visit for now (Kate, 25.09 — may go back to once per visitor).
- * A click or any key lands the whole scene at once; ?nointro, an anchor
+ * A click or any key lands the whole scene at once (a click off the case
+ * drops the clip at once: the camera may be leaving); ?nointro, an anchor
  * (/#recognition and the like: the camera is off to it at once, and would
  * leave the opening running behind it), reduced motion and a screen under
  * 1024px (the phone's layout has no desk scene to open into) skip it. A clip
@@ -148,11 +149,21 @@ export default function IntroOpen() {
     // not started at all
     later(() => { if (!video.current || video.current.currentTime === 0) land(); }, GIVE_UP_MS);
     window.addEventListener("keydown", land);
+    // a click anywhere else (the menu, the desk) sends the camera off: the
+    // clip is laid over the page, not in the room, so it goes at once rather
+    // than fade while the room flies out from under it
+    const away = (e: PointerEvent) => {
+      if ((e.target as Element | null)?.closest?.(".intro-open")) return;
+      land();
+      setOn(false);
+    };
+    window.addEventListener("pointerdown", away, true);
     const list = timers.current;
     return () => {
       cancelAnimationFrame(id);
       list.forEach(clearTimeout);
       window.removeEventListener("keydown", land);
+      window.removeEventListener("pointerdown", away, true);
       html().removeAttribute("data-intro");
       html().removeAttribute("data-load");
     };

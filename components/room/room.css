@@ -1,0 +1,73 @@
+/* The WebGL room (components/room, ?gl=1). The CSS room is not drawn at
+   all; the camera's CSS moves are switched off, since WebGL draws them;
+   the case stays where it is, flat, and WebGL hides and shows it. */
+html[data-gl] .desk-world { display: none !important; }
+html[data-gl] .scene-cam { transform: none !important; perspective: none !important; transition: none !important; }
+html[data-gl] .case-world { transform: none !important; transition: none !important; opacity: 1 !important; animation: none !important; }
+.room-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+/* The night (components/room/night.ts): while the camera travels WebGL
+   draws it; at rest the page's own layers do, over the page's case at home
+   (NightRoom) and over a stop's panels (NightCam). They hand over in one
+   frame (html[data-gl-rest], engine.ts), so no fades of their own. */
+html[data-gl] :is(.night-room, .night-cam) { transition: none !important; }
+html[data-gl]:not([data-gl-rest="home"]) .night-room { opacity: 0 !important; }
+html[data-gl]:not([data-gl-rest="stop"]) .night-cam { opacity: 0 !important; }
+/* what WebGL mirrors while the camera is away: the page's own copy hidden,
+   every child with it, whatever visibility it sets itself */
+.room-away, .room-away * { visibility: hidden !important; }
+
+/* What stands in the room but stays DOM at home, laid flat where the
+   camera draws it at rest: its plane is parallel to the window, so the
+   perspective there is a plain scale about the principal point (560, 226),
+   k = 2150 / (2150 − z). */
+.room-home { position: absolute; inset: 0; pointer-events: none; --u: calc(100cqw / 1118); }
+.room-home .flip-clock-slot {
+  --k: calc(2150 / 1881); /* z 269 */
+  transform: translate(calc((-169.6 - 560) * (var(--k) - 1) * var(--u)), calc((524.4 - 226) * (var(--k) - 1) * var(--u))) scale(calc(.55 * var(--k)));
+}
+
+/* The room at home as a still (scripts/room/poster.mjs), from the first
+   paint until WebGL has drawn it: a background, so nothing is fetched
+   without the flag. Its rectangle is POSTER there, in stage u. */
+.room-poster { display: none; }
+html[data-gl] .room-poster {
+  display: block; position: absolute; pointer-events: none; --u: calc(100cqw / 1118);
+  left: calc(-560 * var(--u)); top: calc(-420 * var(--u)); width: calc(2240 * var(--u)); height: calc(1600 * var(--u));
+  background: url(/room/poster-home.webp) 0 0 / 100% 100% no-repeat;
+}
+
+/* The room's controls (components/room/hits.ts): flat, over where the
+   camera draws each object at rest, clipped to its outline. */
+.room-hits { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
+.room-hit { position: absolute; display: block; padding: 0; border: 0; margin: 0; background: transparent; cursor: pointer; pointer-events: auto; }
+.room-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.room-hit:focus-visible { clip-path: none !important; outline: 2px solid var(--brand, #F8C662); outline-offset: 3px; }
+html.room-pointer, html.room-pointer * { cursor: pointer; }
+/* the DVD's screen (components/room/dvd.ts): OffDutyShelf's, as a panel
+   mapped onto the lid's screen; its padding is the lid's 3 % / 4 % (the lid
+   is 280.5 across), not the stage's */
+.room-hit--dvd { display: flex; transform-origin: 0 0; cursor: default; padding: calc(8.415 * var(--u)) calc(11.22 * var(--u)); background: #0b0f16; }
+.room-hit--dvd[data-clip] { cursor: pointer; }
+.room-hit--dvd[data-away] { visibility: hidden; pointer-events: none; }
+.room-hit--dvd[data-away] * { visibility: hidden !important; }
+/* Ukrainska 15's panel (RoomU15.tsx): the card's box; what opens out of it
+   lies past it */
+.room-hit--u15panel { transform-origin: 0 0; cursor: default; overflow: visible; }
+.room-hit--u15panel[data-away] { visibility: hidden; pointer-events: none; }
+.room-hit--u15panel[data-away] * { visibility: hidden !important; }
+/* the Profile binder's panel (RoomBinder.tsx), mapped onto the binder */
+.room-hit--pf { transform-origin: 0 0; cursor: default; }
+.room-hit--dvd[data-on] .od-dvd__osd { color: rgba(235, 245, 255, .92); text-shadow: 0 0 calc(2 * var(--u)) rgba(0,0,0,.6); }
+/* a ribbon's label, as its ::after on the CSS room's rail (AwardRail.css) */
+.room-hit__label {
+  position: absolute; transform: translateX(-50%); pointer-events: none;
+  width: max-content; max-width: calc(260 * var(--k) * var(--u)); white-space: normal; text-align: center;
+  padding: calc(5 * var(--k) * var(--u)) calc(9 * var(--k) * var(--u)); border-radius: calc(3 * var(--k) * var(--u));
+  background: rgba(250, 248, 243, .95); color: #22283a;
+  font: 500 calc(11 * var(--k) * var(--u)) / 1.35 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .04em;
+  opacity: 0; transition: opacity .2s ease; --u: calc(100cqw / 1118);
+}
+.room-hit:is(:hover, :focus-visible) + .room-hit__label { opacity: 1; }
+/* …turned with its ribbon, as the ribbon's own ::after is (AwardRail.css) */
+.room-hit__label--ribbon { transform-origin: 50% var(--oy, 0px); transition: opacity .2s ease, transform .35s cubic-bezier(.3, 1.6, .5, 1); }
+.room-hit--ribbon:is(:hover, :focus-visible) + .room-hit__label { transform: translateX(-50%) rotate(-4deg) translateY(calc(-2 * var(--k) * var(--u))); }

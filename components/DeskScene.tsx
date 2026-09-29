@@ -16,6 +16,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 // the desk in the wallet's V: its feet from the spine, the spine's place across
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
+import { glOn, onGl } from "@/lib/room/flag";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -473,12 +474,39 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (!a || !panning()) return;
       go(Number(a.dataset.x) - VIEW_X - 120 / SPD);
     };
-    const world = el.querySelector<HTMLElement>(".desk-world");
+    // The WebGL room (?gl=1) does not render the cards: its controls stand
+    // for them and say which case was clicked, or took focus.
+    const xOf = (e: Event) => CASES.find((c) => c.slug === (e as CustomEvent<string>).detail);
+    const onGlCase = (e: Event) => {
+      const c = xOf(e);
+      if (!c || !panning() || focus === c.slug) return;
+      setFocus(c.slug);
+      go(c.x - VIEW_X);
+    };
+    const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(c.x - VIEW_X - 120 / SPD); };
+    window.addEventListener("room:case", onGlCase);
+    window.addEventListener("room:case-focus", onGlCaseFocus);
+    // on the camera, not the world: under ?gl=1 the world is only built if
+    // the WebGL room fails to start (RoomGL), after this has run
     const onArrive = (e: TransitionEvent) => {
-      if (e.target !== world || e.propertyName !== "transform" || !open.current) return;
+      if (!(e.target as Element).classList?.contains("desk-world") || e.propertyName !== "transform" || !open.current) return;
       arrived = true; root.dataset.deskArrived = "1";
     };
-    world?.addEventListener("transitionend", onArrive);
+    el.addEventListener("transitionend", onArrive);
+    // the WebGL room (?gl=1) has no CSS move to end: it says when it is there
+    const onGlArrive = () => { if (!open.current) return; arrived = true; root.dataset.deskArrived = "1"; };
+    window.addEventListener("room:arrive", onGlArrive);
+    // the WebGL room gave up (no WebGL, or its context lost for good) with the
+    // camera at a stop: the CSS world is built there, already where it is
+    // sent, so no move ends — once it stands still, it has arrived
+    const offGl = onGl(() => {
+      if (glOn() || !open.current) return;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const w = el.querySelector(".desk-world");
+        const moving = !!w?.getAnimations().some((a) => (a as CSSTransition).transitionProperty === "transform");
+        if (open.current && !arrived && !moving) { arrived = true; root.dataset.deskArrived = "1"; }
+      }));
+    });
     const set = (v: View | null) => {
       if (v === open.current) return;
       if (v && !open.current) window.scrollTo({ top: 0 });
@@ -617,7 +645,11 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("pointercancel", onUp);
       el.removeEventListener("click", onClick, true);
       el.removeEventListener("focusin", onFocus);
-      world?.removeEventListener("transitionend", onArrive);
+      el.removeEventListener("transitionend", onArrive);
+      window.removeEventListener("room:arrive", onGlArrive);
+      offGl();
+      window.removeEventListener("room:case", onGlCase);
+      window.removeEventListener("room:case-focus", onGlCaseFocus);
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
       delete root.dataset.deskReady;

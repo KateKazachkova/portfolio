@@ -16,6 +16,10 @@ import { DeskPlanes, DeskHint, useDeskCamera } from "@/components/DeskScene";
 import Tardis from "./Tardis";
 import AwardCubby from "./AwardCubby";
 import Wardrobe from "./Wardrobe";
+import { RoomGL, useGl } from "@/components/room/RoomGL";
+import { RoomOffDuty } from "@/components/room/RoomOffDuty";
+import { RoomBinder } from "@/components/room/RoomBinder";
+import { RoomU15 } from "@/components/room/RoomU15";
 
 /** Home: the case on the desk, and everything in it that moves with the time
  *  of day. The still things in the case come from the server as `shelves`
@@ -25,6 +29,10 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
   const { hour, auto, setHour, setNow, applyAmbient } = useTime();
   const deskCam = useRef<HTMLDivElement>(null);
   useDeskCamera(deskCam);
+  // ?gl=1: the room is drawn by WebGL (components/room); the clock and the
+  // lamp stand flat over it at home instead of in the CSS room
+  const gl = useGl();
+  const roomHome = useRef<HTMLDivElement>(null);
   // The flip clock's own time: a weekday and minutes, or null while it simply
   // follows now. Set, it decides the edition — weekday specials included —
   // and hands its hour to the rest of the site's mood.
@@ -102,7 +110,23 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
             Files moves the camera through it; everything the case holds
             rides in .case-world, the one plane at z = 0, so it moves with the
             desk. In daylight both are inert and the scene is flat as ever. */}
+        {/* the WebGL room's still (?gl=1 only: display none, and so never
+            fetched, without the flag), until WebGL has drawn the room */}
+        <div className="room-poster" aria-hidden />
+        {gl && (
+          <div className="room-home" ref={roomHome}>
+            <div className="flip-clock-slot">
+              <FlipClock time={clockShown} now={now} live={clock === null} onChange={setClockTime} onNow={clockNow} />
+            </div>
+            <DeskLamp flat />
+          </div>
+        )}
+        {gl && <RoomGL cam={deskCam} home={roomHome} />}
+        {gl && <RoomBinder />}
+        {gl && <RoomU15 />}
+        {gl && <RoomOffDuty />}
         <div className="scene-cam" ref={deskCam}>
+        {!gl && (
         <DeskPlanes>
           {/* The flip clock, standing on the desk left of the case, under the
               index. It tells the scene's time and sets it: see FlipClock. It
@@ -114,6 +138,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
           {/* The desk lamp behind it, the room's light switch: see DeskLamp */}
           <DeskLamp />
         </DeskPlanes>
+        )}
         <div className="case-world">
         {/* The case does not sit flat on the floor: it stands on the feet at
             the outer bottom corners of the two doors, nearer the camera than

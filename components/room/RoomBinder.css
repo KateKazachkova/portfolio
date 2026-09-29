@@ -1,0 +1,46 @@
+/* The Profile binder laid flat (RoomBinder.tsx): Binder.css's sleeves turn
+   in 3D about the ring line; here, at rest and seen straight on, a turned
+   sleeve is the same sheet mirrored about that line (scaleX(-1), origin
+   -9.3% 50%), and every face that 3D shows or hides by its back is shown or
+   hidden by the parity of its mirrors. No 3D context anywhere: the panel is
+   one flat layer. A turn is instant here: meanwhile the room veils this panel
+   and WebGL draws the turn, the certificates going over too (binderturn.ts). */
+.room-binder { perspective: none; cursor: pointer; box-shadow: none; }
+/* its text is text (Binder.css keeps the book itself from selecting) */
+.room-binder .pf-sheet { user-select: text; -webkit-user-select: text; cursor: text; }
+.room-binder .pf-sheet a { cursor: pointer; }
+/* …but not its loose prints: they are picked up, and a drag must not select
+   them (the selection's tint is the page's own, WebGL's prints have none) */
+.room-binder .pf-prints { user-select: none; -webkit-user-select: none; }
+.room-binder, .room-binder * { transform-style: flat !important; backface-visibility: visible !important; }
+.room-binder .pf-leaf { transform: none; transition: none; }
+.room-binder .pf-leaf[data-turned] { transform: scaleX(-1); }
+.room-binder .pf-leaf *, .room-binder .pf-leaf *::before { animation: none !important; transition: none !important; }
+/* a sleeve's two faces: its front while it lies right, its back once turned
+   (the back mirrored once more, so it reads) */
+.room-binder .pf-face--back { transform: scaleX(-1); }
+.room-binder .pf-leaf:not([data-turned]) > .pf-whole > .pf-face--back,
+.room-binder .pf-leaf[data-turned] > .pf-whole > .pf-face:not(.pf-face--back) { visibility: hidden; }
+/* no bands in the air: the whole sheet at once */
+.room-binder .pf-seg { display: none; }
+.room-binder .pf-leaf[data-flying] > .pf-whole { visibility: visible; }
+.room-binder .pf-leaf[data-hidden] > .pf-whole { visibility: hidden; }
+/* the divider tabs: the front half above a sleeve lying right, the whole
+   back on one turned */
+.room-binder .pf-tab__face--back { transform: scaleX(-1); }
+.room-binder .pf-leaf:not([data-turned]) .pf-tab__face--back,
+.room-binder .pf-leaf[data-turned] .pf-tab__face:not(.pf-tab__face--back) { visibility: hidden; }
+/* hung on the rings: seen on a turned sleeve (turned × its side = unmirrored),
+   and over by itself onto the right — its back then, the print faint through */
+.room-binder .pf-hangleaf { transition: none; }
+.room-binder .pf-hangleaf__side { transform: scaleX(-1); }
+.room-binder .pf-hangleaf[data-flipped] { transform: scaleX(-1); }
+.room-binder .pf-hang__face--rev { transform: none; }
+.room-binder .pf-hangleaf:not([data-flipped]) .pf-hang__face--rev,
+.room-binder .pf-hangleaf[data-flipped] .pf-hang__face:not(.pf-hang__face--rev) { visibility: hidden; transition: none; }
+.room-binder .pf-leaf:not([data-turned]) > .pf-hangleaf { visibility: hidden; }
+/* laid on the sleeve: its front's while it lies right, its back's once turned */
+.room-binder .pf-over--back { transform: scaleX(-1); }
+.room-binder .pf-leaf:not([data-turned]) > .pf-over--back,
+.room-binder .pf-leaf[data-turned] > .pf-over:not(.pf-over--back) { visibility: hidden; }
+.room-binder .pf-leaf[data-hidden] > :is(.pf-hangleaf, .pf-over) { visibility: hidden; }

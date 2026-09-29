@@ -1,0 +1,10 @@
+/* Ukrainska 15's folder laid flat (RoomU15.tsx): the panel is its card's
+   box, mapped onto the folder as WebGL draws it (hits.ts, one matrix3d), so
+   the card itself sits at the panel's origin, unturned and unslid (the
+   panel's matrix does both), and nothing inside is 3D. The standing edges
+   are edge-on from above: out of sight, but still there, so their fade
+   runs for WebGL to read (u15gl.ts). */
+.room-u15 { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.room-u15 > .desk-card--env { left: 0 !important; top: 0 !important; margin: 0 !important; transform: none !important; transition: none !important; }
+.room-u15, .room-u15 * { transform-style: flat !important; }
+.room-u15 :is(.env__edge, .env__player, .env__player *) { visibility: hidden !important; }

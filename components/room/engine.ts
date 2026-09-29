@@ -841,7 +841,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
         const e = q.el as HTMLImageElement & HTMLVideoElement;
         srcW = e.naturalWidth || e.videoWidth; srcH = e.naturalHeight || e.videoHeight;
       } else if (q.kind === "tex") map = imageTexture(useK2 && q.k2 ? q.k2 : q.src!);
-      else { const c = drawText(q, u); const t = elementTexture(c); t.needsUpdate = true; map = t; }
+      else {
+        // a text's canvas is kept per element and laid out afresh at each
+        // read; if its size changed (the page's text 2 px wider), its texture
+        // is a new one — the old one's storage has the old size, and an update
+        // into it failed (Safari: texSubImage2D, INVALID_VALUE)
+        const c = drawText(q, u);
+        const had = texCache.get(c);
+        if (had && (had.userData.w !== c.width || had.userData.h !== c.height)) { had.dispose(); texCache.delete(c); }
+        const t = elementTexture(c); t.userData.w = c.width; t.userData.h = c.height; t.needsUpdate = true; map = t;
+      }
       const whole = q.uv[0] === 0 && q.uv[1] === 0 && q.uv[2] === 1 && q.uv[3] === 1;
       // its drop-shadows, under it: its alpha, blurred, in the shadow's colour
       for (const sh of q.look.shadows) {

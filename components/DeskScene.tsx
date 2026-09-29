@@ -115,8 +115,12 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
       )}
       {c.slug === "onsisoft" && <Payslip />}
       {c.slug === "waypro" && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="stack-mush" src={pic("/items/waypro/mush.webp")} alt="" draggable={false} decoding="async" />
+        <span className="stack-mush" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={pic("/items/waypro/mush.webp")} alt="" draggable={false} decoding="async" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="stack-side" src={pic("/items/waypro/mush-side.webp")} alt="" draggable={false} decoding="async" />
+        </span>
       )}
       <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} about={PROJECT[c.slug].about} links={links}
         picture={c.slug === "waypro" ? { src: pic("/items/waypro/postcard.webp"), href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />

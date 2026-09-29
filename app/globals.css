@@ -1101,7 +1101,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   transition: transform .8s cubic-bezier(.65, 0, .2, 1); }
 .stack-truck::before { content: ""; position: absolute; left: -2%; right: -4%; top: 0; bottom: -10%;
   background: radial-gradient(closest-side, rgba(20,16,12,.42), rgba(20,16,12,.2) 60%, transparent); }
-.stack-truck, .stack-moss, .calc { transform-style: preserve-3d; }
+.stack-truck, .stack-moss, .stack-mush, .calc { transform-style: preserve-3d; }
 /* Bodies, as the folder has: seen from the case (the camera low over the
    desk) a flat photo reads as a sticker, so each of these also has its
    side view standing up on its centreline — edge-on, and so unseen, from
@@ -1186,10 +1186,22 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .stack-moss > img:first-child { display: block; width: 100%; height: auto; }
 .stack-moss .stack-side { left: 15%; width: 70%; aspect-ratio: 600 / 415; }
 [data-desk="open"] .desk-card--stack[data-side="here"] .stack-moss { transform: translate(calc(-50% - 44 * var(--u)), calc(-50% - 58 * var(--u))) rotate(12deg); }
-.stack-mush { z-index: 0; width: calc(74 * var(--u)); transform: translate(calc(-50% + 136 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-18deg);
-  /* lying on the desk they have a body (Kate, 28.09): caps and stems a
-     little thick toward the camera, and their shadow */
+.stack-mush { z-index: 0; display: block; width: calc(74 * var(--u)); transform: translate(calc(-50% + 136 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-18deg); }
+/* lying on the desk they have a body (Kate, 28.09): caps and stems a
+   little thick toward the camera, and their shadow — on the picture, not
+   the group, which a filter would flatten — and, seen from the room, their
+   side standing on the centreline (Kate, 29.09) */
+.stack-mush > img:first-child { display: block; width: 100%; height: auto;
   filter: drop-shadow(0 calc(.9 * var(--u)) 0 rgba(96, 40, 30, .55)) drop-shadow(0 calc(1.8 * var(--u)) 0 rgba(70, 44, 34, .35)) drop-shadow(0 calc(3 * var(--u)) calc(3.5 * var(--u)) rgba(20, 16, 12, .38)); }
+.stack-mush .stack-side { aspect-ratio: 700 / 212; }
+/* From the room the side stands in for the picture from above, which lay
+   under it as flat caps (Kate, 29.09): the two cross over as the camera
+   goes over the desk or leaves it; a soft shadow under the group grounds
+   it from the room. */
+:is(.stack-moss, .stack-mush) > img:first-child { opacity: 0; transition: opacity .4s ease .6s; }
+[data-desk="open"] :is(.stack-moss, .stack-mush) > img:first-child { opacity: 1; transition: opacity .3s ease; }
+:is(.stack-moss, .stack-mush)::before { content: ""; position: absolute; left: 4%; right: 4%; top: 36%; bottom: 36%;
+  background: radial-gradient(closest-side, rgba(20, 16, 12, .34), rgba(20, 16, 12, 0)); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .stack-mush { transform: translate(calc(-50% + 214 * var(--u)), calc(-50% + 96 * var(--u))) rotate(-10deg); }
 /* Paper tags under the stack: Behance, the case's own page. */
 .jury-tag { position: absolute; left: 50%; top: 100%; z-index: 9; transform: translate(-50%, calc(50 * var(--u))) rotate(-2deg);

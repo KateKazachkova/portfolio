@@ -687,7 +687,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (/(^| )jury-tag( |$)/.test(c)) return { m: null, op: { dur: 300, delay: 350, ease: EASE_T } };
     if (/(^| )stack-note( |$)/.test(c)) return { m: null, op: { dur: 300, delay: 450, ease: EASE_T } };
     if (/stack-truck/.test(a) || /stack-truck/.test(c)) return { m: { dur: 800, delay: 0, ease: FAN }, op: null };
-    if (/^(jury-card|postcard|payslip|calc|stack-moss|stack-mush)/.test(c) || /(^| )(calc|stack-moss|jury-card|postcard|payslip)( |$)/.test(a)) return { m: { dur: 700, delay: 0, ease: FAN }, op: null };
+    if (/^(jury-card|postcard|payslip|calc|stack-moss|stack-mush)/.test(c) || /(^| )(calc|stack-moss|stack-mush|jury-card|postcard|payslip)( |$)/.test(a)) return { m: { dur: 700, delay: 0, ease: FAN }, op: null };
     return { m: { dur: 600, delay: 0, ease: FAN }, op: null };
   };
   // the page's transitions as the pointer comes over a stack or leaves it:

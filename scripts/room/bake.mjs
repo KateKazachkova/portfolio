@@ -61,6 +61,8 @@ html.bk .jury-tag { opacity: 1 !important; left: calc(50% - 94 * var(--u)) !impo
 html.bk .bs-card { opacity: 1 !important; }
 /* a stack's "In progress" shows only under the pointer: baked as it looks then */
 html.bk .stack-soon { opacity: 1 !important; }
+/* WayPro's moss and fly agarics show their picture from above only over the desk (their sides from the room): baked as they look then */
+html.bk :is(.stack-moss, .stack-mush) > img:first-child { opacity: 1 !important; }
 html.bk:not(.bk-disc) .od-hang .od-disc, html.bk:not(.bk-disc) .od-hang .od-disc * { visibility: hidden !important; }
 html.bk:not(.bk-film) .od-sleeve::after, html.bk:not(.bk-film) .od-sleeve__pockets::after { display: none !important; }
 html.bk .od-sleeve { --stack: 0 0 transparent !important; }
@@ -99,6 +101,23 @@ for (const e of ["kate:case-files", "kate:recognition", "kate:off-duty", "kate:p
 await b.ev("history.back()"); await sleep(3500);
 log("unloaded pictures:", JSON.stringify(await b.ev(`new Promise(r=>{const t0=performance.now();const f=()=>{const im=[...document.querySelectorAll('.desk-world img, .case-world img, .flip-clock-slot img, .desk-lamp img')];if(im.every(i=>i.complete&&i.currentSrc&&i.naturalWidth)||performance.now()-t0>30000)r(im.filter(i=>!i.currentSrc).map(i=>i.className));else setTimeout(f,200)};f()})`, 40000)));
 await sleep(800);
+// Off Duty's covers lie on the shelf in their 520 px .sm.webp copies (staging
+// 29.09, offduty.ts coverOf); the camera comes close there, so the room
+// bakes them from the full posters: each copy's element wears its poster
+// (whichever of .webp / .jpg / .png is there) for the bake
+log("full covers:", await b.ev(`(async()=>{
+  const load=(u)=>new Promise(r=>{const i=new Image();i.onload=()=>r(u);i.onerror=()=>r(null);i.src=u});
+  const known=new Map();
+  const full=async(sm)=>{if(!known.has(sm)){let f=null;for(const x of ['.webp','.jpg','.jpeg','.png']){f=await load(sm.replace(/\\.sm\\.webp$/,x));if(f)break}known.set(sm,f)}return known.get(sm)};
+  const re=/url\\("([^"]*\\/posters\\/[^"]*\\.sm\\.webp)"\\)/g;
+  const swap=async(e)=>{const bg=e.style.backgroundImage||getComputedStyle(e).backgroundImage;let out=bg,n=0;
+    for(const [all,sm] of [...bg.matchAll(re)]){const u=await full(new URL(sm,location.href).pathname);if(u){out=out.replace(all,'url("'+u+'")');n++}}
+    if(n)e.style.setProperty('background-image',out,'important');return n};
+  const els=[...document.querySelectorAll('.desk-world *')].filter(e=>re.test(getComputedStyle(e).backgroundImage)&&!(re.lastIndex=0));
+  let n=0;for(const e of els)n+=await swap(e);
+  // (a thing taken off the shelf and put back sets its copy again: swapped again)
+  new MutationObserver((ms)=>{for(const m of ms)if(re.test(m.target.style.backgroundImage)){re.lastIndex=0;swap(m.target)}else re.lastIndex=0}).observe(document.querySelector('.desk-world'),{subtree:true,attributes:true,attributeFilter:['style']});
+  return n+' of '+els.length})()`, 60000));
 
 // ── what there is ────────────────────────────────────────────────────────
 const collected = await b.ev(`(${collect.toString()})(${JSON.stringify(SIG_SRC)})`);

@@ -58,7 +58,9 @@ for k, v in d.items():
 print(json.dumps(out))`;
 const r = JSON.parse(execFileSync("python3", ["-c", py, JSON.stringify(shots)]).toString());
 log("dark %", JSON.stringify(r));
-check("before the first visit: blank pages in both rooms", r["gl-before"] < 1 && r["css-before"] < 1, r);
+// (since Recognition looks straight ahead, 29.09, the box also takes in a
+// few dark px off the binder: blank is a quarter of filled, not under 1 %)
+check("before the first visit: blank pages in both rooms", r["gl-before"] < r["gl-after"] / 3 && r["css-before"] < r["css-after"] / 3, r);
 check("after it: the pages filled in both rooms, alike", r["gl-after"] > 10 && r["css-after"] > 10 && Math.abs(r["gl-after"] - r["css-after"]) < 5, r);
 log(fails ? `${fails} failed` : "all passed");
 process.exit(fails ? 1 : 0);

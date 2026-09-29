@@ -97,16 +97,20 @@ const SPREAD: Record<string, [number, number, number]> = {
 // where each stack lies in the folder (.env__stack--* in globals.css)
 const STACK_AT: Record<string, Pt> = { family: { x: 7.5, y: 3.12 }, after: { x: 64.5, y: 16.64 } };
 // On the way out everything first slides straight up out of the pocket,
-// together, and only then spreads; on the way back it gathers there first.
+// together, the folder then slides down from under it, and only then do
+// the prints spread. On the way back the same, backwards: the prints gather
+// into their stacks there first, the folder slides up under them, and only
+// then do they slide down into it (Kate, 29.09).
 const SPILL: Record<string, Pt> = { family: { x: 0, y: -62 }, after: { x: 0, y: -72 }, card: { x: 0, y: -78 }, note: { x: 0, y: -70 } };
 // What the note on the open desk says: the case's own summary, shortened.
 const INTRO = "An interactive story built from my family’s real messages, voice notes and photographs during the Russian occupation of Kupiansk – one house, several generations, and what happens to memory when the place that held it is lost.";
-const SPILL_MS = 480, GATHER_MS = 820;
+const SPILL_MS = 480, GATHER_MS = 820, COVER_MS = 760;
+type Phase = "closed" | "spill" | "uncover" | "open" | "gather" | "cover";
 const CLOSED_R: Record<string, number> = { card: -1.5, player: 8 };
 
 export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   const card = useRef<HTMLDivElement>(null);
-  const [phase, setPhase] = useState<"closed" | "spill" | "open">("closed");
+  const [phase, setPhase] = useState<Phase>("closed");
   const open = phase !== "closed";
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   // the phase as of now, for the camera's events: a reset (leaving the desk)
@@ -146,11 +150,16 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     if (open) { root.dataset.u15 = "open"; dispatchEvent(new Event(U15_OPEN)); }
     else if (root.dataset.u15) { delete root.dataset.u15; dispatchEvent(new Event(U15_CLOSED)); }
   }, [open]);
-  const go = (to: "spill", then: "open" | "closed", ms: number) => {
-    clearTimeout(timer.current); setPhase(to);
-    timer.current = setTimeout(() => setPhase(then), ms);
+  // each step of the way, and how long it takes before the next
+  const go = (...steps: [Phase, number][]) => {
+    clearTimeout(timer.current);
+    const next = ([[to, ms], ...rest]: [Phase, number][]) => {
+      setPhase(to);
+      if (rest.length) timer.current = setTimeout(() => next(rest), ms);
+    };
+    next(steps);
   };
-  const putAway = () => { setDrag({}); setTop({}); go("spill", "closed", GATHER_MS); };
+  const putAway = () => { setDrag({}); setTop({}); go(["gather", GATHER_MS], ["cover", COVER_MS], ["closed", 0]); };
   useEffect(() => {
     const reset = () => { clearTimeout(timer.current); setDrag({}); setTop({}); phaseNow.current = "closed"; setPhase("closed"); };
     const close = () => { if (phaseNow.current === "open") document.querySelector<HTMLElement>(".desk-card--env[data-phase=open] .u15-hit")?.click(); };
@@ -158,7 +167,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     addEventListener(U15_CLOSE, close);
     return () => { removeEventListener(U15_RESET, reset); removeEventListener(U15_CLOSE, close); clearTimeout(timer.current); delete document.documentElement.dataset.u15; };
   }, []);
-  const toggle = () => (phase === "open" ? putAway() : phase === "closed" ? go("spill", "open", SPILL_MS) : undefined);
+  const toggle = () => (phase === "open" ? putAway() : phase === "closed" ? go(["spill", SPILL_MS], ["uncover", COVER_MS], ["open", 0]) : undefined);
 
   // Anything on the open desk follows the pointer: screen px back to folder
   // units, turned into the folder's own axes (it lies at r°). A press that
@@ -207,12 +216,17 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   };
   // the offset and angle of a thing: where the layout puts it, plus the drag
   const place = (id: string, zBase: number) => {
-    const o = phase === "open" ? OPEN[id] : undefined, d = drag[id];
-    const sp = phase === "spill" ? SPILL[id] : undefined;
+    // what comes out of the pocket waits over it while the folder slides
+    // away from under it (or back); the folder and the player then lie in
+    // their open places
+    const out = phase === "spill" || phase === "uncover" || phase === "gather" || phase === "cover";
+    const sp = out ? SPILL[id] : undefined, d = drag[id];
+    const o = phase === "open" || ((phase === "uncover" || phase === "gather") && !sp) ? OPEN[id] : undefined;
     return {
       "--ox": (o?.x ?? sp?.x ?? 0) + (d?.x ?? 0), "--oy": (o?.y ?? sp?.y ?? 0) + (d?.y ?? 0),
       "--rot": `${o ? o.r : CLOSED_R[id] ?? 0}deg`,
-      zIndex: open ? top[id] ?? zBase : undefined,
+      // (the folder sliding away or back: the pocket goes over, globals.css)
+      zIndex: phase === "open" || phase === "gather" ? top[id] ?? zBase : undefined,
     } as React.CSSProperties;
   };
   const is = (id: string) => ({ "data-held": held === id || undefined, "data-item": id });

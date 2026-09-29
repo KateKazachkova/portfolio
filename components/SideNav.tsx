@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
-import { mono, display } from "@/components/ui/type";
+import { display } from "@/components/ui/type";
 import { NAV_LINKS as LINKS, CV_HREF, CONTACT_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
 import { openStop } from "@/components/DeskScene";
 
@@ -145,7 +145,7 @@ export default function SideNav() {
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
               className="flex items-center justify-center uppercase font-bold"
-              style={{ minWidth: 26, height: 26, fontFamily: mono, fontSize: 12, letterSpacing: "0.14em", color: "var(--fg)" }}
+              style={{ minWidth: 26, height: 26, fontFamily: display, fontVariationSettings: '"wdth" 90, "wght" 700', fontSize: 12, letterSpacing: "-0.015em", color: "var(--fg)" }}
             >
               {/* The word, not an icon (Kate, 27.09); open, it turns into a
                   cross of two ink rules. */}

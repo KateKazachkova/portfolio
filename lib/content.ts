@@ -12,6 +12,10 @@ export type WatchItem = {
    *  (public/posters/disc/), if one has been made; otherwise the disc wears
    *  the full poster. */
   disc?: string | null;
+  /** A copy of the poster cut to the size it lies at on Off Duty's shelf
+   *  (`<poster>.sm.webp` beside it, scripts/posters-sm.sh), if one has been
+   *  made; the full poster is only fetched for the one taken off the shelf. */
+  thumb?: string | null;
 };
 
 /** A book or a comic on Off Duty's shelf: a WatchItem with who wrote it,
@@ -45,6 +49,13 @@ function discFor(item: WatchItem): string | null {
     if (f) return `/posters/disc/${encodeURIComponent(f).replace(/['()]/g, (c) => "%" + c.charCodeAt(0).toString(16))}`;
   }
   return null;
+}
+
+// The poster's `.sm.webp` beside it, if there is one.
+function thumbFor<T extends WatchItem>(item: T): T {
+  if (!item.poster || !item.poster.startsWith("/posters/")) return item;
+  const sm = item.poster.replace(/\.[^./]+$/, ".sm.webp");
+  return fs.existsSync(path.join(process.cwd(), "public", decodeURIComponent(sm))) ? { ...item, thumb: sm } : item;
 }
 
 // The id out of a YouTube link: watch?v=…, youtu.be/…, /embed/… or /shorts/….
@@ -131,10 +142,10 @@ export function getSeries(): WatchItem[] {
 /** Off Duty's shelf: the books spine out and the comics face out, in the
  *  order their files list them. */
 export function getShelf(): { books: ShelfItem[]; comics: ShelfItem[] } {
-  return { books: parseList("books.md", true), comics: parseList("comics.md", true) };
+  return { books: parseList("books.md", true).map(thumbFor), comics: parseList("comics.md", true).map(thumbFor) };
 }
 
 /** The films, for the VHS stacks on Off Duty's corner. */
 export function getFilms(): WatchItem[] {
-  return parseList("films.md");
+  return parseList("films.md").map(thumbFor);
 }

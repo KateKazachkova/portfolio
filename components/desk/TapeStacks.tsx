@@ -6,7 +6,7 @@ import {
   Righteous, Rock_Salt, Shrikhand, Special_Elite, VT323,
 } from "next/font/google";
 import type { WatchItem } from "@/lib/content";
-import { CM, WALL, come, here, px, usePutBack } from "./offduty";
+import { CM, WALL, come, coverOf, here, px, usePutBack } from "./offduty";
 import { SHELF } from "./BookShelf";
 import "./TapeStacks.css";
 
@@ -140,7 +140,7 @@ export default function TapeStacks() {
                     }}>{title}</span>
                 </span>
               </span>
-              <span className="vt-tape__cover" style={f.poster ? { "--poster": `url("${f.poster}")` } as CSSProperties : undefined} />
+              <span className="vt-tape__cover" style={f.poster ? { "--poster": coverOf(f, isOpen) } as CSSProperties : undefined} />
               <span className="vt-tape__back" />
               <span className="vt-tape__end vt-tape__end--l" />
               <span className="vt-tape__end vt-tape__end--r" />

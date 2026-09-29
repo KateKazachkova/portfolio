@@ -22,7 +22,7 @@ html[data-gl]:not([data-gl-rest="stop"]) .night-cam { opacity: 0 !important; }
    k = 2150 / (2150 − z). */
 .room-home { position: absolute; inset: 0; pointer-events: none; --u: calc(100cqw / 1118); }
 .room-home .flip-clock-slot {
-  --k: calc(2150 / 1881); /* z 269 */
+  --k: calc(2150 / 2015); /* z 135 */
   transform: translate(calc((-169.6 - 560) * (var(--k) - 1) * var(--u)), calc((524.4 - 226) * (var(--k) - 1) * var(--u))) scale(calc(.55 * var(--k)));
 }
 
@@ -40,6 +40,9 @@ html[data-gl] .room-poster {
    camera draws each object at rest, clipped to its outline. */
 .room-hits { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
 .room-hit { position: absolute; display: block; padding: 0; border: 0; margin: 0; background: transparent; cursor: pointer; pointer-events: auto; }
+/* the bike computer lies in front of the CD wallet, and at Off Duty's eye
+   height (no tip down since 29.09) its top overlaps the left sleeve's box */
+.room-hit:is(.room-hit--bike-unit, .room-hit--bike-prev, .room-hit--bike-strava, .room-hit--bike-next) { z-index: 1; }
 .room-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .room-hit:focus-visible { clip-path: none !important; outline: 2px solid var(--brand, #F8C662); outline-offset: 3px; }
 html.room-pointer, html.room-pointer * { cursor: pointer; }

@@ -27,9 +27,9 @@ export function stopPose(view: View, pan = 0, narrow = false): Pose {
   const p = narrow ? pan : 0;
   switch (view) {
     case "files": return { rx: -90, t: [200 - pan, 430, 1751.5], sx: 0, sy: 0 };
-    case "award": return { rx: -4, t: [-1040 - p, 0, 100], sx: 0, sy: 0 };
+    case "award": return { rx: 0, t: [-1040 - p, -150, 100], sx: 0, sy: 0 };
     case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15 };
-    case "offduty": return { rx: -4, t: [1423 - p, 0, 100], sx: 0, sy: 0 };
+    case "offduty": return { rx: 0, t: [1423 - p, -150, 100], sx: 0, sy: 0 };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0 };
     default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0 };
   }

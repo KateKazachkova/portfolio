@@ -52,6 +52,7 @@ const plain = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !
 const ACTIONS: Record<string, (h: Hit) => void> = {
   recognition: () => { if (document.documentElement.dataset.desk !== "award") dispatchEvent(new Event("kate:recognition")); },
   profile: () => { if (document.documentElement.dataset.desk !== "profile") dispatchEvent(new Event("kate:profile")); },
+  offduty: () => { if (document.documentElement.dataset.desk !== "offduty") dispatchEvent(new Event("kate:off-duty")); },
   "offduty-bike": () => {
     const root = document.documentElement;
     if (root.dataset.desk !== "offduty") dispatchEvent(new Event("kate:off-duty"));
@@ -254,7 +255,14 @@ export function startHits(o: {
     // plane (0,0)…(1,1) in the object's own box, y down as in the CSS
     const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
     mesh.matrixAutoUpdate = false;
-    mesh.matrix.fromArray(h.m).multiply(new THREE.Matrix4().makeScale(h.w, h.h, 1));
+    const m = h.m.slice();
+    // (a plane turned in 3D, as the player's leaning lid, is read with no
+    // z column: the ray needs the matrix inverted, so its normal fills it)
+    if (!m[8] && !m[9] && !m[10]) {
+      const n = new THREE.Vector3(m[0], m[1], m[2]).cross(new THREE.Vector3(m[4], m[5], m[6])).normalize();
+      m[8] = n.x; m[9] = n.y; m[10] = n.z;
+    }
+    mesh.matrix.fromArray(m).multiply(new THREE.Matrix4().makeScale(h.w, h.h, 1));
     mesh.matrixWorldNeedsUpdate = true;
     mesh.userData.hit = h;
     proxies.add(mesh);
@@ -279,7 +287,7 @@ export function startHits(o: {
     return null;
   };
   // only where no control of the page's own is under the pointer
-  const free = (t: EventTarget | null) => !(t instanceof Element && t.closest("a, button, input, [role=button], .scene-hit, .katetalk, .inktip, .room-hit:not(.room-hit--trophy)"));
+  const free = (t: EventTarget | null) => !(t instanceof Element && t.closest("a, button, input, [role=button], .scene-hit, .katetalk, .inktip, .room-hit:not(.room-hit--trophy, .room-hit--dvd-way)"));
   const onMove = (e: PointerEvent) => {
     const h = free(e.target) ? pick(e) : null;
     if (h === over) return;

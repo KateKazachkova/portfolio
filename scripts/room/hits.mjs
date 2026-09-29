@@ -50,6 +50,8 @@ const PICK = [
   { type: "od-tape", sel: ".vt-tape", all: true, at: ["offduty"], kind: "button", action: "od-take", open: ".vt-tape__cover" },
   { type: "od-omnibus", sel: ".od-comic", all: true, at: ["offduty"], kind: "button", action: "od-take", open: "" },
   { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
+  // …and on the left the player's edge, the way to Off Duty
+  { type: "dvd-way", sel: ".od-dvd__lid > img", at: ["home"], kind: "button", action: "offduty", mask: true, name: "KATE™ DVD player — Off Duty" },
   // Case Files, left to right: Ukrainska 15's folder, its tag to the case
   // (out of the pocket once open) and its player; then each stack of
   // awards — the card, a way to lay it out, and laid out, its card's rows,

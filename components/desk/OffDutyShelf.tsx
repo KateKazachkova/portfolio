@@ -49,8 +49,9 @@ const WALLET_FOOT = 0.876;
 // 26 × 18.5 cm), its front edge (1000 × 74) and the lid with the screen
 // (1000 × 763), hinged at the base's back edge and leaning back 10°.
 // 20% over that since 26.09 (Kate), its centre moved right to keep clear
-// of the wallet.
-export const DVD = { x: -472, z: -120, w: 336 };
+// of the wallet; 52 more (29.09) so its edge peeks into home's frame on
+// the left, as the trophy's does on the right (was -472).
+export const DVD = { x: -420, z: -120, w: 336 };
 const BD = Math.round(DVD.w * 713 / 1000);    // base depth
 const FH = Math.round(DVD.w * 74 / 1000);     // base thickness
 const LH = Math.round(DVD.w * 763 / 1000);    // lid height

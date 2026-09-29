@@ -7,7 +7,8 @@
  * hits.json `u15panel`, for the case in focus) × each link of the part's
  * chain from .env down (its layout offset, baked in u, and its transform
  * now, about its origin) × the picture's offset in its element. So the
- * folder opening or closing (U15File's .48 s spill, .8 s spread), prints
+ * folder opening or closing (U15File's steps: spill, the folder sliding
+ * away from under them, spread; and back), prints
  * and the card where they were dragged, and the order they lie in (their
  * z-index, as it switches) carry on in flight exactly as the page left
  * them. The tag's and the standing edges' fades are read the same way, and

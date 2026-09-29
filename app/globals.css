@@ -704,7 +704,8 @@ body::after {
   .hero-aside { --t-title: calc(2.16vw - 1.15px); --t-body: calc(.721vw + 5.6px); }
   /* 64px at 1440, as above it (the glass pane has to end above the clock) */
   .hero-aside .t-title { margin-top: calc(10.3vw - 84.3px); }
-  .hero-aside nav { margin-top: calc(7.69vw - 55px); gap: calc(1.442vw - 8.77px); }
+  /* the index half as far under the line as it was (Kate, 29.09) */
+  .hero-aside nav { margin-top: calc(3.845vw - 27.5px); gap: calc(1.442vw - 8.77px); }
   /* …but never so narrow that the title and the line under it take three
      lines each: 224px of measure (+24 padding) fits both in two at 1024,
      and still ends short of the case's left door */
@@ -1315,8 +1316,12 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .desk-card--env[data-open] .u15-item { cursor: grab; }
 .env__stack, .env__card { z-index: 2; pointer-events: none;
   transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .6s; }
-.desk-card--env[data-open] :is(.env__stack, .env__card) { z-index: 10; pointer-events: auto;
-  transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s .25s; }
+.desk-card--env:is([data-phase="open"], [data-phase="gather"]) :is(.env__stack, .env__card) { z-index: 10; pointer-events: auto;
+  transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s; }
+/* while the folder slides away from under them (and back), the pocket stays
+   over them; putting away, they go behind it at once, so the folder slides
+   up onto them and they then slide down into it */
+.desk-card--env[data-phase="cover"] :is(.env__stack, .env__card) { transition: transform .8s cubic-bezier(.65, 0, .2, 1), z-index 0s; }
 .env__stack[data-held], .env__card[data-held] { transition: none; }
 .env > .u15-sleeve { z-index: 5; }
 .env > .env__back, .env > .env__shadow { z-index: 0; }
@@ -1337,6 +1342,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
              rotate(calc(var(--t) + (var(--sr) - var(--t)) * var(--open)));
   transition: transform .8s cubic-bezier(.65, 0, .2, 1); touch-action: none; }
 .desk-card--env[data-open] .u15-print { --open: 1; cursor: grab; }
+.desk-card--env:is([data-phase="spill"], [data-phase="uncover"], [data-phase="gather"], [data-phase="cover"]) .u15-print { --open: 0; }
 .u15-print[data-held] { transition: none; cursor: grabbing;
   box-shadow: 0 calc(3 * var(--eu)) calc(5 * var(--eu)) rgba(20,16,12,.32); }
 
@@ -1825,10 +1831,12 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    objects under it still pick up. */
 @media (min-width: 1024px) {
   .hero-aside { position: relative; isolation: isolate; }
-  /* the line under the title and the index are both 14px at every width
-     (Kate, 26.09); later than the 1024–1439 rule, so it wins there too */
-  .hero-aside { --t-body: 14px; }
-  .hero-aside .nav-index a[data-stop] { font-size: 14px; }
+  /* the line under the title and the index are both 16px at every width
+     (Kate, 29.09; 14 from 26.09); later than the 1024–1439 rule, so it wins there too */
+  .hero-aside { --t-body: 16px; }
+  .hero-aside .nav-index a[data-stop] { font-size: 16px; }
+  /* and Let's Talk / CV at 16 too, up from .t-label's 12 (Kate, 29.09) */
+  .hero-aside .nav-call { font-size: 16px; }
   /* the line sits half as far under the title as HeroAside's mt-4 */
   .hero-aside .t-title + p { margin-top: 8px; }
 }
@@ -1836,6 +1844,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    pane ends above the flip clock (1024–1439 scales it, further up) */
 @media (min-width: 1440px) {
   .hero-aside .t-title { margin-top: 64px; }
+  /* the index half as far under the line as NavIndex's mt-14 (Kate, 29.09) */
+  .hero-aside nav { margin-top: 28px; }
 }
 @media (min-width: 1024px) {
   .hero-aside::before {
@@ -1895,8 +1905,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 :root:not([data-desk]) .nav-rail .nav-index a[data-stop="/"] { color: color-mix(in srgb, var(--fg) 74%, transparent) !important; border-left-color: transparent !important; }
 
 /* The two calls under the index: a letter (filled) and the CV (outlined).
-   Square, in the case files' own button (app/case.css, .pile__btns): mono
-   bold on a 1.5px ink rule, the ink filling in on hover. */
+   Square, in the case files' own button (app/case.css, .pile__btns): bold
+   on a 1.5px ink rule, the ink filling in on hover. */
 .nav-call {
   display: inline-flex; align-items: center; justify-content: center;
   padding: .85em 1.2em; line-height: 1; font-weight: 700; border-radius: 4px;
@@ -1909,6 +1919,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .nav-call:hover, .nav-call--primary { background: var(--fg); color: var(--on-fg, var(--bg)); }
 .nav-call--primary:hover { background: transparent; color: var(--fg); }
 .nav-call:focus-visible { outline: 2.5px solid var(--accent-red); outline-offset: 3px; }
+/* The index and its calls speak in the headline's voice, not the labels' mono. */
+.nav-index .t-label { font-family: var(--font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 90, "wght" 700; letter-spacing: -0.015em; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */

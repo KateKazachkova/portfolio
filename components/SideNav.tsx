@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
-import { mono } from "@/components/ui/type";
+import { display } from "@/components/ui/type";
 import { NAV_LINKS as LINKS, CV_HREF, CONTACT_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
 import { openStop } from "@/components/DeskScene";
 
@@ -145,7 +145,7 @@ export default function SideNav() {
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
               className="flex items-center justify-center uppercase font-bold"
-              style={{ minWidth: 26, height: 26, fontFamily: mono, fontSize: 12, letterSpacing: "0.14em", color: "var(--fg)" }}
+              style={{ minWidth: 26, height: 26, fontFamily: display, fontVariationSettings: '"wdth" 90, "wght" 700', fontSize: 12, letterSpacing: "-0.015em", color: "var(--fg)" }}
             >
               {/* The word, not an icon (Kate, 27.09); open, it turns into a
                   cross of two ink rules. */}
@@ -208,9 +208,10 @@ export default function SideNav() {
                     onClick={(e) => { setOpen(false); openStop(e, link.stop); }}
                     className="flex items-baseline gap-4 uppercase font-bold"
                     style={{
-                      fontFamily: mono,
+                      fontFamily: display,
+                      fontVariationSettings: '"wdth" 90, "wght" 700',
                       fontSize: 13,
-                      letterSpacing: "0.14em",
+                      letterSpacing: "-0.015em",
                       color: isActive(link.href) ? "var(--fg)" : "var(--muted)",
                       padding: "14px 0 14px 12px",
                       borderTop: i === 0 ? "none" : "1px solid var(--hairline)",
@@ -226,9 +227,10 @@ export default function SideNav() {
                   onClick={() => setOpen(false)}
                   className="block text-center uppercase font-bold"
                   style={{
-                    fontFamily: mono,
+                    fontFamily: display,
+                    fontVariationSettings: '"wdth" 90, "wght" 700',
                     fontSize: 12,
-                    letterSpacing: "0.12em",
+                    letterSpacing: "-0.015em",
                     padding: "12px 16px",
                     margin: "14px 0 0",
                     borderRadius: 4,
@@ -245,9 +247,10 @@ export default function SideNav() {
                   onClick={() => setOpen(false)}
                   className="block text-center uppercase font-bold"
                   style={{
-                    fontFamily: mono,
+                    fontFamily: display,
+                    fontVariationSettings: '"wdth" 90, "wght" 700',
                     fontSize: 12,
-                    letterSpacing: "0.12em",
+                    letterSpacing: "-0.015em",
                     padding: "12px 16px",
                     margin: "8px 0 16px",
                     borderRadius: 4,

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import type { ShelfItem } from "@/lib/content";
-import { CM, WALL, come, here, px, usePutBack } from "./offduty";
+import { CM, WALL, come, coverOf, here, px, usePutBack } from "./offduty";
 import "./BookShelf.css";
 
 // Off Duty's shelf: a birch plywood plank on the wall over the CD wallet
@@ -36,7 +36,7 @@ export default function BookShelf() {
       if (!b.poster) return;
       const im = new Image();
       im.onload = () => { const r = im.naturalWidth / im.naturalHeight; if (r) setRatio((m) => ({ ...m, [b.title]: r })); };
-      im.src = b.poster;
+      im.src = b.thumb ?? b.poster;   // (the copy has the same shape)
     });
   }, [shelf.books]);
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function BookShelf() {
                 <span className="bs-book__title">{short(b.title)}</span>
                 {b.author && <span className="bs-book__author">{b.author.split(" ").slice(-1)[0]}</span>}
               </span>
-              <span className="bs-book__cover" style={b.poster ? { backgroundImage: `url("${b.poster}")` } : undefined} />
+              <span className="bs-book__cover" style={b.poster ? { backgroundImage: coverOf(b, isOpen) } : undefined} />
               <span className="bs-book__back" />
               <span className="bs-book__pages" />
             </span>
@@ -130,7 +130,7 @@ export default function BookShelf() {
             style={{
               left: px(x), top: px(SHELF.y - h), width: px(w), height: px(h),
               "--z": foot, "--lean": `${LEAN}deg`,
-              backgroundImage: c.poster ? `url("${c.poster}")` : undefined,
+              backgroundImage: coverOf(c, isOpen),
             } as CSSProperties}>
             <Card item={c} style={{ left: px(w + 14), top: px(0) }} />
           </button>

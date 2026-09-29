@@ -8,6 +8,11 @@ import { OFFDUTY_EVENT } from "./BikeComputer";
 export const CM = 280 / 26;
 export const WALL = -269;
 export const px = (n: number) => `calc(${n} * var(--u))`;
+/** A cover as a background-image: on the shelf its .sm.webp copy (lib/
+ *  content.ts thumb); taken off it, the full poster over that copy, so the
+ *  copy shows until the full one is in. */
+export const coverOf = (it: { poster: string | null; thumb?: string | null }, open: boolean) =>
+  !it.poster ? undefined : !it.thumb ? `url("${it.poster}")` : open ? `url("${it.poster}"), url("${it.thumb}")` : `url("${it.thumb}")`;
 /** the camera is at the corner */
 export const here = () => document.documentElement.dataset.desk === "offduty";
 /** from elsewhere in the room, a click brings the camera over */

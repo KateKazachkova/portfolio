@@ -1900,8 +1900,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 :root:not([data-desk]) .nav-rail .nav-index a[data-stop="/"] { color: color-mix(in srgb, var(--fg) 74%, transparent) !important; border-left-color: transparent !important; }
 
 /* The two calls under the index: a letter (filled) and the CV (outlined).
-   Square, in the case files' own button (app/case.css, .pile__btns): mono
-   bold on a 1.5px ink rule, the ink filling in on hover. */
+   Square, in the case files' own button (app/case.css, .pile__btns): bold
+   on a 1.5px ink rule, the ink filling in on hover. */
 .nav-call {
   display: inline-flex; align-items: center; justify-content: center;
   padding: .85em 1.2em; line-height: 1; font-weight: 700; border-radius: 4px;
@@ -1914,6 +1914,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .nav-call:hover, .nav-call--primary { background: var(--fg); color: var(--on-fg, var(--bg)); }
 .nav-call--primary:hover { background: transparent; color: var(--fg); }
 .nav-call:focus-visible { outline: 2.5px solid var(--accent-red); outline-offset: 3px; }
+/* The index and its calls speak in the headline's voice, not the labels' mono. */
+.nav-index .t-label { font-family: var(--font-display), system-ui, sans-serif;
+  font-variation-settings: "wdth" 90, "wght" 700; letter-spacing: -0.015em; }
 /* <main> starts 56px above the window (under the header) and is one window
    tall, so it stops 56px short of the bottom — and it clips the room. Over
    the desk it has to reach the bottom edge. */

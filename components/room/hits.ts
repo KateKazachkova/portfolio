@@ -177,6 +177,10 @@ export function startHits(o: {
       continue;
     }
     if (el instanceof HTMLButtonElement) el.type = "button";
+    // a click leaves no focus on it, so a key pressed after (Escape, ← →)
+    // shows no focus ring round what was clicked: only the keyboard focuses
+    // it, as the desk lamp's switch (Kate, 29.09)
+    el.addEventListener("mousedown", (e) => e.preventDefault());
     if (el instanceof HTMLAnchorElement && h.href) {
       el.href = h.href;
       if (h.target) { el.target = h.target; el.rel = "noopener noreferrer"; }

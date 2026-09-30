@@ -1247,7 +1247,9 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .desk-card--env { transform-style: preserve-3d; --env-t: calc(6.5 * var(--u)); }
 .desk-card--env[data-open] { --env-t: 0px; }
 .env__edge, .env__player { position: absolute; display: block; pointer-events: none; transition: opacity .3s ease; }
-.env__edge--front { left: 1.2%; right: 3.1%; top: 97.9%; height: var(--env-t); transform-origin: 50% 0; transform: rotateX(90deg);
+/* (from 97.1%: over the pocket picture's pale bottom rim, which showed as a
+   seam between the top and this edge, Kate, 30.09) */
+.env__edge--front { left: 1.2%; right: 3.1%; top: 97.1%; height: var(--env-t); transform-origin: 50% 0; transform: rotateX(90deg);
   background: linear-gradient(#a81b0e, #7c1309); }
 .env__edge--right { top: .4%; bottom: 2.1%; left: 96.9%; width: var(--env-t); transform-origin: 0 50%; transform: rotateY(-90deg);
   background: linear-gradient(90deg, #b01d0f, #86150a); }

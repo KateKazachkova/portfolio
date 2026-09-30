@@ -248,8 +248,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       </div>
       {ready.has("award") && (
       <a
-        className="desk-cert" href="/artefacts/cert-indigo-women-in-design-2026.webp" target="_blank" rel="noopener noreferrer"
-        tabIndex={-1} aria-label="Indigo Design Award – Women in Design, shortlisted 2026 (certificate)"
+        className="desk-cert" href="https://www.indigoaward.com/women-in-design/winners/AB9HJF" target="_blank" rel="noopener noreferrer"
+        tabIndex={-1} aria-label="Indigo Design Award – Women in Design, shortlisted 2026 (its page on Indigo)"
         style={{
           left: `calc(${CERT.x - CERT.w / 2} * var(--u))`, top: `calc(${656 - CERT.h} * var(--u))`,
           width: `calc(${CERT.w} * var(--u))`, height: `calc(${CERT.h} * var(--u))`,
@@ -374,7 +374,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // move a target; a spring eases the camera onto it. Live only once the
     // camera has arrived — until then the move's own transition is running.
     let pan = 0, target = 0, raf = 0, arrived = false;
-    const u = () => el.getBoundingClientRect().width / 1118;
+    // (off the stage, not the camera: a pinch scales the camera's box)
+    const u = () => (el.parentElement ?? el).getBoundingClientRect().width / 1118;
     const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (spd() * u())));
     // On phones the wall's stops and Profile pan too, either side of where
     // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
@@ -441,7 +442,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let dragX: number | null = null, dragFrom = 0, dragged = false;
     let lastX = 0, lastT = 0, vel = 0; // px per ms, screen x
     const onDown = (e: PointerEvent) => {
-      if (!panning() || e.button !== 0) return;
+      if (!panning() || e.button !== 0 || zoomed() || touches.size > 1) return;
       // a print being carried, or a page being turned, is not a pan
       if (document.documentElement.dataset.u15 && (e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
       dragX = lastX = e.clientX; lastT = e.timeStamp; vel = 0;
@@ -461,6 +462,70 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       // a finger that stopped before it lifted throws nothing
       if (dragged && e.pointerType !== "mouse" && e.timeStamp - lastT < 80 && Math.abs(vel) > 0.3)
         go(target - (vel * 260) / (spdNow() * u()));
+    };
+    // ── A phone's pinch (Kate, 30.09): two fingers zoom the camera's lens in
+    // (1 to 3×) about where they are and move the picture; zoomed in, one
+    // finger moves it too, and neither pans nor swipes to another stop. The
+    // page's layers take it as translate and scale on the camera, the WebGL
+    // room as --pz, --pox, --poy (components/room/engine.ts); a new stop
+    // starts at 1× again. ──
+    const zoom = { s: 1, ox: 0, oy: 0 };
+    const touches = new Map<number, { x: number; y: number }>();
+    let pinch: { d: number; s: number; mx: number; my: number; ox: number; oy: number } | null = null;
+    let slide: { x: number; y: number; ox: number; oy: number } | null = null;
+    const zoomable = () => arrived && narrow() && !!open.current;
+    const zoomed = () => zoom.s > 1.001 || !!pinch;
+    // the lens axis on screen, relative to the camera's box: where the stop's
+    // own transform puts (560, 226)
+    const axis = () => {
+      const r = (el.parentElement ?? el).getBoundingClientRect(), q = u();
+      const dx = parseFloat(el.style.getPropertyValue("--dx")) || 0, dy = parseFloat(el.style.getPropertyValue("--dy")) || 0;
+      const wall = open.current === "award" || open.current === "offduty";
+      return { x: 560 * q + dx, y: 226 * q + (wall ? 0 : dy), left: r.left, top: r.top };
+    };
+    const applyZoom = () => {
+      const a = axis();
+      if (zoom.s <= 1.001) { zoom.s = 1; zoom.ox = zoom.oy = 0; }
+      const lim = (zoom.s - 1) * Math.max(innerWidth, innerHeight) * 0.6;
+      zoom.ox = Math.max(-lim, Math.min(lim, zoom.ox)); zoom.oy = Math.max(-lim, Math.min(lim, zoom.oy));
+      el.style.translate = zoom.s === 1 ? "" : `${a.x * (1 - zoom.s) + zoom.ox}px ${a.y * (1 - zoom.s) + zoom.oy}px`;
+      el.style.scale = zoom.s === 1 ? "" : String(zoom.s);
+      el.style.setProperty("--pz", String(zoom.s));
+      el.style.setProperty("--pox", String(zoom.ox));
+      el.style.setProperty("--poy", String(zoom.oy));
+    };
+    const resetZoom = () => { zoom.s = 1; zoom.ox = zoom.oy = 0; pinch = slide = null; touches.clear(); applyZoom(); };
+    const onTouchDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" || !zoomable()) return;
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (touches.size === 2) {
+        const [p1, p2] = [...touches.values()];
+        pinch = { d: Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1, s: zoom.s, mx: (p1.x + p2.x) / 2, my: (p1.y + p2.y) / 2, ox: zoom.ox, oy: zoom.oy };
+        slide = null; dragX = null; dragged = true; sw = null;
+      } else if (touches.size === 1 && zoomed()) {
+        slide = { x: e.clientX, y: e.clientY, ox: zoom.ox, oy: zoom.oy };
+      }
+    };
+    const onTouchMove = (e: PointerEvent) => {
+      if (!touches.has(e.pointerId)) return;
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && touches.size >= 2) {
+        const [p1, p2] = [...touches.values()];
+        const s1 = Math.max(1, Math.min(3, pinch.s * Math.hypot(p2.x - p1.x, p2.y - p1.y) / pinch.d));
+        const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2, a = axis();
+        // the point under the fingers stays under them as they spread
+        const qx = pinch.mx - a.left, qy = pinch.my - a.top;
+        zoom.ox = qx - a.x - (s1 / pinch.s) * (qx - a.x - pinch.ox) + (mx - pinch.mx);
+        zoom.oy = qy - a.y - (s1 / pinch.s) * (qy - a.y - pinch.oy) + (my - pinch.my);
+        zoom.s = s1; applyZoom();
+      } else if (slide) {
+        zoom.ox = slide.ox + e.clientX - slide.x; zoom.oy = slide.oy + e.clientY - slide.y; applyZoom();
+      }
+    };
+    const onTouchUp = (e: PointerEvent) => {
+      if (!touches.delete(e.pointerId)) return;
+      if (touches.size < 2) pinch = null;
+      if (touches.size === 0) slide = null;
     };
     // a drag that ends on a card is not a click on it
     const onClick = (e: MouseEvent) => {
@@ -527,7 +592,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       // rest of the move
       arrived = false; delete root.dataset.deskArrived;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
-      cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
+      cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint(); resetZoom();
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       // A wheel listener that can cancel the scroll holds every scroll of the
@@ -579,7 +644,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let sw: { x: number; y: number; atEdge: boolean } | null = null, swiped = false;
     const onSwipeDown = (e: PointerEvent) => {
       swiped = false;
-      if (!narrow() || e.pointerType === "mouse" || (open.current && open.current !== "award" && open.current !== "offduty")) { sw = null; return; }
+      if (!narrow() || e.pointerType === "mouse" || zoomed() || touches.size > 1 || (open.current && open.current !== "award" && open.current !== "offduty")) { sw = null; return; }
       const edge = open.current === "award" ? -reach() : reach();
       sw = { x: e.clientX, y: e.clientY, atEdge: !open.current || Math.abs(target - edge) < 1 };
     };
@@ -622,6 +687,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     document.addEventListener("click", onHomeLink, true);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
+    el.addEventListener("pointerdown", onTouchDown);
+    window.addEventListener("pointermove", onTouchMove);
+    window.addEventListener("pointerup", onTouchUp);
+    window.addEventListener("pointercancel", onTouchUp);
     el.addEventListener("pointerdown", onDown);
     el.addEventListener("pointerdown", onSwipeDown);
     window.addEventListener("pointerup", onSwipeUp);
@@ -647,6 +716,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown", onTouchDown);
+      window.removeEventListener("pointermove", onTouchMove);
+      window.removeEventListener("pointerup", onTouchUp);
+      window.removeEventListener("pointercancel", onTouchUp);
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("pointerdown", onSwipeDown);
       window.removeEventListener("pointerup", onSwipeUp);

@@ -1088,7 +1088,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // wall the camera only slides sideways from home, so the picture keeps
   // home's height and the desk stays where it was (Kate, 30.09)
   const shiftAt = (v: View) => (v === "home" ? [0, 0] : [readVar("--dx"), v === "award" || v === "offduty" ? 0 : readVar("--dy")]);
-  const poseOf = (v: View) => stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty" || v === "profile")) ? readVar("--pan") : 0, narrow());
+  const poseOf = (v: View) => {
+    const p = stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty" || v === "profile")) ? readVar("--pan") : 0, narrow());
+    // a phone's pinch at a stop (useDeskCamera): the lens zoomed in about its
+    // axis, and the picture moved
+    if (v !== "home") { p.z *= readVar("--pz") || 1; p.sx += readVar("--pox"); p.sy += readVar("--poy"); }
+    return p;
+  };
+  // (what the pinch was when the pose last went out: a change of it alone is
+  // under the fingers, so drawn at once, not flown to)
+  let pinchWas = "";
 
   // ── what each stop sees, for loading and for the flights' wait ──
   const seenAt = (it: Item, p: Pose, home: boolean) => {
@@ -1176,7 +1185,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     lookTo(now);
     const still = reduced();
     const def: Rule = still ? null : { dur: CAM.t, delay: CAM.wait, ease: EASE.cam };
-    const poseRule: Rule = still ? null : arrived && desk === "offduty" ? { dur: CAM.bikeT, delay: 0, ease: EASE.bike } : arrived ? null : def;
+    const pinchNow = [readVar("--pz"), readVar("--pox"), readVar("--poy")].join();
+    const pinched = pinchNow !== pinchWas; pinchWas = pinchNow;
+    const poseRule: Rule = still || (arrived && pinched) ? null : arrived && desk === "offduty" ? { dur: CAM.bikeT, delay: 0, ease: EASE.bike } : arrived ? null : def;
     pose.retarget(poseOf(v), poseRule, now);
     const sh = shiftAt(v);
     shift.retarget(sh, def, now);

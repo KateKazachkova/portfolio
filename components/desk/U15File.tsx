@@ -184,7 +184,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     }
     const el = e.currentTarget;
     try { el.setPointerCapture(e.pointerId); } catch { /* a synthetic press has no pointer to capture */ }
-    // (screen px per desk px at the camera's height, closer on a phone)
+    // (screen px per desk px at the camera's height, the folder at its size on the desk)
     const scale = (card.current!.offsetWidth / FOLDER.w) * FILES_SPD * CASE_ROW.k;
     const a = (r * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
     const from = drag[id] ?? { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;

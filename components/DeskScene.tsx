@@ -385,11 +385,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : narrow() ? WALL_ZOOM_NARROW : 1);
     // (the wall's px per desk px is its zoom: reach is in desk px, as seen)
     const reach = () => open.current === "profile" ? Math.max(0, (720 - innerWidth / 2 / u()) / spdNow()) : Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
-    // (closer on a phone, pan 0 would cut the first file: the row starts
-    // with it in the middle there)
-    const minPan = () => (narrow() ? rowX(CASES[0].x) - VIEW_X : 0);
     const clamp = (v: number) => open.current === "files"
-      ? Math.min(maxPan(), Math.max(minPan(), v))
+      ? Math.min(maxPan(), Math.max(0, v))
       : Math.min(reach(), Math.max(-reach(), v));
     const counter = document.querySelector<HTMLElement>(".desk-counter");
     const paint = () => {
@@ -530,7 +527,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       // rest of the move
       arrived = false; delete root.dataset.deskArrived;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
-      cancelAnimationFrame(raf); raf = 0; pan = target = v === "files" ? minPan() : 0; paint();
+      cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       // A wheel listener that can cancel the scroll holds every scroll of the

@@ -52,7 +52,7 @@ const PICK = [
   { type: "trophy", sel: "img.desk-award", at: ["home", "files"], kind: "button", action: "recognition", mask: true, name: "The Davey Awards trophy — Recognition" },
   // …the case files on the desk in front, each a way to Case Files, as the
   // page's .desk-cases > * are (DeskScene: a click from home)
-  { type: "case-home", sel: ".desk-cases > *", all: true, at: ["home"], kind: "button", action: "files", name: "Case Files" },
+  { type: "case-home", sel: ".desk-cases > *", all: true, at: ["home"], kind: "button", action: "files", name: "Case Files", tab: false },
   // …and on the left the player's edge, the way to Off Duty
   { type: "dvd-way", sel: ".od-dvd__lid > img", at: ["home"], kind: "button", action: "offduty", mask: true, name: "KATE™ DVD player — Off Duty" },
   // Case Files, left to right: Ukrainska 15's folder, its tag to the case

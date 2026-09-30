@@ -17,6 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
+import { filesSpd } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -149,7 +150,6 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
 
 const ROW_END = 2149 + 185 + 70;   // right edge of the last stack fanned out, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
-const SPD = 2150 / 860;            // screen px per desk px at the end height (× --u)
 
 export const DESK_EVENT = "kate:case-files";
 /** The desk hint's "Put the file away": the case in focus goes back. */
@@ -373,21 +373,26 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // camera has arrived — until then the move's own transition is running.
     let pan = 0, target = 0, raf = 0, arrived = false;
     const u = () => el.getBoundingClientRect().width / 1118;
-    const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (SPD * u())));
+    const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (spd() * u())));
     // On phones the wall's stops and Profile pan too, either side of where
     // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
     // Screen px per desk px there: ~1 on the wall, 2150 / 936 over Profile.
     const narrow = () => matchMedia("(max-width: 767px)").matches;
-    const spdNow = () => (open.current === "files" ? SPD : open.current === "profile" ? 2150 / 936 : 1);
+    // screen px per desk px over the desk (× --u): the camera is closer on a phone
+    const spd = () => filesSpd(narrow());
+    const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : 1);
     const reach = () => Math.max(0, (720 - innerWidth / 2 / u()) / spdNow());
+    // (closer on a phone, pan 0 would cut the first file: the row starts
+    // with it in the middle there)
+    const minPan = () => (narrow() ? CASES[0].x - VIEW_X : 0);
     const clamp = (v: number) => open.current === "files"
-      ? Math.min(maxPan(), Math.max(0, v))
+      ? Math.min(maxPan(), Math.max(minPan(), v))
       : Math.min(reach(), Math.max(-reach(), v));
     const counter = document.querySelector<HTMLElement>(".desk-counter");
     const paint = () => {
       el.style.setProperty("--pan", pan.toFixed(2));
       if (counter) {
-        const centre = VIEW_X + pan + 120 / SPD;
+        const centre = VIEW_X + pan + 120 / spd();
         let best = 0;
         CASES.forEach((c, i) => { if (Math.abs(c.x - centre) < Math.abs(CASES[best].x - centre)) best = i; });
         counter.textContent = `${best + 1} / ${CASES.length}`;
@@ -428,7 +433,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       e.preventDefault();
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (focus && focus !== U15) setFocus(null);
-      go(target + d / (SPD * u()));
+      go(target + d / (spd() * u()));
     };
     // A drag with the mouse, or a swipe with a finger (the desk takes touch
     // for itself while it pans: touch-action in globals.css). A swipe let go
@@ -478,7 +483,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onFocus = (e: FocusEvent) => {
       const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-x]");
       if (!a || !panning()) return;
-      go(Number(a.dataset.x) - VIEW_X - 120 / SPD);
+      go(Number(a.dataset.x) - VIEW_X - 120 / spd());
     };
     // The WebGL room (?gl=1) does not render the cards: its controls stand
     // for them and say which case was clicked, or took focus.
@@ -489,7 +494,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       setFocus(c.slug);
       go(c.x - VIEW_X);
     };
-    const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(c.x - VIEW_X - 120 / SPD); };
+    const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(c.x - VIEW_X - 120 / spd()); };
     window.addEventListener("room:case", onGlCase);
     window.addEventListener("room:case-focus", onGlCaseFocus);
     // on the camera, not the world: under ?gl=1 the world is only built if
@@ -522,7 +527,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       // rest of the move
       arrived = false; delete root.dataset.deskArrived;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
-      cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
+      cancelAnimationFrame(raf); raf = 0; pan = target = v === "files" ? minPan() : 0; paint();
       root.dataset.desk = v ? STATE[v] : "closed";
       document.body.style.overflow = v ? "hidden" : "";
       // A wheel listener that can cancel the scroll holds every scroll of the

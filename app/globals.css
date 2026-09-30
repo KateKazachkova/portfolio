@@ -1538,6 +1538,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
     transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
   }
+  /* over the desk the camera comes 1.5× closer on a phone: 860 u above the
+     stacks becomes 573.33 (filesY in lib/room/pose.ts, Kate, 30.09) */
+  [data-desk="open"] .desk-world, [data-desk="open"] .case-world {
+    transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(143.333 * var(--u)), calc(1751.5 * var(--u)));
+  }
   :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
   /* at the case the page still scrolls up and down, but a sideways swipe is
      the room's: it walks to Recognition or Off Duty (useDeskCamera) */

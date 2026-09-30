@@ -19,6 +19,13 @@ export const FOCAL = 2150;
 export type Pose = { rx: number; t: [number, number, number]; sx: number; sy: number };
 export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 
+/** Over the desk the camera is 860 u above the stacks' height, 2.5 screen px
+ *  (× --u) to a desk px; on a phone it comes down 1.5× closer (Kate, 30.09):
+ *  the world's y at Case Files (globals.css) and the pan's px per desk px. */
+export const FILES_ZOOM_NARROW = 1.5;
+export const filesY = (narrow: boolean) => (narrow ? 430 - 860 * (1 - 1 / FILES_ZOOM_NARROW) : 430);
+export const filesSpd = (narrow: boolean) => (FOCAL / 860) * (narrow ? FILES_ZOOM_NARROW : 1);
+
 /** Where each stop puts the world (translate in u) and how far the picture
  *  is shifted besides the lens shift (px). Files' x runs with the pan. */
 export function stopPose(view: View, pan = 0, narrow = false): Pose {
@@ -26,7 +33,7 @@ export function stopPose(view: View, pan = 0, narrow = false): Pose {
   // room too, and Profile's axis is on the binder's middle: globals.css)
   const p = narrow ? pan : 0;
   switch (view) {
-    case "files": return { rx: -90, t: [200 - pan, 430, 1751.5], sx: 0, sy: 0 };
+    case "files": return { rx: -90, t: [200 - pan, filesY(narrow), 1751.5], sx: 0, sy: 0 };
     case "award": return { rx: 0, t: [-1040 - p, -150, 100], sx: 0, sy: 0 };
     case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15 };
     case "offduty": return { rx: 0, t: [1423 - p, -150, 100], sx: 0, sy: 0 };

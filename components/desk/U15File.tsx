@@ -79,21 +79,27 @@ type Pt = { x: number; y: number };
 // camera at pan 0, clear of the nav column on the left (it stays on the desk
 // too): the card left, the note right of it, the player right, the folder
 // down. The stacks stay put: their prints spread out of them (SPREAD).
-const OPEN: Record<string, Pt & { r: number }> = {
+// Laid out closer together than they were drawn (GROUP), so the open file
+// fills about one screen now the files lie larger (Kate, 30.09).
+const GROUP = 0.5;
+// …and the whole of it a little up and left, into the window's middle
+const SHIFT = { x: -17, y: -25 };
+const OPEN: Record<string, Pt & { r: number }> = Object.fromEntries(Object.entries({
   sleeve: { x: -20, y: 175, r: -2 },
   card: { x: 10, y: 31, r: -4 },
   player: { x: 100, y: 22, r: 12 },
   note: { x: 112, y: -47, r: -3 },
-};
+}).map(([k, o]) => [k, { x: o.x * GROUP + SHIFT.x, y: o.y * GROUP + SHIFT.y, r: o.r }]));
 // Where each print lands on the open desk: its top left corner in folder
 // units, and its angle. Scattered round the card and the note, over the
 // top of the desk and down its right side, as if tipped out of the pocket.
-const SPREAD: Record<string, [number, number, number]> = {
+// (drawn round (180, 95), and drawn together to it by GROUP)
+const SPREAD: Record<string, [number, number, number]> = Object.fromEntries(Object.entries({
   "family-1": [1, -52, -4], "after-2": [75, -59, 3], "family-2": [152, -50, -3], "after-6": [216, -59, 4], "family-4": [284, -49, -5],
   "family-5": [25, -7, 5], "family-3": [102, -14, -6], "after-1": [251, -5, -3],
   "after-3": [291, 39, 4], "after-4": [291, 129, -4],
   "after-5": [161, 157, 3], "after-7": [234, 178, -5], "after-8": [289, 199, 6], "family-6": [84, 164, -3],
-};
+} as Record<string, [number, number, number]>).map(([k, [x, y, r]]) => [k, [180 + (x - 180) * GROUP + SHIFT.x, 95 + (y - 95) * GROUP + SHIFT.y, r]]));
 // where each stack lies in the folder (.env__stack--* in globals.css)
 const STACK_AT: Record<string, Pt> = { family: { x: 7.5, y: 3.12 }, after: { x: 64.5, y: 16.64 } };
 // On the way out everything first slides straight up out of the pocket,

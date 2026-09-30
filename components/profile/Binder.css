@@ -299,7 +299,8 @@
 
 .pf-stack { display: none; }
 @media (max-width: 760px) {
-  .pf-binder, .pf-pager { display: none; }
+  /* (the page's binder: the one on the desk, and the room's, stay — Kate, 30.09) */
+  .pf-binder:not(.desk-binder):not(.room-binder), .pf-pager { display: none; }
   .pf { container-type: inline-size; }
   .pf-stack { display: flex; flex-direction: column; gap: 18px; width: 100%; --px: calc(100cqw / 443); }
   .pf-stack .pf-sheet { position: relative; width: 100%; aspect-ratio: 1455 / 2015; }

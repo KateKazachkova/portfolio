@@ -24,15 +24,16 @@ export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 /** Over the desk the camera is 860 u above the stacks' height, 2.5 screen px
  *  (× --u) to a desk px: the pan's px per desk px. */
 export const FILES_SPD = FOCAL / 860;
-/** The case files lie 1.5× their size (Kate, 30.09): .desk-cases is scaled
+/** The case files lie 1.275× their size (Kate, 30.09: 1.5×, then 15 % less): .desk-cases is scaled
  *  k× about the row's top left, Ukrainska 15's corner (globals.css), so a
  *  file laid out at x lies on the desk at rowX(x). The camera over them
- *  looks 57.2 u further out, where the row's middle (y 677.4) now is:
+ *  looks 31.5 u further out, where the row's middle (y 677.4) now is:
  *  the files stop's z, 1751.5 before (globals.css has it too). */
-export const CASE_ROW = { x: 1284, y: 563, k: 1.5 };
+export const CASE_ROW = { x: 1284, y: 563, k: 1.275 };
 const FILES_Z = 1751.5 - (677.4 - CASE_ROW.y) * (CASE_ROW.k - 1);
 export const rowX = (x: number) => CASE_ROW.x + (x - CASE_ROW.x) * CASE_ROW.k;
-/** at the wall's two stops a phone's lens zooms in too (Kate, 30.09) */
+/** a phone's lens zooms in at home and the wall's two stops alike, so the
+ *  picture keeps its scale from one to the next (Kate, 30.09) */
 export const WALL_ZOOM_NARROW = 1.35;
 
 /** the picture's whole shift (screen px): the page's lens shift s and the
@@ -51,7 +52,7 @@ export function stopPose(view: View, pan = 0, narrow = false): Pose {
     case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, z: 1 };
     case "offduty": return { rx: 0, t: [1423 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, z: 1 };
-    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, z: 1 };
+    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
   }
 }
 

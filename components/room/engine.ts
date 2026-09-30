@@ -1071,7 +1071,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   document.addEventListener("pointerout", onPointerOut);
 
   // ── the camera ──
-  const pose = new Channel<Pose>(stopPose("home"), lerpPose, samePose);
+  const pose = new Channel<Pose>(stopPose("home", 0, innerWidth < 768), lerpPose, samePose);
   const shift = new Channel<number[]>([0, 0], lerp2, same2);
   const caseOp = new Channel<number>(1, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4);
   const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;

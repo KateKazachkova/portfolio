@@ -145,17 +145,17 @@ export default function SideNav() {
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
               className="flex items-center justify-center uppercase font-bold"
-              style={{ minWidth: 26, height: 26, fontFamily: display, fontVariationSettings: '"wdth" 90, "wght" 700', fontSize: 12, letterSpacing: "-0.015em", color: "var(--fg)" }}
+              style={{ minWidth: 32, height: 32, fontFamily: display, fontVariationSettings: '"wdth" 90, "wght" 700', fontSize: 18, letterSpacing: "-0.015em", color: "var(--fg)" }}
             >
-              {/* The word, not an icon (Kate, 27.09); open, it turns into a
-                  cross of two ink rules. */}
+              {/* The word, not an icon (Kate, 27.09), as large as KATE™ beside
+                  it (Kate, 30.09); open, it turns into a cross of two ink rules. */}
               {open ? (
-                <span aria-hidden className="relative block" style={{ width: 16, height: 16 }}>
+                <span aria-hidden className="relative block" style={{ width: 20, height: 20 }}>
                   {[45, -45].map((deg) => (
                     <span
                       key={deg}
                       className="absolute left-0 right-0"
-                      style={{ top: 7, height: 2, background: "var(--fg)", transform: `rotate(${deg}deg)` }}
+                      style={{ top: 9, height: 2, background: "var(--fg)", transform: `rotate(${deg}deg)` }}
                     />
                   ))}
                 </span>

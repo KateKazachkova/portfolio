@@ -395,8 +395,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     // with reduced motion the camera is simply where it is sent
     const still = prefersReducedMotion();
+    // (under a finger or the mouse the desk stays with it: the spring only
+    // brings it in after a flick, a wheel, a key or a click)
     const tick = () => {
-      pan = still ? target : pan + (target - pan) * 0.16;
+      pan = still || dragX !== null ? target : pan + (target - pan) * 0.16;
       if (Math.abs(target - pan) < 0.2) pan = target;
       paint();
       raf = pan === target ? 0 : requestAnimationFrame(tick);

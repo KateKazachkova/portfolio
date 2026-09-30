@@ -16,27 +16,24 @@ export type Mat4 = number[]; // column-major, as DOMMatrix / three
 export const EYE = [560, 226, 2150] as const;
 export const FOCAL = 2150;
 
-/** sx, sy: the picture's shift besides the lens shift, in screen px; ly, a
- *  further shift down in u (it scales with the window) */
-export type Pose = { rx: number; t: [number, number, number]; sx: number; sy: number; ly: number };
+/** sx, sy: the picture's shift besides the lens shift, in screen px; z, the
+ *  lens's zoom about the eye's axis (1: the focal length 2150) */
+export type Pose = { rx: number; t: [number, number, number]; sx: number; sy: number; z: number };
 export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 
 /** Over the desk the camera is 860 u above the stacks' height, 2.5 screen px
- *  (× --u) to a desk px; on a phone it comes down 1.5× closer (Kate, 30.09):
- *  the world's y at Case Files (globals.css) and the pan's px per desk px. */
+ *  (× --u) to a desk px; on a phone the lens zooms in 1.5× (Kate, 30.09) —
+ *  the camera itself stays up there: brought down, it was under the wall's
+ *  top, which then filled the frame. The zoom (globals.css has it too) and
+ *  the pan's px per desk px. */
 export const FILES_ZOOM_NARROW = 1.5;
-export const filesY = (narrow: boolean) => (narrow ? 430 - 860 * (1 - 1 / FILES_ZOOM_NARROW) : 430);
+/** at the wall's two stops a phone's lens zooms in too (Kate, 30.09) */
+export const WALL_ZOOM_NARROW = 1.35;
 export const filesSpd = (narrow: boolean) => (FOCAL / 860) * (narrow ? FILES_ZOOM_NARROW : 1);
 
-/** At the wall the camera stands at the case's eye height, so the desk is seen
- *  at one angle from every stop; the lens shifts the picture up instead,
- *  framing the trophy and the shelf as a 150 u rise did at the wall's depth,
- *  2050 u off (Kate, 30.09). globals.css has it as -157.32. */
-export const WALL_LY = (-150 * FOCAL) / (FOCAL - 100);
-
-/** the picture's whole shift (screen px): the page's lens shift s, the
- *  stop's own in px and in u */
-export const lensShift = (p: Pose, u: number, s: readonly number[] = [0, 0]): [number, number] => [s[0] + p.sx, s[1] + p.sy + p.ly * u];
+/** the picture's whole shift (screen px): the page's lens shift s and the
+ *  stop's own */
+export const lensShift = (p: Pose, s: readonly number[] = [0, 0]): [number, number] => [s[0] + p.sx, s[1] + p.sy];
 
 /** Where each stop puts the world (translate in u) and how far the picture
  *  is shifted besides the lens shift (px). Files' x runs with the pan. */
@@ -45,12 +42,12 @@ export function stopPose(view: View, pan = 0, narrow = false): Pose {
   // room too, and Profile's axis is on the binder's middle: globals.css)
   const p = narrow ? pan : 0;
   switch (view) {
-    case "files": return { rx: -90, t: [200 - pan, filesY(narrow), 1751.5], sx: 0, sy: 0, ly: 0 };
-    case "award": return { rx: 0, t: [-1040 - p, 0, 100], sx: 0, sy: 0, ly: WALL_LY };
-    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, ly: 0 };
-    case "offduty": return { rx: 0, t: [1423 - p, 0, 100], sx: 0, sy: 0, ly: WALL_LY };
-    case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, ly: 0 };
-    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, ly: 0 };
+    case "files": return { rx: -90, t: [200 - pan, 430, 1751.5], sx: 0, sy: 0, z: narrow ? FILES_ZOOM_NARROW : 1 };
+    case "award": return { rx: 0, t: [-1040 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, z: 1 };
+    case "offduty": return { rx: 0, t: [1423 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, z: 1 };
+    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, z: 1 };
   }
 }
 
@@ -102,8 +99,8 @@ export function viewMatrix(p: Pose): Mat4 {
 
 /** A perspective projection for a canvas covering (cx, cy, cw, ch) of the
  *  stage, in u, with the principal point at (ppx, ppy) of the stage, in u. */
-export function projectionMatrix(cx: number, cy: number, cw: number, ch: number, ppx: number, ppy: number, near = 20, far = 12000): Mat4 {
-  const f = FOCAL;
+export function projectionMatrix(cx: number, cy: number, cw: number, ch: number, ppx: number, ppy: number, zoom = 1, near = 20, far = 12000): Mat4 {
+  const f = FOCAL * zoom;
   const m02 = 1 - (2 * (ppx - cx)) / cw;
   const m12 = (2 * (ppy - cy)) / ch - 1;
   return [
@@ -120,7 +117,7 @@ export function projectToStage(p: Pose, pt: [number, number, number]): [number, 
   const q = apply(worldMatrix(p), pt);
   const d = FOCAL - q[2];
   if (d <= 1) return null;
-  const k = FOCAL / d;
+  const k = (FOCAL * p.z) / d;
   return [EYE[0] + (q[0] - EYE[0]) * k, EYE[1] + (q[1] - EYE[1]) * k];
 }
 
@@ -129,7 +126,7 @@ export const lerpPose = (a: Pose, b: Pose, e: number): Pose => ({
   t: [0, 1, 2].map((i) => a.t[i] + (b.t[i] - a.t[i]) * e) as [number, number, number],
   sx: a.sx + (b.sx - a.sx) * e,
   sy: a.sy + (b.sy - a.sy) * e,
-  ly: a.ly + (b.ly - a.ly) * e,
+  z: a.z + (b.z - a.z) * e,
 });
 
 /** CSS cubic-bezier(x1, y1, x2, y2) */

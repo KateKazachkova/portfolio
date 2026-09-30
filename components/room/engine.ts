@@ -104,7 +104,7 @@ class Channel<T> {
     this.from = cur; this.to = v; this.t0 = now; this.dur = Math.max(1, dur); this.delay = delay; this.ease = rule.ease; this.active = true;
   }
 }
-const samePose = (a: Pose, b: Pose) => a.rx === b.rx && a.sx === b.sx && a.sy === b.sy && a.ly === b.ly && a.t.every((v, i) => Math.abs(v - b.t[i]) < 1e-6);
+const samePose = (a: Pose, b: Pose) => a.rx === b.rx && a.sx === b.sx && a.sy === b.sy && a.z === b.z && a.t.every((v, i) => Math.abs(v - b.t[i]) < 1e-6);
 const lerp2 = (a: number[], b: number[], e: number) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
 const same2 = (a: number[], b: number[]) => Math.abs(a[0] - b[0]) < 1e-3 && Math.abs(a[1] - b[1]) < 1e-3;
 
@@ -1083,6 +1083,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // a stop's pose as the CSS has it now: the pan along the desk at Case Files,
   // and on a phone at the wall's stops and Profile too (useDeskCamera's --pan)
   const narrow = () => innerWidth < 768;
+  // the page's lens shift at a stop (useDeskCamera's --dx, --dy): at the
+  // wall the camera only slides sideways from home, so the picture keeps
+  // home's height and the desk stays where it was (Kate, 30.09)
+  const shiftAt = (v: View) => (v === "home" ? [0, 0] : [readVar("--dx"), v === "award" || v === "offduty" ? 0 : readVar("--dy")]);
   const poseOf = (v: View) => stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty" || v === "profile")) ? readVar("--pan") : 0, narrow());
 
   // ── what each stop sees, for loading and for the flights' wait ──
@@ -1090,7 +1094,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const { u, cx, cy, cw, ch } = geom;
     // the window in stage u: the canvas at home, centred on the lens elsewhere
     const W = innerWidth / u, H = innerHeight / u;
-    const [lx, ly] = lensShift(p, u);
+    const [lx, ly] = lensShift(p);
     const r = home ? [cx, cy, cx + cw, cy + ch] : [560 + lx / u - W * 0.6, 226 + ly / u - H * 0.6, 560 + lx / u + W * 0.6, 226 + ly / u + H * 0.6];
     const m = it.m;
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, any = false;
@@ -1173,7 +1177,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const def: Rule = still ? null : { dur: CAM.t, delay: CAM.wait, ease: EASE.cam };
     const poseRule: Rule = still ? null : arrived && desk === "offduty" ? { dur: CAM.bikeT, delay: 0, ease: EASE.bike } : arrived ? null : def;
     pose.retarget(poseOf(v), poseRule, now);
-    const sh = v === "home" ? [0, 0] : [readVar("--dx"), readVar("--dy")];
+    const sh = shiftAt(v);
     shift.retarget(sh, def, now);
     // the case fades out at the desk and at Profile, as .case-world does
     // there (globals.css: opacity .6s ease .7s); from above the desk, panned
@@ -1251,8 +1255,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const s = shift.value(now);
     const { u, cx, cy, cw, ch } = geom;
     V.fromArray(viewMatrix(p));
-    const [lx, ly] = lensShift(p, u, s);
-    P.fromArray(projectionMatrix(cx, cy, cw, ch, 560 + lx / u, 226 + ly / u));
+    const [lx, ly] = lensShift(p, s);
+    P.fromArray(projectionMatrix(cx, cy, cw, ch, 560 + lx / u, 226 + ly / u, p.z));
     camera.matrixWorldInverse.copy(V);
     camera.matrixWorld.copy(V).invert();
     camera.projectionMatrix.copy(P);
@@ -1298,7 +1302,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (view !== "home") {
       const want = poseOf(view);
       if (!samePose(want, pose.to)) evaluate(now);
-      const sh = [readVar("--dx"), readVar("--dy")];
+      const sh = shiftAt(view);
       if (!same2(sh, shift.to)) evaluate(now);
     }
     const objects = settle(now);
@@ -1328,7 +1332,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       else {
         const s = shift.value(now), p = pose.to;
         const key = `${view}|${p.rx}|${p.t.join()}|${s.join()}|${geom.u}|${geom.cx}|${geom.cy}`;
-        if (key !== placedKey) { placedKey = key; hitLayer.place({ view, pose: p, shift: lensShift(p, geom.u, s), u: geom.u }); }
+        if (key !== placedKey) { placedKey = key; hitLayer.place({ view, pose: p, shift: lensShift(p, s), u: geom.u }); }
       }
     }
     const video = groupsShown && [...(groupMeshes.get("case") ?? [])].some((m) => m.visible && (m.material as THREE.ShaderMaterial).uniforms.map.value instanceof THREE.VideoTexture);
@@ -1459,7 +1463,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const v0 = viewOfState(root.dataset.desk, root.dataset.deskFocus);
   if (v0 !== "home") {
     pose.retarget(poseOf(v0), null, 0);
-    shift.retarget([readVar("--dx"), readVar("--dy")], null, 0);
+    shift.retarget(shiftAt(v0), null, 0);
     caseOp.retarget(v0 === "profile" || v0 === "files" || v0 === "bike" ? 0 : 1, null, 0);
     view = v0;
     buildGroups(); setGroupsShown(true);
@@ -1481,8 +1485,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     warmCam.matrixWorldInverse.fromArray(viewMatrix(p)); warmCam.matrixWorld.copy(warmCam.matrixWorldInverse).invert();
     const { u } = geom;
     const W = innerWidth / u, H = innerHeight / u;
-    const [lx, ly] = lensShift(p, u);
-    warmCam.projectionMatrix.fromArray(projectionMatrix(560 - W / 2, 226 - H / 2, W, H, 560 + lx / u, 226 + ly / u)); warmCam.projectionMatrixInverse.copy(warmCam.projectionMatrix).invert();
+    const [lx, ly] = lensShift(p);
+    warmCam.projectionMatrix.fromArray(projectionMatrix(560 - W / 2, 226 - H / 2, W, H, 560 + lx / u, 226 + ly / u, p.z)); warmCam.projectionMatrixInverse.copy(warmCam.projectionMatrix).invert();
     const prev = renderer.getRenderTarget();
     renderer.setRenderTarget(warmRT);
     renderer.render(scene, warmCam);

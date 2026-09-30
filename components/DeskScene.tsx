@@ -17,7 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
-import { filesSpd } from "@/lib/room/pose";
+import { filesSpd, WALL_ZOOM_NARROW } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -380,8 +380,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const narrow = () => matchMedia("(max-width: 767px)").matches;
     // screen px per desk px over the desk (× --u): the camera is closer on a phone
     const spd = () => filesSpd(narrow());
-    const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : 1);
-    const reach = () => Math.max(0, (720 - innerWidth / 2 / u()) / spdNow());
+    const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : narrow() ? WALL_ZOOM_NARROW : 1);
+    // (the wall's px per desk px is its zoom: reach is in desk px, as seen)
+    const reach = () => open.current === "profile" ? Math.max(0, (720 - innerWidth / 2 / u()) / spdNow()) : Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
     // (closer on a phone, pan 0 would cut the first file: the row starts
     // with it in the middle there)
     const minPan = () => (narrow() ? CASES[0].x - VIEW_X : 0);

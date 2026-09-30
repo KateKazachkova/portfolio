@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
@@ -104,7 +104,7 @@ class Channel<T> {
     this.from = cur; this.to = v; this.t0 = now; this.dur = Math.max(1, dur); this.delay = delay; this.ease = rule.ease; this.active = true;
   }
 }
-const samePose = (a: Pose, b: Pose) => a.rx === b.rx && a.sx === b.sx && a.sy === b.sy && a.t.every((v, i) => Math.abs(v - b.t[i]) < 1e-6);
+const samePose = (a: Pose, b: Pose) => a.rx === b.rx && a.sx === b.sx && a.sy === b.sy && a.ly === b.ly && a.t.every((v, i) => Math.abs(v - b.t[i]) < 1e-6);
 const lerp2 = (a: number[], b: number[], e: number) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
 const same2 = (a: number[], b: number[]) => Math.abs(a[0] - b[0]) < 1e-3 && Math.abs(a[1] - b[1]) < 1e-3;
 
@@ -1090,7 +1090,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const { u, cx, cy, cw, ch } = geom;
     // the window in stage u: the canvas at home, centred on the lens elsewhere
     const W = innerWidth / u, H = innerHeight / u;
-    const r = home ? [cx, cy, cx + cw, cy + ch] : [560 + p.sx / u - W * 0.6, 226 + p.sy / u - H * 0.6, 560 + p.sx / u + W * 0.6, 226 + p.sy / u + H * 0.6];
+    const [lx, ly] = lensShift(p, u);
+    const r = home ? [cx, cy, cx + cw, cy + ch] : [560 + lx / u - W * 0.6, 226 + ly / u - H * 0.6, 560 + lx / u + W * 0.6, 226 + ly / u + H * 0.6];
     const m = it.m;
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, any = false;
     for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1], [0.5, 0.5]]) {
@@ -1109,7 +1110,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const set = new Set<Slot>();
       // (a binder leaf that only another spread shows loads when it is turned to)
       const shown = (p: Placed) => !outOnly.has(p.slot) && (isBinder(p) ? binderNeeds(p, binderAt) : p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf")));
-      for (const p of room) if (shown(p)) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan), v === "home")) { set.add(p.slot); break; }
+      for (const p of room) if (shown(p)) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan, narrow()), v === "home")) { set.add(p.slot); break; }
       zoneSlots.set(v, set);
     }
   };
@@ -1250,7 +1251,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const s = shift.value(now);
     const { u, cx, cy, cw, ch } = geom;
     V.fromArray(viewMatrix(p));
-    P.fromArray(projectionMatrix(cx, cy, cw, ch, 560 + (s[0] + p.sx) / u, 226 + (s[1] + p.sy) / u));
+    const [lx, ly] = lensShift(p, u, s);
+    P.fromArray(projectionMatrix(cx, cy, cw, ch, 560 + lx / u, 226 + ly / u));
     camera.matrixWorldInverse.copy(V);
     camera.matrixWorld.copy(V).invert();
     camera.projectionMatrix.copy(P);
@@ -1326,7 +1328,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       else {
         const s = shift.value(now), p = pose.to;
         const key = `${view}|${p.rx}|${p.t.join()}|${s.join()}|${geom.u}|${geom.cx}|${geom.cy}`;
-        if (key !== placedKey) { placedKey = key; hitLayer.place({ view, pose: p, shift: [s[0] + p.sx, s[1] + p.sy], u: geom.u }); }
+        if (key !== placedKey) { placedKey = key; hitLayer.place({ view, pose: p, shift: lensShift(p, geom.u, s), u: geom.u }); }
       }
     }
     const video = groupsShown && [...(groupMeshes.get("case") ?? [])].some((m) => m.visible && (m.material as THREE.ShaderMaterial).uniforms.map.value instanceof THREE.VideoTexture);
@@ -1472,14 +1474,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const warmRT = new THREE.WebGLRenderTarget(64, 64, { depthBuffer: true });
   const warmCam = new THREE.PerspectiveCamera();
   warmCam.matrixAutoUpdate = false; warmCam.matrixWorldAutoUpdate = false;
-  const prewarm = (v: View) => prewarmAt(stopPose(v, 0));
+  const prewarm = (v: View) => prewarmAt(stopPose(v, 0, narrow()));
   // (a flight that waited for its pictures: its way, a few poses along it)
   const prewarmWay = (to: Pose) => { const from = pose.value(performance.now()); for (const k of [0.33, 0.66, 1]) prewarmAt(lerpPose(from, to, k)); };
   const prewarmAt = (p: Pose) => {
     warmCam.matrixWorldInverse.fromArray(viewMatrix(p)); warmCam.matrixWorld.copy(warmCam.matrixWorldInverse).invert();
     const { u } = geom;
     const W = innerWidth / u, H = innerHeight / u;
-    warmCam.projectionMatrix.fromArray(projectionMatrix(560 - W / 2, 226 - H / 2, W, H, 560 + p.sx / u, 226 + p.sy / u)); warmCam.projectionMatrixInverse.copy(warmCam.projectionMatrix).invert();
+    const [lx, ly] = lensShift(p, u);
+    warmCam.projectionMatrix.fromArray(projectionMatrix(560 - W / 2, 226 - H / 2, W, H, 560 + lx / u, 226 + ly / u)); warmCam.projectionMatrixInverse.copy(warmCam.projectionMatrix).invert();
     const prev = renderer.getRenderTarget();
     renderer.setRenderTarget(warmRT);
     renderer.render(scene, warmCam);

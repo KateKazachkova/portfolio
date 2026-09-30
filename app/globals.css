@@ -1463,7 +1463,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 
 /* ── Recognition: the camera's second stop ──
    The trophy is big (56 cm), so the camera barely comes in: 10 cm, a
-   little right of the case (x -1040) and 14 cm up (y 76), looking straight
+   little right of the case (x -1040) at the case's eye height (y 226: the lens
+   shifts the picture up instead of a 14 cm rise, Kate, 30.09), looking straight
    ahead — no longer 4° down (Kate, 29.09: a tall window showed the tip on
    the way; the rise frames the trophy and the rail as it did, within
    15 px), at the eye height of Off Duty, its mirror. The trophy and the rail
@@ -1472,10 +1473,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    lands left of centre with its base ~16% up the window, the wall to its
    right, a strip of desk under it. Nothing leaves: the case slides off to
    the left (its edge may stay in shot) and the case files stay on the desk. */
-[data-desk="award"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
+/* (at the case's eye height, so the desk is at home's angle, as at Off
+   Duty; the lens shifts the picture up by WALL_LY in lib/room/pose.ts,
+   Kate, 30.09) */
+:is([data-desk="award"], [data-desk="offduty"]) .scene-cam { transform: translate(var(--dx, 0px), calc(var(--dy, 0px) - 157.32 * var(--u))); }
 [data-desk="award"] .desk-world,
 [data-desk="award"] .case-world {
-  transform: translate3d(calc(-1040 * var(--u)), calc(-150 * var(--u)), calc(100 * var(--u)));
+  transform: translate3d(calc(-1040 * var(--u)), 0px, calc(100 * var(--u)));
 }
 [data-desk="award"] .case-world { pointer-events: none; }
 
@@ -1508,19 +1512,18 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 
 /* ── Off Duty: the fourth stop, Recognition the other way ──
    As at Recognition, the camera only slides (Kate, 26.09: no change of
-   angle between stops): it goes left to x -863, 10 cm nearer the wall (z 2050) and 14 cm up
-   (y 76), looking straight ahead as at home — no longer 4° down, which a
+   angle between stops): it goes left to x -863, 10 cm nearer the wall (z 2050) at the case's eye
+   height (y 226, the lens shifting the picture up, 30.09), looking straight ahead as at home — no longer 4° down, which a
    tall, near-square window showed as the room tipping on the way (Kate,
    29.09); the rise frames what the tip did, within 20 px: the shelf with
    the books and tapes, the CD wallet under it (spine at x -900 against the
    wall) and the cream player right of it fill the frame right of the
    index, the helmet and the bike computer in front, under it.
-   translate O - C = (560 + 863, 226 - 76, 2150 - 2050). The bike computer
+   translate O - C = (560 + 863, 0, 2150 - 2050). The bike computer
    is read from here: no closer move onto it (Kate, 26.09). */
-[data-desk="offduty"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="offduty"] .desk-world,
 [data-desk="offduty"] .case-world {
-  transform: translate3d(calc(1423 * var(--u)), calc(-150 * var(--u)), calc(100 * var(--u)));
+  transform: translate3d(calc(1423 * var(--u)), 0px, calc(100 * var(--u)));
 }
 [data-desk="offduty"] .case-world { pointer-events: none; }
 /* Phones: a phone sees a strip of what a 1440px window does, so at the
@@ -1530,10 +1533,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    take the touch, so a drag on bare wall or desk is a pan. */
 @media (max-width: 767px) {
   [data-desk="award"] .desk-world, [data-desk="award"] .case-world {
-    transform: translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), calc(-150 * var(--u)), calc(100 * var(--u)));
+    transform: translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), 0px, calc(100 * var(--u)));
   }
   [data-desk="offduty"] .desk-world, [data-desk="offduty"] .case-world {
-    transform: translate3d(calc((1423 - var(--pan, 0)) * var(--u)), calc(-150 * var(--u)), calc(100 * var(--u)));
+    transform: translate3d(calc((1423 - var(--pan, 0)) * var(--u)), 0px, calc(100 * var(--u)));
   }
   [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
     transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));

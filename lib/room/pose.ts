@@ -16,7 +16,9 @@ export type Mat4 = number[]; // column-major, as DOMMatrix / three
 export const EYE = [560, 226, 2150] as const;
 export const FOCAL = 2150;
 
-export type Pose = { rx: number; t: [number, number, number]; sx: number; sy: number };
+/** sx, sy: the picture's shift besides the lens shift, in screen px; ly, a
+ *  further shift down in u (it scales with the window) */
+export type Pose = { rx: number; t: [number, number, number]; sx: number; sy: number; ly: number };
 export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 
 /** Over the desk the camera is 860 u above the stacks' height, 2.5 screen px
@@ -26,6 +28,16 @@ export const FILES_ZOOM_NARROW = 1.5;
 export const filesY = (narrow: boolean) => (narrow ? 430 - 860 * (1 - 1 / FILES_ZOOM_NARROW) : 430);
 export const filesSpd = (narrow: boolean) => (FOCAL / 860) * (narrow ? FILES_ZOOM_NARROW : 1);
 
+/** At the wall the camera stands at the case's eye height, so the desk is seen
+ *  at one angle from every stop; the lens shifts the picture up instead,
+ *  framing the trophy and the shelf as a 150 u rise did at the wall's depth,
+ *  2050 u off (Kate, 30.09). globals.css has it as -157.32. */
+export const WALL_LY = (-150 * FOCAL) / (FOCAL - 100);
+
+/** the picture's whole shift (screen px): the page's lens shift s, the
+ *  stop's own in px and in u */
+export const lensShift = (p: Pose, u: number, s: readonly number[] = [0, 0]): [number, number] => [s[0] + p.sx, s[1] + p.sy + p.ly * u];
+
 /** Where each stop puts the world (translate in u) and how far the picture
  *  is shifted besides the lens shift (px). Files' x runs with the pan. */
 export function stopPose(view: View, pan = 0, narrow = false): Pose {
@@ -33,12 +45,12 @@ export function stopPose(view: View, pan = 0, narrow = false): Pose {
   // room too, and Profile's axis is on the binder's middle: globals.css)
   const p = narrow ? pan : 0;
   switch (view) {
-    case "files": return { rx: -90, t: [200 - pan, filesY(narrow), 1751.5], sx: 0, sy: 0 };
-    case "award": return { rx: 0, t: [-1040 - p, -150, 100], sx: 0, sy: 0 };
-    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15 };
-    case "offduty": return { rx: 0, t: [1423 - p, -150, 100], sx: 0, sy: 0 };
-    case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0 };
-    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0 };
+    case "files": return { rx: -90, t: [200 - pan, filesY(narrow), 1751.5], sx: 0, sy: 0, ly: 0 };
+    case "award": return { rx: 0, t: [-1040 - p, 0, 100], sx: 0, sy: 0, ly: WALL_LY };
+    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, ly: 0 };
+    case "offduty": return { rx: 0, t: [1423 - p, 0, 100], sx: 0, sy: 0, ly: WALL_LY };
+    case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, ly: 0 };
+    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, ly: 0 };
   }
 }
 
@@ -117,6 +129,7 @@ export const lerpPose = (a: Pose, b: Pose, e: number): Pose => ({
   t: [0, 1, 2].map((i) => a.t[i] + (b.t[i] - a.t[i]) * e) as [number, number, number],
   sx: a.sx + (b.sx - a.sx) * e,
   sy: a.sy + (b.sy - a.sy) * e,
+  ly: a.ly + (b.ly - a.ly) * e,
 });
 
 /** CSS cubic-bezier(x1, y1, x2, y2) */

@@ -51,6 +51,7 @@ const plain = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !
 
 const ACTIONS: Record<string, (h: Hit) => void> = {
   recognition: () => { if (document.documentElement.dataset.desk !== "award") dispatchEvent(new Event("kate:recognition")); },
+  files: () => { if (document.documentElement.dataset.desk !== "open") dispatchEvent(new Event("kate:case-files")); },
   profile: () => { if (document.documentElement.dataset.desk !== "profile") dispatchEvent(new Event("kate:profile")); },
   offduty: () => { if (document.documentElement.dataset.desk !== "offduty") dispatchEvent(new Event("kate:off-duty")); },
   "offduty-bike": () => {

@@ -1103,7 +1103,9 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .stack-sand { position: absolute; left: 50%; top: 50%; width: calc(260 * var(--u)); height: auto; max-width: none;
   transform: translate(-46%, -56%) rotate(-8deg); pointer-events: none; z-index: 0; }
 .stack-truck { position: absolute; left: 50%; top: 50%; width: calc(118 * var(--u)); aspect-ratio: 933 / 428; z-index: 8; pointer-events: none;
-  transform: translate(calc(-50% + 48 * var(--u)), calc(-50% - 84 * var(--u))) rotate(-14deg);
+  /* (54 u nearer than it was, clear of the case's right door since the
+     files lie 1.5× their size, Kate, 30.09) */
+  transform: translate(calc(-50% + 48 * var(--u)), calc(-50% - 30 * var(--u))) rotate(-14deg);
   transition: transform .8s cubic-bezier(.65, 0, .2, 1); }
 .stack-truck::before { content: ""; position: absolute; left: -2%; right: -4%; top: 0; bottom: -10%;
   background: radial-gradient(closest-side, rgba(20,16,12,.42), rgba(20,16,12,.2) 60%, transparent); }

@@ -744,8 +744,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     return true;
   };
   // Phones (globals.css, max-width 767px): the wall's mirror above its top
-  // is for home only; at any stop it fades (.3 s ease) as the stop is asked
-  // for, as .desk-wall::after does there
+  // fades (.3 s ease) on the way down to the desk or Profile, as
+  // .desk-wall::after does; at the wall's two stops it stays, or a tall
+  // window saw over the wall's top there (Kate, 30.09)
   const phoneWall = matchMedia("(max-width: 767px)");
   const isMirror = (p: Placed) => p.item.cls.endsWith(" room-mirror");
   const arrange = (v: View, rule: Rule | ((p: Placed) => { m: Rule; op: Rule }), now: number, only?: (p: Placed) => boolean) => {
@@ -754,7 +755,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const st = stateOf(p, v);
       const r = typeof rule === "function" ? rule(p) : { m: rule, op: rule };
       p.m.retarget(st.m ?? p.item.m, r.m, now);
-      if (isMirror(p)) p.op.retarget(phoneWall.matches && v !== "home" ? 0 : st.op ?? p.item.op, rule && !reduced() ? { dur: 300, delay: 0, ease: EASE.ease } : null, now);
+      if (isMirror(p)) p.op.retarget(phoneWall.matches && (v === "files" || v === "profile" || v === "bike") ? 0 : st.op ?? p.item.op, rule && !reduced() ? { dur: 300, delay: 0, ease: EASE.ease } : null, now);
       else p.op.retarget(st.op ?? p.item.op, r.op, now);
       const vis = st.vis ?? p.item.vis !== false;
       const ud = p.meshes[0].userData;

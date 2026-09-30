@@ -17,7 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
-import { filesSpd, WALL_ZOOM_NARROW } from "@/lib/room/pose";
+import { FILES_SPD, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -148,8 +148,10 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
   );
 }
 
-const ROW_END = 2149 + 185 + 70;   // right edge of the last stack fanned out, plus a margin
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
+// (a file laid out at x lies on the desk at rowX(x): .desk-cases is scaled,
+// and the camera's pan to it goes there)
+const ROW_END = rowX(2149 + 185 + 70); // right edge of the last stack fanned out, plus a margin
 
 export const DESK_EVENT = "kate:case-files";
 /** The desk hint's "Put the file away": the case in focus goes back. */
@@ -378,14 +380,14 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
     // Screen px per desk px there: ~1 on the wall, 2150 / 936 over Profile.
     const narrow = () => matchMedia("(max-width: 767px)").matches;
-    // screen px per desk px over the desk (× --u): the camera is closer on a phone
-    const spd = () => filesSpd(narrow());
+    // screen px per desk px over the desk (× --u)
+    const spd = () => FILES_SPD;
     const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : narrow() ? WALL_ZOOM_NARROW : 1);
     // (the wall's px per desk px is its zoom: reach is in desk px, as seen)
     const reach = () => open.current === "profile" ? Math.max(0, (720 - innerWidth / 2 / u()) / spdNow()) : Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
     // (closer on a phone, pan 0 would cut the first file: the row starts
     // with it in the middle there)
-    const minPan = () => (narrow() ? CASES[0].x - VIEW_X : 0);
+    const minPan = () => (narrow() ? rowX(CASES[0].x) - VIEW_X : 0);
     const clamp = (v: number) => open.current === "files"
       ? Math.min(maxPan(), Math.max(minPan(), v))
       : Math.min(reach(), Math.max(-reach(), v));
@@ -395,7 +397,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (counter) {
         const centre = VIEW_X + pan + 120 / spd();
         let best = 0;
-        CASES.forEach((c, i) => { if (Math.abs(c.x - centre) < Math.abs(CASES[best].x - centre)) best = i; });
+        CASES.forEach((c, i) => { if (Math.abs(rowX(c.x) - centre) < Math.abs(rowX(CASES[best].x) - centre)) best = i; });
         counter.textContent = `${best + 1} / ${CASES.length}`;
       }
     };
@@ -479,12 +481,12 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (!a || !panning() || focus === a.dataset.slug) return;
       e.preventDefault(); e.stopPropagation();
       setFocus(a.dataset.slug!);
-      go(Number(a.dataset.x) - VIEW_X);
+      go(rowX(Number(a.dataset.x)) - VIEW_X);
     };
     const onFocus = (e: FocusEvent) => {
       const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-x]");
       if (!a || !panning()) return;
-      go(Number(a.dataset.x) - VIEW_X - 120 / spd());
+      go(rowX(Number(a.dataset.x)) - VIEW_X - 120 / spd());
     };
     // The WebGL room (?gl=1) does not render the cards: its controls stand
     // for them and say which case was clicked, or took focus.
@@ -493,9 +495,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       const c = xOf(e);
       if (!c || !panning() || focus === c.slug) return;
       setFocus(c.slug);
-      go(c.x - VIEW_X);
+      go(rowX(c.x) - VIEW_X);
     };
-    const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(c.x - VIEW_X - 120 / spd()); };
+    const onGlCaseFocus = (e: Event) => { const c = xOf(e); if (c && panning()) go(rowX(c.x) - VIEW_X - 120 / spd()); };
     window.addEventListener("room:case", onGlCase);
     window.addEventListener("room:case-focus", onGlCaseFocus);
     // on the camera, not the world: under ?gl=1 the world is only built if
@@ -607,8 +609,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     const onResize = () => { if (open.current) { measure(); go(target); } };
 
-    // opening Ukrainska 15's folder lays it out for the camera at pan 0
-    const onU15 = () => { if (panning()) { setFocus(U15); go(0); } };
+    // opening Ukrainska 15's folder lays it out for the camera where pan 0
+    // was before the row was scaled: the same place on the folder
+    const onU15 = () => { if (panning()) { setFocus(U15); go(rowX(VIEW_X) - VIEW_X); } };
     const onU15Closed = () => { if (focus === U15) setFocus(null); };
     const onPutAway = () => { if (focus === U15) dispatchEvent(new Event(U15_CLOSE)); else if (focus) setFocus(null); };
     window.addEventListener(PUT_AWAY, onPutAway);

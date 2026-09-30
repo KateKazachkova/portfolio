@@ -1005,7 +1005,10 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    view they are thin slivers on the desk in front of it, which is the point:
    the files are already on the desk before you look down at them. Out of the
    tab order and click-through until the camera arrives. */
-.desk-cases { position: absolute; inset: 0; }
+/* the case files lie 1.5× their size, the row's top edge where it was:
+   scaled about Ukrainska 15's top left corner (CASE_ROW in lib/room/pose.ts,
+   Kate, 30.09) */
+.desk-cases { position: absolute; inset: 0; transform-origin: calc(1284 * var(--u)) calc(563 * var(--u)); transform: scale3d(1.5, 1.5, 1.5); }
 .desk-card {
   position: absolute;
   width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
@@ -1453,11 +1456,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the row runs off the right of the window and the camera pans along it:
    --pan, in desk px, set by useDeskCamera once it has arrived. Moving the
    camera by d is moving the world by -d, then rotating about the original
-   camera point: translate (-pan, 226 + 204, 2150 - 398.5). */
+   camera point: translate (-pan, 226 + 204, 2150 - 398.5), and 57.2 less
+   out since the case files lie 1.5× their size, the row's middle that
+   much nearer (FILES_Z in lib/room/pose.ts, Kate, 30.09). */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1751.5 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1694.3 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 /* from home (no data-desk yet, or "closed"), the files take a click: it
@@ -1543,12 +1548,6 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   }
   [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
     transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
-  }
-  /* over the desk the lens zooms in 1.5× on a phone, about the camera's
-     axis (FILES_ZOOM_NARROW in lib/room/pose.ts, Kate, 30.09); the camera
-     stays 860 u up, over the wall's top */
-  [data-desk="open"] .scene-cam {
-    transform: translate(var(--dx, 0px), var(--dy, 0px)) translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.5) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
   }
   :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
   /* at the wall a phone's lens zooms in 1.35× about the camera's axis

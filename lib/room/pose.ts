@@ -22,14 +22,18 @@ export type Pose = { rx: number; t: [number, number, number]; sx: number; sy: nu
 export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 
 /** Over the desk the camera is 860 u above the stacks' height, 2.5 screen px
- *  (× --u) to a desk px; on a phone the lens zooms in 1.5× (Kate, 30.09) —
- *  the camera itself stays up there: brought down, it was under the wall's
- *  top, which then filled the frame. The zoom (globals.css has it too) and
- *  the pan's px per desk px. */
-export const FILES_ZOOM_NARROW = 1.5;
+ *  (× --u) to a desk px: the pan's px per desk px. */
+export const FILES_SPD = FOCAL / 860;
+/** The case files lie 1.5× their size (Kate, 30.09): .desk-cases is scaled
+ *  k× about the row's top left, Ukrainska 15's corner (globals.css), so a
+ *  file laid out at x lies on the desk at rowX(x). The camera over them
+ *  looks 57.2 u further out, where the row's middle (y 677.4) now is:
+ *  the files stop's z, 1751.5 before (globals.css has it too). */
+export const CASE_ROW = { x: 1284, y: 563, k: 1.5 };
+const FILES_Z = 1751.5 - (677.4 - CASE_ROW.y) * (CASE_ROW.k - 1);
+export const rowX = (x: number) => CASE_ROW.x + (x - CASE_ROW.x) * CASE_ROW.k;
 /** at the wall's two stops a phone's lens zooms in too (Kate, 30.09) */
 export const WALL_ZOOM_NARROW = 1.35;
-export const filesSpd = (narrow: boolean) => (FOCAL / 860) * (narrow ? FILES_ZOOM_NARROW : 1);
 
 /** the picture's whole shift (screen px): the page's lens shift s and the
  *  stop's own */
@@ -42,7 +46,7 @@ export function stopPose(view: View, pan = 0, narrow = false): Pose {
   // room too, and Profile's axis is on the binder's middle: globals.css)
   const p = narrow ? pan : 0;
   switch (view) {
-    case "files": return { rx: -90, t: [200 - pan, 430, 1751.5], sx: 0, sy: 0, z: narrow ? FILES_ZOOM_NARROW : 1 };
+    case "files": return { rx: -90, t: [200 - pan, 430, FILES_Z], sx: 0, sy: 0, z: 1 };
     case "award": return { rx: 0, t: [-1040 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
     case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, z: 1 };
     case "offduty": return { rx: 0, t: [1423 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };

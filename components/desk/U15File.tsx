@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { awardHref } from "@/lib/awards";
 import { U15_SONG as SONG, U15_SONG_HINT } from "@/lib/u15Song";
-import { filesSpd } from "@/lib/room/pose";
+import { CASE_ROW, FILES_SPD } from "@/lib/room/pose";
 
 /**
  * Ukrainska 15's file on the desk: a red card pocket folder in the live
@@ -185,7 +185,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
     const el = e.currentTarget;
     try { el.setPointerCapture(e.pointerId); } catch { /* a synthetic press has no pointer to capture */ }
     // (screen px per desk px at the camera's height, closer on a phone)
-    const scale = (card.current!.offsetWidth / FOLDER.w) * filesSpd(matchMedia("(max-width: 767px)").matches);
+    const scale = (card.current!.offsetWidth / FOLDER.w) * FILES_SPD * CASE_ROW.k;
     const a = (r * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
     const from = drag[id] ?? { x: 0, y: 0 }, sx = e.clientX, sy = e.clientY;
     let moved = false, now = from;

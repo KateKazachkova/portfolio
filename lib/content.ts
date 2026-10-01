@@ -87,6 +87,10 @@ function parseList(filename: string, keepOrder = false): ShelfItem[] {
 
   const items: ShelfItem[] = [];
   let current: ShelfItem | null = null;
+  // a why runs on over the lines under it until the next field; a blank
+  // line in it starts a new paragraph
+  let inWhy = false;
+  const FIELD = /^(why i like it|poster|clip|author|spine|size|year):/i;
 
   for (const line of body.split("\n")) {
     const trimmed = line.trim();
@@ -94,11 +98,19 @@ function parseList(filename: string, keepOrder = false): ShelfItem[] {
     // Skip the top-level heading
     if (trimmed.startsWith("#") && !trimmed.startsWith("##")) continue;
 
+    if (current && inWhy && !trimmed.startsWith("## ") && !FIELD.test(trimmed)) {
+      if (!trimmed) { if (current.why && !current.why.endsWith("\n\n")) current.why += "\n\n"; }
+      else current.why += (current.why && !current.why.endsWith("\n\n") ? " " : "") + trimmed;
+      continue;
+    }
+    inWhy = false;
+
     if (trimmed.startsWith("## ")) {
       if (current) items.push(current);
       current = { title: trimmed.replace(/^##\s+/, "").trim(), why: "", poster: null, year: null };
     } else if (current && /^why i like it:/i.test(trimmed)) {
       current.why = trimmed.replace(/^why i like it:/i, "").trim();
+      inWhy = true;
     } else if (current && /^poster:/i.test(trimmed)) {
       const p = trimmed.replace(/^poster:/i, "").trim();
       current.poster = p ? "/" + p.replace(/^\/?posters\//, "posters/") : null;
@@ -118,6 +130,7 @@ function parseList(filename: string, keepOrder = false): ShelfItem[] {
     }
   }
   if (current) items.push(current);
+  for (const i of items) i.why = i.why.trim();
 
   // Anything left without a title is not an entry. The "title" check is what
   // used to hide the comment bug above; it stays as a cheap guard for a

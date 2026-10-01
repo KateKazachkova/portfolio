@@ -1554,31 +1554,29 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   }
   [data-desk="profile"] .scene-cam { touch-action: none; }
 }
-/* Phones: a phone sees a strip of what a 1440px window does, so at the
-   wall's two stops a finger pans along the room too (--pan, desk px, from
-   useDeskCamera; Kate, 27.09). The planes take the touch, so a drag on
-   bare wall or desk is a pan. */
+/* Phones: home and the wall's two stops are one panorama (Kate, 01.10):
+   a finger slides the camera along the room from Off Duty on the left,
+   past the case, to Recognition on the right, and the stop changes on the
+   way (useDeskCamera, PANO in lib/room/pose.ts). --pano-x is the world's
+   x there (desk px, on <main>). The page takes the touch anywhere over
+   the room, so a drag on bare wall or desk is a slide; at the case the page
+   still scrolls up and down. */
 @media (max-width: 767px) {
-  [data-desk="award"] .desk-world, [data-desk="award"] .case-world {
-    transform: translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), 0px, 0px);
+  :root:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) :is(.desk-world, .case-world) {
+    transform: translate3d(calc(var(--pano-x, 0) * var(--u)), 0px, 0px);
   }
-  [data-desk="offduty"] .desk-world, [data-desk="offduty"] .case-world {
-    transform: translate3d(calc((1423 - var(--pan, 0)) * var(--u)), 0px, 0px);
-  }
-  :is([data-desk="award"], [data-desk="offduty"]) .scene-cam { touch-action: none; }
-  /* at home and at the wall a phone's lens zooms in 1.35× about the
-     camera's axis, the same at each, so the picture keeps its scale from
-     one to the next (WALL_ZOOM_NARROW in lib/room/pose.ts, Kate, 30.09) */
-  :root:is(:not([data-desk]), [data-desk="closed"]) .scene-cam {
+  /* along it the lens zooms in 1.35× about the camera's axis, so the
+     picture keeps its scale (WALL_ZOOM_NARROW in lib/room/pose.ts, Kate,
+     30.09), and keeps home's place: no lens shift at the wall either */
+  :root:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) .scene-cam {
     transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
   }
-  :is([data-desk="award"], [data-desk="offduty"]) .scene-cam {
-    transform: translate(var(--dx, 0px), 0px) translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
-  }
-  /* at the case the page still scrolls up and down, but a sideways swipe is
-     the room's: it walks to Recognition or Off Duty (useDeskCamera) */
-  :root:is(:not([data-desk]), [data-desk="closed"]) .scene-cam { touch-action: pan-y; }
+  :root:is(:not([data-desk]), [data-desk="closed"]) :is(main:has(.case-stage), .scene-cam) { touch-action: pan-y; }
+  :is([data-desk="award"], [data-desk="offduty"]) :is(main:has(.case-stage), .scene-cam) { touch-action: none; }
   :is([data-desk="award"], [data-desk="offduty"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
+  /* the edition's line under the case goes along with it, and the night's
+     lamp pool with the lamp */
+  :is(.hero-caption, .night-room) { translate: var(--pano-shift, 0px) 0; }
 }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
@@ -2001,7 +1999,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    corner is not there at home; it is back the moment the camera sets off
    for any stop. Visibility, not opacity: below 1, opacity would flatten the
    wallet's halves out of 3D. */
-:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
+/* (on a phone home is the middle of one panorama with Off Duty: the corner
+   stays, as the finger slides there) */
+@media (min-width: 768px) {
+  :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
+}
 [data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-side-l,.desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
 [data-desk="award"] :is(.desk-side-l,.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
 [data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-side-l,.desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),

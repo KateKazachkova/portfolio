@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { stopPose, SINGLE_Q, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { stopPose, SINGLE_Q, isPano, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
@@ -617,6 +617,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const f = focusOf(v);
     if (f) return p.item.states?.[`files:${f}` as View] ?? {};
     if (v === "files" && hoverSlug && HOVERS.has(hoverSlug)) return p.item.states?.[`files:hover-${hoverSlug}` as View] ?? {};
+    // on a phone home is the middle of the panorama: Off Duty's corner,
+    // which a wide home leaves out, is there as at Off Duty (globals.css)
+    if (v === "home" && p.item.vis === false && p.item.states?.offduty?.vis && innerWidth < 768) return p.item.states.offduty;
     return p.item.states?.[v] ?? {};
   };
   // What of the binder can show: a spread shows a plane if it is on show
@@ -1084,7 +1087,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   let waits = 0;
   const readVar = (name: string) => parseFloat(o.cam.style.getPropertyValue(name)) || 0;
   // a stop's pose as the CSS has it now: the pan along the desk at Case Files,
-  // and on a phone at the wall's stops and Profile too (useDeskCamera's --pan)
+  // and on a phone along the panorama, home and the wall's stops (useDeskCamera's --pan)
   const narrow = () => innerWidth < 768;
   // under 1024 Profile looks at one page, zoomed in (useDeskCamera's --pfz,
   // only set there)
@@ -1092,17 +1095,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // the page's lens shift at a stop (useDeskCamera's --dx, --dy): at the
   // wall the camera only slides sideways from home, so the picture keeps
   // home's height and the desk stays where it was (Kate, 30.09)
-  const shiftAt = (v: View) => (v === "home" ? [0, 0] : [readVar("--dx"), v === "award" || v === "offduty" ? 0 : readVar("--dy")]);
+  // (on a phone the wall keeps home's picture whole, its x too: one panorama)
+  const shiftAt = (v: View) => (v === "home" || (narrow() && isPano(v)) ? [0, 0] : [readVar("--dx"), v === "award" || v === "offduty" ? 0 : readVar("--dy")]);
   const poseOf = (v: View) => {
-    const p = stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty")) ? readVar("--pan") : 0, narrow(), v === "profile" ? pfz() : 0);
+    const p = stopPose(v, v === "files" || (narrow() && isPano(v)) ? readVar("--pan") : 0, narrow(), v === "profile" ? pfz() : 0);
     // a phone's pinch at a stop (useDeskCamera): the lens zoomed in about its
     // axis, and the picture moved
     if (v !== "home") { p.z *= readVar("--pz") || 1; p.sx += readVar("--pox"); p.sy += readVar("--poy"); }
     return p;
   };
-  // (what the pinch was when the pose last went out: a change of it alone is
-  // under the fingers, so drawn at once, not flown to)
-  let pinchWas = "";
 
   // ── what each stop sees, for loading and for the flights' wait ──
   const seenAt = (it: Item, p: Pose, home: boolean) => {
@@ -1145,6 +1146,18 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     return [...need];
   };
   let hold = false, waited = false, lastFocus = "";
+  // Along a phone's panorama, what comes into view as the camera slides (and
+  // a little past each edge: seenAt) is asked for at once, the wallet's discs
+  // painted again — at most every 120 ms, and only once the camera has moved
+  let panoAt = 0, panoX = NaN;
+  const panoLoad = (now: number) => {
+    if (!narrow() || !isPano(view) || pose.active || now - panoAt < 120 || Math.abs(pose.to.t[0] - panoX) < 1) return;
+    panoAt = now; panoX = pose.to.t[0];
+    const need = new Set<Slot>();
+    for (const p of room) if (p.slot.state !== 2 && !outOnly.has(p.slot) && !isBinder(p) && p.meshes[0].userData.vis !== false && seenAt(p.item, pose.to, false)) need.add(p.slot);
+    if (need.size) want([...need], 0);
+    if (wallet?.parked() && walletPlanes.some((p) => seenAt(p.item, pose.to, false))) { wallet.restore(); dirty = true; }
+  };
   // the wallet's sleeves: whether a flight from here to `to` (or the stop) shows them
   const walletPlanes = room.filter((p) => /^od-hang od-hang--/.test(p.item.cls));
   const walletSeen = (to: Pose, now: number) => {
@@ -1157,9 +1170,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // flight below waits for them as for any picture it will see)
     if (desk === "profile") warmBinder();
     const v = viewOfState(desk, focus);
+    // On a phone the camera slides along the panorama (home and the wall's
+    // stops) under the finger, or the index's move: the stop changes on the
+    // way, where it is (useDeskCamera keeps html[data-desk-arrived] and the
+    // pan carried over), so nothing flies, waits or lets go — what comes
+    // into view loads as it does (panoLoad)
+    const slide = !first && arrived && v !== view && narrow() && isPano(v) && isPano(view);
     // a move to a stop whose pictures are not on the GPU yet waits for them
     // (at most 1.5 s), as the CSS camera waits its 0.2 s beat
-    if (!first && v !== view && !hold && !waited) {
+    if (!first && v !== view && !hold && !waited && !slide) {
       const to = poseOf(v);
       const missing = flightSlots(to, now).filter((sl) => sl.state !== 2);
       // (the wallet's discs, let go away from Off Duty, painted again first
@@ -1178,7 +1197,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     }
     if (hold) return;
     // setting off: what the stop ahead lets go and this flight will not show goes now
-    if (!first && v !== view) { const need = new Set(flightSlots(poseOf(v), now)); for (const sl of RELEASE.get(v) ?? []) if (!need.has(sl)) evict(sl); }
+    if (!first && v !== view && !slide) { const need = new Set(flightSlots(poseOf(v), now)); for (const sl of releaseOf(v)) if (!need.has(sl)) evict(sl); }
     const leaving = view === "home" && v !== "home";
     if (leaving && !groupsShown) { buildGroups(); setGroupsShown(true); }
     const prevView = view;
@@ -1191,17 +1210,16 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     lookTo(now);
     const still = reduced();
     const def: Rule = still ? null : { dur: CAM.t, delay: CAM.wait, ease: EASE.cam };
-    const pinchNow = [readVar("--pz"), readVar("--pox"), readVar("--poy")].join();
-    const pinched = pinchNow !== pinchWas; pinchWas = pinchNow;
-    const poseRule: Rule = still || (arrived && pinched) ? null : arrived && desk === "offduty" ? { dur: CAM.bikeT, delay: 0, ease: EASE.bike } : arrived ? null : def;
+    // (arrived, a change is the pan's or the pinch's: under the finger, drawn at once)
+    const poseRule: Rule = still || arrived ? null : def;
     pose.retarget(poseOf(v), poseRule, now);
     const sh = shiftAt(v);
-    shift.retarget(sh, def, now);
+    shift.retarget(sh, slide ? null : def, now);
     // the case fades out at the desk and at Profile, as .case-world does
     // there (globals.css: opacity .6s ease .7s); from above the desk, panned
     // along it, it would otherwise stand in the frame
     const opT = v === "profile" || v === "files" || v === "bike" ? 0 : 1;
-    const opRule: Rule = still ? null
+    const opRule: Rule = still || slide ? null
       : arrived && desk === "offduty" ? { dur: 400, delay: 0, ease: EASE.ease }
       : arrived ? null
       : v === "profile" || v === "files" ? { dur: 600, delay: 700, ease: EASE.ease }
@@ -1213,7 +1231,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const f = focusOf(v) ?? "";
     const refocus = !first && prevView === "files" && v === "files" && f !== lastFocus;
     lastFocus = f;
-    arrange(v, first ? null : refocus ? focusRule : poseRule ?? def, now);
+    arrange(v, first || slide ? null : refocus ? focusRule : poseRule ?? def, now);
     u15CardTo(refocus && !reduced() ? { dur: 600, delay: 0, ease: FAN } : null, now);
     first = false;
     dirty = true;
@@ -1263,7 +1281,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   }
   rawKeep = new Set([...RELEASE.values()].flatMap((set) => [...set]));
   let released: View | null = null;
-  const letStopGo = (v: View) => { released = v; for (const sl of RELEASE.get(v) ?? []) evict(sl); };
+  // (on a phone home and the wall's stops are one panorama, slid along by
+  // the finger: Off Duty's corner stays all along it)
+  const NONE = new Set<Slot>();
+  const releaseOf = (v: View) => (narrow() && (v === "home" || v === "award") ? NONE : RELEASE.get(v) ?? NONE);
+  const letStopGo = (v: View) => { released = v; for (const sl of releaseOf(v)) evict(sl); };
 
   const V = new THREE.Matrix4(), P = new THREE.Matrix4();
   const frameTimes: number[] = [];
@@ -1315,8 +1337,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (lastT) frameTimes.push(now - lastT);
     if (frameTimes.length > 2000) frameTimes.splice(0, 1000);
     lastT = now;
-    // the pan and the lens shift change without a change of state
-    if (view !== "home") {
+    // the pan and the lens shift change without a change of state (home's
+    // too on a phone: the panorama)
+    if (view !== "home" || narrow()) {
       const want = poseOf(view);
       if (!samePose(want, pose.to)) evaluate(now);
       const sh = shiftAt(view);
@@ -1332,7 +1355,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     hitLayer?.suspend("u15panel", u15Card.active);
     const arrivedNow = pose.tick(now);
     shift.tick(now); caseOp.tick(now);
-    if (arrivedNow && view !== "home") o.onArrive();
+    // (home too: on a phone the panorama slides once the camera is back)
+    if (arrivedNow) o.onArrive();
+    panoLoad(now);
     // home and still: the page's own case, clock and lamp again — not while
     // a departure waits for its pictures (hold): evaluate has handed the
     // groups to WebGL already, and handing them back for the wait left the
@@ -1357,9 +1382,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // laid) the page's own night layers draw the night, not WebGL's
     // (home: exactly while the page's case is shown, the frame it comes back)
     const restNow = view === "home" ? !groupsShown : !(travelling || hold);
-    if (restNow !== rest) {
+    // (and along a phone's panorama the stop changes at rest: its name with it)
+    const restAt = restNow ? (view === "home" ? "home" : "stop") : undefined;
+    if (restNow !== rest || root.dataset.glRest !== restAt) {
       rest = restNow;
-      if (rest) root.dataset.glRest = view === "home" ? "home" : "stop"; else delete root.dataset.glRest;
+      if (restAt) root.dataset.glRest = restAt; else delete root.dataset.glRest;
       dirty = true;
     }
     // at rest where no disc shows (home, where the corner is hidden; a stop
@@ -1367,7 +1394,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // flight that shows them: evaluate)
     if (travelling || hold) released = null;
     else if (released !== view && (view !== "home" || !groupsShown)) { letStopGo(view); dirty = true; }
-    if (wallet && !wallet.parked() && !(travelling || hold) && view !== "offduty" && view !== "bike" && (view === "home" ? !groupsShown : !walletPlanes.some((p) => seenAt(p.item, pose.to, false)))) wallet.release();
+    if (wallet && !wallet.parked() && !(travelling || hold) && view !== "offduty" && view !== "bike" && (view === "home" && !narrow() ? !groupsShown : !walletPlanes.some((p) => seenAt(p.item, pose.to, false)))) wallet.release();
     const nightMoving = nightActive();
     homeOp.tick(now); camOp.tick(now); lampOp.tick(now); torchOp.tick(now); poolCh.tick(now);
     // (the wallet's own movements neither hide the controls nor count as the camera's)
@@ -1449,6 +1476,10 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   moFlip.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["data-flipped"] });
   addEventListener("room:binder-at", onBinder);
   const mo = new MutationObserver(() => evaluate(performance.now()));
+  // (a phone's pan at home is only the camera's style: the loop, asleep
+  // there, wakes for it)
+  const moCam = new MutationObserver(() => { if (view === "home") kick(); });
+  moCam.observe(o.cam, { attributes: true, attributeFilter: ["style"] });
   mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-focus", "data-desk-arrived"] });
   // the night, the lamp: toggled at rest (the page's layers show it), kept for the flight
   const moNight = new MutationObserver(() => { nightTo(view, performance.now(), rest); dirty = true; kick(); });
@@ -1662,7 +1693,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       clearTimeout(lostTimer);
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
-      mo.disconnect(); ro.disconnect(); moNight.disconnect(); moLoad.disconnect();
+      mo.disconnect(); moCam.disconnect(); ro.disconnect(); moNight.disconnect(); moLoad.disconnect();
       wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose(); binderTurn?.dispose(); moFlip.disconnect(); moGroups.disconnect();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);

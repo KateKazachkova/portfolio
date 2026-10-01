@@ -64,14 +64,25 @@ export function stopPose(view: View, pan = 0, narrow = false, pfz = 0): Pose {
   const p = narrow ? pan : 0;
   switch (view) {
     case "files": return { rx: -90, t: [200 - pan, 430, FILES_Z], sx: 0, sy: 0, z: 1 };
-    case "award": return { rx: 0, t: [-1040 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "award": return { rx: 0, t: [-PANO.award - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
     case "profile": return pfz ? { rx: -90, t: [PF_PAGE.x, 506, 2129], sx: 0, sy: 0, z: pfz }
       : { rx: -90, t: [-1327.5, 506, 2129], sx: -20, sy: -15, z: 1 };
-    case "offduty": return { rx: 0, t: [1423 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "offduty": return { rx: 0, t: [-PANO.offduty - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, z: 1 };
-    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    // (on a phone home pans too: it is the middle of one panorama with the
+    // wall's two stops, PANO below)
+    default: return { rx: 0, t: [-p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
   }
 }
+
+/** On a phone (under 768 px) home and the wall's two stops are one strip of
+ *  room the camera slides along (Kate, 01.10): Off Duty on the left, the case
+ *  in the middle, Recognition on the right. A stop's pan p puts the camera at
+ *  x = PANO[stop] + p along it (the world's translate is −x); which stop it is
+ *  at follows x, across the halfway lines between them. */
+export const PANO = { offduty: -1423, home: 0, award: 1040 } as const;
+export type PanoView = keyof typeof PANO;
+export const isPano = (v: string): v is PanoView => v === "home" || v === "award" || v === "offduty";
 
 /** html[data-desk] (+ data-desk-focus) → the view the CSS draws */
 export function viewOfState(desk: string | undefined, focus: string | undefined): View {

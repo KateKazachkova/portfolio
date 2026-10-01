@@ -85,8 +85,6 @@ const ukrainska15: CaseStudy = {
 
     {
       kind: "pile",
-      title: "The pile",
-      count: "20 items – none of them made for this",
       help: "Push them around – or focus one and use the arrow keys",
       items: [
         { src: P + "msg-01.webp", size: 2, kind: "Telegram message", alt: "A night of messages: the centre has been bombed, windows blown out; “I’m going down to the basement”, the power banks and laptop charged.", caption: ["Messages with my boyfriend, who stayed in Kharkiv"] },

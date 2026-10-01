@@ -1,4 +1,4 @@
-import { AWARD_RECORDS, awardRows } from "@/lib/awards";
+import { AWARD_RECORDS, awardRows, CARD_HEAD, short } from "@/lib/awards";
 
 /**
  * A case file not written up yet lies on the desk as its library card of
@@ -28,7 +28,6 @@ const STAMP: Record<string, { key: string; ratio: number; ink: string }> = {
 
 const MEDAL: Record<string, number> = { Gold: 0, Silver: 1, Bronze: 2 };
 const rank = (recognition: string) => MEDAL[recognition.split(" ")[0]] ?? 3;
-const short = (category: string) => category.split(/\s[––]\s/).pop()!;
 
 function juriesOf(project: string) {
   const byJury = new Map<string, typeof AWARD_RECORDS>();
@@ -39,17 +38,11 @@ function juriesOf(project: string) {
     .sort((a, b) => rank(a.records[0].recognition) - rank(b.records[0].recognition) || b.records.length - a.records.length);
 }
 
-// the winner page for each row awardRows() gives, in the same order
-const hrefs = (project: string) =>
-  AWARD_RECORDS.filter((r) => r.project === project).flatMap((r) => r.recognition.split(" · ").map(() => r.externalUrls[0]));
-
 // how the postcards lie under the card, and fanned out beside it
 const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 
-export default function AwardStack({ project, title, sub, role, about, links = [], picture, flat }: {
-  project: string; title: string; sub: string;
-  /** Kate's part in it and when, the line under `sub` */
-  role?: string;
+export default function AwardStack({ project, title, about, links = [], picture, flat }: {
+  project: string; title: string;
   links?: { label: string; href: string; external?: boolean }[];
   /** lying flat and closed off the desk (the Case Studies index): no tag,
    *  sticky note or links beside it */
@@ -60,7 +53,8 @@ export default function AwardStack({ project, title, sub, role, about, links = [
   picture?: { src?: string; href: string; alt: string };
 }) {
   const rows = awardRows(project);
-  const urls = hrefs(project);
+  // the card's head, as on every copy of it (lib/awards.ts)
+  const head = CARD_HEAD[project];
   const juries = juriesOf(project);
   return (
     <>
@@ -106,14 +100,14 @@ export default function AwardStack({ project, title, sub, role, about, links = [
       <div className="jury-card">
         <span className="jury-card__head">
           <span>{title}</span>
-          <span>{sub}</span>
-          {role && <span>{role}</span>}
+          {head && <span>{head.sub}</span>}
+          {head?.role && <span>{head.role}</span>}
         </span>
         <span className="jury-card__row jury-card__row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
         {rows.map((l, i) => {
           const cells = <><span className="jury-card__date">{l.date}</span><span>{l.jury}</span><span>{l.award}</span></>;
-          return urls[i]
-            ? <a key={i} className="jury-card__row" href={urls[i]} target="_blank" rel="noopener noreferrer" tabIndex={-1}
+          return l.href
+            ? <a key={i} className="jury-card__row" href={l.href} target="_blank" rel="noopener noreferrer" tabIndex={-1}
                 aria-label={`${l.jury}, ${l.award} – winner page`}>{cells}</a>
             : <span key={i} className="jury-card__row">{cells}</span>;
         })}

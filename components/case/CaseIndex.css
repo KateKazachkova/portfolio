@@ -3,7 +3,7 @@
    title); the files are the desk's own objects (globals.css), drawn flat
    and closed. Each tile is a container: --u, the desk px, is its width over
    the stage's 360, so the objects scale with the tile. */
-.ci-grid { list-style:none; margin:48px 0 0; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:24px 32px }
+.ci-grid { list-style:none; margin:48px 0 0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:40px 48px }
 .ci-file { position:relative; container-type:inline-size; display:flex; flex-direction:column; align-items:center }
 /* the stage: 360 × 270 desk px */
 .ci-obj { --u:calc(100cqw / 360); position:relative; width:100%; aspect-ratio:4 / 3; pointer-events:none;
@@ -15,9 +15,9 @@
 .ci-obj :is(.stack-moss, .stack-mush) > img:first-child { opacity:1 }
 .ci-obj .desk-card--env { --env-t:0px }
 
-/* the name, signed on the page under the file */
+/* the name, under the file, in the page's own face (Kate, 01.10: not in hand) */
 .ci-label { display:flex; flex-direction:column; align-items:center; gap:4px; margin-top:4px; text-align:center }
-.ci-label__name { font-family:var(--hand); font-size:34px; line-height:1; color:var(--fg); transition:color .2s }
+.ci-label__name { font-family:var(--grot); font-variation-settings:"wdth" 86,"wght" 700; font-size:22px; line-height:1.1; text-transform:uppercase; letter-spacing:.01em; color:var(--fg); transition:color .2s }
 .ci-label__meta { font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted) }
 .ci-label__soon { margin-top:4px; padding:3px 6px; border:1px dashed currentColor; border-radius:2px;
   font-family:var(--mono); font-weight:700; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted) }
@@ -38,8 +38,8 @@
 .ci-truck { transform:translate(calc(-50% + 92 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-14deg) }
 
 @media (max-width:900px) {
-  .ci-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px 20px }
-  .ci-label__name { font-size:28px }
+  .ci-grid { gap:24px 24px }
+  .ci-label__name { font-size:18px }
 }
 @media (max-width:560px) {
   .ci-grid { grid-template-columns:minmax(0, 1fr); gap:24px }

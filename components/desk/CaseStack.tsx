@@ -10,18 +10,19 @@ import { Calculator, Payslip } from "./OnsiSoftKit";
  * standing up, no sticky note or tags, and the pictures' small copies.
  */
 
-// Whose awards a stack holds (lib/awards.ts), and what rides along with it
-// (role: Kate's part in it and when, the card's line under what it is)
-export const PROJECT: Record<string, { name: string; sub: string; role: string; about: string }> = {
-  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS", role: "Solo designer 2021–2025 · Design lead 2025–present",
+// Whose awards a stack holds (lib/awards.ts, its card's head too), and what
+// rides along with it
+export const PROJECT: Record<string, { name: string; about: string }> = {
+  bulksource: { name: "BulkSource",
     about: "A B2B supply-chain platform for bulk materials – sand, gravel and the trucks that haul them. I designed it from the ground up as the sole product designer: research, UX, UI, the design system and handoff." },
-  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS", role: "Solo designer 2024–2025 · Design lead 2025–present",
+  onsisoft: { name: "OnsiSoft",
     about: "Compliance and benefits SaaS for US government contractors. I have led its redesign since October 2024: support requests down 71%, onboarding completion up 76%." },
-  waypro: { name: "WayPro", sub: "Logistics iOS app", role: "Co-designer · 2024",
+  waypro: { name: "WayPro",
     about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
 };
-// BulkSource moves sand and gravel: its stack lies in a spill of sand with
-// a toy dump truck parked on top (public/items/bulksource, generated).
+// BulkSource moves sand and gravel: a toy dump truck is parked on its stack
+// (public/items/bulksource, generated; the spill of sand under it is gone
+// from the desk, Kate 01.10).
 // WayPro delivers herbs from farms: moss and fly agarics on its card, and a
 // picture postcard of the app (board 04 of its Behance) on the juries'.
 export const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {
@@ -42,7 +43,6 @@ export function StackDressing({ slug, title, pic, flat }: {
   const p = { pic, flat };
   return (
     <>
-      {slug === "bulksource" && <Pic className="stack-sand" src="/items/bulksource/sand.webp" {...p} />}
       {slug === "onsisoft" && <Payslip />}
       {slug === "waypro" && (
         <span className="stack-mush" aria-hidden>
@@ -50,7 +50,7 @@ export function StackDressing({ slug, title, pic, flat }: {
           {!flat && <Pic className="stack-side" src="/items/waypro/mush-side.webp" {...p} />}
         </span>
       )}
-      <AwardStack project={PROJECT[slug].name} title={title} sub={PROJECT[slug].sub} role={PROJECT[slug].role} about={PROJECT[slug].about}
+      <AwardStack project={PROJECT[slug].name} title={title} about={PROJECT[slug].about}
         links={STACK_LINKS[slug] ?? []} flat={flat}
         picture={slug === "waypro" ? { src: flat ? "/items/waypro/postcard.sm.webp" : pic ? pic("/items/waypro/postcard.webp") : "/items/waypro/postcard.webp", href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
       {slug === "waypro" && (

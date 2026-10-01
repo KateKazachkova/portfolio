@@ -1030,7 +1030,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.45), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.12), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.32), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.24);
   font: 400 calc(3.2 * var(--eu)) / 1 var(--font-typewriter), "Courier New", monospace;
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
-[data-desk="open"] .desk-card--stack[data-side="here"] .jury-card { transform: translate(calc(-50% - 94 * var(--u)), -50%) rotate(-1deg); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .jury-card { transform: translate(calc(-50% - 94 * var(--u)), calc(-50% + 30 * var(--u))) rotate(-1deg); }
 /* Its rules are drawn, not borders: laid out at 1× (the folder is 3×), a
    border this thin is rounded up to a whole px before the desk magnifies it,
    three times U15's; a gradient keeps the width it is given. */
@@ -1055,7 +1055,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   transform: translate(calc(-50% + var(--ux) * var(--u)), calc(-50% + var(--uy) * var(--u))) rotate(var(--ur));
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard {
-  transform: translate(calc(-50% + 92 * var(--u)), calc(-50% + var(--fy) * var(--u))) rotate(var(--fr)); }
+  transform: translate(calc(-50% + 130 * var(--u)), calc(-50% + var(--fy) * var(--u))) rotate(var(--fr)); }
 .postcard__msg { display: flex; flex-direction: column; gap: calc(3 * var(--u)); padding-right: calc(6 * var(--u)); min-width: 0; position: relative; }
 .postcard__msg::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; border-right: calc(.5 * var(--u)) solid #cfc5b0; }
 .postcard__from { font: 400 calc(4.2 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .14em; text-transform: uppercase; color: #6d6252; }
@@ -1087,15 +1087,18 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   transform: translate(calc(-50% - 16 * var(--u)), calc(-50% - 62 * var(--u))) rotate(-3deg);
   opacity: 0; transition: opacity .2s ease; }
 [data-desk="open"] .desk-card--stack:not([data-side]):hover .stack-soon { opacity: 1; transition-delay: .12s; }
-/* With the camera on it, a sticky note over the card: what the project is,
-   and that its case study is still being written. */
-.stack-note { left: 50%; top: 50%; width: calc(104 * var(--u)); gap: calc(4 * var(--u)); padding: calc(7 * var(--u)) calc(7 * var(--u)) calc(8 * var(--u));
-  transform: translate(calc(-50% - 104 * var(--u)), calc(-50% - 118 * var(--u))) rotate(2deg);
+/* With the camera on it, an A6 sheet above the card, lying landscape (148
+   mm = 105.7 --eu across) so that it and the card, moved down a little for
+   it, fit the frame together, right of the title's column, the postcards
+   fanned out further right for it: what the project is, and that its case
+   study is still being written. */
+.stack-note { left: 50%; top: 50%; width: calc(105.7 * var(--eu)); aspect-ratio: 148 / 105; gap: calc(3 * var(--eu)); padding: calc(6 * var(--eu)) calc(7 * var(--eu)) calc(6 * var(--eu));
+  transform: translate(calc(-50% - 22 * var(--u)), calc(-50% - 90 * var(--u))) rotate(-1.5deg);
   opacity: 0; pointer-events: none; transition: opacity .3s ease; }
 [data-desk="open"] .desk-card--stack[data-side="here"] .stack-note { opacity: 1; transition-delay: .45s; }
 .sticky-note__kicker { font: 700 calc(4.4 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: #8a2a12; }
 .sticky-note__text { font: 400 calc(5.6 * var(--u)) / 1.35 Arial, Helvetica, sans-serif; }
-.sticky-note__status { align-self: flex-start; margin-top: calc(1 * var(--u)); padding: calc(3 * var(--u)) calc(5 * var(--u));
+.sticky-note__status { align-self: flex-start; margin-top: auto; padding: calc(3 * var(--u)) calc(5 * var(--u));
   border: calc(.6 * var(--u)) dashed #22283a; border-radius: calc(1.6 * var(--u));
   font: 700 calc(4.2 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: #22283a; }
 /* The row's last card: the way to Case Studies (/work), every case file.
@@ -1300,6 +1303,13 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env__card-row--link:hover { background: rgba(179, 49, 42, .08); }
 .env__card-row--link:hover > span:last-child { text-decoration: underline; text-underline-offset: calc(.6 * var(--eu)); }
 .env__card-row--link:focus-visible { outline: calc(.5 * var(--eu)) solid #b3312a; outline-offset: 0; }
+/* A row with a winner page says where it goes, on hover (Kate, 01.10), as
+   the desk's stacks and the case page's card do (.jury-card, AwardCard.css) */
+.env__card-row--link, a.jury-card__row { position: relative; }
+:is(.env__card-row--link, [data-desk="open"] .desk-card--stack[data-side="here"] a.jury-card__row):is(:hover, :focus-visible)::after {
+  content: "Go to site ↗"; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  padding: calc(.9 * var(--eu)) calc(1.6 * var(--eu)); background: #b3312a; color: #f7f2e6; white-space: nowrap;
+  font: 700 calc(2.4 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
 .env__card-date { color: #5b3f8c; font-weight: 700; font-size: calc(2.7 * var(--eu)); transform: rotate(-3deg); }
 /* Dark red ink printed into the card, as on the reference folder. */
 .env__print { position: absolute; inset: 0; color: #6e0d06; mix-blend-mode: multiply; }
@@ -1311,16 +1321,18 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env__big { position: absolute; left: 7%; bottom: 3%;
             font-family: var(--font-display), system-ui, sans-serif; font-weight: 900; font-stretch: 62%;
             font-size: calc(118 * var(--eu)); line-height: .8; letter-spacing: -.04em; }
-/* MUSE Gold keeps its foil; the round CSSDA seals (and French Design Awards'
-   shield, below) are paper stickers — matte
-   stock, a die-cut off-white edge and ink worn off in places, all baked into
-   the -paper.webp files — lying flat with a thin shadow (box-shadows, not
-   filters — see above). */
+/* The awards are paper stickers — matte stock, a die-cut off-white edge and
+   ink worn off in places, all baked into the -paper.webp files — lying flat
+   with a thin shadow (box-shadows, not filters — see above): the round CSSDA
+   seals' a box-shadow; MUSE's and French Design Awards', not round, have
+   theirs baked in (a box-shadow would be a rectangle). */
 .env__stamps { position: absolute; inset: 0; }
-.env__stamp, .env__sticker { position: absolute; display: block; }
-.env__stamp--muse { right: 9%; top: 33%; width: 36%; transform: rotate(-4deg); opacity: .92; }
-.env__sticker { transform: rotate(var(--t, 0deg)); border-radius: 50%;
+.env__sticker { position: absolute; display: block; transform: rotate(var(--t, 0deg)); }
+.env__sticker:is(.env__sticker--ui, .env__sticker--ux, .env__sticker--kudos, .env__sticker--inn) { border-radius: 50%;
   box-shadow: 0 calc(.3 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.28); }
+/* MUSE Gold, its mark in gold on black (Kate, 01.10), where the foil print
+   was: 40% of the folder with the file's margin, the logo as large as before */
+.env__sticker--muse  { right: 6%; top: 30.5%; width: 40%; --t: -4deg; }
 .env__sticker--ui    { right: 6%;  top: 42%; width: 21%; --t: -8deg; }
 .env__sticker--ux    { right: 27%; top: 44%; width: 18%; --t: 6deg; }
 .env__sticker--kudos { right: 5%;  top: 55%; width: 18%; --t: 14deg; }
@@ -1329,7 +1341,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
    right corner under MUSE and the CSSDA stickers, clear of the 15 (Kate,
    01.10): its shadow is baked into the file (a box-shadow would be a
    rectangle). 22% of the folder with the file's margin, about A8. */
-.env__sticker--fda { right: 4%; bottom: 4%; width: 22%; --t: -6deg; border-radius: 0; box-shadow: none; }
+.env__sticker--fda { right: 4%; bottom: 4%; width: 22%; --t: -6deg; }
 
 /* ── Ukrainska 15 (U15File) ──
    Layers, back to front: the tablet (tucked under the folder) · the folder's
@@ -1418,14 +1430,16 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
 }
 
-/* Opened, a sticky note out of the pocket: what the project is, in a few
-   lines, and the button to the case's own page. */
+/* What a project is, on an A6 sheet of paper (105 × 148 mm; the folder is
+   150 --eu to A4's 210 mm, so 75 wide): out of Ukrainska 15's pocket with
+   the button to the case's own page, over the other files' cards with a
+   note that the case is still being written (Kate, 01.10: it was a yellow
+   sticky note). Its button or note sits at its foot. */
 .sticky-note, .u15-note { position: absolute; z-index: 9; display: flex; flex-direction: column; box-sizing: border-box;
-  background: #f7e27a; color: #2a241c; text-align: left;
-  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.28), inset 0 calc(-8 * var(--u)) calc(8 * var(--u)) calc(-8 * var(--u)) rgba(120, 90, 0, .18); }
-.u15-note { left: calc(52 * var(--eu)); top: calc(96 * var(--eu)); width: calc(74 * var(--eu)); gap: calc(3 * var(--eu));
-  padding: calc(5 * var(--eu)) calc(5 * var(--eu)) calc(5.5 * var(--eu));
-  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.28), inset 0 calc(-6 * var(--eu)) calc(6 * var(--eu)) calc(-6 * var(--eu)) rgba(120, 90, 0, .18);
+  background: #f6f2e8; color: #2a241c; text-align: left;
+  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.5), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.1), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.3), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.22); }
+.u15-note { left: calc(52 * var(--eu)); top: calc(96 * var(--eu)); width: calc(75 * var(--eu)); aspect-ratio: 105 / 148; gap: calc(3 * var(--eu));
+  padding: calc(6 * var(--eu)) calc(6 * var(--eu)) calc(6.5 * var(--eu));
   transform: translate(calc(var(--ox) * var(--eu)), calc(var(--oy) * var(--eu))) rotate(var(--rot));
   opacity: 0; pointer-events: none; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease; }
 .desk-card--env[data-phase="open"] .u15-note { opacity: 1; pointer-events: auto; transition: transform .8s cubic-bezier(.65, 0, .2, 1), opacity .3s ease .5s; }
@@ -1435,7 +1449,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .u15-note__btn, .u15-view { align-self: flex-start; display: inline-block; white-space: nowrap; text-decoration: none; cursor: pointer;
   background: #22283a; color: #f7f2e6; border: 0; border-radius: calc(1.3 * var(--eu));
   font: 700 calc(3.6 * var(--eu)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; }
-.u15-note__btn { padding: calc(3 * var(--eu)) calc(4.5 * var(--eu)); margin-top: calc(1 * var(--eu)); }
+.u15-note__btn { padding: calc(3 * var(--eu)) calc(4.5 * var(--eu)); margin-top: auto; }
 .u15-note__btn:hover, .u15-view:hover { background: #c21f10; }
 .u15-note__btn:focus-visible { outline: calc(.6 * var(--eu)) solid #c21f10; outline-offset: calc(.6 * var(--eu)); }
 /* Closed, a pointer over the folder draws the card up out of the pocket and

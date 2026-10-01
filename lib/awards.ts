@@ -222,14 +222,22 @@ export const AWARD_RECORDS: AwardRecord[] = [
 ];
 
 // One ruled row per award for the library cards (components/AwardCard,
-// components/desk/AwardStack): a record that stands for several (CSSDA's
+// components/desk/AwardStack, U15File): a record that stands for several (CSSDA's
 // "Best UI · Best UX …") is split into its rows, dated with its year.
 // "Website — Strange & Unusual" → "Strange & Unusual": the card has no room
 // for the medium, and the jury's column already says what kind of prize it is.
-const short = (category: string) => category.split(/\s[––]\s/).pop()!;
+export const short = (category: string) => category.split(/\s[––]\s/).pop()!;
 
-/** The winner page of one award record, when there is one. */
-export const awardHref = (id: string) => AWARD_RECORDS.find((r) => r.id === id)?.externalUrls[0] ?? null;
+/** What heads a project's library card under its name, one source for every
+ *  copy of the card: on the desk's stacks (components/desk/AwardStack), in
+ *  Ukrainska 15's folder (U15File) and on the case pages (AwardCard). `role`
+ *  is Kate's part in it and when, a line of its own. */
+export const CARD_HEAD: Record<string, { sub: string; role?: string }> = {
+  "Ukrainska 15": { sub: "Voice from the Basement · Personal project · 2024–2026" },
+  BulkSource: { sub: "Supply-chain SaaS", role: "Solo designer 2021–2025 · Design lead 2025–present" },
+  OnsiSoft: { sub: "Compliance SaaS", role: "Solo designer 2024–2025 · Design lead 2025–present" },
+  WayPro: { sub: "Logistics iOS app", role: "Co-designer · 2024" },
+};
 
 export function awardRows(project: string) {
   return AWARD_RECORDS.filter((r) => r.project === project).flatMap((r) => {

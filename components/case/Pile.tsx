@@ -36,17 +36,7 @@ const tableH = (n: number, cols: number) =>
 
 type Pos = { x: number; y: number; r: number };
 
-export default function Pile({
-  items,
-  title,
-  count,
-  help,
-}: {
-  items: PileItem[];
-  title: string;
-  count: string;
-  help: string;
-}) {
+export default function Pile({ items, help }: { items: PileItem[]; help: string }) {
   const stackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const pos = useRef<Pos[]>([]);
@@ -191,9 +181,12 @@ export default function Pile({
 
   return (
     <section className="pile" data-ready={loose ? "" : undefined} aria-labelledby="pile-h">
+      {/* what to do with it, and the way back (Kate, 01.10) */}
       <div className="pile__head">
-        <h3 id="pile-h" style={{ margin: 0 }}>{title}</h3>
-        <span className="pile__count">{count}</span>
+        <h3 id="pile-h" style={{ margin: 0 }}>{loose ? help : "The archive, as it was sorted"}</h3>
+        <span className="pile__btns" style={loose ? undefined : { visibility: "hidden" }}>
+          <button type="button" onClick={() => reset(true)}>Put them back</button>
+        </span>
       </div>
 
       <div
@@ -202,7 +195,6 @@ export default function Pile({
         style={loose ? { height: tableH(items.length, cols) } : undefined}
         role="group"
         aria-label="The archive, laid out"
-        aria-describedby="pile-help"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -226,14 +218,6 @@ export default function Pile({
         ))}
       </div>
 
-      <p className="pile__hint">
-        <span id="pile-help">{loose ? help : "The archive, as it was sorted"}</span>
-        {loose && (
-          <span className="pile__btns">
-            <button type="button" onClick={() => reset(true)}>Put them back</button>
-          </span>
-        )}
-      </p>
     </section>
   );
 }

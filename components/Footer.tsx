@@ -4,6 +4,13 @@ import { usePathname } from "next/navigation";
 import { mono } from "@/components/ui/type";
 import { isCasePath } from "@/lib/nav";
 
+const SOCIAL = [
+  ["LinkedIn", "uxui-kazachkova", "https://www.linkedin.com/in/uxui-kazachkova/"],
+  ["Behance", "uxui-kazachkova", "https://www.behance.net/uxui-kazachkova"],
+  ["Instagram", "uxui_kazachkova", "https://www.instagram.com/uxui_kazachkova/"],
+  ["YouTube", "@practicalskillsforrealworld", "https://www.youtube.com/@practicalskillsforrealworld"],
+] as const;
+
 export default function Footer() {
   // Home ends on the case: its own column already carries the links and the
   // contact call, so the footer would only repeat them under the floor.
@@ -32,19 +39,17 @@ export default function Footer() {
           <span className="ink-stamp" role="img" aria-label="Inspected">Inspected</span>
         </div>
 
-        {/* spec small print */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
-          {[
-            ["SERIAL", "PD-001"],
-            ["ASSEMBLED", "Ukraine"],
-            ["STATUS", "Verified"],
-          ].map(([k, v]) => (
-            <div key={k}>
-              <div className="doc-ref mb-1">{k}</div>
-              <div style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold">{v}</div>
-            </div>
+        {/* where else she is (Kate, 01.10), in place of the spec small print */}
+        <ul className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-t pt-6" style={{ borderColor: "var(--hairline)" }}>
+          {SOCIAL.map(([k, v, href]) => (
+            <li key={k}>
+              <a href={href} target="_blank" rel="noopener noreferrer" className="group block">
+                <div className="doc-ref mb-1">{k}</div>
+                <div style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold break-words group-hover:underline underline-offset-2">{v} ↗</div>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
 
         {/* care instructions – one small smile */}
         <p className="text-xs text-gray-500 max-w-md mt-8 leading-relaxed">

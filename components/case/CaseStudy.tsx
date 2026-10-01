@@ -72,7 +72,7 @@ function CaseAwards({ data }: { data: Case }) {
   const owner = data.parent ?? data.title;
   return (
     <div className="award-card-slot">
-      <AwardCard project={owner} title={owner} sub={`${data.fileNo} · K. Kazachkova`} />
+      <AwardCard project={owner} />
     </div>
   );
 }
@@ -174,7 +174,7 @@ function Block({ section, data }: { section: Section; data: Case }) {
         <div className="row">
           <div className="rail"><Notes notes={section.notes} /></div>
           <div className="body bleed">
-            <Pile items={section.items} title={section.title} count={section.count} help={section.help} />
+            <Pile items={section.items} help={section.help} />
           </div>
         </div>
       );
@@ -227,7 +227,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             round the ring: after the last case comes the first. */}
         <div className="mast">
           <nav className="crumbs" aria-label="Breadcrumb">
-            <Link href="/#case-files">Case Studies</Link>
+            <Link href="/work">Case Studies</Link>
             <span aria-hidden>/</span>
             {data.parent && <><span>{data.parent}</span><span aria-hidden>/</span></>}
             <span aria-current="page">{data.title}</span>
@@ -334,7 +334,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         <div className="row">
           <div className="rail" />
           <div className="body casenav" style={{ gridColumn: "2 / 4" }}>
-            <Link href="/#case-files"><span>←</span> All case files</Link>
+            <Link href="/work"><span>←</span> All case studies</Link>
             <Link href={`/work/${next.slug}`}>Next: {next.title} <span>→</span></Link>
           </div>
         </div>

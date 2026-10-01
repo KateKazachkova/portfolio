@@ -98,7 +98,7 @@ export type Section =
       body?: Para[]; items: Decision[]; notes?: MarginNote[]; hand?: HandNote; photos?: SidePhoto[] }
   | { kind: "spec"; n: string; label: string; heading: string;
       body: Para[]; rows: SpecRow[]; notes?: MarginNote[]; hand?: HandNote }
-  | { kind: "pile"; title: string; count: string; help: string;
+  | { kind: "pile"; help: string;
       items: PileItem[]; notes?: MarginNote[] }
   | { kind: "plates"; label?: string; heading?: string;
       items: PlateItem[]; notes?: MarginNote[] }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { awardHref } from "@/lib/awards";
+import { awardRows, CARD_HEAD } from "@/lib/awards";
 import { U15_SONG as SONG, U15_SONG_HINT } from "@/lib/u15Song";
 import { CASE_ROW, FILES_SPD } from "@/lib/room/pose";
 
@@ -38,10 +38,11 @@ export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 const FOLDER = { w: 150, h: 208 };
 const K = 1.15;
 
-// The round CSSDA seals, stuck on as die-cut stickers in their own colours,
-// and French Design Awards' Silver badge die-cut round its shield, about A7;
-// MUSE Gold is printed in its foil.
+// The awards stuck on as paper stickers: MUSE Gold's mark in gold on black
+// (under the rest), the round CSSDA seals in their own colours, and French
+// Design Awards' Silver badge die-cut round its shield.
 const STICKERS = [
+  { src: "muse-gold-paper.webp", cls: "muse" },
   { src: "cssda-ui-paper.webp", cls: "ui" },
   { src: "cssda-ux-paper.webp", cls: "ux" },
   { src: "cssda-inn-paper.webp", cls: "inn" },
@@ -58,20 +59,11 @@ const STACKS = [
 ] as const;
 
 // In front of the prints, a library book card — but what it has been out to
-// is juries. Dates are stamped only where the award's own page gives one.
-// Each row opens its jury's winner page (lib/awards.ts), where there is one.
-const LENDINGS = [
-  { id: "muse-u15-2", jury: "MUSE Creative Awards", award: "Gold · Causes & Awareness" },
-  { id: "muse-u15-1", jury: "MUSE Creative Awards", award: "Gold · Strange & Unusual" },
-  { id: "cssda-u15", jury: "CSS Design Awards", award: "Best UI Design" },
-  { id: "cssda-u15", jury: "CSS Design Awards", award: "Best UX Design" },
-  { id: "cssda-u15", jury: "CSS Design Awards", award: "Best Innovation" },
-  { id: "cssda-u15", jury: "CSS Design Awards", award: "Special Kudos" },
-  { id: "csswinner-u15", jury: "CSS Winner", award: "Star" },
-  { id: "cssnectar-u15", jury: "CSS Nectar", award: "Site of the Day", date: "11 MAR 2026" },
-  { id: "designnominees-u15", jury: "Design Nominees", award: "Site of the Day", date: "06 MAR 2026" },
-  { id: "french-u15", jury: "French Design Awards", award: "Silver" },
-];
+// is juries: the same card as on the desk's stacks and the case page, its
+// head and rows from lib/awards.ts. Each row opens its jury's winner page,
+// where there is one.
+const LENDINGS = awardRows("Ukrainska 15");
+const HEAD = CARD_HEAD["Ukrainska 15"];
 
 type Pt = { x: number; y: number };
 
@@ -310,23 +302,23 @@ export function U15File({ x, y, r, still }: {
         <span className="env__card u15-item" {...is("card")} style={place("card", 10)} onPointerDown={(e) => grab("card")(e)} aria-hidden={!open}>
           <span className="env__card-head">
             <span>Ukrainska 15</span>
-            <span>Voice from the Basement · Personal project · 2024–2026</span>
+            <span>{HEAD.sub}</span>
+            {HEAD.role && <span>{HEAD.role}</span>}
           </span>
           <span className="env__card-row env__card-row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
-          {LENDINGS.map((l) => ({ ...l, href: awardHref(l.id) })).map((l) => l.href ? (
+          {LENDINGS.map((l, i) => l.href ? (
             // a link, not a handle: pressing it opens the page instead of
             // picking the card up (the card still drags from anywhere else)
-            <a key={l.award + l.jury} className="env__card-row env__card-row--link" href={l.href} target="_blank" rel="noopener noreferrer"
+            <a key={i} className="env__card-row env__card-row--link" href={l.href} target="_blank" rel="noopener noreferrer"
               tabIndex={open ? 0 : -1} aria-label={`${l.jury} – ${l.award}: winner page`} onPointerDown={(e) => e.stopPropagation()}>
-              <span className="env__card-date">{l.date ?? ""}</span><span>{l.jury}</span><span>{l.award}</span>
+              <span className="env__card-date">{l.date}</span><span>{l.jury}</span><span>{l.award}</span>
             </a>
           ) : (
-            <span key={l.award + l.jury} className="env__card-row">
-              <span className="env__card-date">{l.date ?? ""}</span><span>{l.jury}</span><span>{l.award}</span>
+            <span key={i} className="env__card-row">
+              <span className="env__card-date">{l.date}</span><span>{l.jury}</span><span>{l.award}</span>
             </span>
           ))}
         </span>
-
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="env__layer u15-sleeve u15-item" {...is("sleeve")} style={sleeve} src={near ? "/artefacts/ukrainska-15/envelope/pocket.webp?v=4" : "/artefacts/ukrainska-15/envelope/pocket.sm.webp"} alt="" draggable={false} />
@@ -336,8 +328,6 @@ export function U15File({ x, y, r, still }: {
           <span className="env__big">15</span>
         </span>
         <span className="env__stamps u15-sleeve u15-item" {...is("sleeve")} style={sleeve} aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="env__stamp env__stamp--muse" src="/stamps/awards/muse-gold.sm.webp" alt="" draggable={false} />
           {STICKERS.map((k) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img key={k.src} className={`env__sticker env__sticker--${k.cls}`} src={`/stamps/awards/${k.src}`} alt="" draggable={false} />

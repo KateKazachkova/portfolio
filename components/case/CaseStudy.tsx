@@ -70,7 +70,7 @@ function Body({ section }: { section: { heading: string; body?: Para[] } }) {
 function CaseAwards({ data }: { data: Case }) {
   return (
     <div className="award-card-slot">
-      <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
+      <AwardCard project={data.parent ?? data.title} title={data.parent ?? data.title} sub={`${data.fileNo} · K. Kazachkova`} />
     </div>
   );
 }
@@ -225,8 +225,9 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             round the ring: after the last case comes the first. */}
         <div className="mast">
           <nav className="crumbs" aria-label="Breadcrumb">
-            <Link href="/#case-files">Case Studies</Link>
+            <Link href="/work">Case Studies</Link>
             <span aria-hidden>/</span>
+            {data.parent && <><span>{data.parent}</span><span aria-hidden>/</span></>}
             <span aria-current="page">{data.title}</span>
           </nav>
           <nav className="flip" aria-label="Case studies">

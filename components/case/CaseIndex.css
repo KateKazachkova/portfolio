@@ -1,0 +1,47 @@
+/* ── Case Studies (/work): the files on the notebook page ──────────────────
+   The page is a case file's (app/case.css: the dot grid, the mast, the
+   title); the files are the desk's own objects (globals.css), drawn flat
+   and closed. Each tile is a container: --u, the desk px, is its width over
+   the stage's 360, so the objects scale with the tile. */
+.ci-grid { list-style:none; margin:48px 0 0; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:24px 32px }
+.ci-file { position:relative; container-type:inline-size; display:flex; flex-direction:column; align-items:center }
+/* the stage: 360 × 270 desk px */
+.ci-obj { --u:calc(100cqw / 360); position:relative; width:100%; aspect-ratio:4 / 3; pointer-events:none;
+  transition:transform .35s cubic-bezier(.3, 0, .2, 1) }
+.ci-file:hover .ci-obj, .ci-file:has(.ci-hit:focus-visible) .ci-obj { transform:translateY(-6px) }
+/* the desk's pieces lie flat here (their `flat` / `still`): the tops of the
+   moss and the fly agarics show as they do over the desk, the folder has no
+   thickness */
+.ci-obj :is(.stack-moss, .stack-mush) > img:first-child { opacity:1 }
+.ci-obj .desk-card--env { --env-t:0px }
+
+/* the name, signed on the page under the file */
+.ci-label { display:flex; flex-direction:column; align-items:center; gap:4px; margin-top:4px; text-align:center }
+.ci-label__name { font-family:var(--hand); font-size:34px; line-height:1; color:var(--fg); transition:color .2s }
+.ci-label__meta { font-family:var(--mono); font-weight:700; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted) }
+.ci-label__soon { margin-top:4px; padding:3px 6px; border:1px dashed currentColor; border-radius:2px;
+  font-family:var(--mono); font-weight:700; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted) }
+.ci-file:hover .ci-label__name { color:var(--ink-red) }
+/* the link: over the file and its name both */
+.ci-hit { position:absolute; inset:0; z-index:40; border-radius:4px }
+.ci-hit:focus-visible { outline:2px solid var(--ink-red); outline-offset:4px }
+
+/* a parent's folders (BulkSource), under its name */
+.ci-group { margin-top:72px }
+.ci-grid--group { margin-top:24px }
+/* the library card, filled with the folder's fields: two columns */
+.ci-card { width:calc(160 * var(--eu)) }
+.ci-card .jury-card__head span:first-child { font-size:calc(7 * var(--eu)) }
+.ci-card__row { grid-template-columns:30% 70%; height:calc(7 * var(--eu)) }
+.ci-card__row > span:first-child { font-size:calc(2.6 * var(--eu)); letter-spacing:.12em; text-transform:uppercase; color:#6d6252 }
+/* on the card's near corner, clear of its rows */
+.ci-truck { transform:translate(calc(-50% + 92 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-14deg) }
+
+@media (max-width:900px) {
+  .ci-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px 20px }
+  .ci-label__name { font-size:28px }
+}
+@media (max-width:560px) {
+  .ci-grid { grid-template-columns:minmax(0, 1fr); gap:24px }
+  .case-index .title-block h1 { font-size:44px }
+}

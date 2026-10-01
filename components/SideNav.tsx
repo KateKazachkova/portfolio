@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
-import { NAV_LINKS as LINKS, CV_HREF, CONTACT_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
+import { NAV_LINKS as LINKS, CV_HREF, CONTACT_HREF, NAV_TITLE, NAV_LEAD, isCasePath } from "@/lib/nav";
 import { openStop } from "@/components/DeskScene";
 
 /** The site's navigation, in the left margin of every page.
@@ -37,7 +37,7 @@ export default function SideNav() {
   // A case file takes the index down the left like every other page; the
   // document has no margin rail of its own any more (app/case.css). Only its
   // bar differs: no ink rule, no theme toggle.
-  const inCaseFile = pathname.startsWith("/work/");
+  const inCaseFile = isCasePath(pathname);
 
   // Transparent at the top of the page; frosted-glass + colour once scrolled.
   // Only the small-screen bar uses this — the rail sits on the page's own

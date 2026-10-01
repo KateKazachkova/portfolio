@@ -14,7 +14,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const written = getCase(slug);
   if (!written) return { title: "Case Study – Kate Kazachkova" };
-  return { title: `${written.title} – Kate Kazachkova`, description: written.subtitle };
+  return {
+    title: `${written.parent ? `${written.parent} · ` : ""}${written.title} – Kate Kazachkova`,
+    description: written.subtitle,
+    ...(written.draft ? { robots: { index: false, follow: false } } : {}),
+  };
 }
 
 export default async function CaseStudyRoute({ params }: { params: Promise<{ slug: string }> }) {

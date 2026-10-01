@@ -8,8 +8,10 @@
  * The labels are the case's own vocabulary, not the routes: /work is filed as
  * Case Files, /about as Profile. Each is a stop of the camera on home's desk;
  * the old pages are gone, so the links point at the stop (`stop`, the hash
- * home opens it from); `href` is the old URL, kept as the item's name and
- * redirected by next.config.ts for anything that still links to it.
+ * home opens it from); `href` is the old URL, kept as the item's name (and
+ * what marks it current) and redirected by next.config.ts for anything that
+ * still links to it — except /work, which is Case Studies again, the index
+ * of every case file (reached from a case's crumbs).
  * (/kit, the Parts List, still exists but is off the menu.)
  */
 export const NAV_LINKS = [
@@ -31,3 +33,6 @@ export const CV_HREF =
  *  lines wherever the navigation is. */
 export const NAV_TITLE = "Product Designer & Design Lead";
 export const NAV_LEAD = "I work on complicated products and make them less complicated.";
+
+/** A page of the case files' notebook: Case Studies (/work) or one case. */
+export const isCasePath = (path: string) => path === "/work" || path.startsWith("/work/");

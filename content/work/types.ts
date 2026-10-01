@@ -109,6 +109,13 @@ export type CaseStudy = {
   fileNo: string;
   title: string;
   years: string;
+  /** The file this one is kept in (BulkSource's folders): its name leads the
+   *  crumbs and the tab title, and its awards are the ones the card shows. */
+  parent?: string;
+  /** A page laid out ahead of its text: it opens at its URL, but nothing
+   *  links to it (the award rail, the ring of written cases) and search
+   *  engines are asked to leave it out. */
+  draft?: boolean;
   /** The result, in the first 100 words, above the fold. */
   result?: Para;
   subtitle: string;

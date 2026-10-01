@@ -74,6 +74,9 @@ const PICK = [
       { type: "jury-tag", sel: `${card} .jury-tag`, all: true, at: ["files"], kind: "link", slug, here: true },
     ];
   }),
+  // …and the row's last, the way to Case Studies (/work); its slug pans the
+  // desk to it on focus (DeskScene's xOf)
+  { type: "all-cases", sel: ".desk-card--all", at: ["files"], kind: "link", slug: "all" },
 ];
 // the case files laid out one at a time (html[data-desk-focus]), for where
 // everything on the desk lies then

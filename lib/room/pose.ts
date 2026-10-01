@@ -32,15 +32,12 @@ export const FILES_SPD = FOCAL / 860;
 export const CASE_ROW = { x: 1284, y: 563, k: 1.275 };
 const FILES_Z = 1751.5 - (677.4 - CASE_ROW.y) * (CASE_ROW.k - 1);
 export const rowX = (x: number) => CASE_ROW.x + (x - CASE_ROW.x) * CASE_ROW.k;
-/** a phone's lens zooms in at home and the wall's two stops alike, so the
- *  picture keeps its scale from one to the next (Kate, 30.09) */
-export const WALL_ZOOM_NARROW = 1.35;
 /** a phone's flip clock stands this much further left (box px), halfway
  *  between the DVD player and the case (globals.css's --clock-x on a
  *  phone: −169.6 − 52; Kate, 01.10) */
 export const CLOCK_DX_NARROW = -52;
-/** a phone's panorama stops this short of the room's left end (desk px),
- *  by the bare floor left of the helmet (Kate, 01.10) */
+/** the panorama stops this short of the room's left end (desk px), by the
+ *  bare floor left of the helmet (Kate, 01.10) */
 export const PANO_TRIM_L = 160;
 
 /** the picture's whole shift (screen px): the page's lens shift s and the
@@ -64,38 +61,54 @@ export const pfZoom = (w: number, h: number, u: number) =>
 
 /** Where each stop puts the world (translate in u) and how far the picture
  *  is shifted besides the lens shift (px). Files' x runs with the pan.
+ *  pano: under 1024 px, the window's panorama (panoOf; null above);
  *  pfz: under 1024 px, Profile's zoom on its one page (0 above). */
-export function stopPose(view: View, pan = 0, narrow = false, pfz = 0): Pose {
-  // (on a phone, under 768 px, the wall's two stops pan along the room too:
-  // globals.css)
-  const p = narrow ? pan : 0;
+export function stopPose(view: View, pan = 0, pano: Pano | null = null, pfz = 0): Pose {
+  // (under 1024 px the wall's two stops pan along the room too: globals.css)
+  const p = pano ? pan : 0, at = pano ?? PANO_WIDE, z = at.z;
   switch (view) {
     case "files": return { rx: -90, t: [200 - pan, 430, FILES_Z], sx: 0, sy: 0, z: 1 };
-    case "award": return { rx: 0, t: [-PANO.award - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "award": return { rx: 0, t: [-at.award - p, 0, 0], sx: 0, sy: 0, z };
     case "profile": return pfz ? { rx: -90, t: [PF_PAGE.x, 506, 2129], sx: 0, sy: 0, z: pfz }
       : { rx: -90, t: [-1327.5, 506, 2129], sx: -20, sy: -15, z: 1 };
-    case "offduty": return { rx: 0, t: [-PANO.offduty - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "offduty": return { rx: 0, t: [-at.offduty - p, 0, 0], sx: 0, sy: 0, z };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, z: 1 };
-    // (on a phone home pans too: it is the middle of one panorama with the
-    // wall's two stops, PANO below)
-    default: return { rx: 0, t: [-p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    // (under 1024 px home pans too: it is the middle of one panorama with
+    // the wall's two stops, PANO below)
+    default: return { rx: 0, t: [-p, 0, 0], sx: 0, sy: 0, z };
   }
 }
 
-/** On a phone (under 768 px) home and the wall's two stops are one strip of
- *  room the camera slides along (Kate, 01.10): Off Duty on the left, the case
- *  in the middle, Recognition on the right. A stop's pan p puts the camera at
- *  x = PANO[stop] + p along it (the world's translate is −x); which stop it is
- *  at follows x, across the halfway lines between them. */
+/** Where the wall's two stops stand (x of the camera, u), as a wide window
+ *  has them and a phone's panorama too. */
 export const PANO = { offduty: -1423, home: 0, award: 1040 } as const;
 export type PanoView = keyof typeof PANO;
+/** On a phone or a tablet (under 1024 px) home and the wall's two stops are
+ *  one strip of room the camera slides along (Kate, 01.10): Off Duty on the
+ *  left, the case in the middle, Recognition on the right. A stop's pan p
+ *  puts the camera at x = pano[stop] + p along it (the world's translate is
+ *  −x); which stop it is at follows x, across the halfway lines between them.
+ *  z is the lens's zoom along it, the same at each stop, so the picture keeps
+ *  its scale from one to the next: a phone's zoomed in 1.35× (Kate, 30.09), a
+ *  tablet's not, its scene being 1.4× as large already (globals.css,
+ *  .case-stage). A tablet sees 454 u either side of the axis to a phone's
+ *  314, so its wall stops stand where the picture at each is the phone's:
+ *  the helmet half past the left edge at Off Duty, the trophy cut by it at
+ *  Recognition (Kate, 01.10). */
+export type Pano = { z: number } & Record<PanoView, number>;
+const PANO_PHONE: Pano = { z: 1.35, ...PANO };
+/** a wide window's stops, as a panorama's (no zoom), for code that wants one */
+export const PANO_WIDE: Pano = { z: 1, ...PANO };
+const PANO_TABLET: Pano = { z: 1, offduty: -1400, home: 0, award: 1180 };
+/** the panorama of a window w px wide (null: none, 1024 px and wider) */
+export const panoOf = (w: number): Pano | null => (w < 768 ? PANO_PHONE : w < 1024 ? PANO_TABLET : null);
 export const isPano = (v: string): v is PanoView => v === "home" || v === "award" || v === "offduty";
 
 /** A stop's lens shift (px) from the page's --dx, --dy: none at home, nor
- *  along a phone's panorama; at the wall the camera only slides sideways
+ *  along the panorama under 1024 px; at the wall the camera only slides sideways
  *  from home, so the picture keeps home's height (Kate, 30.09) */
-export const stopShift = (v: View, dx: number, dy: number, narrow: boolean): [number, number] =>
-  v === "home" || (narrow && isPano(v)) ? [0, 0] : [dx, v === "award" || v === "offduty" ? 0 : dy];
+export const stopShift = (v: View, dx: number, dy: number, pano: Pano | null): [number, number] =>
+  v === "home" || (pano && isPano(v)) ? [0, 0] : [dx, v === "award" || v === "offduty" ? 0 : dy];
 
 /** html[data-desk] (+ data-desk-focus) → the view the CSS draws */
 export function viewOfState(desk: string | undefined, focus: string | undefined): View {

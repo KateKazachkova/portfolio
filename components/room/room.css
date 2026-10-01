@@ -41,7 +41,7 @@ html[data-gl]:not([data-gl-rest="stop"]) .night-cam { opacity: 0 !important; }
 .room-home { position: absolute; inset: 0; pointer-events: none; --u: calc(100cqw / 1118); }
 .room-home .flip-clock-slot {
   --k: calc(2150 / 2015); /* z 135 */
-  transform: translate(calc((-169.6 - 560) * (var(--k) - 1) * var(--u)), calc((524.4 - 226) * (var(--k) - 1) * var(--u))) scale(calc(.55 * var(--k)));
+  transform: translate(calc((var(--clock-x) - 560) * (var(--k) - 1) * var(--u)), calc((524.4 - 226) * (var(--k) - 1) * var(--u))) scale(calc(.55 * var(--k)));
 }
 
 /* The room at home as a still (scripts/room/poster.mjs), from the first

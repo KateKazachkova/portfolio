@@ -35,6 +35,13 @@ export const rowX = (x: number) => CASE_ROW.x + (x - CASE_ROW.x) * CASE_ROW.k;
 /** a phone's lens zooms in at home and the wall's two stops alike, so the
  *  picture keeps its scale from one to the next (Kate, 30.09) */
 export const WALL_ZOOM_NARROW = 1.35;
+/** a phone's flip clock stands this much further left (box px), halfway
+ *  between the DVD player and the case (globals.css's --clock-x on a
+ *  phone: −169.6 − 52; Kate, 01.10) */
+export const CLOCK_DX_NARROW = -52;
+/** a phone's panorama stops this short of the room's left end (desk px),
+ *  by the bare floor left of the helmet (Kate, 01.10) */
+export const PANO_TRIM_L = 160;
 
 /** the picture's whole shift (screen px): the page's lens shift s and the
  *  stop's own */

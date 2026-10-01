@@ -17,7 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
-import { EASE, FILES_SPD, isPano, PANO, pfZoom, SINGLE_Q, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
+import { EASE, FILES_SPD, isPano, PANO, PANO_TRIM_L, pfZoom, SINGLE_Q, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -367,7 +367,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const baseOf = (v: View | null) => { const s = v ?? "home"; return isPano(s) ? PANO[s] : 0; };
     const clamp = (v: number) => open.current === "files"
       ? Math.min(maxPan(), Math.max(0, v))
-      : pano() ? Math.min(PANO.award + reach(), Math.max(PANO.offduty - reach(), baseOf(open.current) + v)) - baseOf(open.current)
+      : pano() ? Math.min(PANO.award + reach(), Math.max(PANO.offduty - Math.max(0, reach() - PANO_TRIM_L), baseOf(open.current) + v)) - baseOf(open.current)
       : Math.min(reach(), Math.max(-reach(), v));
     // the stop at x: past the halfway line to the next by 24 desk px before
     // it changes, so a finger resting on the line does not flick it to and fro

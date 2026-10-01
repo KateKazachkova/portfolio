@@ -1580,9 +1580,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   :root:is(:not([data-desk]), [data-desk="closed"]) :is(main:has(.case-stage), .scene-cam) { touch-action: pan-y; }
   :is([data-desk="award"], [data-desk="offduty"]) :is(main:has(.case-stage), .scene-cam) { touch-action: none; }
   :is([data-desk="award"], [data-desk="offduty"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
-  /* the edition's line under the case goes along with it, and the night's
-     lamp pool with the lamp */
-  :is(.hero-caption, .night-room) { translate: var(--pano-shift, 0px) 0; }
+  /* the edition's line under the case is not shown on a phone (Kate,
+     01.10); the night's lamp pool goes along with the lamp */
+  .hero-caption { display: none; }
+  .night-room { translate: var(--pano-shift, 0px) 0; }
 }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
@@ -2036,10 +2037,14 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the index has a column of its own to stand under (≥1440px). Positions inside it are percentages of the 1400 × 756 still,
    measured off the file. */
 .flip-clock-slot {
-  position: absolute; left: calc(-169.6 * var(--u)); top: calc(524.4 * var(--u)); width: calc(430.4 * var(--u));
+  --clock-x: -169.6;
+  position: absolute; left: calc(var(--clock-x) * var(--u)); top: calc(524.4 * var(--u)); width: calc(430.4 * var(--u));
   transform-origin: 0 0; transform: translateZ(calc(135 * var(--u))) scale(.55); pointer-events: auto;
 }
-/* (on every width: a phone sees it by the case too, Kate, 30.09) */
+/* (on every width: a phone sees it by the case too, Kate, 30.09) — and on
+   a phone 52 further left, halfway between the DVD player and the case
+   (CLOCK_DX_NARROW in lib/room/pose.ts, for WebGL's; Kate, 01.10) */
+@media (max-width: 767px) { .flip-clock-slot { --clock-x: -221.6; } }
 /* Its shadows, for the room's key (above, in front, to the left): a tight
    dark line where the base meets the desk, and the body's shadow falling
    back and to the right — mostly behind it, showing as a soft edge off its

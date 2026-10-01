@@ -1813,9 +1813,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 @property --aside-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --aside-muted { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --aside-on-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
-/* The line under the hero's title is 16px at every width (Kate, 29.09; 14
-   from 26.09), and the wordmark a size up where it heads a column. */
-.hero-aside { --t-lead: 16px; }
+/* The line under the title is 16px at every width, in the hero's column and
+   in the menu (Kate, 29.09 and 01.10; 14 from 26.09), and the wordmark a size
+   up where it heads a column. */
+.hero-aside, #nav-panel { --t-lead: 16px; }
 .hero-aside, footer { --t-mark: 24px; }
 .hero-aside-wrap {
   --aside-fg: var(--fg); --aside-muted: var(--muted); --aside-on-fg: var(--bg);

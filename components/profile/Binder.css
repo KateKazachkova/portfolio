@@ -45,6 +45,10 @@
 .pf-face__full::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: url(/profile/binder/leaf-gloss-r.webp) center / 100% 100%; opacity: .9; }
 .pf-face--back .pf-face__full::after { background-image: url(/profile/binder/leaf-gloss-l.webp); }
+/* …not on home's desk until the camera first sets off for Profile
+   (DeskBinder's warm): it is 0.4 MB, and seen only close up (the bake,
+   html.bk, keeps it: the WebGL room's sleeves are baked with it) */
+html:not(.bk) .desk-binder--cold .pf-face .pf-face__full::after { background-image: none; }
 /* leaves under the two on show are covered: not drawn at all */
 .pf-leaf[data-hidden]:not([data-flying]) > .pf-whole { visibility: hidden; }
 /* the light going off a sleeve as it stands up */

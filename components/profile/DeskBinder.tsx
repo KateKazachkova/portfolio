@@ -45,7 +45,7 @@ export default function DeskBinder() {
   return (
     <BinderBook
       spreads={pages} at={at} go={go} single={single} live={live}
-      className="desk-binder"
+      className={warm ? "desk-binder" : "desk-binder desk-binder--cold"}
       style={{
         left: `calc(${BINDER.x - BINDER.w / 2} * var(--u))`, top: `calc(${BINDER.y - H / 2} * var(--u))`,
         width: `calc(${BINDER.w} * var(--u))`, transform: `rotate(${BINDER.r}deg) translateZ(.1px)`,

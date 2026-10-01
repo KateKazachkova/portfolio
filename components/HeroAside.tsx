@@ -20,10 +20,7 @@ export default function HeroAside({
 }) {
   return (
     <div className="hero-aside">
-      <p
-        className="font-black uppercase tracking-tight leading-none"
-        style={{ fontSize: 24, letterSpacing: "-0.02em", color: "var(--fg)" }}
-      >
+      <p className="t-mark">
         <Link href="/" aria-label="KATE™ – home" className="aside-strip" style={{ color: "inherit" }}>
           KATE<span style={{ color: "var(--accent-red)" }}>™</span>
         </Link>
@@ -31,9 +28,9 @@ export default function HeroAside({
       {/* (their words in spans: over the desk each line gets a strip of the
           desk under it, globals.css .aside-strip) */}
       <h2 className="t-title mt-[124px]"><span className="aside-strip">{title}</span></h2>
-      {/* Full ink, not the muted grey .t-body carries elsewhere: on the hero
-          this line is the second half of the title, not body copy. */}
-      <p className="t-body mt-4" style={{ color: "var(--fg)" }}><span className="aside-strip">{lead}</span></p>
+      {/* The lead, not body copy: on the hero this line is the second half of
+          the title, so it is set in the title's family, in full ink. */}
+      <p className="t-lead mt-4"><span className="aside-strip">{lead}</span></p>
 
       {/* The index itself — the same component the rail down every other page
           uses, because the rail is this column. */}

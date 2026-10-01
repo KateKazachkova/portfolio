@@ -28,7 +28,7 @@ export function InkButton({
       className={`inline-block uppercase font-bold transition-opacity hover:opacity-80 ${className}`}
       style={{
         fontFamily: mono,
-        fontSize: 12,
+        fontSize: "var(--t-label)",
         letterSpacing: "0.1em",
         padding: "10px 18px",
         borderRadius: 4,

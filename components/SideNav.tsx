@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import HeroAside from "./HeroAside";
-import { display } from "@/components/ui/type";
 import { NAV_LINKS as LINKS, CV_HREF, CONTACT_HREF, NAV_TITLE, NAV_LEAD } from "@/lib/nav";
 import { openStop } from "@/components/DeskScene";
 
@@ -125,8 +124,7 @@ export default function SideNav() {
         <nav className="px-6 h-14 flex items-center justify-between">
           <Link
             href="/"
-            className="font-black uppercase tracking-tight"
-            style={{ fontSize: 18, letterSpacing: "-0.02em", color: "var(--fg)" }}
+            className="t-mark"
           >
             KATE<span style={{ color: "var(--accent-red)" }}>™</span>
           </Link>
@@ -144,8 +142,8 @@ export default function SideNav() {
               aria-expanded={open}
               aria-controls="nav-panel"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="flex items-center justify-center uppercase font-bold"
-              style={{ minWidth: 32, height: 32, fontFamily: display, fontVariationSettings: '"wdth" 90, "wght" 700', fontSize: 18, letterSpacing: "-0.015em", color: "var(--fg)" }}
+              className="t-ui flex items-center justify-center"
+              style={{ "--t-ui": "var(--t-mark)", minWidth: 32, height: 32, color: "var(--fg)" } as React.CSSProperties}
             >
               {/* The word, not an icon (Kate, 27.09), as large as KATE™ beside
                   it (Kate, 30.09); open, it turns into a cross of two ink rules. */}
@@ -199,19 +197,15 @@ export default function SideNav() {
                     same on every page and at every width. */}
                 <div style={{ padding: "18px 0", borderBottom: "1px solid var(--hairline)" }}>
                   <p className="t-title">{NAV_TITLE}</p>
-                  <p className="t-body mt-2" style={{ color: "var(--fg)" }}>{NAV_LEAD}</p>
+                  <p className="t-lead mt-2">{NAV_LEAD}</p>
                 </div>
                 {LINKS.map((link, i) => (
                   <Link
                     key={link.href}
                     href={link.stop}
                     onClick={(e) => { setOpen(false); openStop(e, link.stop); }}
-                    className="flex items-baseline gap-4 uppercase font-bold"
+                    className="t-ui flex items-baseline gap-4"
                     style={{
-                      fontFamily: display,
-                      fontVariationSettings: '"wdth" 90, "wght" 700',
-                      fontSize: 13,
-                      letterSpacing: "-0.015em",
                       color: isActive(link.href) ? "var(--fg)" : "var(--muted)",
                       padding: "14px 0 14px 12px",
                       borderTop: i === 0 ? "none" : "1px solid var(--hairline)",
@@ -225,12 +219,8 @@ export default function SideNav() {
                 <a
                   href={CONTACT_HREF}
                   onClick={() => setOpen(false)}
-                  className="block text-center uppercase font-bold"
+                  className="t-ui block text-center"
                   style={{
-                    fontFamily: display,
-                    fontVariationSettings: '"wdth" 90, "wght" 700',
-                    fontSize: 12,
-                    letterSpacing: "-0.015em",
                     padding: "12px 16px",
                     margin: "14px 0 0",
                     borderRadius: 4,
@@ -245,12 +235,8 @@ export default function SideNav() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="block text-center uppercase font-bold"
+                  className="t-ui block text-center"
                   style={{
-                    fontFamily: display,
-                    fontVariationSettings: '"wdth" 90, "wght" 700',
-                    fontSize: 12,
-                    letterSpacing: "-0.015em",
                     padding: "12px 16px",
                     margin: "8px 0 16px",
                     borderRadius: 4,

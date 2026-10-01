@@ -52,7 +52,7 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-fg: var(--fg);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -701,7 +701,7 @@ body::after {
      gaps step down too — enough that the index ends above the flip clock.
      Each is a straight line from its 1024px value to its 1440px one, so
      nothing jumps at the top of the range.  */
-  .hero-aside { --t-title: calc(2.16vw - 1.15px); --t-body: calc(.721vw + 5.6px); }
+  .hero-aside { --t-title: calc(2.16vw - 1.15px); }
   /* 64px at 1440, as above it (the glass pane has to end above the clock) */
   .hero-aside .t-title { margin-top: calc(10.3vw - 84.3px); }
   /* the index half as far under the line as it was (Kate, 29.09) */
@@ -1813,6 +1813,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 @property --aside-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --aside-muted { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --aside-on-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
+/* The line under the hero's title is 16px at every width (Kate, 29.09; 14
+   from 26.09), and the wordmark a size up where it heads a column. */
+.hero-aside { --t-lead: 16px; }
+.hero-aside, footer { --t-mark: 24px; }
 .hero-aside-wrap {
   --aside-fg: var(--fg); --aside-muted: var(--muted); --aside-on-fg: var(--bg);
   transition: --aside-fg .6s ease 1.05s, --aside-muted .6s ease 1.05s, --aside-on-fg .6s ease 1.05s;
@@ -1878,9 +1882,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    objects under it still pick up. */
 @media (min-width: 1024px) {
   .hero-aside { position: relative; isolation: isolate; }
-  /* the line under the title and the index are both 16px at every width
-     (Kate, 29.09; 14 from 26.09); later than the 1024–1439 rule, so it wins there too */
-  .hero-aside { --t-body: 16px; }
+  /* the index is 16px at every width, as the line under the title (Kate, 29.09) */
   .hero-aside .nav-index a[data-stop] { font-size: 16px; }
   /* and Let's Talk / CV at 16 too, up from .t-label's 12 (Kate, 29.09) */
   .hero-aside .nav-call { font-size: 16px; }
@@ -2104,6 +2106,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   --t-lead: 20px;
   --t-body: 16px;
   --t-label: 12px;
+  --t-ui: 13px;
+  --t-mark: 18px;
 }
 @media (max-width: 768px) {
   :root {
@@ -2150,6 +2154,27 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   letter-spacing: 0.18em;
   text-transform: uppercase;
   line-height: 1.3;
+}
+/* ui    the menu's links and buttons, in the headline's voice
+   mark  the wordmark, KATE™
+   (font-weight too, so the fallback shown until Archivo arrives is as heavy) */
+.t-ui {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+  font-variation-settings: "wdth" 90, "wght" 700;
+  font-size: var(--t-ui);
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+.t-mark {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 900;
+  font-variation-settings: "wdth" 100, "wght" 900;
+  font-size: var(--t-mark);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--fg);
 }
 
 /* ── KATE™ talks back ──────────────────────────────────────────────────────

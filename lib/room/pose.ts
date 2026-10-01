@@ -24,36 +24,71 @@ export type View = "home" | "files" | "award" | "profile" | "offduty" | "bike";
 /** Over the desk the camera is 860 u above the stacks' height, 2.5 screen px
  *  (× --u) to a desk px: the pan's px per desk px. */
 export const FILES_SPD = FOCAL / 860;
-/** The case files lie 1.5× their size (Kate, 30.09): .desk-cases is scaled
+/** The case files lie 1.275× their size (Kate, 30.09: 1.5×, then 15 % less): .desk-cases is scaled
  *  k× about the row's top left, Ukrainska 15's corner (globals.css), so a
  *  file laid out at x lies on the desk at rowX(x). The camera over them
- *  looks 57.2 u further out, where the row's middle (y 677.4) now is:
+ *  looks 31.5 u further out, where the row's middle (y 677.4) now is:
  *  the files stop's z, 1751.5 before (globals.css has it too). */
-export const CASE_ROW = { x: 1284, y: 563, k: 1.5 };
+export const CASE_ROW = { x: 1284, y: 563, k: 1.275 };
 const FILES_Z = 1751.5 - (677.4 - CASE_ROW.y) * (CASE_ROW.k - 1);
 export const rowX = (x: number) => CASE_ROW.x + (x - CASE_ROW.x) * CASE_ROW.k;
-/** at the wall's two stops a phone's lens zooms in too (Kate, 30.09) */
+/** a phone's lens zooms in at home and the wall's two stops alike, so the
+ *  picture keeps its scale from one to the next (Kate, 30.09) */
 export const WALL_ZOOM_NARROW = 1.35;
 
 /** the picture's whole shift (screen px): the page's lens shift s and the
  *  stop's own */
 export const lensShift = (p: Pose, s: readonly number[] = [0, 0]): [number, number] => [s[0] + p.sx, s[1] + p.sy];
 
+/** Under 1024 px the Profile binder shows one page at a time, on the right
+ *  (Binder.tsx `single`), and the camera looks at that page alone: its
+ *  sleeve's middle on the axis (DeskBinder: x 3031 − 280 + 74.94 % of 560 =
+ *  desk x 3170.7, less the 1612.5 of the axis at home), zoomed in so the page
+ *  fills the window (--pfz, set by useDeskCamera from the window's size: pfZoom). */
+export const PF_PAGE = { x: -1558.2, w: 234.9, h: 303.7 };
+/** the window that has the one-sided binder (the CSS's @media rules say
+ *  1023px as well) */
+export const SINGLE_Q = "(max-width: 1023px)";
+/** the zoom that fits the page in a window of w × h px (stage u px per u),
+ *  16 px either side and room for the bar above and the pager under it
+ *  (out, too, in a short window: a phone on its side) */
+export const pfZoom = (w: number, h: number, u: number) =>
+  Math.max(0.4, Math.min((w - 32) / (PF_PAGE.w * (FOCAL / 936) * u), (h - 176) / (PF_PAGE.h * (FOCAL / 936) * u)));
+
 /** Where each stop puts the world (translate in u) and how far the picture
- *  is shifted besides the lens shift (px). Files' x runs with the pan. */
-export function stopPose(view: View, pan = 0, narrow = false): Pose {
-  // (on a phone, under 768 px, the wall's two stops and Profile pan along the
-  // room too, and Profile's axis is on the binder's middle: globals.css)
+ *  is shifted besides the lens shift (px). Files' x runs with the pan.
+ *  pfz: under 1024 px, Profile's zoom on its one page (0 above). */
+export function stopPose(view: View, pan = 0, narrow = false, pfz = 0): Pose {
+  // (on a phone, under 768 px, the wall's two stops pan along the room too:
+  // globals.css)
   const p = narrow ? pan : 0;
   switch (view) {
     case "files": return { rx: -90, t: [200 - pan, 430, FILES_Z], sx: 0, sy: 0, z: 1 };
-    case "award": return { rx: 0, t: [-1040 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
-    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, z: 1 };
-    case "offduty": return { rx: 0, t: [1423 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "award": return { rx: 0, t: [-PANO.award - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
+    case "profile": return pfz ? { rx: -90, t: [PF_PAGE.x, 506, 2129], sx: 0, sy: 0, z: pfz }
+      : { rx: -90, t: [-1327.5, 506, 2129], sx: -20, sy: -15, z: 1 };
+    case "offduty": return { rx: 0, t: [-PANO.offduty - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, z: 1 };
-    default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, z: 1 };
+    // (on a phone home pans too: it is the middle of one panorama with the
+    // wall's two stops, PANO below)
+    default: return { rx: 0, t: [-p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
   }
 }
+
+/** On a phone (under 768 px) home and the wall's two stops are one strip of
+ *  room the camera slides along (Kate, 01.10): Off Duty on the left, the case
+ *  in the middle, Recognition on the right. A stop's pan p puts the camera at
+ *  x = PANO[stop] + p along it (the world's translate is −x); which stop it is
+ *  at follows x, across the halfway lines between them. */
+export const PANO = { offduty: -1423, home: 0, award: 1040 } as const;
+export type PanoView = keyof typeof PANO;
+export const isPano = (v: string): v is PanoView => v === "home" || v === "award" || v === "offduty";
+
+/** A stop's lens shift (px) from the page's --dx, --dy: none at home, nor
+ *  along a phone's panorama; at the wall the camera only slides sideways
+ *  from home, so the picture keeps home's height (Kate, 30.09) */
+export const stopShift = (v: View, dx: number, dy: number, narrow: boolean): [number, number] =>
+  v === "home" || (narrow && isPano(v)) ? [0, 0] : [dx, v === "award" || v === "offduty" ? 0 : dy];
 
 /** html[data-desk] (+ data-desk-focus) → the view the CSS draws */
 export function viewOfState(desk: string | undefined, focus: string | undefined): View {
@@ -156,9 +191,9 @@ export function bezier(x1: number, y1: number, x2: number, y2: number) {
   };
 }
 
-export const EASE = { cam: bezier(0.45, 0, 0.55, 1), bike: bezier(0.65, 0, 0.2, 1), ease: bezier(0.25, 0.1, 0.25, 1) };
-/** the camera's move (--cam-t, --cam-wait), the bike's (1.4 s, no wait) */
-export const CAM = { t: 2300, wait: 200, bikeT: 1400 };
+export const EASE = { cam: bezier(0.45, 0, 0.55, 1), ease: bezier(0.25, 0.1, 0.25, 1) };
+/** the camera's move (--cam-t, --cam-wait) */
+export const CAM = { t: 2300, wait: 200 };
 
 /** The case box's width on the page for a window (globals.css, the suitcase
  *  stage), in px — to size things without a page. */

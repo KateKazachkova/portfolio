@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { launch, sleep, log } from "./cdp.mjs";
-import { stopPose, projectToStage, lensShift } from "../../lib/room/pose.ts";
+import { stopPose, stopShift, projectToStage, lensShift } from "../../lib/room/pose.ts";
 import { SIG_SRC } from "../../lib/room/sig.ts";
 import { collect } from "./collect.mjs";
 
@@ -25,7 +25,7 @@ for (const [view, hash] of STOPS) {
   const page = await b.ev(`(()=>{const c=(${collect.toString()})(${JSON.stringify(SIG_SRC)});const cam=document.querySelector('.scene-cam');
     return JSON.stringify({u:c.u, stage:c.stage, units:c.units.map(x=>({cls:x.cls,m:x.m,w:x.w,h:x.h,rect:x.rect})), dx: parseFloat(cam.style.getPropertyValue('--dx'))||0, dy: parseFloat(cam.style.getPropertyValue('--dy'))||0, pan: parseFloat(cam.style.getPropertyValue('--pan'))||0, arrived: document.documentElement.dataset.deskArrived})})()`, 60000).then(JSON.parse);
   const pose = stopPose(view, page.pan, W < 768);
-  const shift = view === "home" ? [0, 0] : lensShift(pose, [page.dx, view === "award" || view === "offduty" ? 0 : page.dy]);
+  const shift = lensShift(pose, stopShift(view, page.dx, page.dy, W < 768));
   const u = page.u;
   // (b) the camera: every plane the page draws, projected by pose.ts
   let worst = 0, n = 0; const bad = [];

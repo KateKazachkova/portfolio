@@ -2,8 +2,8 @@
 
 import { startTransition, useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { BinderBook, useBinder } from "@/components/profile/Binder";
-import { SPREADS } from "@/components/profile/spreads";
+import { BinderBook, useBinderPages } from "@/components/profile/Binder";
+import { SINGLES, SPREADS } from "@/components/profile/spreads";
 import "./RoomBinder.css";
 
 /**
@@ -18,6 +18,8 @@ import "./RoomBinder.css";
  * Profile, as DeskBinder's.
  */
 const LEAVES = ["leaf-r", "leaf-l", "leaf-gloss-r", "leaf-gloss-l"];
+// (under 1024 px the binder is one-sided, Binder.tsx: WebGL draws none of it
+// then, engine.ts, and this one turns its own sleeves, in 3D: RoomBinder.css)
 
 export function RoomBinder() {
   const [host, setHost] = useState<HTMLElement | null>(null);
@@ -39,7 +41,7 @@ export function RoomBinder() {
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-arrived"] });
     return () => { removeEventListener("room:pf-host", onHost); mo.disconnect(); };
   }, []);
-  const { at, go } = useBinder(SPREADS.length, live);
+  const { single, pages, at, go } = useBinderPages(SPREADS, SINGLES, live);
   // its pictures decoded while the camera is on its way, off the main thread:
   // decoded at the first paint instead, they cost the landing two slow frames
   useEffect(() => {
@@ -56,7 +58,8 @@ export function RoomBinder() {
   // WebGL's binder lies at the same spread (engine.ts), for the flight away;
   // told before the panel paints the new spread, so the room can veil it and
   // draw the turn (binderturn.ts)
-  useLayoutEffect(() => { dispatchEvent(new CustomEvent("room:binder-at", { detail: at })); }, [at]);
+  // (and again as the window crosses 1024 px: the room ignores a one-sided page)
+  useLayoutEffect(() => { dispatchEvent(new CustomEvent("room:binder-at", { detail: at })); }, [at, single]);
   if (!host || !warm) return null;
   // the sheets' text selects here (it is what M4 is for); a click that ends
   // a selection is not a click to turn the page
@@ -66,7 +69,8 @@ export function RoomBinder() {
   };
   return createPortal(
     <div className="room-binder__hold" onClickCapture={keep}>
-      <BinderBook spreads={SPREADS} at={at} go={go} className="room-binder" style={{ width: "100%" }} />
+      <BinderBook spreads={pages} at={at} go={go} single={single} live={live}
+        className={`room-binder${single ? "" : " room-binder--flat"}`} style={{ width: "100%" }} />
     </div>,
     host,
   );

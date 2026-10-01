@@ -52,7 +52,7 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-fg: var(--fg);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: Arial, Helvetica, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -701,7 +701,7 @@ body::after {
      gaps step down too — enough that the index ends above the flip clock.
      Each is a straight line from its 1024px value to its 1440px one, so
      nothing jumps at the top of the range.  */
-  .hero-aside { --t-title: calc(2.16vw - 1.15px); --t-body: calc(.721vw + 5.6px); }
+  .hero-aside { --t-title: calc(2.16vw - 1.15px); }
   /* 64px at 1440, as above it (the glass pane has to end above the clock) */
   .hero-aside .t-title { margin-top: calc(10.3vw - 84.3px); }
   /* the index half as far under the line as it was (Kate, 29.09) */
@@ -761,7 +761,8 @@ body::after {
   position: absolute; display: none; z-index: 45; padding: 0; border: 0; background: none;
   cursor: pointer; border-radius: 40% 40% 12% 12%;
 }
-@media (min-width: 1024px) { .desk-lamp, .desk-lamp-switch { display: block; } }
+/* on every width: a phone sees it over the case too (Kate, 30.09) */
+.desk-lamp, .desk-lamp-switch { display: block; }
 :root[data-desk]:not([data-desk="closed"]) .desk-lamp-switch { display: none; }
 .desk-lamp-switch:focus-visible { outline: 2px solid var(--accent-red, #c33); outline-offset: 4px; }
 /* The title column stands over the lamp's shade on wide screens; let the
@@ -1005,10 +1006,10 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
    view they are thin slivers on the desk in front of it, which is the point:
    the files are already on the desk before you look down at them. Out of the
    tab order and click-through until the camera arrives. */
-/* the case files lie 1.5× their size, the row's top edge where it was:
+/* the case files lie 1.275× their size, the row's top edge where it was:
    scaled about Ukrainska 15's top left corner (CASE_ROW in lib/room/pose.ts,
    Kate, 30.09) */
-.desk-cases { position: absolute; inset: 0; transform-origin: calc(1284 * var(--u)) calc(563 * var(--u)); transform: scale3d(1.5, 1.5, 1.5); }
+.desk-cases { position: absolute; inset: 0; transform-origin: calc(1284 * var(--u)) calc(563 * var(--u)); transform: scale3d(1.275, 1.275, 1.275); }
 .desk-card {
   position: absolute;
   width: calc(var(--w) * var(--u)); height: calc(var(--h) * var(--u));
@@ -1108,9 +1109,10 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .stack-sand { position: absolute; left: 50%; top: 50%; width: calc(260 * var(--u)); height: auto; max-width: none;
   transform: translate(-46%, -56%) rotate(-8deg); pointer-events: none; z-index: 0; }
 .stack-truck { position: absolute; left: 50%; top: 50%; width: calc(118 * var(--u)); aspect-ratio: 933 / 428; z-index: 8; pointer-events: none;
-  /* (54 u nearer than it was, clear of the case's right door since the
-     files lie 1.5× their size, Kate, 30.09) */
-  transform: translate(calc(-50% + 48 * var(--u)), calc(-50% - 30 * var(--u))) rotate(-14deg);
+  /* (on the stack's near half, 109 u nearer than it was, and a little
+     right: clear of the case's right door since the files lie larger,
+     Kate, 30.09) */
+  transform: translate(calc(-50% + 60 * var(--u)), calc(-50% + 25 * var(--u))) rotate(-14deg);
   transition: transform .8s cubic-bezier(.65, 0, .2, 1); }
 .stack-truck::before { content: ""; position: absolute; left: -2%; right: -4%; top: 0; bottom: -10%;
   background: radial-gradient(closest-side, rgba(20,16,12,.42), rgba(20,16,12,.2) 60%, transparent); }
@@ -1165,15 +1167,16 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
 .calc::before { content: ""; position: absolute; left: -4%; right: -8%; top: -2%; bottom: -5%;
   background: radial-gradient(closest-side, rgba(20,16,12,.4), rgba(20,16,12,.18) 70%, transparent); }
-.calc__top { position: absolute; inset: 0; transform: translateZ(calc(13 * var(--u))); }
+.calc__top { position: absolute; inset: 0; transform: translateZ(calc(8 * var(--u))); }
 .calc img { position: relative; display: block; width: 100%; height: 100%; }
-/* its walls, 13 desk px (~12 mm) of the body's cream plastic */
+/* its walls, 8 desk px (~7 mm) of the body's cream plastic: slimmer than
+   the 13 it had, which read as a brick from the room (Kate, 30.09) */
 .calc__wall { position: absolute; display: block; background: linear-gradient(#d6d0bf, #b9b2a0); }
-.calc__wall--front { left: 2%; right: 2%; top: 99%; height: calc(13 * var(--u)); transform-origin: 50% 0; transform: rotateX(90deg); }
-.calc__wall--back { left: 2%; right: 2%; bottom: 99%; height: calc(13 * var(--u)); transform-origin: 50% 100%; transform: rotateX(-90deg); }
-.calc__wall--left { top: 1.5%; bottom: 1.5%; right: 98.5%; width: calc(13 * var(--u)); transform-origin: 100% 50%; transform: rotateY(90deg);
+.calc__wall--front { left: 2%; right: 2%; top: 99%; height: calc(8 * var(--u)); transform-origin: 50% 0; transform: rotateX(90deg); }
+.calc__wall--back { left: 2%; right: 2%; bottom: 99%; height: calc(8 * var(--u)); transform-origin: 50% 100%; transform: rotateX(-90deg); }
+.calc__wall--left { top: 1.5%; bottom: 1.5%; right: 98.5%; width: calc(8 * var(--u)); transform-origin: 100% 50%; transform: rotateY(90deg);
   background: linear-gradient(90deg, #b9b2a0, #d6d0bf); }
-.calc__wall--right { top: 1.5%; bottom: 1.5%; left: 98.5%; width: calc(13 * var(--u)); transform-origin: 0 50%; transform: rotateY(-90deg);
+.calc__wall--right { top: 1.5%; bottom: 1.5%; left: 98.5%; width: calc(8 * var(--u)); transform-origin: 0 50%; transform: rotateY(-90deg);
   background: linear-gradient(90deg, #d6d0bf, #b9b2a0); }
 /* the display (11.5–90.2% across, 16.4–30.3% down) */
 .calc__lcd { position: absolute; left: 11.5%; width: 78.7%; top: 16.4%; height: 13.9%; box-sizing: border-box; padding-right: 6%;
@@ -1249,7 +1252,9 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .desk-card--env { transform-style: preserve-3d; --env-t: calc(6.5 * var(--u)); }
 .desk-card--env[data-open] { --env-t: 0px; }
 .env__edge, .env__player { position: absolute; display: block; pointer-events: none; transition: opacity .3s ease; }
-.env__edge--front { left: 1.2%; right: 3.1%; top: 97.9%; height: var(--env-t); transform-origin: 50% 0; transform: rotateX(90deg);
+/* (from 97.1%: over the pocket picture's pale bottom rim, which showed as a
+   seam between the top and this edge, Kate, 30.09) */
+.env__edge--front { left: 1.2%; right: 3.1%; top: 97.1%; height: var(--env-t); transform-origin: 50% 0; transform: rotateX(90deg);
   background: linear-gradient(#a81b0e, #7c1309); }
 .env__edge--right { top: .4%; bottom: 2.1%; left: 96.9%; width: var(--env-t); transform-origin: 0 50%; transform: rotateY(-90deg);
   background: linear-gradient(90deg, #b01d0f, #86150a); }
@@ -1316,10 +1321,11 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env__sticker--ux    { right: 27%; top: 44%; width: 18%; --t: 6deg; }
 .env__sticker--kudos { right: 5%;  top: 55%; width: 18%; --t: 14deg; }
 .env__sticker--inn   { right: 20%; top: 64%; width: 16%; --t: -12deg; }
-/* French Design Awards' shield, die-cut round its outline: its shadow is
-   baked into the file (a box-shadow would be a rectangle). 33% of the folder
-   with the file's margin = an A7 sticker. */
-.env__sticker--fda { left: 5%; top: 45%; width: 33%; --t: -6deg; border-radius: 0; box-shadow: none; }
+/* French Design Awards' shield, die-cut round its outline, in the bottom
+   right corner under MUSE and the CSSDA stickers, clear of the 15 (Kate,
+   01.10): its shadow is baked into the file (a box-shadow would be a
+   rectangle). 22% of the folder with the file's margin, about A8. */
+.env__sticker--fda { right: 4%; bottom: 4%; width: 22%; --t: -6deg; border-radius: 0; box-shadow: none; }
 
 /* ── Ukrainska 15 (U15File) ──
    Layers, back to front: the tablet (tucked under the folder) · the folder's
@@ -1461,13 +1467,13 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the row runs off the right of the window and the camera pans along it:
    --pan, in desk px, set by useDeskCamera once it has arrived. Moving the
    camera by d is moving the world by -d, then rotating about the original
-   camera point: translate (-pan, 226 + 204, 2150 - 398.5), and 57.2 less
-   out since the case files lie 1.5× their size, the row's middle that
+   camera point: translate (-pan, 226 + 204, 2150 - 398.5), and 31.5 less
+   out since the case files lie 1.275× their size, the row's middle that
    much nearer (FILES_Z in lib/room/pose.ts, Kate, 30.09). */
 [data-desk="open"] .scene-cam { transform: translate(var(--dx, 0px), var(--dy, 0px)); }
 [data-desk="open"] .desk-world,
 [data-desk="open"] .case-world {
-  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1694.3 * var(--u)));
+  transform: rotateX(-90deg) translate3d(calc((var(--pan, 0) - 200) * -1 * var(--u)), calc(430 * var(--u)), calc(1720.04 * var(--u)));
 }
 [data-desk="open"] .desk-world { pointer-events: auto; }
 /* from home (no data-desk yet, or "closed"), the files take a click: it
@@ -1539,31 +1545,42 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: translate3d(calc(1423 * var(--u)), 0px, 0px);
 }
 [data-desk="offduty"] .case-world { pointer-events: none; }
-/* Phones: a phone sees a strip of what a 1440px window does, so at the
-   wall's two stops and over Profile a finger pans along the room too
-   (--pan, desk px, from useDeskCamera), and Profile's axis is on the
-   binder's middle rather than 70 px left of it (Kate, 27.09). The planes
-   take the touch, so a drag on bare wall or desk is a pan. */
-@media (max-width: 767px) {
-  [data-desk="award"] .desk-world, [data-desk="award"] .case-world {
-    transform: translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), 0px, 0px);
-  }
-  [data-desk="offduty"] .desk-world, [data-desk="offduty"] .case-world {
-    transform: translate3d(calc((1423 - var(--pan, 0)) * var(--u)), 0px, 0px);
+/* Under 1024 the Profile binder shows one page at a time, on the right
+   (Binder.tsx `single`), and the camera looks at that page alone, zoomed in
+   until it fills the window (--pfz from useDeskCamera; PF_PAGE, pfZoom in
+   lib/room/pose.ts) — no pan: a swipe turns the page (Kate, 01.10). */
+@media (max-width: 1023px) {
+  [data-desk="profile"] .scene-cam {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(var(--pfz, 1)) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
   }
   [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
-    transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
+    transform: rotateX(-90deg) translate3d(calc(-1558.2 * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
   }
-  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
-  /* at the wall a phone's lens zooms in 1.35× about the camera's axis
-     (WALL_ZOOM_NARROW in lib/room/pose.ts, Kate, 30.09) */
-  :is([data-desk="award"], [data-desk="offduty"]) .scene-cam {
-    transform: translate(var(--dx, 0px), 0px) translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
+  [data-desk="profile"] .scene-cam { touch-action: none; }
+}
+/* Phones: home and the wall's two stops are one panorama (Kate, 01.10):
+   a finger slides the camera along the room from Off Duty on the left,
+   past the case, to Recognition on the right, and the stop changes on the
+   way (useDeskCamera, PANO in lib/room/pose.ts). --pano-x is the world's
+   x there (desk px, on <main>). The page takes the touch anywhere over
+   the room, so a drag on bare wall or desk is a slide; at the case the page
+   still scrolls up and down. */
+@media (max-width: 767px) {
+  :root:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) :is(.desk-world, .case-world) {
+    transform: translate3d(calc(var(--pano-x, 0) * var(--u)), 0px, 0px);
   }
-  /* at the case the page still scrolls up and down, but a sideways swipe is
-     the room's: it walks to Recognition or Off Duty (useDeskCamera) */
-  :root:is(:not([data-desk]), [data-desk="closed"]) .scene-cam { touch-action: pan-y; }
-  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
+  /* along it the lens zooms in 1.35× about the camera's axis, so the
+     picture keeps its scale (WALL_ZOOM_NARROW in lib/room/pose.ts, Kate,
+     30.09), and keeps home's place: no lens shift at the wall either */
+  :root:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) .scene-cam {
+    transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
+  }
+  :root:is(:not([data-desk]), [data-desk="closed"]) :is(main:has(.case-stage), .scene-cam) { touch-action: pan-y; }
+  :is([data-desk="award"], [data-desk="offduty"]) :is(main:has(.case-stage), .scene-cam) { touch-action: none; }
+  :is([data-desk="award"], [data-desk="offduty"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
+  /* the edition's line under the case goes along with it, and the night's
+     lamp pool with the lamp */
+  :is(.hero-caption, .night-room) { translate: var(--pano-shift, 0px) 0; }
 }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
@@ -1807,6 +1824,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 @property --aside-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --aside-muted { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --aside-on-fg { syntax: "<color>"; inherits: true; initial-value: transparent; }
+/* The line under the title is 16px at every width, in the hero's column and
+   in the menu (Kate, 29.09 and 01.10; 14 from 26.09), and the wordmark a size
+   up where it heads a column. */
+.hero-aside, #nav-panel { --t-lead: 16px; }
+.hero-aside, footer { --t-mark: 24px; }
 .hero-aside-wrap {
   --aside-fg: var(--fg); --aside-muted: var(--muted); --aside-on-fg: var(--bg);
   transition: --aside-fg .6s ease 1.05s, --aside-muted .6s ease 1.05s, --aside-on-fg .6s ease 1.05s;
@@ -1814,28 +1836,36 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .hero-aside-wrap .hero-aside { --fg: var(--aside-fg); --muted: var(--aside-muted); --on-fg: var(--aside-on-fg); }
 /* Under 1024 home's column stands over the case: the bar above it (SideNav)
    carries the wordmark and the index behind its latch, so the column keeps
-   only the title and the line under it.  */
+   the title, the line under it and the two calls (Kate, 30.09). */
 @media (max-width: 1023px) {
-  .hero-aside-wrap .hero-aside > p:first-child, .hero-aside-wrap .nav-index { display: none; }
+  .hero-aside-wrap .hero-aside > p:first-child, .hero-aside-wrap .nav-index > :not(.nav-calls) { display: none; }
+  .hero-aside-wrap .nav-index { margin-top: 12px; }
+  .hero-aside-wrap .nav-calls { margin-top: 0; }
   .hero-aside-wrap .hero-aside .t-title { margin-top: 0; }
   /* lifted over the room: the scene's planes are positioned and stacked, and
      a static block goes under all of them. Under the bar (z 60) so the bar
      still covers it once the page scrolls. */
   .hero-aside-wrap { position: relative; z-index: 50; transition: opacity .4s ease, visibility 0s linear .4s; }
-  /* It is the case's caption: once the camera leaves the case for any stop
-     on the desk, it stays behind rather than hanging over the new view
-     (Kate, 27.09). */
-  :root[data-desk]:not([data-desk="closed"]) .hero-aside-wrap { opacity: 0; visibility: hidden; }
-  :root:not([data-desk]) .hero-aside-wrap, :root[data-desk="closed"] .hero-aside-wrap { transition-delay: .6s, 0s; }
+  /* It stays at the top at every stop, as it does on a wide window
+     (Kate, 30.09: it used to stay behind with the case) — but over the desk,
+     where the files and the binder's page need the screen (Kate, 01.10). */
+  :root:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { opacity: 0; visibility: hidden; }
 }
-@media (min-width: 1024px) { :is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; } }
+/* a short phone (iPhone SE, 375 × 667): the column 20 px under the bar, and
+   the title, its line and the calls 8 px apart (Kate, 01.10) */
+@media (max-width: 767px) and (max-height: 700px) {
+  .hero-aside-wrap { margin-top: -38px; }
+  .hero-aside-wrap .hero-aside h2 + p { margin-top: 8px; }
+  .hero-aside-wrap .nav-index { margin-top: 8px; }
+}
+:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; }
 /* …and under 1024 px the bar over the desk (logo, Menu): home's ink is the
    night's, cream, and the bar is bare — by day on the paper of Case Files
    it takes the desk's ink too, while the menu is shut (open, it stands on
    the page's own dark). */
 @media (max-width: 1023px) { :root[data-desk="open"]:not([data-night]) header:not(:has(#nav-panel)) > nav { --fg: #22283a; } }
 /* …unless the room is out (NightCam): then the desk is dark and the ink is the night's */
-@media (min-width: 1024px) { :root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; } }
+:root[data-night]:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #efe7d8; --aside-muted: rgba(239, 231, 216, .62); --aside-on-fg: #15171d; }
 @media (prefers-reduced-motion: reduce) { .hero-aside-wrap { transition: none; } }
 /* Glass: one recipe for the column's pane and Kate's speech panel
    (.katetalk), so the two read as the same material — the scene behind
@@ -1864,9 +1894,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    objects under it still pick up. */
 @media (min-width: 1024px) {
   .hero-aside { position: relative; isolation: isolate; }
-  /* the line under the title and the index are both 16px at every width
-     (Kate, 29.09; 14 from 26.09); later than the 1024–1439 rule, so it wins there too */
-  .hero-aside { --t-body: 16px; }
+  /* the index is 16px at every width, as the line under the title (Kate, 29.09) */
   .hero-aside .nav-index a[data-stop] { font-size: 16px; }
   /* and Let's Talk / CV at 16 too, up from .t-label's 12 (Kate, 29.09) */
   .hero-aside .nav-call { font-size: 16px; }
@@ -1975,7 +2003,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    corner is not there at home; it is back the moment the camera sets off
    for any stop. Visibility, not opacity: below 1, opacity would flatten the
    wallet's halves out of 3D. */
-:root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
+/* (on a phone home is the middle of one panorama with Off Duty: the corner
+   stays, as the finger slides there) */
+@media (min-width: 768px) {
+  :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
+}
 [data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-side-l,.desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
 [data-desk="award"] :is(.desk-side-l,.od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic),
 [data-desk="profile"] :is(.desk-wall, .desk-ply, .desk-under, .desk-side-l,.desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
@@ -2004,9 +2036,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 .flip-clock-slot {
   position: absolute; left: calc(-169.6 * var(--u)); top: calc(524.4 * var(--u)); width: calc(430.4 * var(--u));
   transform-origin: 0 0; transform: translateZ(calc(135 * var(--u))) scale(.55); pointer-events: auto;
-  display: none;
 }
-@media (min-width: 1024px) { .flip-clock-slot { display: block; } }
+/* (on every width: a phone sees it by the case too, Kate, 30.09) */
 /* Its shadows, for the room's key (above, in front, to the left): a tight
    dark line where the base meets the desk, and the body's shadow falling
    back and to the right — mostly behind it, showing as a soft edge off its
@@ -2091,6 +2122,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   --t-lead: 20px;
   --t-body: 16px;
   --t-label: 12px;
+  --t-ui: 13px;
+  --t-mark: 18px;
 }
 @media (max-width: 768px) {
   :root {
@@ -2137,6 +2170,27 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   letter-spacing: 0.18em;
   text-transform: uppercase;
   line-height: 1.3;
+}
+/* ui    the menu's links and buttons, in the headline's voice
+   mark  the wordmark, KATE™
+   (font-weight too, so the fallback shown until Archivo arrives is as heavy) */
+.t-ui {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+  font-variation-settings: "wdth" 90, "wght" 700;
+  font-size: var(--t-ui);
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+.t-mark {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 900;
+  font-variation-settings: "wdth" 100, "wght" 900;
+  font-size: var(--t-mark);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--fg);
 }
 
 /* ── KATE™ talks back ──────────────────────────────────────────────────────

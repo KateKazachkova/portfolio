@@ -71,8 +71,8 @@ html.bk.bk-film .od-sleeve { box-shadow: none !important; }
 html.bk.bk-film .od-sleeve__strip, html.bk.bk-step .od-sleeve__strip { visibility: hidden !important; }
 /* the БУДЬ sheet's prints are baked on their own, the sheet without them,
    and its sleeve's plastic, which lies over them, on its own too */
-html.bk:not(.bk-bud) .desk-binder .pf-print, html.bk:not(.bk-bud) .desk-binder .pf-print * { visibility: hidden !important; }
-html.bk:not(.bk-gloss) .desk-binder .pf-face__full:has(.pf-prints)::after { display: none !important; }
+html.bk:not(.bk-bud):not(.bk-pfs) .desk-binder .pf-print, html.bk:not(.bk-bud):not(.bk-pfs) .desk-binder .pf-print * { visibility: hidden !important; }
+html.bk:not(.bk-gloss):not(.bk-pfs) .desk-binder .pf-face__full:has(.pf-prints)::after { display: none !important; }
 html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) { background: none !important; }
 html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) > .pf-sheet, html.bk.bk-gloss .desk-binder .pf-face__full:has(.pf-prints) > .pf-sheet * { visibility: hidden !important; }
 html.bk.bk-bud .desk-binder :is(.pf-face, .pf-face__full, .pf-sheet):has(.pf-prints) { overflow: visible !important; }
@@ -163,14 +163,16 @@ const stackOf = new Map(JSON.parse(await b.ev(`JSON.stringify([...document.query
 // show: WebGL turns at once, and the leaves under them, which a turning
 // leaf uncovers, would lie over them in its fixed order. Put back after.
 const LEAVES = "document.querySelectorAll('.desk-binder .pf-leaf')";
+// the binder open at spread k: only its two sheets on show
+const spread = (k) => `[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", i < ${k}); l.toggleAttribute("data-hidden", !(i === ${k - 1} || i === ${k})); l.removeAttribute("data-flying"); })`;
 await b.ev(`(window.__pfWas = [...${LEAVES}].map((l) => [l.hasAttribute("data-turned"), l.hasAttribute("data-hidden"), l.hasAttribute("data-flying")])) && 1`);
 const binderN = await b.ev(`${LEAVES}.length`);
 for (let k = 2; k <= 7; k++) {
-  await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", i < ${k}); l.toggleAttribute("data-hidden", !(i === ${k - 1} || i === ${k})); l.removeAttribute("data-flying"); }) || 1`);
+  await b.ev(`${spread(k)} || 1`);
   states[`pf${k}`] = await b.ev(`JSON.stringify(window.__bkState("profile", undefined, "1"))`).then(JSON.parse);
 }
 // (pf1 too, for the way back to the first spread: only its two sheets)
-await b.ev(`[...${LEAVES}].forEach((l, i) => { l.toggleAttribute("data-turned", i < 1); l.toggleAttribute("data-hidden", !(i === 0 || i === 1)); }) || 1`);
+await b.ev(`${spread(1)} || 1`);
 states.pf1 = await b.ev(`JSON.stringify(window.__bkState("profile", undefined, "1"))`).then(JSON.parse);
 await b.ev(`[...${LEAVES}].forEach((l, i) => { const [t, h, f] = window.__pfWas[i]; l.toggleAttribute("data-turned", t); l.toggleAttribute("data-hidden", h); l.toggleAttribute("data-flying", f); }) || 1`);
 log("binder", binderN, "leaves, 7 spreads");
@@ -658,6 +660,44 @@ if (OPT.only !== "desk") for (const f of flat) {
   // offset of the trimmed picture from the element's own box, in u
   out.flat.push({ sig: f.sig, group: f.group, cls: f.cls, src: `/room/tex/${name}.webp`, px: [res.w, res.h],
     x: (box.x + res.x / rho - r.ex) / u, y: (box.y + res.y / rho - r.ey) / u, w: res.w / rho / u, h: res.h / rho / u, ew: r.ew / u, eh: r.eh / u });
+}
+
+// ── the one-sided binder (under 1024 px, Binder.tsx singleOf): one picture
+// of the whole binder per page ──────────────────────────────────────────
+// Under 1024 the page's binder has every document on a sleeve of its own,
+// on the right. The WebGL room draws it as it lies at the page the page's
+// binder is at (engine.ts, scene.json items with `pfs`), in flight and
+// from the other stops; at Profile at rest the page's own stands in, and
+// turns its sleeves itself — so a still per page is all it needs: pfs 1 …
+// 13, and 0, the first page blank (before the first visit to Profile, as
+// DeskBinder's blank pages). The page is told to lay it out one-sided in
+// this wide window (window.__pfSingle); last of all, since its leaves are
+// built anew, without the bake's marks.
+if (OPT.only !== "flat") {
+  const rootIt = out.items.find((x) => (" " + x.cls + " ").includes(" desk-binder ") && !x.leaf);
+  const pfSingle = (on) => b.ev(`(window.__pfSingle = ${on}, dispatchEvent(new Event("room:pf-single")), new Promise(r => setTimeout(() => r(1), 600)))`);
+  if (!rootIt) log("no binder");
+  else {
+    await unpose();
+    await pfSingle(true);
+    const pages = await b.ev(`${LEAVES}.length`) - 1;
+    const f = JSON.parse(await b.ev(`(()=>{const e=document.querySelector('.desk-binder');return JSON.stringify({m:window.__bkWorld(e)})})()`));
+    const items = [];
+    for (let k = 0; k <= pages; k++) {
+      const at = Math.max(1, k);
+      const setup = `(()=>{document.documentElement.classList.add('bk-pfs'${k === 0 ? ", 'bk-blank'" : ""});${spread(at)};
+        document.querySelectorAll('.desk-binder .pf-hangleaf').forEach((h)=>h.removeAttribute('data-flipped'));return 1})()`;
+      const undo = "document.documentElement.classList.remove('bk-pfs', 'bk-blank') || 1";
+      const got = await bakeAs({ i: rootIt.i, rho: 4 }, `pfs-${String(k).padStart(2, "0")}`, setup, undo);
+      if (!got) { log("one-sided page empty", k); continue; }
+      items.push({ i: 9700 + k, cls: `pf-binder pfs-${k}`, anc: rootIt.anc, tag: rootIt.tag, type: "tex", src: got.src, px: got.px, rho: got.rho,
+        w: got.w, h: got.h, m: toU(mulLocal(f.m, got.ox, got.oy), u), op: 1, blend: "normal", order: rootIt.order, need: 4, vis: false, pfs: k });
+    }
+    await unpose();
+    await pfSingle(false);
+    out.items.push(...items);
+    log("one-sided binder", items.length, "pages");
+  }
 }
 
 if (OPT.only === "flat") {

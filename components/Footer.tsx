@@ -21,7 +21,7 @@ export default function Footer() {
         {/* top row */}
         <div className="flex flex-wrap items-start justify-between gap-8 mb-10">
           <div>
-            <div className="font-black uppercase tracking-tight text-2xl" style={{ color: "var(--fg)" }}>
+            <div className="t-mark">
               KATE<span style={{ color: "var(--accent-red)" }}>™</span>
             </div>
             <div style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.15em" }} className="uppercase mt-1" >

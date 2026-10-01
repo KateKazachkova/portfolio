@@ -17,7 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
-import { FILES_SPD, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
+import { EASE, FILES_SPD, isPano, PANO, pfZoom, SINGLE_Q, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -249,8 +249,8 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
       </div>
       {ready.has("award") && (
       <a
-        className="desk-cert" href="/artefacts/cert-indigo-women-in-design-2026.webp" target="_blank" rel="noopener noreferrer"
-        tabIndex={-1} aria-label="Indigo Design Award – Women in Design, shortlisted 2026 (certificate)"
+        className="desk-cert" href="https://www.indigoaward.com/women-in-design/winners/AB9HJF" target="_blank" rel="noopener noreferrer"
+        tabIndex={-1} aria-label="Indigo Design Award – Women in Design, shortlisted 2026 (its page on Indigo)"
         style={{
           left: `calc(${CERT.x - CERT.w / 2} * var(--u))`, top: `calc(${656 - CERT.h} * var(--u))`,
           width: `calc(${CERT.w} * var(--u))`, height: `calc(${CERT.h} * var(--u))`,
@@ -355,6 +355,9 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const root = document.documentElement;
     const el = cam.current;
     if (!el) return;
+    // (a phone's panorama takes a finger anywhere over the page's room, not
+    // only on the camera's box: under the WebGL room that is the stage alone)
+    const surface = el.closest("main") ?? el;
     root.dataset.deskReady = "1";
 
     // The lens shift: how far the scene must slide for the camera's principal
@@ -366,6 +369,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       const u = r.width / 1118;
       el.style.setProperty("--dx", `${innerWidth / 2 - (r.left + 560 * u)}px`);
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);
+      // under 1024 Profile looks at one page of the binder, as large as the
+      // window takes it (globals.css, the WebGL room's pose)
+      if (matchMedia(SINGLE_Q).matches) el.style.setProperty("--pfz", pfZoom(innerWidth, innerHeight, u).toFixed(4));
+      else el.style.removeProperty("--pfz");
     };
 
     const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player");
@@ -375,39 +382,101 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // move a target; a spring eases the camera onto it. Live only once the
     // camera has arrived — until then the move's own transition is running.
     let pan = 0, target = 0, raf = 0, arrived = false;
-    const u = () => el.getBoundingClientRect().width / 1118;
+    // (off the stage, not the camera: a pinch scales the camera's box)
+    const u = () => (el.parentElement ?? el).getBoundingClientRect().width / 1118;
     const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (spd() * u())));
-    // On phones the wall's stops and Profile pan too, either side of where
-    // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
-    // Screen px per desk px there: ~1 on the wall, 2150 / 936 over Profile.
-    const narrow = () => matchMedia("(max-width: 767px)").matches;
+    // On phones the wall's stops pan too, either side of where they stand:
+    // as far as a 1440px window sees past a phone's (Kate, 27.09). Screen px
+    // per desk px there: ~1. (Profile does not: a swipe turns its page.)
+    const phone = matchMedia("(max-width: 767px)");
+    const narrow = () => phone.matches;
     // screen px per desk px over the desk (× --u)
     const spd = () => FILES_SPD;
-    const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : narrow() ? WALL_ZOOM_NARROW : 1);
+    const spdNow = () => (open.current === "files" ? spd() : narrow() ? WALL_ZOOM_NARROW : 1);
     // (the wall's px per desk px is its zoom: reach is in desk px, as seen)
-    const reach = () => open.current === "profile" ? Math.max(0, (720 - innerWidth / 2 / u()) / spdNow()) : Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
+    const reach = () => Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
+    // ── A phone's panorama (Kate, 01.10): home and the wall's two stops are
+    // one strip of room, Off Duty on the left, Recognition on the right (PANO
+    // in lib/room/pose.ts). The camera is at x = PANO[stop] + pan along it,
+    // from Off Duty's reach to Recognition's; a finger slides it the whole
+    // way, and the stop it is at follows x (zoneOf), changed on the way
+    // without a move of its own (slideTo). The index's links slide it to
+    // their stop (glideTo). Case Files and Profile stay moves of their own. ──
+    // (null: home)
+    const isPanoView = (v: View | null) => isPano(v ?? "home");
+    const pano = () => narrow() && isPanoView(open.current);
+    const baseOf = (v: View | null) => { const s = v ?? "home"; return isPano(s) ? PANO[s] : 0; };
     const clamp = (v: number) => open.current === "files"
       ? Math.min(maxPan(), Math.max(0, v))
+      : pano() ? Math.min(PANO.award + reach(), Math.max(PANO.offduty - reach(), baseOf(open.current) + v)) - baseOf(open.current)
       : Math.min(reach(), Math.max(-reach(), v));
+    // the stop at x: past the halfway line to the next by 24 desk px before
+    // it changes, so a finger resting on the line does not flick it to and fro
+    const zoneOf = (x: number): View | null => {
+      const cur = open.current, h = 24;
+      const l = (PANO.offduty + PANO.home) / 2 + (cur === "offduty" ? h : -h);
+      const r = (PANO.home + PANO.award) / 2 + (cur === "award" ? -h : h);
+      return x < l ? "offduty" : x > r ? "award" : null;
+    };
     const counter = document.querySelector<HTMLElement>(".desk-counter");
     const paint = () => {
+      // along the panorama, into another stop's half: the pan carried over
+      // to that stop's own, so the camera stays where it is
+      if (pano() && arrived) {
+        const z = zoneOf(baseOf(open.current) + pan);
+        if (z !== open.current) {
+          const d = baseOf(open.current) - baseOf(z);
+          pan += d; target += d; dragFrom += d;
+          slideTo(z);
+        }
+      }
+      // (the stage's size read before anything is written: no layout forced)
+      const q = pano() ? u() : 0;
       el.style.setProperty("--pan", pan.toFixed(2));
-      if (counter) {
+      // (the world's x along it, for the stops' CSS and the page's case,
+      // clock and lamp over the WebGL room, and how far that moves the case
+      // on screen, for its caption under it: globals.css, room.css)
+      if (q) {
+        const px = -(baseOf(open.current) + pan);
+        surface.style.setProperty("--pano-x", px.toFixed(2));
+        surface.style.setProperty("--pano-shift", `${(px * q * WALL_ZOOM_NARROW).toFixed(1)}px`);
+      }
+      if (counter && open.current === "files") {
         const centre = VIEW_X + pan + 120 / spd();
         let best = 0;
         CASES.forEach((c, i) => { if (Math.abs(rowX(c.x) - centre) < Math.abs(rowX(CASES[best].x) - centre)) best = i; });
-        counter.textContent = `${best + 1} / ${CASES.length}`;
+        const text = `${best + 1} / ${CASES.length}`;
+        if (counter.textContent !== text) counter.textContent = text;
       }
     };
     // with reduced motion the camera is simply where it is sent
     const still = prefersReducedMotion();
     // (under a finger or the mouse the desk stays with it: the spring only
-    // brings it in after a flick, a wheel, a key or a click)
-    const tick = () => {
-      pan = still || dragX !== null ? target : pan + (target - pan) * 0.16;
-      if (Math.abs(target - pan) < 0.2) pan = target;
+    // brings it in after a flick, a wheel, a key or a click; a glide along
+    // the panorama runs its own curve, in x)
+    let glide: { from: number; to: number; t0: number; dur: number } | null = null;
+    const tick = (now: number) => {
+      if (glide) {
+        const k = glide.dur > 0 ? Math.min(1, Math.max(0, (now - glide.t0) / glide.dur)) : 1;
+        pan = target = glide.from + (glide.to - glide.from) * EASE.cam(k) - baseOf(open.current);
+        if (k >= 1) glide = null;
+      } else {
+        pan = still || dragX !== null ? target : pan + (target - pan) * 0.16;
+        if (Math.abs(target - pan) < 0.2) pan = target;
+      }
       paint();
-      raf = pan === target ? 0 : requestAnimationFrame(tick);
+      raf = glide || pan !== target ? requestAnimationFrame(tick) : 0;
+    };
+    // The index's link to a stop along the panorama: the camera slides to
+    // where that stop stands (its pan 0: the case with the doll in the
+    // middle, the helmet half past the left edge, the trophy cut by it as
+    // a wide window shows them), passing what lies between
+    const glideTo = (v: View | null) => {
+      resetZoom();
+      const from = baseOf(open.current) + pan, to = baseOf(v);
+      if (Math.abs(to - from) < 0.5) { glide = null; go(to - baseOf(open.current)); return; }
+      glide = { from, to, t0: performance.now(), dur: still ? 0 : Math.min(1800, 700 + Math.abs(to - from) * 0.45) };
+      if (!raf) raf = requestAnimationFrame(tick);
     };
     const go = (v: number) => { target = clamp(v); if (!raf) raf = requestAnimationFrame(tick); };
 
@@ -428,7 +497,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
 
     // the desk pans; on wider screens the wall is one still frame
-    const panning = () => arrived && (open.current === "files" || (!!open.current && narrow()));
+    const panning = () => arrived && (open.current === "files" || pano());
     const onWheel = (e: WheelEvent) => {
       if (!panning()) return;
       e.preventDefault();
@@ -442,11 +511,18 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     let dragX: number | null = null, dragFrom = 0, dragged = false;
     let lastX = 0, lastT = 0, vel = 0; // px per ms, screen x
     const onDown = (e: PointerEvent) => {
-      if (!panning() || e.button !== 0) return;
+      // (a new press is a new click: what a drag left over is spent, unless
+      // this is a pinch's second finger)
+      if (touches.size <= 1) dragged = false;
+      if (!panning() || e.button !== 0 || zoomed() || touches.size > 1) return;
+      if (!narrow() && !el.contains(e.target as Node)) return;
+      // (a finger on the panorama stops the index's glide where it is, and
+      // the URL, the glide's stop until now, is the stop it stopped at)
+      if (glide) { glide = null; target = pan; urlFor(viewOf(location.hash), open.current); }
       // a print being carried, or a page being turned, is not a pan
       if (document.documentElement.dataset.u15 && (e.target as HTMLElement).closest?.(".u15-item, .u15-print")) return;
       dragX = lastX = e.clientX; lastT = e.timeStamp; vel = 0;
-      dragFrom = target; dragged = false;
+      dragFrom = target;
     };
     const onMove = (e: PointerEvent) => {
       if (dragX === null) return;
@@ -463,7 +539,74 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (dragged && e.pointerType !== "mouse" && e.timeStamp - lastT < 80 && Math.abs(vel) > 0.3)
         go(target - (vel * 260) / (spdNow() * u()));
     };
-    // a drag that ends on a card is not a click on it
+    // ── A phone's pinch (Kate, 30.09): two fingers zoom the camera's lens in
+    // (1 to 3×) about where they are and move the picture; zoomed in, one
+    // finger moves it too, and does not pan. The
+    // page's layers take it as translate and scale on the camera, the WebGL
+    // room as --pz, --pox, --poy (components/room/engine.ts); a new stop
+    // starts at 1× again. ──
+    const zoom = { s: 1, ox: 0, oy: 0 };
+    const touches = new Map<number, { x: number; y: number }>();
+    let pinch: { d: number; s: number; mx: number; my: number; ox: number; oy: number } | null = null;
+    let slide: { x: number; y: number; ox: number; oy: number } | null = null;
+    const zoomable = () => arrived && narrow() && !!open.current;
+    const zoomed = () => zoom.s > 1.001 || !!pinch;
+    // the lens axis on screen, relative to the camera's box: where the stop's
+    // own transform puts (560, 226)
+    const axis = () => {
+      const r = (el.parentElement ?? el).getBoundingClientRect(), q = u();
+      const dx = parseFloat(el.style.getPropertyValue("--dx")) || 0, dy = parseFloat(el.style.getPropertyValue("--dy")) || 0;
+      // (the wall's stops keep home's picture, as one panorama with it: no lens shift)
+      const wall = open.current === "award" || open.current === "offduty";
+      return { x: 560 * q + (wall ? 0 : dx), y: 226 * q + (wall ? 0 : dy), left: r.left, top: r.top };
+    };
+    const applyZoom = () => {
+      const a = axis();
+      if (zoom.s <= 1.001) { zoom.s = 1; zoom.ox = zoom.oy = 0; }
+      const lim = (zoom.s - 1) * Math.max(innerWidth, innerHeight) * 0.6;
+      zoom.ox = Math.max(-lim, Math.min(lim, zoom.ox)); zoom.oy = Math.max(-lim, Math.min(lim, zoom.oy));
+      el.style.translate = zoom.s === 1 ? "" : `${a.x * (1 - zoom.s) + zoom.ox}px ${a.y * (1 - zoom.s) + zoom.oy}px`;
+      el.style.scale = zoom.s === 1 ? "" : String(zoom.s);
+      el.style.setProperty("--pz", String(zoom.s));
+      el.style.setProperty("--pox", String(zoom.ox));
+      el.style.setProperty("--poy", String(zoom.oy));
+    };
+    const resetZoom = () => { zoom.s = 1; zoom.ox = zoom.oy = 0; pinch = slide = null; touches.clear(); applyZoom(); };
+    const onTouchDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" || !zoomable()) return;
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (touches.size === 2) {
+        const [p1, p2] = [...touches.values()];
+        pinch = { d: Math.hypot(p2.x - p1.x, p2.y - p1.y) || 1, s: zoom.s, mx: (p1.x + p2.x) / 2, my: (p1.y + p2.y) / 2, ox: zoom.ox, oy: zoom.oy };
+        slide = null; dragX = null; dragged = true;
+      } else if (touches.size === 1 && zoomed()) {
+        slide = { x: e.clientX, y: e.clientY, ox: zoom.ox, oy: zoom.oy };
+      }
+    };
+    const onTouchMove = (e: PointerEvent) => {
+      if (!touches.has(e.pointerId)) return;
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pinch && touches.size >= 2) {
+        const [p1, p2] = [...touches.values()];
+        const s1 = Math.max(1, Math.min(3, pinch.s * Math.hypot(p2.x - p1.x, p2.y - p1.y) / pinch.d));
+        const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2, a = axis();
+        // the point under the fingers stays under them as they spread
+        const qx = pinch.mx - a.left, qy = pinch.my - a.top;
+        zoom.ox = qx - a.x - (s1 / pinch.s) * (qx - a.x - pinch.ox) + (mx - pinch.mx);
+        zoom.oy = qy - a.y - (s1 / pinch.s) * (qy - a.y - pinch.oy) + (my - pinch.my);
+        zoom.s = s1; applyZoom();
+      } else if (slide) {
+        zoom.ox = slide.ox + e.clientX - slide.x; zoom.oy = slide.oy + e.clientY - slide.y; applyZoom();
+      }
+    };
+    const onTouchUp = (e: PointerEvent) => {
+      if (!touches.delete(e.pointerId)) return;
+      if (touches.size < 2) pinch = null;
+      if (touches.size === 0) slide = null;
+    };
+    // a drag that ends on a card is not a click on it (nor, along a phone's
+    // panorama, on anything over the room: the case's own, the index's)
+    const onDragClick = (e: MouseEvent) => { if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; } };
     const onClick = (e: MouseEvent) => {
       // from home, any of the files is a way in to Case Files, as the award
       // in the case is to Recognition
@@ -472,7 +615,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
         dispatchEvent(new Event(DESK_EVENT));
         return;
       }
-      if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; return; }
       // the first click on a case brings the camera to it and lays it out;
       // a click on the case in focus goes on to its page
       const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-slug]:not(.desk-card--env)");
@@ -500,52 +642,81 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     window.addEventListener("room:case-focus", onGlCaseFocus);
     // on the camera, not the world: under ?gl=1 the world is only built if
     // the WebGL room fails to start (RoomGL), after this has run
+    // (home too: on a phone the panorama slides once the camera is back)
+    const atRest = () => { arrived = true; if (open.current || narrow()) root.dataset.deskArrived = "1"; };
     const onArrive = (e: TransitionEvent) => {
-      if (!(e.target as Element).classList?.contains("desk-world") || e.propertyName !== "transform" || !open.current) return;
-      arrived = true; root.dataset.deskArrived = "1";
+      if (!(e.target as Element).classList?.contains("desk-world") || e.propertyName !== "transform") return;
+      atRest();
     };
     el.addEventListener("transitionend", onArrive);
     // the WebGL room (?gl=1) has no CSS move to end: it says when it is there
-    const onGlArrive = () => { if (!open.current) return; arrived = true; root.dataset.deskArrived = "1"; };
+    const onGlArrive = () => atRest();
     window.addEventListener("room:arrive", onGlArrive);
     // the WebGL room gave up (no WebGL, or its context lost for good) with the
     // camera at a stop: the CSS world is built there, already where it is
     // sent, so no move ends — once it stands still, it has arrived
     const offGl = onGl(() => {
-      if (glOn() || !open.current) return;
+      if (glOn() || arrived) return;
       requestAnimationFrame(() => requestAnimationFrame(() => {
         const w = el.querySelector(".desk-world");
         const moving = !!w?.getAnimations().some((a) => (a as CSSTransition).transitionProperty === "transform");
-        if (open.current && !arrived && !moving) { arrived = true; root.dataset.deskArrived = "1"; }
+        if (!arrived && !moving) atRest();
       }));
     });
+    // what the page is at a stop, however the camera came: its state, the
+    // page held still, the ribbons in the tab order at Recognition
+    const showStop = (v: View | null) => {
+      root.dataset.desk = v ? STATE[v] : "closed";
+      document.body.style.overflow = v ? "hidden" : "";
+      el.querySelectorAll<HTMLElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
+    };
     const set = (v: View | null) => {
+      // along a phone's panorama, at rest: a slide there, not a move
+      if (arrived && pano() && isPanoView(v)) { glideTo(v); return; }
       if (v === open.current) return;
       if (v && !open.current) window.scrollTo({ top: 0 });
       if (v) measure();
       open.current = v;
       // leaving the desk (home, or on to the wall): the pan unwinds with the
       // rest of the move
-      arrived = false; delete root.dataset.deskArrived;
+      arrived = false; delete root.dataset.deskArrived; delete root.dataset.deskSlid;
       if (v !== "files") { dispatchEvent(new Event(U15_RESET)); setFocus(null); }
-      cancelAnimationFrame(raf); raf = 0; pan = target = 0; paint();
-      root.dataset.desk = v ? STATE[v] : "closed";
-      document.body.style.overflow = v ? "hidden" : "";
+      cancelAnimationFrame(raf); raf = 0; glide = null; pan = target = 0; paint(); resetZoom();
+      showStop(v);
       // A wheel listener that can cancel the scroll holds every scroll of the
       // page until it has run, so it is there only while the desk pans.
       if (v === "files") window.addEventListener("wheel", onWheel, { passive: false });
       else window.removeEventListener("wheel", onWheel);
       cards().forEach((a) => (a.tabIndex = v === "files" ? 0 : -1));
-      el.querySelectorAll<HTMLElement>(".award-ribbon, .desk-cert").forEach((a) => (a.tabIndex = v === "award" ? 0 : -1));
       // with reduced motion there is no move, so no transitionend: the camera
       // is where it was sent at once
-      if (still && v) { arrived = true; root.dataset.deskArrived = "1"; }
+      if (still) atRest();
+    };
+    // The camera slid into another stop's half of the panorama (paint): the
+    // page is that stop's from here — its controls, its night, its URL — the
+    // camera already where it is, html[data-desk-arrived] kept (so neither
+    // the CSS room nor the WebGL one moves: engine.ts, the slide).
+    const slideTo = (v: View | null) => {
+      const was = open.current;
+      open.current = v;
+      root.dataset.deskSlid = "1";
+      showStop(v);
+      // (the index's glide has put its stop in the URL already)
+      if (!glide) urlFor(was, v);
+    };
+    // The URL of the stop the finger has slid to (from was): the stop's own
+    // entry, as the index would make it from the case; back at the case,
+    // that entry goes again (onPop), or the URL is home's
+    const urlFor = (was: View | null, v: View | null) => {
+      if (!v) { if (pushed) { pushed = false; popping = true; history.back(); } else if (location.hash) history.replaceState(null, "", "/"); }
+      else if (!was && !location.hash) { history.pushState({ desk: 1 }, "", `/${HASH[v]}`); pushed = true; }
+      else if (location.hash !== HASH[v]) history.replaceState({ desk: 1 }, "", `/${HASH[v]}`);
     };
 
     // Opened by us, it has a history entry of its own and closing is Back.
     // Arrived at /#case-files directly, there is nothing behind it on this
     // site, so closing rewrites the URL instead of leaving.
-    let pushed = false;
+    let pushed = false, popping = false;
     const close = () => {
       if (pushed) { pushed = false; history.back(); }
       else { history.replaceState(null, "", "/"); set(null); }
@@ -553,7 +724,8 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // Its own link again closes a view; the other one's moves straight across,
     // in the same history entry.
     const toggle = (v: View) => {
-      if (open.current === v) close();
+      // (along a phone's panorama the stop's link again slides back to it)
+      if (open.current === v && !(arrived && pano())) close();
       else if (open.current) { history.replaceState({ desk: 1 }, "", `/${HASH[v]}`); set(v); }
       else { history.pushState({ desk: 1 }, "", `/${HASH[v]}`); pushed = true; set(v); }
     };
@@ -561,12 +733,23 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     const onAward = () => toggle("award");
     const onProfile = () => toggle("profile");
     const onOffDuty = () => toggle("offduty");
-    const onPop = () => { pushed = false; set(viewOf(location.hash)); };
+    const onPop = () => {
+      // (the entry a slide back to the case let go: if the finger has slid
+      // out again meanwhile, the stop it is at has one again)
+      if (popping) {
+        popping = false;
+        if (open.current && pano()) { history.pushState({ desk: 1 }, "", `/${HASH[open.current]}`); pushed = true; }
+        return;
+      }
+      pushed = false; set(viewOf(location.hash));
+    };
     // A link to home (the KATE™ wordmark) from the desk or the wall: Next
     // changes the URL with pushState, which fires no popstate, so the camera
     // would stay where it is. Take the click and bring it back to the case.
     const onHomeLink = (e: MouseEvent) => {
-      if (!open.current || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      // (on a phone's panorama home slid aside is still away from the case)
+      const away = !!open.current || (arrived && pano() && Math.abs(pan) > 0.5);
+      if (!away || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element).closest?.("a[href]") as HTMLAnchorElement | null;
       if (!a || a.target === "_blank") return;
       const u = new URL(a.href, location.href);
@@ -574,25 +757,6 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       e.preventDefault(); e.stopPropagation();
       close();
     };
-    // Phones: a swipe along the room walks from stop to stop – from the case
-    // to Recognition on its right or Off Duty on its left, and from either
-    // back to the case once the pan is already at that side (Kate, 27.09).
-    let sw: { x: number; y: number; atEdge: boolean } | null = null, swiped = false;
-    const onSwipeDown = (e: PointerEvent) => {
-      swiped = false;
-      if (!narrow() || e.pointerType === "mouse" || (open.current && open.current !== "award" && open.current !== "offduty")) { sw = null; return; }
-      const edge = open.current === "award" ? -reach() : reach();
-      sw = { x: e.clientX, y: e.clientY, atEdge: !open.current || Math.abs(target - edge) < 1 };
-    };
-    const onSwipeUp = (e: PointerEvent) => {
-      if (!sw || e.type !== "pointerup") { sw = null; return; }
-      const dx = e.clientX - sw.x, dy = e.clientY - sw.y, atEdge = sw.atEdge;
-      sw = null;
-      if (Math.abs(dx) < 60 || Math.abs(dx) < 1.5 * Math.abs(dy)) return;
-      if (!open.current) { swiped = true; toggle(dx < 0 ? "award" : "offduty"); }
-      else if (atEdge && (open.current === "award" ? dx > 0 : dx < 0)) close();
-    };
-    const onSwipeClick = (e: MouseEvent) => { if (swiped) { swiped = false; e.preventDefault(); e.stopPropagation(); } };
     const onKey = (e: KeyboardEvent) => {
       if (!open.current) return;
       if (e.key === "Escape") {
@@ -605,7 +769,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
         go(target + (e.key === "ArrowRight" ? 1 : -1) * 220);
       }
     };
-    const onResize = () => { if (open.current) { measure(); go(target); } };
+    const onResize = () => { if (open.current) measure(); if (open.current || pano()) go(target); };
 
     // opening Ukrainska 15's folder lays it out for the camera where pan 0
     // was before the row was scaled: the same place on the folder
@@ -623,17 +787,20 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     document.addEventListener("click", onHomeLink, true);
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
-    el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointerdown", onSwipeDown);
-    window.addEventListener("pointerup", onSwipeUp);
-    window.addEventListener("pointercancel", onSwipeUp);
-    el.addEventListener("click", onSwipeClick, true);
+    surface.addEventListener("pointerdown", onTouchDown);
+    window.addEventListener("pointermove", onTouchMove);
+    window.addEventListener("pointerup", onTouchUp);
+    window.addEventListener("pointercancel", onTouchUp);
+    surface.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
+    surface.addEventListener("click", onDragClick, true);
     el.addEventListener("click", onClick, true);
     el.addEventListener("focusin", onFocus);
     set(viewOf(location.hash));
+    // (at the case from the start: at rest there, and on a phone free to slide)
+    if (!open.current) atRest();
 
     return () => {
       window.removeEventListener(U15_OPEN, onU15);
@@ -648,14 +815,15 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("wheel", onWheel);
-      el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointerdown", onSwipeDown);
-      window.removeEventListener("pointerup", onSwipeUp);
-      window.removeEventListener("pointercancel", onSwipeUp);
-      el.removeEventListener("click", onSwipeClick, true);
+      surface.removeEventListener("pointerdown", onTouchDown);
+      window.removeEventListener("pointermove", onTouchMove);
+      window.removeEventListener("pointerup", onTouchUp);
+      window.removeEventListener("pointercancel", onTouchUp);
+      surface.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
+      surface.removeEventListener("click", onDragClick, true);
       el.removeEventListener("click", onClick, true);
       el.removeEventListener("focusin", onFocus);
       el.removeEventListener("transitionend", onArrive);
@@ -665,6 +833,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       window.removeEventListener("room:case-focus", onGlCaseFocus);
       cancelAnimationFrame(raf);
       delete root.dataset.deskArrived;
+      delete root.dataset.deskSlid;
       delete root.dataset.deskReady;
       delete root.dataset.desk;
       // and forget the view with it, or a remount (React's dev double run,

@@ -72,7 +72,9 @@ export default function DeskLamp({ flat = false }: { flat?: boolean }) {
         width: `calc(${LAMP_W} * var(--u))`,
         height: `calc(${LAMP.h} * var(--u))`,
         transform,
-      }}
+        // (its depth's scale, for a phone's panorama: components/room/room.css)
+        ...(flat ? { "--k": K } : {}),
+      } as React.CSSProperties}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/items/lamp-off.webp" alt="" draggable={false} className="desk-lamp__img" />

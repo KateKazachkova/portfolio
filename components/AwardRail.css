@@ -48,6 +48,7 @@
   transform: translate(-50%, -50%) rotate(-90deg);
 }
 .award-ribbon__logo {
+  height: calc(var(--rw) * .66 * var(--lk, 1) * var(--u));
   background: var(--ink);
   -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat;
 }

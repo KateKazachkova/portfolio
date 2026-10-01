@@ -33,17 +33,20 @@ const caseOf = (project: string): string | null =>
     : SLUG[project] && isWritten(SLUG[project]) ? `/work/${SLUG[project]}` : null;
 const LOGO: Record<string, string | null> = {
   "MUSE Creative Awards": "muse",
-  "CSS Design Awards": "cssda",
-  "CSS Winner": "cssw",
-  "CSS Nectar": "nectar",
-  "Design Nominees": "dn",
+  "CSS Design Awards": "cssda-mark",    // *-mark: cropped to the mark, for the ribbon
+  "CSS Winner": "cssw-mark",
+  "CSS Nectar": "nectar-row",            // the bird and the name in one line
+  "Design Nominees": "dn-mark",
   "London Design Awards": "lda",
   "NYX Awards": "nyx",
   "Indigo Design Award": "indigo",
   "NY Product Design Awards": "nypda",
   "Davey Awards": "davey",
-  "French Design Awards": null,          // no logo on file: its name instead
+  "French Design Awards": "french",       // thin serifs: drawn at twice the others' width
 };
+// A logo about as tall as it is wide fills the satin's width, not its length:
+// these may take more of that width than the rest.
+const LOGO_K: Record<string, number> = { "cssda-mark": 1.35, "cssw-mark": 1.35, "dn-mark": 1.4 };
 
 type Level = "gold" | "silver" | "bronze" | "web";
 const levelOf = (recognition: string): Level =>
@@ -164,7 +167,7 @@ export default function AwardRail() {
                   data-label={what}
                 >
                   {logo
-                    ? <span className="award-ribbon__logo" style={{ "--logo": `url(/stamps/awards/${logo}.webp)` } as React.CSSProperties} />
+                    ? <span className="award-ribbon__logo" style={{ "--logo": `url(/stamps/awards/${logo}.webp)`, ...(LOGO_K[logo] ? { "--lk": LOGO_K[logo] } : {}) } as React.CSSProperties} />
                     : <span className="award-ribbon__name">{r.organisation.replace(/ Awards?$/, "")}</span>}
                 </Ribbon>
                 </div>

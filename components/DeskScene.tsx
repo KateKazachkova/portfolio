@@ -17,7 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
-import { EASE, FILES_SPD, isPano, PANO, pfZoom, SINGLE_Q, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
+import { EASE, FILES_SPD, isPano, PANO, PANO_TRIM_L, PANO_WIDE, panoOf, pfZoom, rowX, SINGLE_Q } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -344,19 +344,24 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // (off the stage, not the camera: a pinch scales the camera's box)
     const u = () => (el.parentElement ?? el).getBoundingClientRect().width / 1118;
     const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (spd() * u())));
-    // On phones the wall's stops pan too, either side of where they stand:
-    // as far as a 1440px window sees past a phone's (Kate, 27.09). Screen px
-    // per desk px there: ~1. (Profile does not: a swipe turns its page.)
-    const phone = matchMedia("(max-width: 767px)");
-    const narrow = () => phone.matches;
+    // On phones and tablets the wall's stops pan too, either side of where
+    // they stand: as far as a 1440px window sees past theirs (Kate, 27.09).
+    // Screen px per desk px there: ~1. (Profile does not: a swipe turns its page.)
+    const single = matchMedia(SINGLE_Q);
+    const narrow = () => single.matches;
+    // the window's panorama: where its stops stand and its lens's zoom (1.35
+    // on a phone, 1 on a tablet)
+    const at = () => panoOf(innerWidth) ?? PANO_WIDE;
     // screen px per desk px over the desk (× --u)
     const spd = () => FILES_SPD;
-    const spdNow = () => (open.current === "files" ? spd() : narrow() ? WALL_ZOOM_NARROW : 1);
-    // (the wall's px per desk px is its zoom: reach is in desk px, as seen)
+    const spdNow = () => (open.current === "files" ? spd() : at().z);
+    // (the wall's px per desk px is its zoom: reach is in desk px, as seen;
+    // past the wall's stops as wide a window stands them, PANO, so a tablet's
+    // stops further out do not slide it past the room's ends)
     const reach = () => Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
-    // ── A phone's panorama (Kate, 01.10): home and the wall's two stops are
+    // ── The panorama under 1024 px (Kate, 01.10): home and the wall's two stops are
     // one strip of room, Off Duty on the left, Recognition on the right (PANO
-    // in lib/room/pose.ts). The camera is at x = PANO[stop] + pan along it,
+    // and panoOf in lib/room/pose.ts). The camera is at x = at()[stop] + pan along it,
     // from Off Duty's reach to Recognition's; a finger slides it the whole
     // way, and the stop it is at follows x (zoneOf), changed on the way
     // without a move of its own (slideTo). The index's links slide it to
@@ -364,17 +369,18 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // (null: home)
     const isPanoView = (v: View | null) => isPano(v ?? "home");
     const pano = () => narrow() && isPanoView(open.current);
-    const baseOf = (v: View | null) => { const s = v ?? "home"; return isPano(s) ? PANO[s] : 0; };
+    const baseOf = (v: View | null) => { const s = v ?? "home"; return isPano(s) ? at()[s] : 0; };
     const clamp = (v: number) => open.current === "files"
       ? Math.min(maxPan(), Math.max(0, v))
-      : pano() ? Math.min(PANO.award + reach(), Math.max(PANO.offduty - reach(), baseOf(open.current) + v)) - baseOf(open.current)
+      : pano() ? Math.min(PANO.award + reach(), Math.max(PANO.offduty - Math.max(0, reach() - PANO_TRIM_L), baseOf(open.current) + v)) - baseOf(open.current)
       : Math.min(reach(), Math.max(-reach(), v));
     // the stop at x: past the halfway line to the next by 24 desk px before
     // it changes, so a finger resting on the line does not flick it to and fro
     const zoneOf = (x: number): View | null => {
       const cur = open.current, h = 24;
-      const l = (PANO.offduty + PANO.home) / 2 + (cur === "offduty" ? h : -h);
-      const r = (PANO.home + PANO.award) / 2 + (cur === "award" ? -h : h);
+      const { offduty, home, award } = at();
+      const l = (offduty + home) / 2 + (cur === "offduty" ? h : -h);
+      const r = (home + award) / 2 + (cur === "award" ? -h : h);
       return x < l ? "offduty" : x > r ? "award" : null;
     };
     const counter = document.querySelector<HTMLElement>(".desk-counter");
@@ -398,7 +404,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       if (q) {
         const px = -(baseOf(open.current) + pan);
         surface.style.setProperty("--pano-x", px.toFixed(2));
-        surface.style.setProperty("--pano-shift", `${(px * q * WALL_ZOOM_NARROW).toFixed(1)}px`);
+        surface.style.setProperty("--pano-shift", `${(px * q * at().z).toFixed(1)}px`);
       }
       if (counter && open.current === "files") {
         const centre = VIEW_X + pan + 120 / spd();

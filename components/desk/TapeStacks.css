@@ -93,7 +93,8 @@
 /* its card beside it, as the books' (BookShelf.css .bs-card), at the
    standing tape's top */
 /* the stack stands at the frame's right edge, so its card goes left */
-.vt-card { left: calc((var(--w) - var(--d)) * .5 * var(--u) - 184 * var(--u));
+/* as wide as a book's: it says why, a paragraph or two */
+.vt-card { width: calc(260 * var(--u)); left: calc((var(--w) - var(--d)) * .5 * var(--u) - 274 * var(--u));
   top: calc((var(--t) - var(--w)) * .5 * var(--u));
   transform: translateZ(calc((var(--t) - var(--d)) * .5 * var(--u))); }
 

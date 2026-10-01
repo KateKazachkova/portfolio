@@ -78,12 +78,13 @@
   font-family: Arial, Helvetica, sans-serif; font-weight: 400;
   box-shadow: 0 calc(4 * var(--u)) calc(12 * var(--u)) rgba(0,0,0,.35);
   opacity: 0; pointer-events: none; transition: opacity .2s ease; }
-.bs-book .bs-card { transform: translateZ(calc((var(--w) - var(--d)) * .5 * var(--u))); }
+/* a book's slip is wider: it says why, a paragraph or two */
+.bs-book .bs-card { width: calc(260 * var(--u)); transform:translateZ(calc((var(--w) - var(--d)) * .5 * var(--u))); }
 [data-open] > .bs-card { opacity: 1; transition: opacity .35s ease .85s; }
 .bs-comic[data-open] > .bs-card { transition-delay: .4s; }
 .bs-card__title { font-size: calc(13 * var(--u)); font-weight: 700; line-height: 1.15; }
 .bs-card__meta { font-size: calc(10 * var(--u)); color: #5b6275; letter-spacing: .02em; }
-.bs-card__why { font-size: calc(11 * var(--u)); line-height: 1.4; }
+.bs-card__why { font-size: calc(11 * var(--u)); line-height: 1.4; white-space: pre-line; }
 
 @media (prefers-reduced-motion: reduce) {
   .bs-book, .bs-book__body, .bs-comic, .bs-card { transition-duration: 0s !important; transition-delay: 0s !important; }

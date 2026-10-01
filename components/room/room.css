@@ -4,7 +4,8 @@
 html[data-gl] .desk-world { display: none !important; }
 html[data-gl] .scene-cam { transform: none !important; perspective: none !important; transition: none !important; }
 html[data-gl] .case-world { transform: none !important; transition: none !important; opacity: 1 !important; animation: none !important; }
-/* …but a phone's lens is zoomed 1.35× at home (WALL_ZOOM_NARROW in
+/* …but under 1024 px home is the middle of a panorama, and a phone's lens is
+   zoomed 1.35× there (--pano-z, globals.css; panoOf in
    lib/room/pose.ts), so the page's case, clock and lamp, which stand in for
    WebGL's at rest there, are drawn as large, about the camera's axis, or the
    case shrank and floated as the camera came home (Kate, 01.10). And they
@@ -12,10 +13,10 @@ html[data-gl] .case-world { transform: none !important; transition: none !import
    by their own depth's share of it, as the camera sees them (their --k,
    2150 / (2150 − z): below, and DeskLamp's K) — at the wall's stops too, so where WebGL takes
    them over on the way the page's are already where it draws them. */
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   html[data-gl]:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) :is(.case-world, .room-home) {
     transform-origin: 0 0 !important;
-    transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc((-560 + var(--pano-x, 0)) * var(--u)), calc(-226 * var(--u))) !important;
+    transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(var(--pano-z, 1)) translate(calc((-560 + var(--pano-x, 0)) * var(--u)), calc(-226 * var(--u))) !important;
   }
   html[data-gl] .room-home :is(.flip-clock-slot, .desk-lamp) { translate: calc(var(--pano-x, 0) * (var(--k) - 1) * var(--u)) 0; }
 }
@@ -41,7 +42,7 @@ html[data-gl]:not([data-gl-rest="stop"]) .night-cam { opacity: 0 !important; }
 .room-home { position: absolute; inset: 0; pointer-events: none; --u: calc(100cqw / 1118); }
 .room-home .flip-clock-slot {
   --k: calc(2150 / 2015); /* z 135 */
-  transform: translate(calc((-169.6 - 560) * (var(--k) - 1) * var(--u)), calc((524.4 - 226) * (var(--k) - 1) * var(--u))) scale(calc(.55 * var(--k)));
+  transform: translate(calc((var(--clock-x) - 560) * (var(--k) - 1) * var(--u)), calc((524.4 - 226) * (var(--k) - 1) * var(--u))) scale(calc(.55 * var(--k)));
 }
 
 /* The room at home as a still (scripts/room/poster.mjs), from the first

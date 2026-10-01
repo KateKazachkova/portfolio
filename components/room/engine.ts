@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { stopPose, stopShift, SINGLE_Q, isPano, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { stopPose, stopShift, panoOf, SINGLE_Q, isPano, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, CLOCK_DX_NARROW, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
@@ -215,8 +215,10 @@ const LOST_MS = 5000;
 
 export async function startRoom(o: RoomOptions): Promise<Room> {
   const root = document.documentElement;
-  // a phone (under 768 px): home and the wall's stops are one panorama there
-  const narrow = () => innerWidth < 768;
+  // a phone or a tablet (under 1024 px): home and the wall's stops are one
+  // panorama there (pano: where they stand, the lens's zoom)
+  const pano = () => panoOf(innerWidth);
+  const narrow = () => pano() !== null;
   const params = new URLSearchParams(location.search);
   const data: Scene = await (await fetch(o.sceneUrl ?? "/room/scene.json")).json();
   // The wall goes on up past its top, its pictures mirrored above it seam to
@@ -494,6 +496,35 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     });
     room.push({ meshes, item: it, k, slot, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
   }
+  // The player's right end (OffDutyShelf's od-dvd__side--r), until a bake
+  // has it: its left end moved the base's width along, drawn from both
+  // sides. A phone's panorama passes the player on the right, where the
+  // base's top hung over the desk with nothing under it (Kate, 01.10).
+  // (delete once a bake has it)
+  // what is drawn over or beside a plane of the room, shown and faded
+  // with it each frame (the right end here, the live screens below)
+  const follows: { mesh: THREE.Mesh; host: Placed }[] = [];
+  if (!data.items.some((it) => it.cls.includes("od-dvd__side--r"))) {
+    const side = room.find((p) => p.item.cls.split(" ")[0] === "od-dvd__side");
+    const base = room.find((p) => p.item.cls.split(" ")[0] === "od-dvd__base");
+    if (side && base) {
+      const along = new THREE.Matrix4().makeTranslation(base.item.w, 0, 0);
+      for (const hm of side.meshes) {
+        const mat = (hm.material as THREE.ShaderMaterial).clone();
+        mat.side = THREE.DoubleSide;
+        // (the left end's own texture, not clone()'s copy of it)
+        mat.uniforms.map.value = (hm.material as THREE.ShaderMaterial).uniforms.map.value;
+        side.slot.mats.add(mat);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.matrixAutoUpdate = false;
+        mesh.matrix.multiplyMatrices(along, hm.matrix);
+        mesh.matrixWorldNeedsUpdate = true;
+        mesh.name = "od-dvd__side--r";
+        scene.add(mesh);
+        follows.push({ mesh, host: side });
+      }
+    }
+  }
   // Off Duty's cards (what a thing taken out is) show only while it is out:
   // their pictures are loaded then, and let go once it is back (shelf.ts)
   const outOnly = new Set(room.filter((p) => /(^| )bs-card( |$)/.test(p.item.cls)).map((p) => p.slot));
@@ -519,6 +550,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     scene.add(mesh);
     lcd.onChange(() => { tex.needsUpdate = true; dirty = true; kick(); });
     lives.push({ mesh, host, lcd, tex });
+    follows.push({ mesh, host });
   }
   // Off Duty's wallet and player: the open spread's discs, the turn, the
   // disc's flight to the spindle (wallet.ts), laid from the room's state
@@ -915,6 +947,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     void u;
     return c;
   };
+  // (on a phone the clock stands further left, halfway between the DVD
+  // player and the case, as the page's does there: room.css, Kate, 01.10;
+  // a tablet's stays where a wide window's does)
+  const groupAt = (name: string) => name === "clock" && phoneWall.matches
+    ? new THREE.Matrix4().makeTranslation(CLOCK_DX_NARROW, 0, 0).multiply(G.clock)
+    : G[name].clone();
   const groupMeshes = new Map<string, THREE.Mesh[]>();
   let groupsShown = false;
   const blur = makeBlur(renderer);
@@ -937,7 +975,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (clip) mat.uniforms.clip.value.set(clip[0], clip[1], clip[2], clip[3]);
       const mesh = new THREE.Mesh(geo, mat);
       mesh.matrixAutoUpdate = false;
-      mesh.matrix.copy(G[name].clone().multiply(placed(m, w, h)));
+      mesh.matrix.copy(groupAt(name).multiply(placed(m, w, h)));
       mesh.matrixWorldNeedsUpdate = true;
       mesh.renderOrder = base + n++;
       mesh.userData.baseOpacity = mat.uniforms.opacity.value;
@@ -1109,7 +1147,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   document.addEventListener("pointerout", onPointerOut);
 
   // ── the camera ──
-  const pose = new Channel<Pose>(stopPose("home", 0, innerWidth < 768), lerpPose, samePose);
+  const pose = new Channel<Pose>(stopPose("home", 0, panoOf(innerWidth)), lerpPose, samePose);
   const shift = new Channel<number[]>([0, 0], lerp2, same2);
   const caseOp = new Channel<number>(1, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4);
   const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1120,14 +1158,14 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   let waits = 0;
   const readVar = (name: string) => parseFloat(o.cam.style.getPropertyValue(name)) || 0;
   // a stop's pose as the CSS has it now: the pan along the desk at Case Files,
-  // and on a phone along the panorama, home and the wall's stops (useDeskCamera's --pan)
+  // and under 1024 px along the panorama, home and the wall's stops (useDeskCamera's --pan)
   // under 1024 Profile looks at one page, zoomed in (useDeskCamera's --pfz,
   // only set there)
   const pfz = () => readVar("--pfz");
   // the page's lens shift at a stop (useDeskCamera's --dx, --dy)
-  const shiftAt = (v: View) => stopShift(v, readVar("--dx"), readVar("--dy"), narrow());
+  const shiftAt = (v: View) => stopShift(v, readVar("--dx"), readVar("--dy"), pano());
   const poseOf = (v: View) => {
-    const p = stopPose(v, v === "files" || (narrow() && isPano(v)) ? readVar("--pan") : 0, narrow(), v === "profile" ? pfz() : 0);
+    const p = stopPose(v, v === "files" || (narrow() && isPano(v)) ? readVar("--pan") : 0, pano(), v === "profile" ? pfz() : 0);
     // a phone's pinch at a stop (useDeskCamera): the lens zoomed in about its
     // axis, and the picture moved
     if (v !== "home") { p.z *= readVar("--pz") || 1; p.sx += readVar("--pox"); p.sy += readVar("--poy"); }
@@ -1159,7 +1197,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const set = new Set<Slot>();
       // (a binder leaf that only another spread shows loads when it is turned to)
       const shown = (p: Placed) => !outOnly.has(p.slot) && (isBinder(p) ? binderNeeds(p, binderAt) : p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf")));
-      const poses = pans.map((pan) => stopPose(v, pan, narrow(), v === "profile" ? pfz() : 0));
+      const poses = pans.map((pan) => stopPose(v, pan, pano(), v === "profile" ? pfz() : 0));
       for (const p of room) if (shown(p)) for (const ps of poses) if (seenAt(p.item, ps, v === "home")) { set.add(p.slot); break; }
       zoneSlots.set(v, set);
     }
@@ -1357,9 +1395,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const on = p.item.pfs === sAt && !p.meshes[0].userData.away && p.op.value(now) > 0.001;
       for (const m of p.meshes) m.visible = on;
     }
-    for (const l of lives) {
-      l.mesh.visible = l.host.meshes[0].visible;
-      (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
+    for (const f of follows) {
+      f.mesh.visible = f.host.meshes[0].visible;
+      (f.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = f.host.op.value(now);
     }
     renderer.render(scene, camera);
     if (groupsAwayPending && groupsShown) { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.add("room-away"); }
@@ -1545,7 +1583,17 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   };
   phoneBinder.addEventListener("change", onPhone);
   phoneWall.addEventListener("change", onPhone);
-  const onResize = () => { layout(); kick(); };
+  // (and the clock, which stands elsewhere on a phone: groupAt)
+  const onPhoneClock = () => { if (groupsShown) remirror(); else buildGroups(); dirty = true; kick(); };
+  phoneWall.addEventListener("change", onPhoneClock);
+  // (a tablet turned across 1024 px goes in or out of the panorama: what
+  // each stop sees, and whether home has Off Duty's corner, with it)
+  let panoWas = pano();
+  const onResize = () => {
+    layout();
+    if (pano() !== panoWas) { panoWas = pano(); zones(); arrange(view, null, performance.now()); }
+    kick();
+  };
   addEventListener("resize", onResize);
   const ro = new ResizeObserver(onResize);
   ro.observe(o.stage);
@@ -1580,7 +1628,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const warmRT = new THREE.WebGLRenderTarget(64, 64, { depthBuffer: true });
   const warmCam = new THREE.PerspectiveCamera();
   warmCam.matrixAutoUpdate = false; warmCam.matrixWorldAutoUpdate = false;
-  const prewarm = (v: View) => prewarmAt(stopPose(v, 0, narrow(), v === "profile" ? pfz() : 0));
+  const prewarm = (v: View) => prewarmAt(stopPose(v, 0, pano(), v === "profile" ? pfz() : 0));
   // (a flight that waited for its pictures: its way, a few poses along it)
   const prewarmWay = (to: Pose) => { const from = pose.value(performance.now()); for (const k of [0.33, 0.66, 1]) prewarmAt(lerpPose(from, to, k)); };
   const prewarmAt = (p: Pose) => {
@@ -1758,6 +1806,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       removeEventListener("resize", onResize);
       phoneBinder.removeEventListener("change", onPhone);
       phoneWall.removeEventListener("change", onPhone);
+      phoneWall.removeEventListener("change", onPhoneClock);
       setGroupsShown(false);
       for (const t of texCache.values()) t.dispose();
       for (const sl of slots.values()) sl.tex.dispose();

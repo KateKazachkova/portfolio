@@ -687,6 +687,9 @@ body::after {
 /* Phones: the scene half as large again (Kate, 27.09) — the doors run a
    little past the screen's edges; main clips them. */
 @media (max-width: 767px) { .case-stage { width: 132vw; flex-shrink: 0; } }
+/* Tablets: the scene 1.4× as large and lower, so the desk in front of the
+   case runs off the bottom of the screen (Kate, 01.10) */
+@media (min-width: 768px) and (max-width: 1023px) { .case-stage { width: 123.2vw; flex-shrink: 0; margin-top: 4vw; } }
 /* Landscape tablets and small laptops (1024–1439px) get the desktop scene
    itself, just smaller: the case keeps its 1440px share of the width
    (1118 / 1440), so the column beside it and everything on the desk scale
@@ -1577,30 +1580,35 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   }
   [data-desk="profile"] .scene-cam { touch-action: none; }
 }
-/* Phones: home and the wall's two stops are one panorama (Kate, 01.10):
-   a finger slides the camera along the room from Off Duty on the left,
-   past the case, to Recognition on the right, and the stop changes on the
-   way (useDeskCamera, PANO in lib/room/pose.ts). --pano-x is the world's
-   x there (desk px, on <main>). The page takes the touch anywhere over
-   the room, so a drag on bare wall or desk is a slide; at the case the page
-   still scrolls up and down. */
-@media (max-width: 767px) {
+/* Phones and tablets: home and the wall's two stops are one panorama
+   (Kate, 01.10): a finger slides the camera along the room from Off Duty on
+   the left, past the case, to Recognition on the right, and the stop
+   changes on the way (useDeskCamera, PANO in lib/room/pose.ts). --pano-x is
+   the world's x there (desk px, on <main>). The page takes the touch
+   anywhere over the room, so a drag on bare wall or desk is a slide; at the
+   case the page still scrolls up and down. */
+@media (max-width: 767px) { :root { --pano-z: 1.35; } }
+@media (max-width: 1023px) {
   :root:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) :is(.desk-world, .case-world) {
     transform: translate3d(calc(var(--pano-x, 0) * var(--u)), 0px, 0px);
   }
-  /* along it the lens zooms in 1.35× about the camera's axis, so the
-     picture keeps its scale (WALL_ZOOM_NARROW in lib/room/pose.ts, Kate,
-     30.09), and keeps home's place: no lens shift at the wall either */
+  /* along it the lens zooms in about the camera's axis, by --pano-z (1.35 on
+     a phone, 1 on a tablet: panoOf in lib/room/pose.ts, Kate, 30.09 and
+     01.10), the same at each stop, so the picture keeps its scale, and keeps
+     home's place: no lens shift at the wall either */
   :root:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) .scene-cam {
-    transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
+    transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(var(--pano-z, 1)) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
   }
   :root:is(:not([data-desk]), [data-desk="closed"]) :is(main:has(.case-stage), .scene-cam) { touch-action: pan-y; }
   :is([data-desk="award"], [data-desk="offduty"]) :is(main:has(.case-stage), .scene-cam) { touch-action: none; }
   :is([data-desk="award"], [data-desk="offduty"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
-  /* the edition's line under the case goes along with it, and the night's
-     lamp pool with the lamp */
+  /* the edition's line under the case goes along with it (on a tablet:
+     a phone does not show it, below), and the night's lamp pool with the
+     lamp */
   :is(.hero-caption, .night-room) { translate: var(--pano-shift, 0px) 0; }
 }
+/* the edition's line under the case is not shown on a phone (Kate, 01.10) */
+@media (max-width: 767px) { .hero-caption { display: none; } }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
    the room about it. The player: a still standing on the desk, its screen
@@ -1870,6 +1878,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
      where the files and the binder's page need the screen (Kate, 01.10). */
   :root:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { opacity: 0; visibility: hidden; }
 }
+/* a tablet: the title and the line under it run the column's whole width,
+   one line each, so the calls sit higher, clear of the lamp (Kate, 01.10) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-aside-wrap { max-width: none; }
+}
 /* a short phone (iPhone SE, 375 × 667): the column 20 px under the bar, and
    the title, its line and the calls 8 px apart (Kate, 01.10) */
 @media (max-width: 767px) and (max-height: 700px) {
@@ -2022,9 +2035,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    corner is not there at home; it is back the moment the camera sets off
    for any stop. Visibility, not opacity: below 1, opacity would flatten the
    wallet's halves out of 3D. */
-/* (on a phone home is the middle of one panorama with Off Duty: the corner
-   stays, as the finger slides there) */
-@media (min-width: 768px) {
+/* (on a phone or a tablet home is the middle of one panorama with Off Duty:
+   the corner stays, as the finger slides there) */
+@media (min-width: 1024px) {
   :root:is(:not([data-desk]), [data-desk="closed"]) :is(.od-wallet, .od-wallet-shade, .bs, .vt, .od-helmet, .od-comic) { visibility: hidden; }
 }
 [data-desk="open"] :is(.desk-wall, .desk-ply, .desk-under, .desk-top.desk-side-l,.desk-cert, .desk-award, .od-wallet, .od-wallet-shade, .od-dvd, .bs, .vt, .od-helmet, .od-comic, .flip-clock-slot, .desk-lamp),
@@ -2053,10 +2066,14 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    the index has a column of its own to stand under (≥1440px). Positions inside it are percentages of the 1400 × 756 still,
    measured off the file. */
 .flip-clock-slot {
-  position: absolute; left: calc(-169.6 * var(--u)); top: calc(524.4 * var(--u)); width: calc(430.4 * var(--u));
+  --clock-x: -169.6;
+  position: absolute; left: calc(var(--clock-x) * var(--u)); top: calc(524.4 * var(--u)); width: calc(430.4 * var(--u));
   transform-origin: 0 0; transform: translateZ(calc(135 * var(--u))) scale(.55); pointer-events: auto;
 }
-/* (on every width: a phone sees it by the case too, Kate, 30.09) */
+/* (on every width: a phone sees it by the case too, Kate, 30.09) — and on
+   a phone 52 further left, halfway between the DVD player and the case
+   (CLOCK_DX_NARROW in lib/room/pose.ts, for WebGL's; Kate, 01.10) */
+@media (max-width: 767px) { .flip-clock-slot { --clock-x: -221.6; } }
 /* Its shadows, for the room's key (above, in front, to the left): a tight
    dark line where the base meets the desk, and the body's shadow falling
    back and to the right — mostly behind it, showing as a soft edge off its

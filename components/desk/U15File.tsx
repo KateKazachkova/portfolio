@@ -115,7 +115,12 @@ const SPILL_MS = 480, GATHER_MS = 820, COVER_MS = 760;
 type Phase = "closed" | "spill" | "uncover" | "open" | "gather" | "cover";
 const CLOSED_R: Record<string, number> = { card: -1.5, player: 8 };
 
-export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
+export function U15File({ x, y, r, still }: {
+  x: number; y: number; r: number;
+  /** lying closed off the desk (the Case Studies index): only the prints on
+   *  top of the pocket's stacks are fetched, and no player, edges or button */
+  still?: boolean;
+}) {
   const card = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>("closed");
   const open = phase !== "closed";
@@ -140,6 +145,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
   // fetch the full one before it is seen close.
   const [near, setNear] = useState(false);
   useEffect(() => {
+    if (still) return;
     const root = document.documentElement;
     const read = () => { if (root.dataset.desk === "open") { setWarm(true); setNear(true); } };
     read();
@@ -150,7 +156,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
       : setTimeout(() => setWarm(true), 400));
     if (document.readyState === "complete") idle(); else window.addEventListener("load", idle, { once: true });
     return () => { mo.disconnect(); window.removeEventListener("load", idle); };
-  }, []);
+  }, [still]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -257,9 +263,11 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
       {/* the thickness of what lies here closed — the folder and its
           prints, the player — as edges standing up off the desk (edge-on
           from overhead; gone once it opens) */}
+      {!still && <>
       <span className="env__edge env__edge--front" aria-hidden />
       <span className="env__edge env__edge--right" aria-hidden />
       <span className="env__player" aria-hidden><span className="env__player-l" /><span className="env__player-r" /><span className="env__player-b" /></span>
+      </>}
       <span className="env">
         <span className="env__shadow u15-sleeve u15-item" style={sleeve} aria-hidden />
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -292,7 +300,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
                   } as React.CSSProperties}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={warm || open ? `/artefacts/ukrainska-15/${st.key}/${String(n).padStart(2, "0")}.webp` : undefined} alt="" draggable={false} />
+                  <img src={warm || open || (still && n === st.prints[0][0]) ? `/artefacts/ukrainska-15/${st.key}/${String(n).padStart(2, "0")}.webp` : undefined} alt="" draggable={false} />
                 </span>
               );
             })}
@@ -347,9 +355,11 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
           onClick={(e) => { if (e.detail === 0) toggle(); }}   // keyboard
         />
         {/* closed, over the card drawn up out of the pocket on hover */}
+        {!still && <>
         <Link className="u15-view" href="/work/ukrainska-15" tabIndex={-1} aria-hidden={open} onPointerDown={(e) => e.stopPropagation()}>View project →</Link>
 
         <DeskPlayer place={place("player", 12)} held={held === "player"} onGrab={(e, play) => grab("player", play)(e)} />
+        </>}
       </span>
     </div>
   );

@@ -46,11 +46,14 @@ const hrefs = (project: string) =>
 // how the postcards lie under the card, and fanned out beside it
 const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 
-export default function AwardStack({ project, title, sub, role, about, links = [], picture }: {
+export default function AwardStack({ project, title, sub, role, about, links = [], picture, flat }: {
   project: string; title: string; sub: string;
   /** Kate's part in it and when, the line under `sub` */
   role?: string;
   links?: { label: string; href: string; external?: boolean }[];
+  /** lying flat and closed off the desk (the Case Studies index): no tag,
+   *  sticky note or links beside it */
+  flat?: boolean;
   /** what the project is, on the sticky note */
   about: string;
   /** a picture postcard of the project itself, on top of the juries' */
@@ -95,7 +98,7 @@ export default function AwardStack({ project, title, sub, role, about, links = [
           <a className="postcard postcard--picture" href={picture.href} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-label={picture.alt}
             style={{ "--ux": ux, "--uy": uy, "--ur": `${ur}deg`, "--fy": -50 + i * 30, "--fr": "-1deg", zIndex: i + 1 } as React.CSSProperties}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={picture.src} alt="" draggable={false} decoding="async" />
+            <img src={picture.src} alt="" draggable={false} decoding="async" loading={flat ? "lazy" : undefined} />
             <span className="postcard__greet">Greetings from <b>{title}</b></span>
           </a>
         );
@@ -115,6 +118,7 @@ export default function AwardStack({ project, title, sub, role, about, links = [
             : <span key={i} className="jury-card__row">{cells}</span>;
         })}
       </div>
+      {!flat && <>
       <span className="stack-soon" aria-hidden>In progress</span>
       <span className="sticky-note stack-note">
         <span className="sticky-note__kicker">{title}</span>
@@ -125,6 +129,7 @@ export default function AwardStack({ project, title, sub, role, about, links = [
         <a key={l.href} className="jury-tag" href={l.href} tabIndex={-1}
           {...(l.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{l.label}</a>
       ))}
+      </>}
     </>
   );
 }

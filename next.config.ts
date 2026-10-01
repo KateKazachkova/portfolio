@@ -12,10 +12,10 @@ const nextConfig: NextConfig = {
     "/**": ["./public/room/**", "./public/dolls/**", "./public/suitcase/**", "./public/artefacts/**", "./public/items/**", "./public/player/**", "./public/profile/**", "./public/waypro/**", "./public/scene/**", "./public/*.mp4"],
   },
   // The old pages beside the desk are gone: their URLs go to the camera's
-  // stop on home that replaced each, and Contact to home.
+  // stop on home that replaced each, and Contact to home. (/work is a page
+  // again: Case Studies, the index of every case file.)
   async redirects() {
     return [
-      { source: "/work", destination: "/#case-files", permanent: true },
       { source: "/about", destination: "/#profile", permanent: true },
       { source: "/recognition", destination: "/#recognition", permanent: true },
       { source: "/off-duty", destination: "/#off-duty", permanent: true },

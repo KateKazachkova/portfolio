@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { mono } from "@/components/ui/type";
+import { isCasePath } from "@/lib/nav";
 
 export default function Footer() {
   // Home ends on the case: its own column already carries the links and the
@@ -9,7 +10,7 @@ export default function Footer() {
   const path = usePathname();
   if (path === "/") return null;
   // a case file's foot is as wide as its sheet, its edges the page's (app/case.css .case-foot)
-  const box = path.startsWith("/work/") ? "case-foot" : "max-w-6xl mx-auto px-6 py-10";
+  const box = isCasePath(path) ? "case-foot" : "max-w-6xl mx-auto px-6 py-10";
 
   return (
     // No rule of its own: on home the studio floor runs straight through the

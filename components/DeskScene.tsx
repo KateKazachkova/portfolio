@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
-import AwardStack from "@/components/desk/AwardStack";
+import { StackDressing } from "@/components/desk/CaseStack";
 import { useWarm } from "@/components/desk/useWarm";
-import { Calculator, Payslip } from "@/components/desk/OnsiSoftKit";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
 import BookShelf from "@/components/desk/BookShelf";
@@ -74,32 +74,12 @@ const CASES = [
   { slug: "waypro", title: "WayPro", img: "stack", w: 180, h: 120, x: 2149, y: 672, r: 2 },
 ] as const;
 
-// Whose awards a stack holds (lib/awards.ts), and what rides along with it
-// (role: Kate's part in it and when, the card's line under what it is)
-const PROJECT: Record<string, { name: string; sub: string; role: string; about: string }> = {
-  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS", role: "Solo designer 2021–2025 · Design lead 2025–present",
-    about: "A B2B supply-chain platform for bulk materials – sand, gravel and the trucks that haul them. I designed it from the ground up as the sole product designer: research, UX, UI, the design system and handoff." },
-  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS", role: "Solo designer 2024–2025 · Design lead 2025–present",
-    about: "Compliance and benefits SaaS for US government contractors. I have led its redesign since October 2024: support requests down 71%, onboarding completion up 76%." },
-  waypro: { name: "WayPro", sub: "Logistics iOS app", role: "Co-designer · 2024",
-    about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
-};
-// BulkSource moves sand and gravel: its stack lies in a spill of sand with
-// a toy dump truck parked on top (public/items/bulksource, generated).
-// WayPro delivers herbs from farms: moss and fly agarics on its card, and a
-// picture postcard of the app (board 04 of its Behance) on the juries'.
-const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {
-  waypro: [{ label: "Behance ↗", href: "https://www.behance.net/gallery/209626437/WayPro-UIUX-iOS-App", external: true }],
-};
-
 // The first click brings the camera to a card; then its rows open the
 // winner pages.
 function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" }> }) {
   // the objects' pictures wait for the room's own first paint (useWarm)
   const warm = useWarm();
   const pic = (src: string) => (warm ? src : undefined);
-  // no "Read the case" yet: each note says the case study is in progress
-  const links = STACK_LINKS[c.slug] ?? [];
   return (
     <div
       className="desk-card desk-card--stack"
@@ -111,40 +91,8 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
         "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,
       } as React.CSSProperties}
     >
-      {c.slug === "bulksource" && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="stack-sand" src={pic("/items/bulksource/sand.webp")} alt="" draggable={false} decoding="async" />
-      )}
-      {c.slug === "onsisoft" && <Payslip />}
-      {c.slug === "waypro" && (
-        <span className="stack-mush" aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={pic("/items/waypro/mush.webp")} alt="" draggable={false} decoding="async" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-side" src={pic("/items/waypro/mush-side.webp")} alt="" draggable={false} decoding="async" />
-        </span>
-      )}
-      <AwardStack project={PROJECT[c.slug].name} title={c.title} sub={PROJECT[c.slug].sub} role={PROJECT[c.slug].role} about={PROJECT[c.slug].about} links={links}
-        picture={c.slug === "waypro" ? { src: pic("/items/waypro/postcard.webp"), href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
-      {c.slug === "waypro" && (
-        <span className="stack-moss" aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={pic("/items/waypro/moss.webp")} alt="" draggable={false} decoding="async" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-side" src={pic("/items/waypro/moss-side.webp")} alt="" draggable={false} decoding="async" />
-        </span>
-      )}
-      {c.slug === "onsisoft" && <Calculator />}
-      {c.slug === "bulksource" && (
-        <span className="stack-truck" aria-hidden>
-          {/* its side, standing on the centreline (edge-on from above), and
-              its top at the truck's height, so it has a body from the case */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-side" src={pic("/items/bulksource/truck-side.webp")} alt="" draggable={false} decoding="async" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="stack-top" src={pic("/items/bulksource/truck.webp")} alt="" draggable={false} decoding="async" />
-        </span>
-      )}
+      {/* no "Read the case" yet: each note says the case study is in progress */}
+      <StackDressing slug={c.slug} title={c.title} pic={pic} />
     </div>
   );
 }
@@ -152,7 +100,11 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
 const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (the -200 in globals.css)
 // (a file laid out at x lies on the desk at rowX(x): .desk-cases is scaled,
 // and the camera's pan to it goes there)
-const ROW_END = rowX(2149 + 185 + 70); // right edge of the last stack fanned out, plus a margin
+// The row's last: the way to every case file (/work, Case Studies). A plain
+// card for now, its own folder later (Kate, 01.10). Clear of WayPro's
+// mushrooms when that stack is laid out.
+const ALL = { w: 150, h: 104, x: 2470, y: 676, r: -2 };
+const ROW_END = rowX(ALL.x + ALL.w / 2 + 70); // right edge of the row's last, plus a margin
 
 export const DESK_EVENT = "kate:case-files";
 /** The desk hint's "Put the file away": the case in focus goes back. */
@@ -276,6 +228,13 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           ) : (
             <CaseCard key={c.slug} c={c} />
           ))}
+          <Link className="desk-card desk-card--all" href="/work" prefetch={false} data-x={ALL.x} aria-label="View all case studies" style={{
+            left: `calc(${ALL.x} * var(--u))`, top: `calc(${ALL.y} * var(--u))`,
+            "--w": ALL.w, "--h": ALL.h, "--r": `${ALL.r}deg`,
+          } as React.CSSProperties}>
+            <span className="desk-all__k">Case Studies</span>
+            <span className="desk-all__t">View all case studies <span aria-hidden>→</span></span>
+          </Link>
         </nav>
         {/* the Profile, filed, in front of the certificate */}
         {ready.has("profile") && <DeskBinder />}
@@ -630,7 +589,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     // The WebGL room (?gl=1) does not render the cards: its controls stand
     // for them and say which case was clicked, or took focus.
-    const xOf = (e: Event) => CASES.find((c) => c.slug === (e as CustomEvent<string>).detail);
+    const xOf = (e: Event) => [...CASES, { slug: "all", x: ALL.x }].find((c) => c.slug === (e as CustomEvent<string>).detail);
     const onGlCase = (e: Event) => {
       const c = xOf(e);
       if (!c || !panning() || focus === c.slug) return;

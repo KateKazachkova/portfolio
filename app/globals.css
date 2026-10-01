@@ -261,10 +261,6 @@ body > * { position: relative; z-index: 1; }
    the planes were made to match. */
 [data-desk-ready] .studio-plate { display: none; }
 [data-desk-ready] .studio-floor { top: 125%; }
-/* The four studio shadow layers were tuned for the pale sweep. On the desk
-   the shadow is baked into the plate instead, from the case's own bottom
-   profile in the same camera, so these would only double it. */
-[data-desk-ready] .case-shadow { display: none; }
 /* The grain and the ambient wash paint on <body>, under the opaque <main>, so
    on the home page they only ever showed in the strip below it — where, over
    a near-black field, they lifted the ground into a grey band. */
@@ -1102,6 +1098,14 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .sticky-note__status { align-self: flex-start; margin-top: calc(1 * var(--u)); padding: calc(3 * var(--u)) calc(5 * var(--u));
   border: calc(.6 * var(--u)) dashed #22283a; border-radius: calc(1.6 * var(--u));
   font: 700 calc(4.2 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: #22283a; }
+/* The row's last card: the way to Case Studies (/work), every case file.
+   A plain card for now (DeskScene's ALL); its own folder later. */
+.desk-card--all { display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;
+  padding: calc(9 * var(--u)) calc(10 * var(--u)) calc(10 * var(--u)); border-style: dashed; border-color: #b9b2a3; }
+.desk-all__k { font: 700 calc(5 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; color: #776f8a; }
+.desk-all__t { font: 800 calc(12 * var(--u)) / 1.05 var(--font-display), Arial, sans-serif; text-transform: uppercase; letter-spacing: -.005em; }
+.desk-all__t > span { color: #d8352a; }
+[data-desk="open"] .desk-card--all:hover, [data-desk="open"] .desk-card--all:focus-visible { filter: none; border-color: #d8352a; }
 /* BulkSource's sand under the stack (720 × 482) and the toy truck on it
    (933 × 428, ~11 cm long). The truck has no shadow of its own: a soft
    blob under it (no filter on scene objects). Fanned, it drives off the

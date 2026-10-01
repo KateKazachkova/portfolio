@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { stopPose, SINGLE_Q, isPano, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { stopPose, stopShift, SINGLE_Q, isPano, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
@@ -213,6 +213,8 @@ const LOST_MS = 5000;
 
 export async function startRoom(o: RoomOptions): Promise<Room> {
   const root = document.documentElement;
+  // a phone (under 768 px): home and the wall's stops are one panorama there
+  const narrow = () => innerWidth < 768;
   const params = new URLSearchParams(location.search);
   const data: Scene = await (await fetch(o.sceneUrl ?? "/room/scene.json")).json();
   // The wall goes on up past its top, its pictures mirrored above it seam to
@@ -619,7 +621,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     if (v === "files" && hoverSlug && HOVERS.has(hoverSlug)) return p.item.states?.[`files:hover-${hoverSlug}` as View] ?? {};
     // on a phone home is the middle of the panorama: Off Duty's corner,
     // which a wide home leaves out, is there as at Off Duty (globals.css)
-    if (v === "home" && p.item.vis === false && p.item.states?.offduty?.vis && innerWidth < 768) return p.item.states.offduty;
+    if (v === "home" && p.item.vis === false && p.item.states?.offduty?.vis && narrow()) return { ...p.item.states.home, vis: true };
     return p.item.states?.[v] ?? {};
   };
   // What of the binder can show: a spread shows a plane if it is on show
@@ -1088,15 +1090,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const readVar = (name: string) => parseFloat(o.cam.style.getPropertyValue(name)) || 0;
   // a stop's pose as the CSS has it now: the pan along the desk at Case Files,
   // and on a phone along the panorama, home and the wall's stops (useDeskCamera's --pan)
-  const narrow = () => innerWidth < 768;
   // under 1024 Profile looks at one page, zoomed in (useDeskCamera's --pfz,
   // only set there)
   const pfz = () => readVar("--pfz");
-  // the page's lens shift at a stop (useDeskCamera's --dx, --dy): at the
-  // wall the camera only slides sideways from home, so the picture keeps
-  // home's height and the desk stays where it was (Kate, 30.09)
-  // (on a phone the wall keeps home's picture whole, its x too: one panorama)
-  const shiftAt = (v: View) => (v === "home" || (narrow() && isPano(v)) ? [0, 0] : [readVar("--dx"), v === "award" || v === "offduty" ? 0 : readVar("--dy")]);
+  // the page's lens shift at a stop (useDeskCamera's --dx, --dy)
+  const shiftAt = (v: View) => stopShift(v, readVar("--dx"), readVar("--dy"), narrow());
   const poseOf = (v: View) => {
     const p = stopPose(v, v === "files" || (narrow() && isPano(v)) ? readVar("--pan") : 0, narrow(), v === "profile" ? pfz() : 0);
     // a phone's pinch at a stop (useDeskCamera): the lens zoomed in about its
@@ -1341,7 +1339,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // too on a phone: the panorama)
     if (view !== "home" || narrow()) {
       const want = poseOf(view);
-      if (!samePose(want, pose.to)) evaluate(now);
+      // (along a phone's panorama, at rest, only the camera moved: a finger
+      // or the index's glide — no stop to evaluate, nothing to rearrange)
+      if (!samePose(want, pose.to)) {
+        if (narrow() && isPano(view) && !hold && root.dataset.deskArrived !== undefined && viewOfState(root.dataset.desk, root.dataset.deskFocus) === view) { pose.retarget(want, null, now); dirty = true; }
+        else evaluate(now);
+      }
       const sh = shiftAt(view);
       if (!same2(sh, shift.to)) evaluate(now);
     }

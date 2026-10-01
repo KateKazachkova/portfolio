@@ -9,16 +9,15 @@ html[data-gl] .case-world { transform: none !important; transition: none !import
    WebGL's at rest there, are drawn as large, about the camera's axis, or the
    case shrank and floated as the camera came home (Kate, 01.10). And they
    slide with the panorama (--pano-x, useDeskCamera), the clock and the lamp
-   by their own depth's share of it, as the camera sees them: z 135 and −200
-   (k = 2150 / (2150 − z)) — at the wall's stops too, so where WebGL takes
+   by their own depth's share of it, as the camera sees them (their --k,
+   2150 / (2150 − z): below, and DeskLamp's K) — at the wall's stops too, so where WebGL takes
    them over on the way the page's are already where it draws them. */
 @media (max-width: 767px) {
   html[data-gl]:is(:not([data-desk]), [data-desk="closed"], [data-desk="award"], [data-desk="offduty"]) :is(.case-world, .room-home) {
     transform-origin: 0 0 !important;
     transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc((-560 + var(--pano-x, 0)) * var(--u)), calc(-226 * var(--u))) !important;
   }
-  html[data-gl] .room-home .flip-clock-slot { translate: calc(var(--pano-x, 0) * (2150 / 2015 - 1) * var(--u)) 0; }
-  html[data-gl] .room-home .desk-lamp { translate: calc(var(--pano-x, 0) * (2150 / 2350 - 1) * var(--u)) 0; }
+  html[data-gl] .room-home :is(.flip-clock-slot, .desk-lamp) { translate: calc(var(--pano-x, 0) * (var(--k) - 1) * var(--u)) 0; }
 }
 .room-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
 /* The night (components/room/night.ts): while the camera travels WebGL

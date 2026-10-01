@@ -84,6 +84,12 @@ export const PANO = { offduty: -1423, home: 0, award: 1040 } as const;
 export type PanoView = keyof typeof PANO;
 export const isPano = (v: string): v is PanoView => v === "home" || v === "award" || v === "offduty";
 
+/** A stop's lens shift (px) from the page's --dx, --dy: none at home, nor
+ *  along a phone's panorama; at the wall the camera only slides sideways
+ *  from home, so the picture keeps home's height (Kate, 30.09) */
+export const stopShift = (v: View, dx: number, dy: number, narrow: boolean): [number, number] =>
+  v === "home" || (narrow && isPano(v)) ? [0, 0] : [dx, v === "award" || v === "offduty" ? 0 : dy];
+
 /** html[data-desk] (+ data-desk-focus) → the view the CSS draws */
 export function viewOfState(desk: string | undefined, focus: string | undefined): View {
   switch (desk) {
@@ -185,9 +191,9 @@ export function bezier(x1: number, y1: number, x2: number, y2: number) {
   };
 }
 
-export const EASE = { cam: bezier(0.45, 0, 0.55, 1), bike: bezier(0.65, 0, 0.2, 1), ease: bezier(0.25, 0.1, 0.25, 1) };
-/** the camera's move (--cam-t, --cam-wait), the bike's (1.4 s, no wait) */
-export const CAM = { t: 2300, wait: 200, bikeT: 1400 };
+export const EASE = { cam: bezier(0.45, 0, 0.55, 1), ease: bezier(0.25, 0.1, 0.25, 1) };
+/** the camera's move (--cam-t, --cam-wait) */
+export const CAM = { t: 2300, wait: 200 };
 
 /** The case box's width on the page for a window (globals.css, the suitcase
  *  stage), in px — to size things without a page. */

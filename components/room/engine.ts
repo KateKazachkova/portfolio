@@ -54,6 +54,8 @@ type Item = {
   stack?: string;
   /** a Profile binder leaf's plane (bake.mjs, binderturn.ts): its leaf, which face or hung sheet */
   leaf?: { i: number; part: "front" | "back" | "rev" | "hang" | "rigid"; hang?: string };
+  /** the one-sided binder's still at this page (bake.mjs; 0: the first page blank) */
+  pfs?: number;
 };
 /** drawn live over the baked room: the bike computer's screen (lcd.ts) */
 type Live = { id: string; of: string; m: number[]; w: number; h: number };
@@ -496,6 +498,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // their pictures are loaded then, and let go once it is back (shelf.ts)
   const outOnly = new Set(room.filter((p) => /(^| )bs-card( |$)/.test(p.item.cls)).map((p) => p.slot));
   for (const p of room) if (!/(^| )bs-card( |$)/.test(p.item.cls)) outOnly.delete(p.slot);
+  // (and the one-sided binder's stills, one at a time: singleLoad, below)
+  for (const p of room) if (p.item.pfs != null) outOnly.add(p.slot);
   // what is drawn live over its object, shown and faded with it: the bike
   // computer's screen, from the room's state, multiplied onto the unit as
   // the page's LCD is (the bake left the unit's own screen blank)
@@ -600,9 +604,11 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // each plane where the stop puts it
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
-  const isBinder = (p: Placed) => (p.item.anc ?? "").split(" ").includes("desk-binder");
+  // (the one-sided binder's stills, `pfs`, are not the bake's spreads: below)
+  const isBinder = (p: Placed) => p.item.pfs == null && (p.item.anc ?? "").split(" ").includes("desk-binder");
   // under 1024 the page's binder shows one page at a time (Binder.tsx
-  // `single`), which the bake's spreads do not: WebGL draws none of it there
+  // `single`), which the bake's spreads do not: WebGL draws its stills of
+  // the one-sided binder there instead (singles, below)
   const phoneBinder = matchMedia(SINGLE_Q);
   let binderAt = 1;
   // Case Files with a case in focus lies as the bake's files:<slug> (M6: the
@@ -673,9 +679,34 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     for (const { p, sl } of blanks) for (const m of p.mats) { p.slot.mats.delete(m); sl.mats.add(m); m.uniforms.map.value = sl.tex; }
     want([...blankSlots], 0);
   }
+  // The one-sided binder under 1024 px (bake.mjs: a still of the whole
+  // binder per page, pfs 1 … n, and 0 the first page blank, before the first
+  // visit as above): WebGL draws the page the page's binder is at
+  // (room:binder-at), in flight and from the other stops; at Profile at
+  // rest the page's own stands in (hits.ts away) and turns. Only that
+  // page's picture is kept.
+  const singles = room.filter((p) => p.item.pfs != null);
+  const singleSlots = new Set(singles.map((p) => p.slot)), singleBlank = singles.some((p) => p.item.pfs === 0);
+  let singleAt = 1, singleT: ReturnType<typeof setTimeout> | undefined, singleAsked: Slot | null = null;
+  const singleShown = () => (binderWarm || !singleBlank ? singleAt : 0);
+  const singleNow = () => singles.find((p) => p.item.pfs === singleShown());
+  // (a flight waits for it as for the rest of what it will see)
+  const isSingleNow = (p: Placed) => phoneBinder.matches && p === singleNow();
+  // (asked for once a page; until then, and from home, its preview stands in)
+  const singleLoad = () => {
+    const sl = singleNow()?.slot;
+    if (!phoneBinder.matches || !sl || sl === singleAsked) return;
+    singleAsked = sl;
+    want([sl], 0).then(() => {
+      if (singleAsked !== sl) return;
+      for (const q of singleSlots) if (q !== sl) evict(q);
+      dirty = true; kick();
+    });
+  };
   const warmBinder = () => {
     if (binderWarm) return;
     binderWarm = true;
+    singleLoad();
     for (const { p, sl } of blanks) for (const m of p.mats) { sl.mats.delete(m); p.slot.mats.add(m); m.uniforms.map.value = p.slot.tex; }
     for (const sl of blankSlots) { if (sl.state === 0) sl.prio = 9; evict(sl); }
     dirty = true; kick();
@@ -1139,7 +1170,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const from = pose.value(now), need = new Set<Slot>();
     for (const k of [0, 0.25, 0.5, 0.75, 1]) {
       const pp = lerpPose(from, to, k);
-      for (const p of room) if (!need.has(p.slot) && !outOnly.has(p.slot) && (!isBinder(p) || binderNeeds(p, binderAt)) && seenAt(p.item, pp, false)) need.add(p.slot);
+      for (const p of room) if (!need.has(p.slot) && (!outOnly.has(p.slot) || isSingleNow(p)) && (!isBinder(p) || binderNeeds(p, binderAt)) && seenAt(p.item, pp, false)) need.add(p.slot);
     }
     return [...need];
   };
@@ -1167,6 +1198,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     // (setting off for Profile the first time: its sheets filled in, and the
     // flight below waits for them as for any picture it will see)
     if (desk === "profile") warmBinder();
+    // (the one-sided binder's still: not from home, where it is small, but
+    // leaving Profile, or at another stop, whose flight may pass over it)
+    else if (view === "profile" || (desk && desk !== "closed")) singleLoad();
     const v = viewOfState(desk, focus);
     // On a phone the camera slides along the panorama (home and the wall's
     // stops) under the finger, or the index's move: the stop changes on the
@@ -1314,8 +1348,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const pl = poolCh.value(now);
       nu.pool.value.set(pl[0], pl[1], pl[2], pl[3]); nu.poolK.value = pl[4];
     }
-    // under 1024 the page's binder is one-sided (phoneBinder above): its own DOM only
+    // under 1024 the page's binder is one-sided (phoneBinder above): the
+    // bake's still of its page instead of the spreads, unless the page's own
+    // stands in for it
     if (phoneBinder.matches) for (const m of binderMeshes) m.visible = false;
+    const sAt = phoneBinder.matches ? singleShown() : -1;
+    for (const p of singles) {
+      const on = p.item.pfs === sAt && !p.meshes[0].userData.away && p.op.value(now) > 0.001;
+      for (const m of p.meshes) m.visible = on;
+    }
     for (const l of lives) {
       l.mesh.visible = l.host.meshes[0].visible;
       (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
@@ -1438,9 +1479,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // (the binder's sheets once a turn is over: the spread's own kept, the rest let go)
   const binderSettled = (at: number) => { const t = () => { if (binderAt !== at) return; if (binderTurn?.busy(performance.now())) { setTimeout(t, 200); return; } letBinderGo(); }; t(); };
   const onBinder = (e: Event) => {
-    // (a one-sided binder's pages are not the bake's spreads: it turns by itself)
-    if (phoneBinder.matches) return;
     const at = (e as CustomEvent<number>).detail;
+    // (a one-sided binder's pages are not the bake's spreads: it turns by
+    // itself, and its still follows)
+    // (it loads once the page has been on show a moment, not for every page
+    // leafed past, and at the latest as the camera sets off: evaluate)
+    if (phoneBinder.matches) { singleAt = at; clearTimeout(singleT); singleT = setTimeout(singleLoad, 1200); dirty = true; kick(); return; }
     if (at === binderAsked) return;
     binderAsked = at;
     // at rest the page's panel has turned at once: veiled at once (this is
@@ -1488,8 +1532,12 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const moNight = new MutationObserver(() => { nightTo(view, performance.now(), rest); dirty = true; kick(); });
   moNight.observe(root, { attributes: true, attributeFilter: ["data-night", "data-lamp"] });
   // a phone turned across either width: the binder and the wall's mirror as the page's then
-  const binderMeshes = room.filter(isBinder).flatMap((p) => p.meshes);
+  // (the board's edges stay, one-sided too)
+  const binderMeshes = room.filter((p) => isBinder(p) && !/(^| )pf-edge( |$)/.test(p.item.cls)).flatMap((p) => p.meshes);
   const onPhone = () => {
+    // (the stills' previews are only fetched where they are drawn)
+    if (phoneBinder.matches) previews([...singleSlots].filter((sl) => !sl.loTex));
+    singleLoad();
     const now = performance.now();
     for (const p of room) if (isBinder(p)) p.meshes[0].userData.dirty = true;
     arrange(view, null, now, isMirror);
@@ -1549,7 +1597,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // what the first view shows, now; the rest once it is in, while idle
   const t0 = performance.now();
   let homeAt = 0;
-  previews([...slots.values()].filter((sl) => !never.has(sl))).then(() => { root.dataset.glPreviews = "1"; });
+  previews([...slots.values()].filter((sl) => !never.has(sl) && (phoneBinder.matches || !singleSlots.has(sl)))).then(() => { root.dataset.glPreviews = "1"; });
   want([...(zoneSlots.get(view) ?? [])], 0).then(() => {
     homeAt = performance.now() - t0;
     root.dataset.glZone = "1";
@@ -1697,6 +1745,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       if (raf > 0) cancelAnimationFrame(raf);
       raf = -2;
       mo.disconnect(); moCam.disconnect(); ro.disconnect(); moNight.disconnect(); moLoad.disconnect();
+      clearTimeout(singleT);
       wallet?.dispose(); screen?.dispose(); u15?.dispose(); bud?.dispose(); ribbons?.dispose(); shelf?.dispose(); binderTurn?.dispose(); moFlip.disconnect(); moGroups.disconnect();
       removeEventListener("pointermove", onPointer); removeEventListener("pointerdown", onPointer);
       document.removeEventListener("pointerout", onPointerOut);

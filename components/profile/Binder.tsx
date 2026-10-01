@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { SINGLE_Q } from "@/lib/room/pose";
 import { useMedia } from "@/lib/useMedia";
@@ -115,9 +115,14 @@ export function useBinder(n: number, live = true) {
   return { at, go };
 }
 
+// (the bake lays the one-sided binder out in its wide window: scripts/room/
+// bake.mjs sets window.__pfSingle and says so with room:pf-single)
+const onForced = (on: () => void) => { addEventListener("room:pf-single", on); return () => removeEventListener("room:pf-single", on); };
+const forced = () => !!(window as { __pfSingle?: boolean }).__pfSingle;
 /** the binder's spreads, or its one-sided pages under 1024 px, and where it is */
 export function useBinderPages(spreads: Spread[], singles: Spread[], live: boolean) {
-  const single = useMedia(SINGLE_Q);
+  const narrow = useMedia(SINGLE_Q), bake = useSyncExternalStore(onForced, forced, () => false);
+  const single = narrow || bake;
   const pages = single ? singles : spreads;
   return { single, pages, ...useBinder(pages.length, live) };
 }

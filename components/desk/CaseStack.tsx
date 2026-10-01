@@ -11,12 +11,13 @@ import { Calculator, Payslip } from "./OnsiSoftKit";
  */
 
 // Whose awards a stack holds (lib/awards.ts), and what rides along with it
-export const PROJECT: Record<string, { name: string; sub: string; about: string }> = {
-  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS · K. Kazachkova",
+// (role: Kate's part in it and when, the card's line under what it is)
+export const PROJECT: Record<string, { name: string; sub: string; role: string; about: string }> = {
+  bulksource: { name: "BulkSource", sub: "Supply-chain SaaS", role: "Solo designer 2021–2025 · Design lead 2025–present",
     about: "A B2B supply-chain platform for bulk materials – sand, gravel and the trucks that haul them. I designed it from the ground up as the sole product designer: research, UX, UI, the design system and handoff." },
-  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS · K. Kazachkova",
+  onsisoft: { name: "OnsiSoft", sub: "Compliance SaaS", role: "Solo designer 2024–2025 · Design lead 2025–present",
     about: "Compliance and benefits SaaS for US government contractors. I have led its redesign since October 2024: support requests down 71%, onboarding completion up 76%." },
-  waypro: { name: "WayPro", sub: "Logistics iOS app · K. Kazachkova",
+  waypro: { name: "WayPro", sub: "Logistics iOS app", role: "Co-designer · 2024",
     about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
 };
 // BulkSource moves sand and gravel: its stack lies in a spill of sand with
@@ -49,7 +50,7 @@ export function StackDressing({ slug, title, pic, flat }: {
           {!flat && <Pic className="stack-side" src="/items/waypro/mush-side.webp" {...p} />}
         </span>
       )}
-      <AwardStack project={PROJECT[slug].name} title={title} sub={PROJECT[slug].sub} about={PROJECT[slug].about}
+      <AwardStack project={PROJECT[slug].name} title={title} sub={PROJECT[slug].sub} role={PROJECT[slug].role} about={PROJECT[slug].about}
         links={STACK_LINKS[slug] ?? []} flat={flat}
         picture={slug === "waypro" ? { src: flat ? "/items/waypro/postcard.sm.webp" : pic ? pic("/items/waypro/postcard.webp") : "/items/waypro/postcard.webp", href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
       {slug === "waypro" && (

@@ -309,7 +309,7 @@ export function U15File({ x, y, r, still }: {
         <span className="env__card u15-item" {...is("card")} style={place("card", 10)} onPointerDown={(e) => grab("card")(e)} aria-hidden={!open}>
           <span className="env__card-head">
             <span>Ukrainska 15</span>
-            <span>Voice from the Basement · K. Kazachkova</span>
+            <span>Voice from the Basement · Personal project · 2024–2026</span>
           </span>
           <span className="env__card-row env__card-row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
           {LENDINGS.map((l) => ({ ...l, href: awardHref(l.id) })).map((l) => l.href ? (

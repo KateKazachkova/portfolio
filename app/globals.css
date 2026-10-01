@@ -1315,13 +1315,15 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .env__sticker--ux    { right: 27%; top: 44%; width: 18%; --t: 6deg; }
 .env__sticker--kudos { right: 5%;  top: 55%; width: 18%; --t: 14deg; }
 .env__sticker--inn   { right: 20%; top: 64%; width: 16%; --t: -12deg; }
-.env__stamp--fda { left: 9%; top: 44%; width: calc(28 * var(--eu)); height: calc(28 * var(--eu));
-                   border: calc(1.2 * var(--eu)) double #1d1712; border-radius: 50%; color: #1d1712;
+/* in the bottom right corner, under MUSE and the CSSDA stickers, and smaller
+   (Kate, 01.10): the ring shrinks, its small type stays at 2.6 (9 px, the floor) */
+.env__stamp--fda { right: 5%; bottom: 6%; width: calc(22 * var(--eu)); height: calc(22 * var(--eu));
+                   border: calc(1 * var(--eu)) double #1d1712; border-radius: 50%; color: #1d1712;
                    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
                    font: 600 calc(2.6 * var(--eu)) / 1.15 var(--font-mono, ui-monospace), ui-monospace, monospace;
                    letter-spacing: .06em; text-transform: uppercase; transform: rotate(-11deg);
                    mix-blend-mode: multiply; opacity: .72; }
-.env__stamp--fda b { font-size: calc(5 * var(--eu)); letter-spacing: .1em; margin: calc(1 * var(--eu)) 0; }
+.env__stamp--fda b { font-size: calc(3.8 * var(--eu)); letter-spacing: .1em; margin: calc(.6 * var(--eu)) 0; }
 
 /* ── Ukrainska 15 (U15File) ──
    Layers, back to front: the tablet (tucked under the folder) · the folder's

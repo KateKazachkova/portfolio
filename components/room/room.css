@@ -4,6 +4,16 @@
 html[data-gl] .desk-world { display: none !important; }
 html[data-gl] .scene-cam { transform: none !important; perspective: none !important; transition: none !important; }
 html[data-gl] .case-world { transform: none !important; transition: none !important; opacity: 1 !important; animation: none !important; }
+/* …but a phone's lens is zoomed 1.35× at home (WALL_ZOOM_NARROW in
+   lib/room/pose.ts), so the page's case, clock and lamp, which stand in for
+   WebGL's at rest there, are drawn as large, about the camera's axis, or the
+   case shrank and floated as the camera came home (Kate, 01.10) */
+@media (max-width: 767px) {
+  html[data-gl]:is(:not([data-desk]), [data-desk="closed"]) :is(.case-world, .room-home) {
+    transform-origin: 0 0 !important;
+    transform: translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(1.35) translate(calc(-560 * var(--u)), calc(-226 * var(--u))) !important;
+  }
+}
 .room-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
 /* The night (components/room/night.ts): while the camera travels WebGL
    draws it; at rest the page's own layers do, over the page's case at home

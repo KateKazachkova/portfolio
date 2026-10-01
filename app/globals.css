@@ -1831,7 +1831,16 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
      still covers it once the page scrolls. */
   .hero-aside-wrap { position: relative; z-index: 50; transition: opacity .4s ease, visibility 0s linear .4s; }
   /* It stays at the top at every stop, as it does on a wide window
-     (Kate, 30.09: it used to stay behind with the case). */
+     (Kate, 30.09: it used to stay behind with the case) — but over the desk,
+     where the files need the screen (Kate, 01.10). */
+  :root[data-desk="open"] .hero-aside-wrap { opacity: 0; visibility: hidden; }
+}
+/* a short phone (iPhone SE, 375 × 667): the column 20 px under the bar, and
+   the title, its line and the calls 8 px apart (Kate, 01.10) */
+@media (max-width: 767px) and (max-height: 700px) {
+  .hero-aside-wrap { margin-top: -38px; }
+  .hero-aside-wrap .hero-aside h2 + p { margin-top: 8px; }
+  .hero-aside-wrap .nav-index { margin-top: 8px; }
 }
 :is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { --aside-fg: #22283a; --aside-muted: #5b6275; --aside-on-fg: #f3efe6; }
 /* …and under 1024 px the bar over the desk (logo, Menu): home's ink is the

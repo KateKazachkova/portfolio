@@ -68,9 +68,11 @@ function Body({ section }: { section: { heading: string; body?: Para[] } }) {
 
 /** The case's own award card: the outcome row, or a section that carries it. */
 function CaseAwards({ data }: { data: Case }) {
+  // a folder's awards are its parent's (BulkSource's)
+  const owner = data.parent ?? data.title;
   return (
     <div className="award-card-slot">
-      <AwardCard project={data.title} title={data.title} sub={`${data.fileNo} · K. Kazachkova`} />
+      <AwardCard project={owner} title={owner} sub={`${data.fileNo} · K. Kazachkova`} />
     </div>
   );
 }
@@ -227,6 +229,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
           <nav className="crumbs" aria-label="Breadcrumb">
             <Link href="/#case-files">Case Studies</Link>
             <span aria-hidden>/</span>
+            {data.parent && <><span>{data.parent}</span><span aria-hidden>/</span></>}
             <span aria-current="page">{data.title}</span>
           </nav>
           <nav className="flip" aria-label="Case studies">

@@ -38,14 +38,15 @@ export const U15_CLOSED = "kate:u15-closed";  // → DeskScene, put away
 const FOLDER = { w: 150, h: 208 };
 const K = 1.15;
 
-// The round CSSDA seals, stuck on as die-cut stickers in their own colours;
-// MUSE Gold is printed in its foil and French Design Awards (no artwork) is a
-// struck ink stamp.
+// The round CSSDA seals, stuck on as die-cut stickers in their own colours,
+// and French Design Awards' Silver badge die-cut round its shield, about A7;
+// MUSE Gold is printed in its foil.
 const STICKERS = [
   { src: "cssda-ui-paper.webp", cls: "ui" },
   { src: "cssda-ux-paper.webp", cls: "ux" },
   { src: "cssda-inn-paper.webp", cls: "inn" },
   { src: "cssda-kudos-paper.webp", cls: "kudos" },
+  { src: "french-silver-paper.webp", cls: "fda" },
 ] as const;
 
 // Two stacks of prints tucked in the pocket, the family before and the house
@@ -295,7 +296,7 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
         <span className="env__card u15-item" {...is("card")} style={place("card", 10)} onPointerDown={(e) => grab("card")(e)} aria-hidden={!open}>
           <span className="env__card-head">
             <span>Ukrainska 15</span>
-            <span>Voice from the Basement · K. Kazachkova</span>
+            <span>Voice from the Basement · Personal project · 2024–2026</span>
           </span>
           <span className="env__card-row env__card-row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
           {LENDINGS.map((l) => ({ ...l, href: awardHref(l.id) })).map((l) => l.href ? (
@@ -327,7 +328,6 @@ export function U15File({ x, y, r }: { x: number; y: number; r: number }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img key={k.src} className={`env__sticker env__sticker--${k.cls}`} src={`/stamps/awards/${k.src}`} alt="" draggable={false} />
           ))}
-          <span className="env__stamp env__stamp--fda">French Design Awards<b>Silver</b>2026</span>
         </span>
         <button
           type="button"

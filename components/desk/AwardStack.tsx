@@ -46,8 +46,11 @@ const hrefs = (project: string) =>
 // how the postcards lie under the card, and fanned out beside it
 const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 
-export default function AwardStack({ project, title, sub, about, links = [], picture }: {
-  project: string; title: string; sub: string; links?: { label: string; href: string; external?: boolean }[];
+export default function AwardStack({ project, title, sub, role, about, links = [], picture }: {
+  project: string; title: string; sub: string;
+  /** Kate's part in it and when, the line under `sub` */
+  role?: string;
+  links?: { label: string; href: string; external?: boolean }[];
   /** what the project is, on the sticky note */
   about: string;
   /** a picture postcard of the project itself, on top of the juries' */
@@ -101,6 +104,7 @@ export default function AwardStack({ project, title, sub, about, links = [], pic
         <span className="jury-card__head">
           <span>{title}</span>
           <span>{sub}</span>
+          {role && <span>{role}</span>}
         </span>
         <span className="jury-card__row jury-card__row--th"><span>Date</span><span>Jury</span><span>Award</span></span>
         {rows.map((l, i) => {

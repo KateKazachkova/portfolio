@@ -496,35 +496,6 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     });
     room.push({ meshes, item: it, k, slot, m: new Channel(it.m, lerpN, sameN), op: new Channel(it.op, (a, b, e) => a + (b - a) * e, (a, b) => Math.abs(a - b) < 1e-4), mats: it.type === "grid" ? [] : mats });
   }
-  // The player's right end (OffDutyShelf's od-dvd__side--r), until a bake
-  // has it: its left end moved the base's width along, drawn from both
-  // sides. A phone's panorama passes the player on the right, where the
-  // base's top hung over the desk with nothing under it (Kate, 01.10).
-  // (delete once a bake has it)
-  // what is drawn over or beside a plane of the room, shown and faded
-  // with it each frame (the right end here, the live screens below)
-  const follows: { mesh: THREE.Mesh; host: Placed }[] = [];
-  if (!data.items.some((it) => it.cls.includes("od-dvd__side--r"))) {
-    const side = room.find((p) => p.item.cls.split(" ")[0] === "od-dvd__side");
-    const base = room.find((p) => p.item.cls.split(" ")[0] === "od-dvd__base");
-    if (side && base) {
-      const along = new THREE.Matrix4().makeTranslation(base.item.w, 0, 0);
-      for (const hm of side.meshes) {
-        const mat = (hm.material as THREE.ShaderMaterial).clone();
-        mat.side = THREE.DoubleSide;
-        // (the left end's own texture, not clone()'s copy of it)
-        mat.uniforms.map.value = (hm.material as THREE.ShaderMaterial).uniforms.map.value;
-        side.slot.mats.add(mat);
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.matrixAutoUpdate = false;
-        mesh.matrix.multiplyMatrices(along, hm.matrix);
-        mesh.matrixWorldNeedsUpdate = true;
-        mesh.name = "od-dvd__side--r";
-        scene.add(mesh);
-        follows.push({ mesh, host: side });
-      }
-    }
-  }
   // Off Duty's cards (what a thing taken out is) show only while it is out:
   // their pictures are loaded then, and let go once it is back (shelf.ts)
   const outOnly = new Set(room.filter((p) => /(^| )bs-card( |$)/.test(p.item.cls)).map((p) => p.slot));
@@ -550,7 +521,6 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     scene.add(mesh);
     lcd.onChange(() => { tex.needsUpdate = true; dirty = true; kick(); });
     lives.push({ mesh, host, lcd, tex });
-    follows.push({ mesh, host });
   }
   // Off Duty's wallet and player: the open spread's discs, the turn, the
   // disc's flight to the spindle (wallet.ts), laid from the room's state
@@ -1395,9 +1365,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const on = p.item.pfs === sAt && !p.meshes[0].userData.away && p.op.value(now) > 0.001;
       for (const m of p.meshes) m.visible = on;
     }
-    for (const f of follows) {
-      f.mesh.visible = f.host.meshes[0].visible;
-      (f.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = f.host.op.value(now);
+    for (const l of lives) {
+      l.mesh.visible = l.host.meshes[0].visible;
+      (l.mesh.material as THREE.ShaderMaterial).uniforms.opacity.value = l.host.op.value(now);
     }
     renderer.render(scene, camera);
     if (groupsAwayPending && groupsShown) { groupsAwayPending = false; for (const el of [o.groups.case, o.groups.clock, o.groups.lamp]) el?.classList.add("room-away"); }

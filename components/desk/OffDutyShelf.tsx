@@ -403,8 +403,7 @@ export default function OffDutyShelf() {
           transform: `translateZ(calc(${DVD.z} * var(--u))) rotateY(-90deg)`,
         }} />
         {/* …and its right end, which a phone's panorama passes on the way
-            home (Kate, 01.10; the WebGL room draws it off the left one,
-            engine.ts, until a bake has it) */}
+            home (Kate, 01.10) */}
         <span className="od-dvd__side od-dvd__side--r" aria-hidden style={{
           left: `calc(${DVD.x + DVD.w / 2} * var(--u))`, top: `calc(${656 - FH} * var(--u))`,
           width: `calc(${BD} * var(--u))`, height: `calc(${FH} * var(--u))`,

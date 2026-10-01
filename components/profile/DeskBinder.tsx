@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BinderBook, useBinder, type Spread } from "./Binder";
-import { SPREADS } from "./spreads";
+import { BinderBook, useBinderPages, type Spread } from "./Binder";
+import { SINGLES, SPREADS } from "./spreads";
 
 export const PROFILE_EVENT = "kate:profile";
 
@@ -17,11 +17,12 @@ const H = Math.round(BINDER.w * 2136 / 3717);
 // divider tabs, nothing on them. The CV, the certificates and the prints on
 // the rings (about a megabyte) load when the camera sets off for the binder,
 // and are on the pages by the time it arrives.
-const BLANK: Spread[] = SPREADS.map((s) => ({
+const blank = (spreads: Spread[]): Spread[] => spreads.map((s) => ({
   label: s.label, tab: s.tab,
   left: s.left != null ? <></> : s.left,
   right: s.right != null ? <></> : s.right,
 }));
+const BLANK = blank(SPREADS), SINGLES_BLANK = blank(SINGLES);
 
 /** The Profile binder where it lies on home's desk. From anywhere else in
  *  the room a click brings the camera down over it (Profile in the index does
@@ -40,10 +41,10 @@ export default function DeskBinder() {
     mo.observe(root, { attributes: true, attributeFilter: ["data-desk", "data-desk-arrived"] });
     return () => mo.disconnect();
   }, []);
-  const { at, go } = useBinder(SPREADS.length, live);
+  const { single, pages, at, go } = useBinderPages(warm ? SPREADS : BLANK, warm ? SINGLES : SINGLES_BLANK, live);
   return (
     <BinderBook
-      spreads={warm ? SPREADS : BLANK} at={at} go={go}
+      spreads={pages} at={at} go={go} single={single} live={live}
       className="desk-binder"
       style={{
         left: `calc(${BINDER.x - BINDER.w / 2} * var(--u))`, top: `calc(${BINDER.y - H / 2} * var(--u))`,

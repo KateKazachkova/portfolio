@@ -40,16 +40,33 @@ export const WALL_ZOOM_NARROW = 1.35;
  *  stop's own */
 export const lensShift = (p: Pose, s: readonly number[] = [0, 0]): [number, number] => [s[0] + p.sx, s[1] + p.sy];
 
+/** Under 1024 px the Profile binder shows one page at a time, on the right
+ *  (Binder.tsx `single`), and the camera looks at that page alone: its
+ *  sleeve's middle on the axis (DeskBinder: x 3031 − 280 + 74.94 % of 560 =
+ *  desk x 3170.7, less the 1612.5 of the axis at home), zoomed in so the page
+ *  fills the window (--pfz, set by useDeskCamera from the window's size: pfZoom). */
+export const PF_PAGE = { x: -1558.2, w: 234.9, h: 303.7 };
+/** the window that has the one-sided binder (the CSS's @media rules say
+ *  1023px as well) */
+export const SINGLE_Q = "(max-width: 1023px)";
+/** the zoom that fits the page in a window of w × h px (stage u px per u),
+ *  16 px either side and room for the bar above and the pager under it
+ *  (out, too, in a short window: a phone on its side) */
+export const pfZoom = (w: number, h: number, u: number) =>
+  Math.max(0.4, Math.min((w - 32) / (PF_PAGE.w * (FOCAL / 936) * u), (h - 176) / (PF_PAGE.h * (FOCAL / 936) * u)));
+
 /** Where each stop puts the world (translate in u) and how far the picture
- *  is shifted besides the lens shift (px). Files' x runs with the pan. */
-export function stopPose(view: View, pan = 0, narrow = false): Pose {
-  // (on a phone, under 768 px, the wall's two stops and Profile pan along the
-  // room too, and Profile's axis is on the binder's middle: globals.css)
+ *  is shifted besides the lens shift (px). Files' x runs with the pan.
+ *  pfz: under 1024 px, Profile's zoom on its one page (0 above). */
+export function stopPose(view: View, pan = 0, narrow = false, pfz = 0): Pose {
+  // (on a phone, under 768 px, the wall's two stops pan along the room too:
+  // globals.css)
   const p = narrow ? pan : 0;
   switch (view) {
     case "files": return { rx: -90, t: [200 - pan, 430, FILES_Z], sx: 0, sy: 0, z: 1 };
     case "award": return { rx: 0, t: [-1040 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
-    case "profile": return { rx: -90, t: [(narrow ? -1397.5 : -1327.5) - p, 506, 2129], sx: -20, sy: -15, z: 1 };
+    case "profile": return pfz ? { rx: -90, t: [PF_PAGE.x, 506, 2129], sx: 0, sy: 0, z: pfz }
+      : { rx: -90, t: [-1327.5, 506, 2129], sx: -20, sy: -15, z: 1 };
     case "offduty": return { rx: 0, t: [1423 - p, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };
     case "bike": return { rx: -90, t: [1380, 170, 1890], sx: 0, sy: 0, z: 1 };
     default: return { rx: 0, t: [0, 0, 0], sx: 0, sy: 0, z: narrow ? WALL_ZOOM_NARROW : 1 };

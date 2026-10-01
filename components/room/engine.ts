@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { stopPose, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
+import { stopPose, SINGLE_Q, viewOfState, viewMatrix, projectionMatrix, lerpPose, projectToStage, lensShift, bezier, EASE, CAM, type Pose, type View } from "@/lib/room/pose";
 import { mirror, type Quad, type Baked } from "./mirror";
 import { makeBlur } from "./blur";
 import { startHits, type Hit, type HitLayer } from "./hits";
@@ -599,7 +599,9 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // the Profile binder's planes lie as the spread the page's binder is at
   // (RoomBinder.tsx, room:binder-at; the bake's pf1 … pf7), wherever the camera is
   const isBinder = (p: Placed) => (p.item.anc ?? "").split(" ").includes("desk-binder");
-  const phoneBinder = matchMedia("(max-width: 760px)");
+  // under 1024 the page's binder shows one page at a time (Binder.tsx
+  // `single`), which the bake's spreads do not: WebGL draws none of it there
+  const phoneBinder = matchMedia(SINGLE_Q);
   let binderAt = 1;
   // Case Files with a case in focus lies as the bake's files:<slug> (M6: the
   // one laid out, the others moved aside); what that state leaves out lies
@@ -1084,12 +1086,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // a stop's pose as the CSS has it now: the pan along the desk at Case Files,
   // and on a phone at the wall's stops and Profile too (useDeskCamera's --pan)
   const narrow = () => innerWidth < 768;
+  // under 1024 Profile looks at one page, zoomed in (useDeskCamera's --pfz,
+  // only set there)
+  const pfz = () => readVar("--pfz");
   // the page's lens shift at a stop (useDeskCamera's --dx, --dy): at the
   // wall the camera only slides sideways from home, so the picture keeps
   // home's height and the desk stays where it was (Kate, 30.09)
   const shiftAt = (v: View) => (v === "home" ? [0, 0] : [readVar("--dx"), v === "award" || v === "offduty" ? 0 : readVar("--dy")]);
   const poseOf = (v: View) => {
-    const p = stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty" || v === "profile")) ? readVar("--pan") : 0, narrow());
+    const p = stopPose(v, v === "files" || (narrow() && (v === "award" || v === "offduty")) ? readVar("--pan") : 0, narrow(), v === "profile" ? pfz() : 0);
     // a phone's pinch at a stop (useDeskCamera): the lens zoomed in about its
     // axis, and the picture moved
     if (v !== "home") { p.z *= readVar("--pz") || 1; p.sx += readVar("--pox"); p.sy += readVar("--poy"); }
@@ -1124,7 +1129,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const set = new Set<Slot>();
       // (a binder leaf that only another spread shows loads when it is turned to)
       const shown = (p: Placed) => !outOnly.has(p.slot) && (isBinder(p) ? binderNeeds(p, binderAt) : p.item.vis !== false || Object.keys(p.item.states ?? {}).some((k) => !k.startsWith("pf")));
-      for (const p of room) if (shown(p)) for (const pan of pans) if (seenAt(p.item, stopPose(v, pan, narrow()), v === "home")) { set.add(p.slot); break; }
+      const poses = pans.map((pan) => stopPose(v, pan, narrow(), v === "profile" ? pfz() : 0));
+      for (const p of room) if (shown(p)) for (const ps of poses) if (seenAt(p.item, ps, v === "home")) { set.add(p.slot); break; }
       zoneSlots.set(v, set);
     }
   };
@@ -1288,8 +1294,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
       const pl = poolCh.value(now);
       nu.pool.value.set(pl[0], pl[1], pl[2], pl[3]); nu.poolK.value = pl[4];
     }
-    // Phones (Binder.css, max-width 760px): the page has no binder, on the
-    // desk or anywhere (.pf-binder display: none)
+    // under 1024 the page's binder is one-sided (phoneBinder above): its own DOM only
     if (phoneBinder.matches) for (const m of binderMeshes) m.visible = false;
     for (const l of lives) {
       l.mesh.visible = l.host.meshes[0].visible;
@@ -1403,6 +1408,8 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   // (the binder's sheets once a turn is over: the spread's own kept, the rest let go)
   const binderSettled = (at: number) => { const t = () => { if (binderAt !== at) return; if (binderTurn?.busy(performance.now())) { setTimeout(t, 200); return; } letBinderGo(); }; t(); };
   const onBinder = (e: Event) => {
+    // (a one-sided binder's pages are not the bake's spreads: it turns by itself)
+    if (phoneBinder.matches) return;
     const at = (e as CustomEvent<number>).detail;
     if (at === binderAsked) return;
     binderAsked = at;
@@ -1430,6 +1437,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   };
   // a certificate on the rings turned over (or back) in the page's panel
   const moFlip = new MutationObserver(() => {
+    if (phoneBinder.matches) return;
     if (!binderTurn || !binderTurn.readFlips(performance.now())) return;
     if (hitLayer && view === "profile" && rest) binderTurn.veil(true);
     want([...binderSlotsAt(binderAt)], 0);
@@ -1490,7 +1498,7 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
   const warmRT = new THREE.WebGLRenderTarget(64, 64, { depthBuffer: true });
   const warmCam = new THREE.PerspectiveCamera();
   warmCam.matrixAutoUpdate = false; warmCam.matrixWorldAutoUpdate = false;
-  const prewarm = (v: View) => prewarmAt(stopPose(v, 0, narrow()));
+  const prewarm = (v: View) => prewarmAt(stopPose(v, 0, narrow(), v === "profile" ? pfz() : 0));
   // (a flight that waited for its pictures: its way, a few poses along it)
   const prewarmWay = (to: Pose) => { const from = pose.value(performance.now()); for (const k of [0.33, 0.66, 1]) prewarmAt(lerpPose(from, to, k)); };
   const prewarmAt = (p: Pose) => {

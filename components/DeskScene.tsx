@@ -17,7 +17,7 @@ import OffDutyShelf, { WALLET, WALLET_L, WALLET_R, WALLET_SPINE, WALLET_REACH, D
 const V = { ...WALLET_REACH, d: Math.max(WALLET_REACH.dl, WALLET_REACH.dr), sx: (WALLET_REACH.l / (WALLET_REACH.l + WALLET_REACH.r)) * 100 };
 import { prefersReducedMotion } from "@/lib/reducedMotion";
 import { glOn, onGl } from "@/lib/room/flag";
-import { FILES_SPD, rowX, WALL_ZOOM_NARROW } from "@/lib/room/pose";
+import { FILES_SPD, pfZoom, rowX, SINGLE_Q, WALL_ZOOM_NARROW } from "@/lib/room/pose";
 
 /**
  * The desk the case stands on at night, as a room the camera can move in.
@@ -365,6 +365,10 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       const u = r.width / 1118;
       el.style.setProperty("--dx", `${innerWidth / 2 - (r.left + 560 * u)}px`);
       el.style.setProperty("--dy", `${innerHeight / 2 - (r.top + 226 * u)}px`);
+      // under 1024 Profile looks at one page of the binder, as large as the
+      // window takes it (globals.css, the WebGL room's pose)
+      if (matchMedia(SINGLE_Q).matches) el.style.setProperty("--pfz", pfZoom(innerWidth, innerHeight, u).toFixed(4));
+      else el.style.removeProperty("--pfz");
     };
 
     const cards = () => el.querySelectorAll<HTMLElement>(".desk-card:not(.desk-card--env), .u15-hit, .desk-player");
@@ -377,15 +381,15 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // (off the stage, not the camera: a pinch scales the camera's box)
     const u = () => (el.parentElement ?? el).getBoundingClientRect().width / 1118;
     const maxPan = () => Math.max(0, ROW_END - (VIEW_X + (innerWidth / 2) / (spd() * u())));
-    // On phones the wall's stops and Profile pan too, either side of where
-    // they stand: as far as a 1440px window sees past a phone's (Kate, 27.09).
-    // Screen px per desk px there: ~1 on the wall, 2150 / 936 over Profile.
+    // On phones the wall's stops pan too, either side of where they stand:
+    // as far as a 1440px window sees past a phone's (Kate, 27.09). Screen px
+    // per desk px there: ~1. (Profile does not: a swipe turns its page.)
     const narrow = () => matchMedia("(max-width: 767px)").matches;
     // screen px per desk px over the desk (× --u)
     const spd = () => FILES_SPD;
-    const spdNow = () => (open.current === "files" ? spd() : open.current === "profile" ? 2150 / 936 : narrow() ? WALL_ZOOM_NARROW : 1);
+    const spdNow = () => (open.current === "files" ? spd() : narrow() ? WALL_ZOOM_NARROW : 1);
     // (the wall's px per desk px is its zoom: reach is in desk px, as seen)
-    const reach = () => open.current === "profile" ? Math.max(0, (720 - innerWidth / 2 / u()) / spdNow()) : Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
+    const reach = () => Math.max(0, 720 - innerWidth / 2 / u() / spdNow());
     const clamp = (v: number) => open.current === "files"
       ? Math.min(maxPan(), Math.max(0, v))
       : Math.min(reach(), Math.max(-reach(), v));
@@ -428,7 +432,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
 
     // the desk pans; on wider screens the wall is one still frame
-    const panning = () => arrived && (open.current === "files" || (!!open.current && narrow()));
+    const panning = () => arrived && (open.current === "files" || ((open.current === "award" || open.current === "offduty") && narrow()));
     const onWheel = (e: WheelEvent) => {
       if (!panning()) return;
       e.preventDefault();

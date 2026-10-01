@@ -1,4 +1,4 @@
-import type { Spread } from "./Binder";
+import { singleOf, type Spread } from "./Binder";
 import { CvSheet, PhotoSheet, OverviewSheet, HistorySheet, TeachingSheet, SpecsSheet, BudSheet, BudEvidenceSheet, BudCertificate, BudClip,
   ClusterSheet, CLUSTER_CERTIFICATES, ClusterTalksSheet, IxdfSheet, IxdfLetter, IxdfEvidenceSheet } from "./Sheets";
 
@@ -13,3 +13,5 @@ export const SPREADS: Spread[] = [
   { label: "IxDF", left: <IxdfSheet />, right: <IxdfEvidenceSheet />, hang: <IxdfLetter />, tab: { src: "/profile/ixdf/mark.webp", alt: "IxDF Kharkiv", bg: "#fff" } },
   { label: "Specifications", left: <SpecsSheet /> },
 ];
+// …and one-sided, under 1024 px
+export const SINGLES = singleOf(SPREADS);

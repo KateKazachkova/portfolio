@@ -307,6 +307,35 @@
 }
 @media (prefers-reduced-motion: reduce) { .pf-leaf { transition-duration: 0s; } .pf-leaf *, .pf-leaf *::before { animation: none !important; } }
 
+/* ── one-sided (Binder.tsx singleOf, under 1024 px) ──
+   Every page on the front of a sleeve of its own; a turned sleeve lies on
+   the left empty. What hangs on the rings over a page hangs on the right
+   now, mirrored about the ring line (its holes by the rings), and a tap
+   swings it over to the left, off the page; the БУДЬ prints and their clip
+   go to the sheet's outer edge, which is its right here. */
+.pf-binder[data-single] .pf-hangleaf__side { transform: none; }
+.pf-binder[data-single] .pf-hangleaf[data-flipped] { transform: rotateY(-180deg) translateZ(calc((-6 - var(--o, 0) * 2) * var(--u, 1px))); }
+.pf-binder[data-single] .pf-leaf:not([data-turned]):not([data-flying]):not([data-hidden]) > .pf-hangleaf { visibility: visible; }
+.pf-binder[data-single] .pf-leaf[data-turned]:not([data-flying]) > .pf-hangleaf { visibility: hidden; }
+.pf-binder[data-single] .pf-hang { left: 1.2%; right: 55%; }
+.pf-binder[data-single] .pf-certcard { transform: rotate(.6deg); transform-origin: 4% 50%; }
+.pf-binder[data-single] .pf-certcard--under { transform: translate(calc(10 * var(--px)), calc(10 * var(--px))) rotate(3deg); }
+.pf-binder[data-single] .pf-certcard--big { inset: auto -40% -14% 0; transform-origin: 3.1% var(--hole-y, 58%);
+  -webkit-mask: radial-gradient(circle at 3.1% var(--hole-y, 58%), transparent calc(8 * var(--px)), #000 calc(8.4 * var(--px)));
+          mask: radial-gradient(circle at 3.1% var(--hole-y, 58%), transparent calc(8 * var(--px)), #000 calc(8.4 * var(--px))); }
+.pf-binder[data-single] .pf-certcard--big.pf-certcard--under { transform: rotate(5deg); }
+.pf-binder[data-single] .pf-prints { left: auto; right: calc(6 * var(--px)); }
+.pf-binder[data-single] .pf-sleeveclip { left: auto; right: calc(-33 * var(--px)); transform: scaleX(-1) rotate(3deg); }
+
+/* its pager: the case files' pill (.desk-hint, globals.css), with arrows */
+.desk-hint.pf-nav { display: none; gap: 14px; padding: 6px 10px; }
+.pf-nav button { background: none; border: 0; padding: 4px 6px; margin: 0; color: inherit; font: inherit; letter-spacing: 0; cursor: pointer; }
+.pf-nav button:disabled { opacity: .3; cursor: default; }
+@media (max-width: 1023px) {
+  [data-desk="profile"] .desk-hint.pf-nav { display: flex; }
+  [data-desk="profile"][data-desk-arrived] .desk-hint.pf-nav { opacity: 1; pointer-events: auto; }
+}
+
 /* A heading is never followed by a rule: whatever comes first under it loses its top line. */
 .pf-part + .pf-item, .pf-part + .pf-job > .pf-job__h, .pf-cv__title + .pf-cv__row, .pf-tag__t + .pf-rule { border-top: 0; padding-top: 0; }
 

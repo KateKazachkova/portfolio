@@ -1541,11 +1541,23 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   transform: translate3d(calc(1423 * var(--u)), 0px, 0px);
 }
 [data-desk="offduty"] .case-world { pointer-events: none; }
+/* Under 1024 the Profile binder shows one page at a time, on the right
+   (Binder.tsx `single`), and the camera looks at that page alone, zoomed in
+   until it fills the window (--pfz from useDeskCamera; PF_PAGE, pfZoom in
+   lib/room/pose.ts) — no pan: a swipe turns the page (Kate, 01.10). */
+@media (max-width: 1023px) {
+  [data-desk="profile"] .scene-cam {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) translate(calc(560 * var(--u)), calc(226 * var(--u))) scale(var(--pfz, 1)) translate(calc(-560 * var(--u)), calc(-226 * var(--u)));
+  }
+  [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
+    transform: rotateX(-90deg) translate3d(calc(-1558.2 * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
+  }
+  [data-desk="profile"] .scene-cam { touch-action: none; }
+}
 /* Phones: a phone sees a strip of what a 1440px window does, so at the
-   wall's two stops and over Profile a finger pans along the room too
-   (--pan, desk px, from useDeskCamera), and Profile's axis is on the
-   binder's middle rather than 70 px left of it (Kate, 27.09). The planes
-   take the touch, so a drag on bare wall or desk is a pan. */
+   wall's two stops a finger pans along the room too (--pan, desk px, from
+   useDeskCamera; Kate, 27.09). The planes take the touch, so a drag on
+   bare wall or desk is a pan. */
 @media (max-width: 767px) {
   [data-desk="award"] .desk-world, [data-desk="award"] .case-world {
     transform: translate3d(calc((-1040 - var(--pan, 0)) * var(--u)), 0px, 0px);
@@ -1553,10 +1565,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   [data-desk="offduty"] .desk-world, [data-desk="offduty"] .case-world {
     transform: translate3d(calc((1423 - var(--pan, 0)) * var(--u)), 0px, 0px);
   }
-  [data-desk="profile"] .desk-world, [data-desk="profile"] .case-world {
-    transform: rotateX(-90deg) translate3d(calc((-1397.5 - var(--pan, 0)) * var(--u)), calc(506 * var(--u)), calc(2129 * var(--u)));
-  }
-  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"]) .scene-cam { touch-action: none; }
+  :is([data-desk="award"], [data-desk="offduty"]) .scene-cam { touch-action: none; }
   /* at home and at the wall a phone's lens zooms in 1.35× about the
      camera's axis, the same at each, so the picture keeps its scale from
      one to the next (WALL_ZOOM_NARROW in lib/room/pose.ts, Kate, 30.09) */
@@ -1569,7 +1578,7 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   /* at the case the page still scrolls up and down, but a sideways swipe is
      the room's: it walks to Recognition or Off Duty (useDeskCamera) */
   :root:is(:not([data-desk]), [data-desk="closed"]) .scene-cam { touch-action: pan-y; }
-  :is([data-desk="award"], [data-desk="offduty"], [data-desk="profile"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
+  :is([data-desk="award"], [data-desk="offduty"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
 }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
@@ -1837,8 +1846,8 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   .hero-aside-wrap { position: relative; z-index: 50; transition: opacity .4s ease, visibility 0s linear .4s; }
   /* It stays at the top at every stop, as it does on a wide window
      (Kate, 30.09: it used to stay behind with the case) — but over the desk,
-     where the files need the screen (Kate, 01.10). */
-  :root[data-desk="open"] .hero-aside-wrap { opacity: 0; visibility: hidden; }
+     where the files and the binder's page need the screen (Kate, 01.10). */
+  :root:is([data-desk="open"], [data-desk="profile"]) .hero-aside-wrap { opacity: 0; visibility: hidden; }
 }
 /* a short phone (iPhone SE, 375 × 667): the column 20 px under the bar, and
    the title, its line and the calls 8 px apart (Kate, 01.10) */

@@ -402,12 +402,13 @@ export default function OffDutyShelf() {
           width: `calc(${BD} * var(--u))`, height: `calc(${FH} * var(--u))`,
           transform: `translateZ(calc(${DVD.z} * var(--u))) rotateY(-90deg)`,
         }} />
-        {/* its front edge */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="od-dvd__face" src="/items/off-duty/dvd-face2.webp" alt="" draggable={false} style={{
+        {/* its front edge: a plain cream face from the base's top down to the
+            desk, square with the base (Kate, 01.10: the generated edge's
+            rounded ends left the corner hanging and read crooked) */}
+        <span className="od-dvd__face" aria-hidden style={{
           left: `calc(${DVD.x - DVD.w / 2} * var(--u))`, top: `calc(${656 - FH} * var(--u))`,
           width: `calc(${DVD.w} * var(--u))`, height: `calc(${FH} * var(--u))`,
-          transform: `translateZ(calc(${DVD.z + BD} * var(--u)))`,
+          transform: `translateZ(calc(${DVD.z + BD} * var(--u)))`, background: "#e6ddcc",
         }} />
       </div>
       {flight && createPortal(

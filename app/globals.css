@@ -1087,7 +1087,7 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   transform: translate(calc(-50% - 16 * var(--u)), calc(-50% - 62 * var(--u))) rotate(-3deg);
   opacity: 0; transition: opacity .2s ease; }
 [data-desk="open"] .desk-card--stack:not([data-side]):hover .stack-soon { opacity: 1; transition-delay: .12s; }
-/* With the camera on it, an A6 sheet above the card, lying landscape (148
+/* With the camera on it, the A6 sticky note above the card, landscape (148
    mm = 105.7 --eu across) so that it and the card, moved down a little for
    it, fit the frame together, right of the title's column, the postcards
    fanned out further right for it: what the project is, and that its case
@@ -1109,12 +1109,9 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .desk-all__t { font: 800 calc(12 * var(--u)) / 1.05 var(--font-display), Arial, sans-serif; text-transform: uppercase; letter-spacing: -.005em; }
 .desk-all__t > span { color: #d8352a; }
 [data-desk="open"] .desk-card--all:hover, [data-desk="open"] .desk-card--all:focus-visible { filter: none; border-color: #d8352a; }
-/* BulkSource's sand under the stack (720 × 482) and the toy truck on it
-   (933 × 428, ~11 cm long). The truck has no shadow of its own: a soft
-   blob under it (no filter on scene objects). Fanned, it drives off the
-   cards to below them. */
-.stack-sand { position: absolute; left: 50%; top: 50%; width: calc(260 * var(--u)); height: auto; max-width: none;
-  transform: translate(-46%, -56%) rotate(-8deg); pointer-events: none; z-index: 0; }
+/* BulkSource's toy truck on its stack (933 × 428, ~11 cm long). It has no
+   shadow of its own: a soft blob under it (no filter on scene objects).
+   Fanned, it drives off the cards to below them. */
 .stack-truck { position: absolute; left: 50%; top: 50%; width: calc(118 * var(--u)); aspect-ratio: 933 / 428; z-index: 8; pointer-events: none;
   /* (on the stack's near half, 109 u nearer than it was, and a little
      right: clear of the case's right door since the files lie larger,
@@ -1430,14 +1427,15 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   .desk-player[data-playing] .desk-player__title span { animation: none; padding-left: 0; }
 }
 
-/* What a project is, on an A6 sheet of paper (105 × 148 mm; the folder is
-   150 --eu to A4's 210 mm, so 75 wide): out of Ukrainska 15's pocket with
+/* What a project is, on a yellow sticky note the size of an A6 sheet (105
+   × 148 mm; the folder is 150 --eu to A4's 210 mm, so 75 wide): out of
+   Ukrainska 15's pocket with
    the button to the case's own page, over the other files' cards with a
-   note that the case is still being written (Kate, 01.10: it was a yellow
-   sticky note). Its button or note sits at its foot. */
+   note that the case is still being written (Kate, 01.10: A6, the sticky
+   note's yellow kept). Its button or note sits at its foot. */
 .sticky-note, .u15-note { position: absolute; z-index: 9; display: flex; flex-direction: column; box-sizing: border-box;
-  background: #f6f2e8; color: #2a241c; text-align: left;
-  box-shadow: inset 0 calc(.35 * var(--eu)) 0 rgba(255,255,255,.5), inset 0 calc(-.5 * var(--eu)) 0 rgba(90,70,40,.1), 0 calc(.35 * var(--eu)) calc(.5 * var(--eu)) rgba(20,16,12,.3), 0 calc(2.5 * var(--eu)) calc(5 * var(--eu)) calc(-1 * var(--eu)) rgba(20,16,12,.22); }
+  background: #f7e27a; color: #2a241c; text-align: left;
+  box-shadow: 0 calc(.5 * var(--eu)) calc(1 * var(--eu)) rgba(20,16,12,.28), inset 0 calc(-6 * var(--eu)) calc(6 * var(--eu)) calc(-6 * var(--eu)) rgba(120, 90, 0, .18); }
 .u15-note { left: calc(52 * var(--eu)); top: calc(96 * var(--eu)); width: calc(75 * var(--eu)); aspect-ratio: 105 / 148; gap: calc(3 * var(--eu));
   padding: calc(6 * var(--eu)) calc(6 * var(--eu)) calc(6.5 * var(--eu));
   transform: translate(calc(var(--ox) * var(--eu)), calc(var(--oy) * var(--eu))) rotate(var(--rot));

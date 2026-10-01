@@ -21,8 +21,7 @@ export const PROJECT: Record<string, { name: string; about: string }> = {
     about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
 };
 // BulkSource moves sand and gravel: a toy dump truck is parked on its stack
-// (public/items/bulksource, generated; the spill of sand under it is gone
-// from the desk, Kate 01.10).
+// (public/items/bulksource, generated).
 // WayPro delivers herbs from farms: moss and fly agarics on its card, and a
 // picture postcard of the app (board 04 of its Behance) on the juries'.
 export const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {

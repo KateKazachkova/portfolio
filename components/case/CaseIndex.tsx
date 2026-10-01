@@ -99,8 +99,7 @@ function Stack({ r, children }: { r: number; children: React.ReactNode }) {
 const TILT = [-3, 2, -1.5, 3, -2.5, 1.5];
 
 /** One of BulkSource's folders: its library card, the stack's one, filled
- *  with what is known of it (no sand under it for now, Kate 01.10). The
- *  first has the stack's truck. */
+ *  with what is known of it. The first has the stack's truck. */
 function FolderCard({ c, i }: { c: CaseStudy; i: number }) {
   // every field a ruled line, a blank one where its words are still to come
   // (and blank ones under them, as a library card has: seven in all)

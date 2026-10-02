@@ -183,7 +183,7 @@ export const AWARD_RECORDS: AwardRecord[] = [
   { id: "csswinner-u15", awardName: "CSS Winner", organisation: "CSS Winner", project: "Ukrainska 15", year: 2026, recognition: "Star", category: null, externalUrls: ["https://www.csswinner.com/details/ukrainska-15/19123"], featured: true },
   { id: "cssnectar-u15", awardName: "CSS Nectar", organisation: "CSS Nectar", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", category: null, externalUrls: ["https://cssnectar.com/css-gallery-inspiration/ukrainska-15/"], featured: false },
   { id: "designnominees-u15", awardName: "Design Nominees", organisation: "Design Nominees", project: "Ukrainska 15", year: 2026, recognition: "Site of the Day", category: null, externalUrls: ["https://www.designnominees.com/sites/ukrainska-15"], featured: false },
-  { id: "french-u15", awardName: "French Design Awards", organisation: "French Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Silver", category: null, externalUrls: [], featured: false },
+  { id: "french-u15", awardName: "French Design Awards", organisation: "French Design Awards", project: "Ukrainska 15", year: 2026, recognition: "Silver", category: null, externalUrls: ["https://frenchdesignawards.com/winner-info.php?id=4540"], featured: false },
 
   // ── BulkSource ──
   { id: "london-bulksource-1", awardName: "London Design Awards", organisation: "London Design Awards", project: "BulkSource", year: 2024, recognition: "Silver", category: "UX Design – Business", externalUrls: ["https://thelondondesignawards.com/winner-info.php?id=3927"], featured: false },

@@ -1203,6 +1203,37 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .postcard__greet { position: absolute; left: calc(7 * var(--u)); bottom: calc(7 * var(--u)); padding: calc(2.4 * var(--u)) calc(4 * var(--u));
   background: rgba(251, 248, 241, .92); font: 400 calc(4.4 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .1em; text-transform: uppercase; }
 .postcard__greet b { font-weight: 700; }
+/* Atumatu (no awards, its case on Behance): its hero, the Pinterest pin, as
+   a portrait print on a swatch of the swimsuit's lilac lycra
+   (947 × 668, pinked edges, ~16 cm). With the camera on it the swatch slides
+   down, the print right onto its edge, the tag onto the swatch; the note
+   stays where every stack's is. */
+/* as large as Ukrainska 15's folder (DeskScene: 172.5 × 239) */
+.postcard--portrait { width: calc(172.5 * var(--u)); height: calc(239 * var(--u)); }
+/* under a pointer, with the camera on it, it says where it goes */
+.postcard__go { position: absolute; left: 50%; top: 42%; z-index: 1; transform: translate(-50%, -50%) rotate(-2deg); white-space: nowrap;
+  padding: calc(4 * var(--u)) calc(7 * var(--u)); background: #c21f10; color: #f7f2e6;
+  font: 600 calc(6 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase;
+  box-shadow: 0 calc(.6 * var(--u)) calc(1.2 * var(--u)) rgba(20,16,12,.3);
+  opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+[data-desk="open"] .desk-card--stack[data-side="here"] .postcard--portrait:hover .postcard__go { opacity: 1; }
+/* a pointer over the file: "On Behance" on the print, inside the file's own
+   box so the pointer reaches it without leaving the file, and a link
+   there; lifted off the print (in the stack's 3D a z-index doesn't put it
+   above it) */
+.desk-card--stack a.stack-soon { background: #c21f10; text-decoration: none;
+  transform: translate(calc(-50% + 34 * var(--u)), calc(-50% - 30 * var(--u))) translateZ(calc(2 * var(--u))) rotate(-3deg); }
+[data-desk="open"] .desk-card--stack:not([data-side]):hover a.stack-soon { pointer-events: auto; cursor: pointer; }
+[data-desk="open"] .desk-card--stack:not([data-side]):hover a.stack-soon:hover { background: #a3190c; }
+.stack-fabric { position: absolute; left: 50%; top: 50%; z-index: 0; display: block; width: calc(168 * var(--u)); pointer-events: none;
+  transform: translate(calc(-50% - 16 * var(--u)), calc(-50% + 6 * var(--u))) rotate(-7deg);
+  transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+.stack-fabric > img { position: relative; display: block; width: 100%; height: auto; }
+.stack-fabric::before { content: ""; position: absolute; inset: 4% 2% -3% 3%;
+  background: radial-gradient(closest-side, rgba(20, 16, 12, .32), rgba(20, 16, 12, .14) 70%, transparent); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .stack-fabric { transform: translate(calc(-50% - 20 * var(--u)), calc(-50% + 60 * var(--u))) rotate(-5deg); }
+[data-desk="open"] .desk-card--stack[data-side="here"] .postcard--portrait { transform: translate(calc(-50% + 140 * var(--u)), -50%) rotate(3deg); }
+[data-desk="open"] .desk-card--stack:has(.stack-fabric)[data-side="here"] .jury-tag { left: calc(50% + 6 * var(--u)); transform: translate(-50%, calc(28 * var(--u))) rotate(-4deg); }
 /* WayPro's moss (640 × 579, with its fly agarics) on the card's corner and
    more fly agarics (639 × 640) beside the stack, as on its board 04;
    fanned, the moss stays on the card. */

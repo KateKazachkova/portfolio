@@ -59,8 +59,9 @@ import { EASE, FILES_SPD, isPano, PANO, PANO_TRIM_L, PANO_WIDE, panoOf, pfZoom, 
 
 // The case files. Ukrainska 15 is its folder; the rest, until each becomes
 // its own kind of object, lie as their library cards of awards
-// (components/desk/AwardStack). Sizes are desk px (1075 per metre), roughly
-// the real objects.
+// (components/desk/AwardStack), and Atumatu, with no awards and its case on
+// Behance, as a print on a swatch of fabric. Sizes are desk px (1075 per
+// metre), roughly the real objects.
 // x, y are the centre on the desk plane from its left/back corner.
 //
 // They lie in one row along the desk, laid down by hand rather than on a
@@ -72,6 +73,8 @@ const CASES = [
   { slug: "bulksource", title: "BulkSource", img: "stack", w: 180, h: 120, x: 1609, y: 675, r: 3 },
   { slug: "onsisoft", title: "OnsiSoft", img: "stack", w: 180, h: 120, x: 1879, y: 680, r: -2 },
   { slug: "waypro", title: "WayPro", img: "stack", w: 180, h: 120, x: 2149, y: 672, r: 2 },
+  // no awards, its case on Behance: a print on a swatch (CaseStack)
+  { slug: "atumatu", title: "Atumatu", img: "stack", w: 180, h: 120, x: 2440, y: 678, r: -2 },
 ] as const;
 
 // The first click brings the camera to a card; then its rows open the
@@ -101,9 +104,9 @@ const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (t
 // (a file laid out at x lies on the desk at rowX(x): .desk-cases is scaled,
 // and the camera's pan to it goes there)
 // The row's last: the way to every case file (/work, Case Studies). A plain
-// card for now, its own folder later (Kate, 01.10). Clear of WayPro's
-// mushrooms when that stack is laid out.
-const ALL = { w: 150, h: 104, x: 2470, y: 676, r: -2 };
+// card for now, its own folder later (Kate, 01.10). Clear of Atumatu's
+// print when that stack is laid out.
+const ALL = { w: 150, h: 104, x: 2740, y: 676, r: -2 };
 const ROW_END = rowX(ALL.x + ALL.w / 2 + 70); // right edge of the row's last, plus a margin
 
 export const DESK_EVENT = "kate:case-files";
@@ -572,6 +575,11 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     // a drag that ends on a card is not a click on it (nor, along a phone's
     // panorama, on anything over the room: the case's own, the index's)
     const onDragClick = (e: MouseEvent) => { if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; } };
+    // A tag that is a way out itself (a Behance-only case's "On Behance")
+    // goes there straight away: a click on it doesn't bring the camera, nor
+    // does the press that focuses it pan (which would slide the file out
+    // from under the pointer, and the click would land on the file).
+    const isOut = (e: Event) => !!(e.target as HTMLElement).closest?.("a.stack-soon");
     const onClick = (e: MouseEvent) => {
       // from home, any of the files is a way in to Case Files, as the award
       // in the case is to Recognition
@@ -582,6 +590,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       }
       // the first click on a case brings the camera to it and lays it out;
       // a click on the case in focus goes on to its page
+      if (isOut(e)) return;
       const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-slug]:not(.desk-card--env)");
       if (!a || !panning() || focus === a.dataset.slug) return;
       e.preventDefault(); e.stopPropagation();
@@ -589,6 +598,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
       go(rowX(Number(a.dataset.x)) - VIEW_X);
     };
     const onFocus = (e: FocusEvent) => {
+      if (isOut(e)) return;
       const a = (e.target as HTMLElement).closest?.<HTMLElement>(".desk-card[data-x]");
       if (!a || !panning()) return;
       go(rowX(Number(a.dataset.x)) - VIEW_X - 120 / spd());

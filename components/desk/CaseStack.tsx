@@ -1,6 +1,7 @@
 "use client";
 
 import AwardStack from "./AwardStack";
+import { ELSEWHERE, PROJECT, STACK_LINKS } from "./stacks";
 import { Calculator, Payslip } from "./OnsiSoftKit";
 
 /**
@@ -10,29 +11,27 @@ import { Calculator, Payslip } from "./OnsiSoftKit";
  * standing up, no sticky note or tags, and the pictures' small copies.
  */
 
-// Whose awards a stack holds (lib/awards.ts, its card's head too), and what
-// rides along with it
-export const PROJECT: Record<string, { name: string; about: string }> = {
-  bulksource: { name: "BulkSource",
-    about: "A B2B supply-chain platform for bulk materials – sand, gravel and the trucks that haul them. I designed it from the ground up as the sole product designer: research, UX, UI, the design system and handoff." },
-  onsisoft: { name: "OnsiSoft",
-    about: "Compliance and benefits SaaS for US government contractors. I have led its redesign since October 2024: support requests down 71%, onboarding completion up 76%." },
-  waypro: { name: "WayPro",
-    about: "An iOS app for drivers delivering grass products from farm to buyer – live routes, one-tap delivery confirmation and inventory, designed from ten driver interviews." },
-};
 // BulkSource moves sand and gravel: a toy dump truck is parked on its stack
 // (public/items/bulksource, generated).
 // WayPro delivers herbs from farms: moss and fly agarics on its card, and a
 // picture postcard of the app (board 04 of its Behance) on the juries'.
-export const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {
-  waypro: [{ label: "Behance ↗", href: "https://www.behance.net/gallery/209626437/WayPro-UIUX-iOS-App", external: true }],
+// Atumatu has no awards and its case is on Behance only: its hero (the
+// Pinterest pin, "A throne of flowers") as a print lies on a swatch of the
+// swimsuit's lilac lycra (public/items/atumatu, generated).
+const PICTURE: Record<string, { alt: string; portrait?: boolean }> = {
+  waypro: { alt: "WayPro on Behance" },
+  atumatu: { alt: "Atumatu on Behance", portrait: true },
 };
 
-/** A picture of the stack's: on the desk `pic` holds it back until the room
- *  has painted (useWarm); flat, its small copy (.sm.webp), loaded lazily. */
+/** A picture's source: on the desk `pic` holds it back until the room has
+ *  painted (useWarm); flat, its small copy (.sm.webp). */
+const srcOf = (src: string, { flat, pic }: { flat?: boolean; pic?: (s: string) => string | undefined }) =>
+  flat ? src.replace(/\.webp$/, ".sm.webp") : pic ? pic(src) : src;
+
+/** A picture of the stack's (srcOf), flat loaded lazily. */
 function Pic({ src, flat, pic, className }: { src: string; flat?: boolean; pic?: (s: string) => string | undefined; className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img className={className} src={flat ? src.replace(/\.webp$/, ".sm.webp") : pic ? pic(src) : src} alt="" draggable={false} decoding="async"
+  return <img className={className} src={srcOf(src, { flat, pic })} alt="" draggable={false} decoding="async"
     loading={flat ? "lazy" : undefined} />;
 }
 
@@ -40,6 +39,7 @@ export function StackDressing({ slug, title, pic, flat }: {
   slug: string; title: string; pic?: (src: string) => string | undefined; flat?: boolean;
 }) {
   const p = { pic, flat };
+  const away = ELSEWHERE[slug];
   return (
     <>
       {slug === "onsisoft" && <Payslip />}
@@ -49,9 +49,13 @@ export function StackDressing({ slug, title, pic, flat }: {
           {!flat && <Pic className="stack-side" src="/items/waypro/mush-side.webp" {...p} />}
         </span>
       )}
+      {slug === "atumatu" && (
+        <span className="stack-fabric" aria-hidden><Pic src="/items/atumatu/fabric.webp" {...p} /></span>
+      )}
       <AwardStack project={PROJECT[slug].name} title={title} about={PROJECT[slug].about}
         links={STACK_LINKS[slug] ?? []} flat={flat}
-        picture={slug === "waypro" ? { src: flat ? "/items/waypro/postcard.sm.webp" : pic ? pic("/items/waypro/postcard.webp") : "/items/waypro/postcard.webp", href: STACK_LINKS.waypro[0].href, alt: "WayPro on Behance" } : undefined} />
+        status={away && `Case study on ${away.where}`} tag={away && { label: `On ${away.where} ↗`, href: away.href }}
+        picture={PICTURE[slug] && { ...PICTURE[slug], href: STACK_LINKS[slug][0].href, src: srcOf(`/items/${slug}/postcard.webp`, p) }} />
       {slug === "waypro" && (
         <span className="stack-moss" aria-hidden>
           <Pic src="/items/waypro/moss.webp" {...p} />

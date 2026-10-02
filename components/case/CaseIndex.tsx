@@ -2,6 +2,7 @@ import Link from "next/link";
 import CASES from "@/content/work";
 import type { CaseStudy, Para } from "@/content/work/types";
 import { StackDressing } from "@/components/desk/CaseStack";
+import { ELSEWHERE, PROJECT } from "@/components/desk/stacks";
 import { U15File } from "@/components/desk/U15File";
 import "./CaseIndex.css";
 
@@ -11,7 +12,8 @@ import "./CaseIndex.css";
  * on it the files as they lie on home's desk (the same components, flat and
  * closed), two to a row, each named under it. A click goes straight to the case:
  * here Ukrainska 15's folder doesn't open. BulkSource, one stack on the
- * desk, lies here as its folders, one card each.
+ * desk, lies here as its folders, one card each. A case written up only
+ * elsewhere (Atumatu, on Behance) lies here too, and opens there.
  */
 
 /** A field's words without its annotation: a TK says nothing yet. */
@@ -21,6 +23,7 @@ const fileOf = (c: CaseStudy) => c.fileNo.split(" · ")[0];
 
 export default function CaseIndex() {
   const all = Object.values(CASES);
+  const away = Object.entries(ELSEWHERE);
   const groups = [...new Set(all.map((c) => c.parent).filter(Boolean))] as string[];
   return (
     <main className="case case-index">
@@ -29,7 +32,7 @@ export default function CaseIndex() {
           <nav className="crumbs" aria-label="Breadcrumb">
             <span aria-current="page">Case Studies</span>
           </nav>
-          <span>{all.length} files</span>
+          <span>{all.length + away.length} files</span>
         </div>
 
         <div className="row title-block">
@@ -45,6 +48,11 @@ export default function CaseIndex() {
           <div className="body wide">
             <ul className="ci-grid">
               {all.filter((c) => !c.parent).map((c) => <File key={c.slug} c={c} />)}
+              {away.map(([slug, e]) => (
+                <Shell key={slug} name={PROJECT[slug].name} meta={`${e.where} · ${e.year}`}
+                  obj={<Stack r={-2}><StackDressing slug={slug} title={PROJECT[slug].name} flat /></Stack>}
+                  hit={<a className="ci-hit" href={e.href} target="_blank" rel="noopener noreferrer" aria-label={`${PROJECT[slug].name} on ${e.where} (opens in a new tab)`} />} />
+              ))}
             </ul>
             {groups.map((g) => (
               <section key={g} className="ci-group" aria-labelledby={`ci-${g}`}>
@@ -65,18 +73,26 @@ export default function CaseIndex() {
 function File({ c, i = 0 }: { c: CaseStudy; i?: number }) {
   const years = c.years === "TK" ? null : c.years;
   return (
+    <Shell name={c.title} meta={[fileOf(c), years].filter(Boolean).join(" · ")} soon={c.draft}
+      obj={c.slug === "ukrainska-15" ? <U15File x={AT.x} y={AT.y} r={-3} still />
+        : c.parent ? <FolderCard c={c} i={i} />
+        : <Stack r={c.slug === "waypro" ? 2 : -2}><StackDressing slug={c.slug} title={c.title} flat /></Stack>}
+      hit={<Link className="ci-hit" href={`/work/${c.slug}`} aria-label={`${c.parent ? `${c.parent}: ` : ""}${c.title}${c.draft ? " (in progress)" : ""}`} />} />
+  );
+}
+
+/** A file's place on the page, whichever way its link goes (here, or out
+ *  to where the case is written up). */
+function Shell({ obj, name, meta, soon, hit }: { obj: React.ReactNode; name: string; meta: string; soon?: boolean; hit: React.ReactNode }) {
+  return (
     <li className="ci-file">
-      <div className="ci-obj" aria-hidden inert>
-        {c.slug === "ukrainska-15" ? <U15File x={AT.x} y={AT.y} r={-3} still />
-          : c.parent ? <FolderCard c={c} i={i} />
-          : <Stack r={c.slug === "waypro" ? 2 : -2}><StackDressing slug={c.slug} title={c.title} flat /></Stack>}
-      </div>
+      <div className="ci-obj" aria-hidden inert>{obj}</div>
       <div className="ci-label">
-        <span className="ci-label__name">{c.title}</span>
-        <span className="ci-label__meta">{[fileOf(c), years].filter(Boolean).join(" · ")}</span>
-        {c.draft && <span className="ci-label__soon">In progress</span>}
+        <span className="ci-label__name">{name}</span>
+        <span className="ci-label__meta">{meta}</span>
+        {soon && <span className="ci-label__soon">In progress</span>}
       </div>
-      <Link className="ci-hit" href={`/work/${c.slug}`} aria-label={`${c.parent ? `${c.parent}: ` : ""}${c.title}${c.draft ? " (in progress)" : ""}`} />
+      {hit}
     </li>
   );
 }

@@ -13,6 +13,8 @@ import { AWARD_RECORDS, awardRows, CARD_HEAD, short } from "@/lib/awards";
  * winner page.
  * Extras (a Behance tag, the case's own page) ride along as `links`, and a
  * picture postcard of the project itself can lie on top of the juries'.
+ * A project with no awards (Atumatu) has no card: its picture postcard
+ * lies alone, and the note says where its case is (`status`).
  */
 
 // the juries' logos (public/stamps/awards/<key>.webp, alpha masks) and the
@@ -41,8 +43,13 @@ function juriesOf(project: string) {
 // how the postcards lie under the card, and fanned out beside it
 const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 
-export default function AwardStack({ project, title, about, links = [], picture, flat }: {
+export default function AwardStack({ project, title, about, links = [], picture, flat, status = "Case study in progress", tag }: {
   project: string; title: string;
+  /** the note's foot: where the case study is */
+  status?: string;
+  /** what a pointer over the file shows, and a way there: where its case
+   *  is written up (else "In progress", while it has a card of awards) */
+  tag?: { label: string; href: string };
   links?: { label: string; href: string; external?: boolean }[];
   /** lying flat and closed off the desk (the Case Studies index): no tag,
    *  sticky note or links beside it */
@@ -50,7 +57,7 @@ export default function AwardStack({ project, title, about, links = [], picture,
   /** what the project is, on the sticky note */
   about: string;
   /** a picture postcard of the project itself, on top of the juries' */
-  picture?: { src?: string; href: string; alt: string };
+  picture?: { src?: string; href: string; alt: string; portrait?: boolean };
 }) {
   const rows = awardRows(project);
   // the card's head, as on every copy of it (lib/awards.ts)
@@ -89,15 +96,18 @@ export default function AwardStack({ project, title, about, links = [], picture,
         const i = juries.length;
         const [ux, uy, ur] = UNDER[i % UNDER.length];
         return (
-          <a className="postcard postcard--picture" href={picture.href} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-label={picture.alt}
+          <a className={`postcard postcard--picture${picture.portrait ? " postcard--portrait" : ""}`} href={picture.href} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-label={picture.alt}
             style={{ "--ux": ux, "--uy": uy, "--ur": `${ur}deg`, "--fy": -50 + i * 30, "--fr": "-1deg", zIndex: i + 1 } as React.CSSProperties}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={picture.src} alt="" draggable={false} decoding="async" loading={flat ? "lazy" : undefined} />
-            <span className="postcard__greet">Greetings from <b>{title}</b></span>
+            {/* a portrait one is a print with its own caption */}
+            {!picture.portrait && <span className="postcard__greet">Greetings from <b>{title}</b></span>}
+            {/* where a click on it goes, under a pointer over it */}
+            {picture.portrait && !flat && <span className="postcard__go" aria-hidden>View on Behance ↗</span>}
           </a>
         );
       })()}
-      <div className="jury-card">
+      {rows.length > 0 && <div className="jury-card">
         <span className="jury-card__head">
           <span>{title}</span>
           {head && <span>{head.sub}</span>}
@@ -111,13 +121,16 @@ export default function AwardStack({ project, title, about, links = [], picture,
                 aria-label={`${l.jury}, ${l.award} – winner page`}>{cells}</a>
             : <span key={i} className="jury-card__row">{cells}</span>;
         })}
-      </div>
+      </div>}
       {!flat && <>
-      <span className="stack-soon" aria-hidden>In progress</span>
+      {tag
+        ? <a className="stack-soon" href={tag.href} target="_blank" rel="noopener noreferrer" tabIndex={-1}
+            aria-label={`${title}: ${tag.label.replace(" ↗", "")} (opens in a new tab)`}>{tag.label}</a>
+        : rows.length > 0 && <span className="stack-soon" aria-hidden>In progress</span>}
       <span className="sticky-note stack-note">
         <span className="sticky-note__kicker">{title}</span>
         <span className="sticky-note__text">{about}</span>
-        <span className="sticky-note__status">Case study in progress</span>
+        <span className="sticky-note__status">{status}</span>
       </span>
       {links.map((l) => (
         <a key={l.href} className="jury-tag" href={l.href} tabIndex={-1}

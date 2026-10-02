@@ -76,6 +76,8 @@ const PICK = [
       // there, over the stack under the pointer (the pointer keeps the
       // stack's hover on it: hits.ts)
       ...(slug === "atumatu" ? [{ type: "soon", sel: `${card} a.stack-soon`, at: ["files"], kind: "link", slug, aside: true }] : []),
+      // …and laid out, the same way there as a red button on its note
+      ...(slug === "atumatu" ? [{ type: "note-go", sel: `${card} .sticky-note__go`, at: ["files"], kind: "link", slug, here: true }] : []),
     ];
   }),
   // …and the row's last, the way to Case Studies (/work); its slug pans the

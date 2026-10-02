@@ -87,7 +87,9 @@
 .vt-tape[data-stand] .vt-tape__end--l { left: 0; top: 0; width: 100%; height: calc(var(--d) * var(--u));
   transform-origin: 50% 0; transform: translateZ(calc(var(--d) * -1 * var(--u))) rotateX(90deg); }
 .vt-tape[data-stand] .vt-tape__end--r { display: none; }
-.vt-tape[data-stand] .vt-card { left: calc((var(--t) + var(--d)) * .5 * var(--u) + 14 * var(--u)); top: 0;
+/* to the left of its cover, as the lying ones': on the right it ran over
+   the player and off the frame (Kate, 02.10, "It Chapter Two") */
+.vt-tape[data-stand] .vt-card { left: calc((var(--t) - var(--d)) * .5 * var(--u) - 274 * var(--u)); top: 0;
   transform: translateZ(calc((var(--t) - var(--d)) * .5 * var(--u))); }
 
 /* its card beside it, as the books' (BookShelf.css .bs-card), at the

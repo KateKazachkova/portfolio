@@ -1079,7 +1079,7 @@ main:has(.inktip[data-open="true"]) .night-cam[data-on] { opacity: .55; transiti
   font: 700 calc(15 * var(--u)) / 1 var(--font-typewriter), monospace; letter-spacing: .02em; color: var(--ink, #2a241c); }
 /* Links only once the camera is on the file: before, a click brings it. */
 a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
-[data-desk="open"] .desk-card--stack[data-side="here"] :is(a.jury-card__row, .jury-tag, .postcard) { pointer-events: auto; cursor: pointer; }
+[data-desk="open"] .desk-card--stack[data-side="here"] :is(a.jury-card__row, .jury-tag, .postcard, .sticky-note__go) { pointer-events: auto; cursor: pointer; }
 [data-desk="open"] .desk-card--stack[data-side="here"] a.jury-card__row:hover { background-color: rgba(179, 49, 42, .1); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard:hover { z-index: 5 !important; }
 /* A pointer over a file not in focus: its postcards come a little way out
@@ -1107,6 +1107,9 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .sticky-note__status { align-self: flex-start; margin-top: auto; padding: calc(3 * var(--u)) calc(5 * var(--u));
   border: calc(.6 * var(--u)) dashed #22283a; border-radius: calc(1.6 * var(--u));
   font: 700 calc(4.2 * var(--u)) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .18em; text-transform: uppercase; color: #22283a; }
+/* a case on Behance only (Atumatu): the note's foot is the red button there */
+.sticky-note__go { border: 0; background: #c21f10; color: #fff; text-decoration: none; }
+[data-desk="open"] .desk-card--stack[data-side="here"] .sticky-note__go:hover { background: #a3190c; }
 /* The row's last card: the way to Case Studies (/work), every case file.
    A plain card for now (DeskScene's ALL); its own folder later. */
 .desk-card--all { display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;
@@ -1243,7 +1246,6 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
   background: radial-gradient(closest-side, rgba(20, 16, 12, .32), rgba(20, 16, 12, .14) 70%, transparent); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .stack-fabric { transform: translate(calc(-50% - 20 * var(--u)), calc(-50% + 60 * var(--u))) rotate(-5deg); }
 [data-desk="open"] .desk-card--stack[data-side="here"] .postcard--portrait { transform: translate(calc(-50% + 140 * var(--u)), -50%) rotate(3deg); }
-[data-desk="open"] .desk-card--stack:has(.stack-fabric)[data-side="here"] .jury-tag { left: calc(50% + 6 * var(--u)); transform: translate(-50%, calc(28 * var(--u))) rotate(-4deg); }
 /* WayPro's moss (640 × 579, with its fly agarics) on the card's corner and
    more fly agarics (639 × 640) beside the stack, as on its board 04;
    fanned, the moss stays on the card. */
@@ -1252,7 +1254,9 @@ a.jury-card__row, .jury-tag, .postcard { pointer-events: none; }
 .stack-moss { z-index: 7; display: block; width: calc(84 * var(--u)); transform: translate(calc(-50% + 58 * var(--u)), calc(-50% - 52 * var(--u))) rotate(12deg); }
 .stack-moss > img:first-child { display: block; width: 100%; height: auto; }
 .stack-moss .stack-side { left: 15%; width: 70%; aspect-ratio: 600 / 415; }
-[data-desk="open"] .desk-card--stack[data-side="here"] .stack-moss { transform: translate(calc(-50% - 44 * var(--u)), calc(-50% - 58 * var(--u))) rotate(12deg); }
+/* open, on the card's top right corner, under the sticky note rather than
+   on it (it stood on the note's lower half) */
+[data-desk="open"] .desk-card--stack[data-side="here"] .stack-moss { transform: translate(calc(-50% - 4 * var(--u)), -50%) rotate(12deg); }
 .stack-mush { z-index: 0; display: block; width: calc(74 * var(--u)); transform: translate(calc(-50% + 136 * var(--u)), calc(-50% + 62 * var(--u))) rotate(-18deg); }
 /* lying on the desk they have a body (Kate, 28.09): caps and stems a
    little thick toward the camera, and their shadow — on the picture, not
@@ -1643,13 +1647,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   :root:is(:not([data-desk]), [data-desk="closed"]) :is(main:has(.case-stage), .scene-cam) { touch-action: pan-y; }
   :is([data-desk="award"], [data-desk="offduty"]) :is(main:has(.case-stage), .scene-cam) { touch-action: none; }
   :is([data-desk="award"], [data-desk="offduty"])[data-desk-arrived] .desk-plane { pointer-events: auto; }
-  /* the edition's line under the case goes along with it (on a tablet:
-     a phone does not show it, below), and the night's lamp pool with the
-     lamp */
-  :is(.hero-caption, .night-room) { translate: var(--pano-shift, 0px) 0; }
+  /* the night's lamp pool goes along with the lamp */
+  .night-room { translate: var(--pano-shift, 0px) 0; }
 }
-/* the edition's line under the case is not shown on a phone (Kate, 01.10) */
-@media (max-width: 767px) { .hero-caption { display: none; } }
 
 /* The wallet: a zero-width hinge at the spine, the two halves swung toward
    the room about it. The player: a still standing on the desk, its screen
@@ -1874,11 +1874,9 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 /* it stays where it lies: only its card comes up (see .u15-view) */
 [data-desk="open"] .desk-card--env:hover,
 [data-desk="open"] .desk-card--env:focus-within { transform: translateX(calc(var(--slide, 0) * var(--u))) rotate(var(--r)) translateZ(.1px); }
-/* The page around it: the lines under the case step aside; the column —
-   title, lead and index — stays as it is on every page, inked for the white
-   desk (over the dark wall it keeps its own colours). */
-.hero-caption { transition: opacity .5s ease; }
-[data-desk="open"] .hero-caption, [data-desk="award"] .hero-caption, [data-desk="profile"] .hero-caption, [data-desk="offduty"] .hero-caption { opacity: 0; pointer-events: none; }
+/* The page around it: the column — title, lead and index — stays as it is
+   on every page, inked for the white desk (over the dark wall it keeps its
+   own colours). */
 /* Over the desk the column's title and lead stay, but only its links take the
    pointer, so what lies under the words can still be picked up. The ink turns
    dark only where the column stands over the white desk (1440px and up);
@@ -2439,9 +2437,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    transitions with it, so a skip lands at once. */
 /* the closed trunk is in the server HTML; without the gate it never shows */
 :root:not([data-intro]):not([data-load]) .intro-open { display: none; }
-/* the clip carries the case's shadow while the doors swing; the desk's own
-   and the case's floor shadows wait, then take over from it at "shadow" */
-[data-load] .case-shadow { opacity: 0; transition: opacity .3s linear; }
+/* the clip carries the case's shadow while the doors swing; the case's
+   shadow at rest waits, then takes over from it at "shadow" in one frame,
+   as the clip is cut to its doors (IntroOpen) — no crossfade */
+[data-load] .case-shadow { opacity: 0; }
 [data-load~="shadow"] .case-shadow { opacity: 1; }
 /* the desk's pre-rendered shadow of the case is off: the case's shadow is the
    opening clip's own, kept at rest (app/page.tsx, rest_shadow.webp) */

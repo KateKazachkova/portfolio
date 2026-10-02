@@ -31,7 +31,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
  *
  * The shadow on the desk is worked out from each frame's own silhouette and
  * baked into the clip below the case; its last frame, kept as
- * rest_shadow.webp, is the case's shadow at rest, and comes in at SHADOW_AT.
+ * rest_shadow.webp, is the case's shadow at rest, and comes in at END_AT.
  * The handle is the page's own throughout: it is the same closed and open.
  * The clip's wardrobe is empty (the model could not keep the clothes whole
  * through the swing); the page's hangers turn out to face the room one after
@@ -52,15 +52,19 @@ const FADE_MS = 300;
 const LAMP_AT = 250;
 const TEXT_AT = 300;
 const OPEN_AT = 700;
-/** the clip keeps its own shadow to the end; the page's copy of its last frame
- *  (rest_shadow.webp) comes in under it as it fades (clip seconds) */
-const SHADOW_AT = 4.95;
 /** the clip runs below the case box by its shadow: 146 of its 1226 rows */
 const CLIP_H = `${(1226 / 1080) * 100}%`;
 /** the doors are all but still: the files set off (clip seconds) */
-const FILES_AT = 4.5;
-/** the doors have stopped: the live case takes over (clip seconds) */
-const END_AT = 4.95;
+const FILES_AT = 3.97;
+/** The doors have stopped: the live case takes over (clip seconds; the take
+ *  runs 4.42s). The shadow changes hands in the same frame: rest_shadow.webp
+ *  (the page's copy of the clip's last frame) is on at once, and the clip is
+ *  cut to its doors (doors_mask.webp, the last frame's case without its
+ *  shadow) before it fades. Two half-faded copies of one shadow are lighter
+ *  than either, which was the blink after the doors stopped. */
+const END_AT = 4.38;
+const DOORS_MASK_SRC = "/suitcase/intro/doors_mask.webp";
+const DOORS_MASK = `url(${DOORS_MASK_SRC}) 0 0 / 100% 100% no-repeat`;
 /** the files' own run: the last one's delay plus its slide, and a margin */
 const FILES_MS = 600 + 800 + 150;
 /** how long a step may wait for what it shows before it goes anyway */
@@ -90,6 +94,7 @@ export default function IntroOpen() {
   // the poster stands in for the clip until it runs, then must go: the clip
   // is transparent between the doors, and the closed trunk would show there
   const [playing, setPlaying] = useState(false);
+  const [masked, setMasked] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const ended = useRef(false);
   const filed = useRef(false);
@@ -105,11 +110,15 @@ export default function IntroOpen() {
     later(() => { if (performance.now() >= lastStep.current - 20) html().removeAttribute("data-load"); }, ms);
   }, [later]);
 
-  /** the clip is done: the live case takes over under a short fade */
-  const endClip = useCallback(() => {
+  /** the clip is done: the live case takes over under a short fade. Only a
+   *  clip that has run to its end is cut to its doors: on a skip they are
+   *  still swinging, and the mask is the last frame's. */
+  const endClip = useCallback((atRest = false) => {
     if (ended.current) return;
     ended.current = true;
+    setMasked(atRest);
     html().removeAttribute("data-intro");
+    add("shadow");
     add("clothes");
     doneIn(CLOTHES_MS);
     setFading(true);
@@ -144,6 +153,9 @@ export default function IntroOpen() {
     // alpha, so the pick is by engine, not by canPlayType.
     const safari = /Safari\//.test(ua) && !/Chrome\/|Chromium\/|Edg\//.test(ua);
     const id = requestAnimationFrame(() => setSrc(safari ? "/suitcase/intro/open.mov" : "/suitcase/intro/open.webm"));
+    // the doors' mask is needed in the frame the clip ends: fetched now, as
+    // a mask that has not loaded hides the whole clip
+    new Image().src = DOORS_MASK_SRC;
     later(() => add("lamp"), LAMP_AT);
     later(() => add("text"), TEXT_AT);
     // not started at all
@@ -228,14 +240,16 @@ export default function IntroOpen() {
           src={src}
           onTimeUpdate={(e) => {
             const t = e.currentTarget.currentTime;
-            if (t >= SHADOW_AT) add("shadow");
             if (t >= FILES_AT) pushFiles();
-            if (t >= END_AT) endClip();
+            if (t >= END_AT) endClip(true);
           }}
           onPlaying={() => setPlaying(true)}
-          onEnded={() => { add("shadow"); pushFiles(); endClip(); }}
+          onEnded={() => { pushFiles(); endClip(true); }}
           onError={land}
-          style={{ position: "absolute", left: 0, top: 0, width: "100%", height: CLIP_H, objectFit: "fill", display: "block" }}
+          style={{
+            position: "absolute", left: 0, top: 0, width: "100%", height: CLIP_H, objectFit: "fill", display: "block",
+            ...(masked ? { mask: DOORS_MASK, WebkitMask: DOORS_MASK } : null),
+          }}
         />
       )}
     </div>

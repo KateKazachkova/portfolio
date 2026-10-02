@@ -43,13 +43,13 @@ function juriesOf(project: string) {
 // how the postcards lie under the card, and fanned out beside it
 const UNDER = [[10, 12, 5], [-8, 16, -6], [14, -8, 9], [-12, -10, -3]];
 
-export default function AwardStack({ project, title, about, links = [], picture, flat, status = "Case study in progress", tag }: {
+export default function AwardStack({ project, title, about, links = [], picture, flat, away }: {
   project: string; title: string;
-  /** the note's foot: where the case study is */
-  status?: string;
-  /** what a pointer over the file shows, and a way there: where its case
-   *  is written up (else "In progress", while it has a card of awards) */
-  tag?: { label: string; href: string };
+  /** a case written up elsewhere (Behance): a pointer over the file shows
+   *  "On <where>", and the note's foot is a button there. Without it the
+   *  note says the case study is in progress, and the file "In progress"
+   *  while it has a card of awards. */
+  away?: { where: string; href: string };
   links?: { label: string; href: string; external?: boolean }[];
   /** lying flat and closed off the desk (the Case Studies index): no tag,
    *  sticky note or links beside it */
@@ -63,6 +63,8 @@ export default function AwardStack({ project, title, about, links = [], picture,
   // the card's head, as on every copy of it (lib/awards.ts)
   const head = CARD_HEAD[project];
   const juries = juriesOf(project);
+  const awayLink = away && { href: away.href, target: "_blank", rel: "noopener noreferrer", tabIndex: -1,
+    "aria-label": `${title}: on ${away.where} (opens in a new tab)` };
   return (
     <>
       {juries.map(({ jury, records }, i) => {
@@ -123,14 +125,16 @@ export default function AwardStack({ project, title, about, links = [], picture,
         })}
       </div>}
       {!flat && <>
-      {tag
-        ? <a className="stack-soon" href={tag.href} target="_blank" rel="noopener noreferrer" tabIndex={-1}
-            aria-label={`${title}: ${tag.label.replace(" ↗", "")} (opens in a new tab)`}>{tag.label}</a>
+      {awayLink
+        ? <a className="stack-soon" {...awayLink}>On {away!.where} ↗</a>
         : rows.length > 0 && <span className="stack-soon" aria-hidden>In progress</span>}
       <span className="sticky-note stack-note">
         <span className="sticky-note__kicker">{title}</span>
         <span className="sticky-note__text">{about}</span>
-        <span className="sticky-note__status">{status}</span>
+        {/* a case written up elsewhere: its way there, a red button on the note */}
+        {awayLink
+          ? <a className="sticky-note__status sticky-note__go" {...awayLink}>{away!.where} ↗</a>
+          : <span className="sticky-note__status">Case study in progress</span>}
       </span>
       {links.map((l) => (
         <a key={l.href} className="jury-tag" href={l.href} tabIndex={-1}

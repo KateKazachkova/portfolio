@@ -25,7 +25,6 @@ const BEHANCE = {
 
 export const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {
   waypro: [{ label: "Behance ↗", href: BEHANCE.waypro, external: true }],
-  atumatu: [{ label: "Behance ↗", href: BEHANCE.atumatu, external: true }],
 };
 
 /** A case written up only elsewhere, with no page here: where, and when it

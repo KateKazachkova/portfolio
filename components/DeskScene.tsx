@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
 import { StackDressing } from "@/components/desk/CaseStack";
@@ -107,8 +106,9 @@ const VIEW_X = 1412.5;             // desk x under the camera's axis at pan 0 (t
 // The row's last: the way to every case file (/work, Case Studies). A plain
 // card for now, its own folder later (Kate, 01.10). Clear of Atumatu's
 // print when that stack is laid out.
-const ALL = { w: 150, h: 104, x: 2740, y: 676, r: -2 };
-const ROW_END = rowX(ALL.x + ALL.w / 2 + 70); // right edge of the row's last, plus a margin
+// (Case Studies, the card at the row's end, is not on the live site yet)
+const LAST = CASES[CASES.length - 1];
+const ROW_END = rowX(LAST.x + LAST.w / 2 + 70); // right edge of the row's last, plus a margin
 
 export const DESK_EVENT = "kate:case-files";
 /** The desk hint's "Put the file away": the case in focus goes back. */
@@ -232,13 +232,6 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
           ) : (
             <CaseCard key={c.slug} c={c} />
           ))}
-          <Link className="desk-card desk-card--all" href="/work" prefetch={false} data-x={ALL.x} aria-label="View all case studies" style={{
-            left: `calc(${ALL.x} * var(--u))`, top: `calc(${ALL.y} * var(--u))`,
-            "--w": ALL.w, "--h": ALL.h, "--r": `${ALL.r}deg`,
-          } as React.CSSProperties}>
-            <span className="desk-all__k">Case Studies</span>
-            <span className="desk-all__t">View all case studies <span aria-hidden>→</span></span>
-          </Link>
         </nav>
         {/* the Profile, filed, in front of the certificate */}
         {ready.has("profile") && <DeskBinder />}
@@ -606,7 +599,7 @@ export function useDeskCamera(cam: React.RefObject<HTMLDivElement | null>) {
     };
     // The WebGL room (?gl=1) does not render the cards: its controls stand
     // for them and say which case was clicked, or took focus.
-    const xOf = (e: Event) => [...CASES, { slug: "all", x: ALL.x }].find((c) => c.slug === (e as CustomEvent<string>).detail);
+    const xOf = (e: Event) => CASES.find((c) => c.slug === (e as CustomEvent<string>).detail);
     const onGlCase = (e: Event) => {
       const c = xOf(e);
       if (!c || !panning() || focus === c.slug) return;

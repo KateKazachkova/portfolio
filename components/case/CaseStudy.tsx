@@ -227,17 +227,18 @@ export default function CaseStudyPage({ data }: { data: Case }) {
             round the ring: after the last case comes the first. */}
         <div className="mast">
           <nav className="crumbs" aria-label="Breadcrumb">
-            <Link href="/work">Case Studies</Link>
+            <Link href="/#case-files">Case Files</Link>
             <span aria-hidden>/</span>
             {data.parent && <><span>{data.parent}</span><span aria-hidden>/</span></>}
             <span aria-current="page">{data.title}</span>
           </nav>
-          <nav className="flip" aria-label="Case studies">
+          {/* a case alone in its ring has no other to turn to */}
+          {next.slug !== data.slug && <nav className="flip" aria-label="Case studies">
             <Link className="flip__prev" href={`/work/${prev.slug}`} aria-label={`Previous case: ${prev.title}`}>←</Link>
             <Link href={`/work/${next.slug}`}>
               Next: {next.title} <span aria-hidden>→</span>
             </Link>
-          </nav>
+          </nav>}
         </div>
 
         {data.tablet && (
@@ -334,8 +335,8 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         <div className="row">
           <div className="rail" />
           <div className="body casenav" style={{ gridColumn: "2 / 4" }}>
-            <Link href="/work"><span>←</span> All case studies</Link>
-            <Link href={`/work/${next.slug}`}>Next: {next.title} <span>→</span></Link>
+            <Link href="/#case-files"><span>←</span> Case Files</Link>
+            {next.slug !== data.slug && <Link href={`/work/${next.slug}`}>Next: {next.title} <span>→</span></Link>}
           </div>
         </div>
       </div>

@@ -218,7 +218,8 @@ export function startHits(o: {
     }
     // a stack under the pointer while none is in focus: its postcards a
     // little way out, "In progress" over it (the page's :hover, engine.ts)
-    if (h.type === "case" && h.slug) {
+    // ("On Behance" over a stack keeps its hover, as the page's tag, its child, does)
+    if ((h.type === "case" || h.type === "soon") && h.slug) {
       const tell = (on: boolean) => dispatchEvent(new CustomEvent("room:case-hover", { detail: { slug: h.slug, on } }));
       el.addEventListener("pointerenter", () => tell(true));
       el.addEventListener("pointerleave", () => tell(false));

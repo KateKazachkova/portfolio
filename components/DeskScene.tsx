@@ -5,6 +5,7 @@ import Link from "next/link";
 import { U15File, U15_CLOSE, U15_CLOSED, U15_OPEN, U15_RESET } from "./desk/U15File";
 import AwardRail from "@/components/AwardRail";
 import { StackDressing } from "@/components/desk/CaseStack";
+import { ELSEWHERE } from "@/components/desk/stacks";
 import { useWarm } from "@/components/desk/useWarm";
 import DeskBinder, { PROFILE_EVENT } from "@/components/profile/DeskBinder";
 import BikeComputer, { OFFDUTY_EVENT } from "@/components/desk/BikeComputer";
@@ -88,7 +89,7 @@ function CaseCard({ c }: { c: Exclude<(typeof CASES)[number], { img: "envelope" 
       className="desk-card desk-card--stack"
       data-slug={c.slug}
       data-x={c.x}
-      aria-label={`${c.title} – awards`}
+      aria-label={`${c.title} – ${ELSEWHERE[c.slug] ? `on ${ELSEWHERE[c.slug].where}` : "awards"}`}
       style={{
         left: `calc(${c.x} * var(--u))`, top: `calc(${c.y} * var(--u))`,
         "--w": c.w, "--h": c.h, "--r": `${c.r}deg`,

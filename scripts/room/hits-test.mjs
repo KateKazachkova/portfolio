@@ -79,7 +79,7 @@ const tabWalk = async (n = 60) => {
 
 // ── parity: each control's box at its stop against the legacy element's ──
 // (Case Files once with no case in focus, and once with each laid out)
-const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro"];
+const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro", "atumatu"];
 const layOut = async (gl, f) => {
   if (gl) await b.ev(`document.querySelector('${f === "ukrainska-15" ? sel("u15") : sel(`case-${f}`)}').click()`);
   else if (f === "ukrainska-15") await b.ev("document.querySelector('.u15-hit').click()");
@@ -369,7 +369,7 @@ if (run("files")) {
   // (the panel is out of sight while the desk pans: wait for it)
   const use = async (id) => { await until(`!!document.querySelector('${sel(id)}')`, 3000); await b.ev(`document.querySelector('${sel(id)}')?.focus()`); await sleep(900); await until(`!!document.querySelector('${sel(id)}')`, 3000); await clickHit(id); };
   let v = await vis();
-  ok(["u15", "player", "case-bulksource", "case-onsisoft", "case-waypro"].every((x) => v.includes(x)) && !v.some((x) => /^(row|postcard|jury-tag|u15-tag)/.test(x)), "files: the folder, the player and the three stacks; nothing laid out yet", v.filter((x) => x !== "trophy").join(" "));
+  ok(["u15", "player", "case-bulksource", "case-onsisoft", "case-waypro", "case-atumatu"].every((x) => v.includes(x)) && !v.some((x) => /^(row|postcard|jury-tag|u15-tag)/.test(x)), "files: the folder, the player and the four stacks; nothing laid out yet", v.filter((x) => x !== "trophy").join(" "));
   ok((await attr("u15", "aria-label")) === "Open Ukrainska 15" && (await attr("u15", "aria-expanded")) === "false", "files: the folder says it opens");
   // a drag along the desk pans it, and the controls go with it
   const c0 = await rect("case-bulksource");
@@ -383,7 +383,7 @@ if (run("files")) {
   const walk = (await tabWalk(30)).filter((x) => HITS.some((h) => h.id === x && h.at.includes("files")));
   // (the trophy, also a way to Recognition from here, comes first)
   const once = walk.filter((x, i) => walk.indexOf(x) === i && x !== "trophy");
-  ok(once.slice(0, 5).join() === "u15,player,case-bulksource,case-onsisoft,case-waypro", "files: Tab goes left to right along the desk", once.join(" "));
+  ok(once.slice(0, 6).join() === "u15,player,case-bulksource,case-onsisoft,case-waypro,case-atumatu", "files: Tab goes left to right along the desk", once.join(" "));
   // focus on the far stack pans the desk to it
   await b.ev("document.querySelector('.room-hit[data-hit=\"case-waypro\"]').focus()"); await sleep(900);
   const p1 = await pan();

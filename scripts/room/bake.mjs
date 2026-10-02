@@ -130,7 +130,7 @@ for (const [k, [d, f, a]] of Object.entries(STATES)) states[k] = await b.ev(`JSO
 // laid out ("here"), the others moved aside to either side — DeskScene sets
 // that on the cards themselves (data-side), so it is set here the same way
 // (Ukrainska 15 left of them all: 150 aside, not 240, when it is the one)
-for (const f of ["ukrainska-15", "bulksource", "onsisoft", "waypro"]) {
+for (const f of ["ukrainska-15", "bulksource", "onsisoft", "waypro", "atumatu"]) {
   await b.ev(`(()=>{const all=[...document.querySelectorAll('.desk-card[data-slug]')];const fx=+all.find(c=>c.dataset.slug===${JSON.stringify(f)}).dataset.x;
     all.forEach(c=>{c.dataset.side=c.dataset.slug===${JSON.stringify(f)}?'here':(+c.dataset.x<fx?'left':'right')});return 1})()`);
   states[`files:${f}`] = await b.ev(`JSON.stringify(window.__bkState("open", ${JSON.stringify(f)}, "1"))`).then(JSON.parse);
@@ -146,7 +146,7 @@ for (const f of ["ukrainska-15", "bulksource", "onsisoft", "waypro"]) {
 await b.send("DOM.enable"); await b.send("CSS.enable");
 await b.ev("(()=>{const st=document.createElement('style');st.id='bk-nofilter';st.textContent='.desk-card--stack{filter:none!important}';document.head.appendChild(st);return 1})()");
 const docRoot = (await b.send("DOM.getDocument", { depth: 0 })).result.root.nodeId;
-for (const f of ["bulksource", "onsisoft", "waypro"]) {
+for (const f of ["bulksource", "onsisoft", "waypro", "atumatu"]) {
   const nodeId = (await b.send("DOM.querySelector", { nodeId: docRoot, selector: `.desk-card--stack[data-slug="${f}"]` })).result?.nodeId;
   if (!nodeId) { log("no stack", f); continue; }
   await b.send("CSS.forcePseudoState", { nodeId, forcedPseudoClasses: ["hover"] });

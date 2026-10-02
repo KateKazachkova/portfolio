@@ -65,13 +65,17 @@ const PICK = [
   { type: "u15", sel: ".u15-hit", at: ["files"], kind: "button", action: "u15-toggle", slug: "ukrainska-15" },
   { type: "u15-tag", sel: ".u15-note__btn", at: ["files"], kind: "link", slug: "ukrainska-15", here: true },
   { type: "player", sel: ".desk-player", at: ["files"], kind: "button", action: "u15-play", slug: "ukrainska-15" },
-  ...["bulksource", "onsisoft", "waypro"].flatMap((slug) => {
+  ...["bulksource", "onsisoft", "waypro", "atumatu"].flatMap((slug) => {
     const card = `.desk-card--stack[data-slug="${slug}"]`;
     return [
       { type: "case", sel: card, at: ["files"], kind: "button", action: "case", slug, aside: true },
-      { type: "row", sel: `${card} a.jury-card__row`, all: true, at: ["files"], kind: "link", slug, here: true },
+      ...(slug === "atumatu" ? [] : [{ type: "row", sel: `${card} a.jury-card__row`, all: true, at: ["files"], kind: "link", slug, here: true }]),
       { type: "postcard", sel: `${card} .postcard`, all: true, at: ["files"], kind: "link", slug, here: true },
       { type: "jury-tag", sel: `${card} .jury-tag`, all: true, at: ["files"], kind: "link", slug, here: true },
+      // a case written up elsewhere only: "On Behance", a way straight
+      // there, over the stack under the pointer (the pointer keeps the
+      // stack's hover on it: hits.ts)
+      ...(slug === "atumatu" ? [{ type: "soon", sel: `${card} a.stack-soon`, at: ["files"], kind: "link", slug, aside: true }] : []),
     ];
   }),
   // …and the row's last, the way to Case Studies (/work); its slug pans the
@@ -80,7 +84,7 @@ const PICK = [
 ];
 // the case files laid out one at a time (html[data-desk-focus]), for where
 // everything on the desk lies then
-const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro"];
+const FOCI = ["ukrainska-15", "bulksource", "onsisoft", "waypro", "atumatu"];
 const b = await launch({ width: 1600, height: 1000, dpr: 1 });
 await b.go(SITE + "/?nointro&gl=0", 4000);
 for (const e of ["kate:case-files", "kate:recognition", "kate:off-duty", "kate:profile"]) { await b.ev(`dispatchEvent(new Event("${e}"))`); await sleep(3200); }

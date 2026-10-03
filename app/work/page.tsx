@@ -1,12 +1,7 @@
-import type { Metadata } from "next";
-import CaseIndex from "@/components/case/CaseIndex";
+import { notFound } from "next/navigation";
 
-// Every case file, one level above each case: reached from a case's crumbs.
-export const metadata: Metadata = {
-  title: "Case Studies – Kate Kazachkova",
-  description: "Every case file: the written ones and those still being written.",
-};
-
+// Case Studies, the index of every case file, is not on the live site yet:
+// the case files are on home's desk (/#case-files).
 export default function CaseStudiesRoute() {
-  return <CaseIndex />;
+  notFound();
 }

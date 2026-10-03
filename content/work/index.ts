@@ -1,7 +1,6 @@
 import type { CaseStudy } from "./types";
 import { WRITTEN_SLUGS } from "./slugs";
 import ukrainska15 from "./ukrainska-15";
-import waypro from "./waypro";
 import onsisoft from "./onsisoft";
 import BULKSOURCE from "./bulksource";
 
@@ -12,7 +11,7 @@ import BULKSOURCE from "./bulksource";
  * in ./slugs.ts. Drafts (`draft: true`) are here but not in ./slugs.ts.
  */
 const CASES: Record<string, CaseStudy> = Object.fromEntries(
-  [ukrainska15, waypro, onsisoft, ...BULKSOURCE].map((c) => [c.slug, c]),
+  [ukrainska15, onsisoft, ...BULKSOURCE].map((c) => [c.slug, c]),
 );
 
 const WRITTEN = Object.values(CASES).filter((c) => !c.draft).map((c) => c.slug);

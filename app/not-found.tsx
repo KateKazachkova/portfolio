@@ -375,7 +375,7 @@ export default function NotFound() {
           {/* The ways out live off the tag: they are what you do, not what the
               tag says about the item. */}
           <div className="mt-7 flex flex-wrap gap-3">
-            <InkButton href="/">← Back to collection</InkButton>
+            <InkButton href="/">Back to collection</InkButton>
             <Link
               href="/#case-files"
               className="uppercase font-bold transition-colors"
@@ -384,7 +384,7 @@ export default function NotFound() {
                 padding: "10px 16px", border: "2px solid var(--border)", color: "var(--fg)",
               }}
             >
-              View the case files →
+              View the case files
             </Link>
           </div>
         </div>

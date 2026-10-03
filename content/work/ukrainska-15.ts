@@ -244,7 +244,7 @@ const ukrainska15: CaseStudy = {
       kind: "prose",
       n: "14",
       heading: "What the project changed for me",
-      cta: { label: "View the live project ↗", href: "https://ukrainska15.com" },
+      cta: { label: "View the live project", href: "https://ukrainska15.com" },
       rule: true,
       body: [
         ["This project taught me that sometimes design is as much about what you leave out as what you add. But personally, it gave me something more important. For a long time, preserving the house and preserving the memory of it felt like the same thing. They aren’t. The house is gone. The messages, voices, photographs and stories are not."],

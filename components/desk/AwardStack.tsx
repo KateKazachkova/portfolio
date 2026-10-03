@@ -109,7 +109,7 @@ export default function AwardStack({ project, title, about, links = [], picture,
             {/* a portrait one is a print with its own caption */}
             {!picture.portrait && <span className="postcard__greet">Greetings from <b>{title}</b></span>}
             {/* where a click on it goes, under a pointer over it */}
-            {picture.portrait && !flat && <span className="postcard__go" aria-hidden>View on Behance ↗</span>}
+            {picture.portrait && !flat && <span className="postcard__go" aria-hidden>View on Behance</span>}
           </a>
         );
       })()}
@@ -137,7 +137,7 @@ export default function AwardStack({ project, title, about, links = [], picture,
         <span className="sticky-note__text">{about}</span>
         {/* a case written up elsewhere: its way there, a red button on the note */}
         {noteGo
-          ? <a className="sticky-note__status sticky-note__go" {...linkTo(noteGo)}>{noteGo.where} ↗</a>
+          ? <a className="sticky-note__status sticky-note__go" {...linkTo(noteGo)}>{noteGo.where}</a>
           : <span className="sticky-note__status">Case study in progress</span>}
       </span>
       {links.map((l) => (

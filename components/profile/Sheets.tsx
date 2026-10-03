@@ -193,7 +193,7 @@ export function BudSheet() {
       </div>
       <PhotoStack />
       <div className="pf-foot pf-mono">
-        <a href="https://inscience.io/en/be/" target="_blank" rel="noopener noreferrer">inscience.io/en/be ↗</a><span>07</span>
+        <a href="https://inscience.io/en/be/" target="_blank" rel="noopener noreferrer">inscience.io/en/be</a><span>07</span>
       </div>
     </div>
   );
@@ -258,7 +258,7 @@ export function BudEvidenceSheet() {
             <a key={s.img} className="pf-ticket" href={s.href} target="_blank" rel="noopener noreferrer">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/profile/bud/${s.img}.webp`} alt="" />
-              <span><b>{s.t}</b><span className="pf-mono">{s.m} · Watch ↗</span></span>
+              <span><b>{s.t}</b><span className="pf-mono">{s.m} · Watch</span></span>
             </a>
           ))}
         </div>
@@ -270,7 +270,7 @@ export function BudEvidenceSheet() {
           “A really informative and constructive lecture. I now understand my own strengths better – and the line I underlined
           in my notes: not to make it ‘pretty’, but so it gets easier for the user, and the business feels it.”
           <cite className="pf-mono">
-            <a href="https://www.linkedin.com/posts/nadia-gerasimova-856111225_kateryna-kazachkova-%D1%86%D0%B5-%D0%B1%D1%83%D0%BB%D0%B0-%D0%B4%D1%83%D0%B6%D0%B5-%D1%96%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%B0-activity-7345854543412322306-tfnL" target="_blank" rel="noopener noreferrer">Nadia Gerasimova, UX/UI designer · LinkedIn ↗</a>
+            <a href="https://www.linkedin.com/posts/nadia-gerasimova-856111225_kateryna-kazachkova-%D1%86%D0%B5-%D0%B1%D1%83%D0%BB%D0%B0-%D0%B4%D1%83%D0%B6%D0%B5-%D1%96%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D0%B0-activity-7345854543412322306-tfnL" target="_blank" rel="noopener noreferrer">Nadia Gerasimova, UX/UI designer · LinkedIn</a>
           </cite>
         </blockquote>
       </figure>
@@ -323,7 +323,7 @@ export function ClusterSheet() {
         ))}
       </div>
       <div className="pf-foot pf-mono">
-        <a href="https://it-kharkiv.com/projects/prof2it" target="_blank" rel="noopener noreferrer">it-kharkiv.com ↗</a><span>09</span>
+        <a href="https://it-kharkiv.com/projects/prof2it" target="_blank" rel="noopener noreferrer">it-kharkiv.com</a><span>09</span>
       </div>
     </div>
   );
@@ -401,7 +401,7 @@ export function IxdfSheet() {
         <span className="pf-mono">Dmytro Yatsenko, IxDF Ukraine · LinkedIn</span>
       </div>
       <div className="pf-foot pf-mono">
-        <a href="https://ixdf.org/" target="_blank" rel="noopener noreferrer">ixdf.org ↗</a><span>11</span>
+        <a href="https://ixdf.org/" target="_blank" rel="noopener noreferrer">ixdf.org</a><span>11</span>
       </div>
     </div>
   );

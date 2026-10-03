@@ -237,7 +237,7 @@ export function DeskPlanes({ children }: { children?: React.ReactNode }) {
             "--w": ALL.w, "--h": ALL.h, "--r": `${ALL.r}deg`,
           } as React.CSSProperties}>
             <span className="desk-all__k">Case Studies</span>
-            <span className="desk-all__t">View all case studies <span aria-hidden>→</span></span>
+            <span className="desk-all__t">View all case studies</span>
           </Link>
         </nav>
         {/* the Profile, filed, in front of the certificate */}

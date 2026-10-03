@@ -235,7 +235,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
           <nav className="flip" aria-label="Case studies">
             <Link className="flip__prev" href={`/work/${prev.slug}`} aria-label={`Previous case: ${prev.title}`}>←</Link>
             <Link href={`/work/${next.slug}`}>
-              Next: {next.title} <span aria-hidden>→</span>
+              Next: {next.title}
             </Link>
           </nav>
         </div>
@@ -258,7 +258,7 @@ export default function CaseStudyPage({ data }: { data: Case }) {
               <h1>{data.title}</h1>
               {data.tablet && (
                 <a className="case-live" href={data.tablet.href} target="_blank" rel="noopener noreferrer" aria-label={data.tablet.label}>
-                  {data.tablet.button ?? "View the live project"} <span aria-hidden>↗</span>
+                  {data.tablet.button ?? "View the live project"}
                 </a>
               )}
             </div>
@@ -334,8 +334,8 @@ export default function CaseStudyPage({ data }: { data: Case }) {
         <div className="row">
           <div className="rail" />
           <div className="body casenav" style={{ gridColumn: "2 / 4" }}>
-            <Link href="/work"><span>←</span> All case studies</Link>
-            <Link href={`/work/${next.slug}`}>Next: {next.title} <span>→</span></Link>
+            <Link href="/work">All case studies</Link>
+            <Link href={`/work/${next.slug}`}>Next: {next.title}</Link>
           </div>
         </div>
       </div>

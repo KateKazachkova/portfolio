@@ -45,7 +45,7 @@ export default function Footer() {
             <li key={k}>
               <a href={href} target="_blank" rel="noopener noreferrer" className="group block">
                 <div className="doc-ref mb-1">{k}</div>
-                <div style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold break-words group-hover:underline underline-offset-2">{v} ↗</div>
+                <div style={{ fontFamily: mono, fontSize: 12 }} className="font-semibold break-words group-hover:underline underline-offset-2">{v}</div>
               </a>
             </li>
           ))}

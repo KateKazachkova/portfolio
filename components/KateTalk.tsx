@@ -129,7 +129,6 @@ export default function KateTalk({ edition }: { edition: string }) {
               {"href" in o ? (
                 <Link href={o.href} className="katetalk__opt t-body" onClick={(e) => { close(); openStop(e, o.href); }}>
                   <span>{o.label}</span>
-                  <i aria-hidden="true">→</i>
                 </Link>
               ) : (
                 <button
@@ -143,7 +142,6 @@ export default function KateTalk({ edition }: { edition: string }) {
                   }}
                 >
                   <span>{o.label}</span>
-                  {"to" in o && <i aria-hidden="true">→</i>}
                 </button>
               )}
             </li>

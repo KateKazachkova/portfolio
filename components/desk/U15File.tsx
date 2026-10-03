@@ -269,7 +269,7 @@ export function U15File({ x, y, r, still }: {
         <span className="u15-note u15-item" {...is("note")} style={place("note", 11)} onPointerDown={(e) => grab("note")(e)} aria-hidden={!open}>
           <span className="u15-note__kicker">Ukrainska 15 · 2024 – 2026</span>
           <span className="u15-note__text">{INTRO}</span>
-          <Link className="u15-note__btn" href="/work/ukrainska-15" tabIndex={open ? 0 : -1} onPointerDown={(e) => e.stopPropagation()}>Read the case →</Link>
+          <Link className="u15-note__btn" href="/work/ukrainska-15" tabIndex={open ? 0 : -1} onPointerDown={(e) => e.stopPropagation()}>Read the case</Link>
         </span>
 
         {STACKS.map((st) => (
@@ -346,7 +346,7 @@ export function U15File({ x, y, r, still }: {
         />
         {/* closed, over the card drawn up out of the pocket on hover */}
         {!still && <>
-        <Link className="u15-view" href="/work/ukrainska-15" tabIndex={-1} aria-hidden={open} onPointerDown={(e) => e.stopPropagation()}>View project →</Link>
+        <Link className="u15-view" href="/work/ukrainska-15" tabIndex={-1} aria-hidden={open} onPointerDown={(e) => e.stopPropagation()}>View project</Link>
 
         <DeskPlayer place={place("player", 12)} held={held === "player"} onGrab={(e, play) => grab("player", play)(e)} />
         </>}

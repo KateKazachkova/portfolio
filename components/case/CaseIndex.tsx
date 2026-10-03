@@ -2,7 +2,7 @@ import Link from "next/link";
 import CASES from "@/content/work";
 import type { CaseStudy, Para } from "@/content/work/types";
 import { StackDressing } from "@/components/desk/CaseStack";
-import { ELSEWHERE, PROJECT } from "@/components/desk/stacks";
+import { ELSEWHERE, PROJECT, SHOW_TRUCK } from "@/components/desk/stacks";
 import { U15File } from "@/components/desk/U15File";
 import "./CaseIndex.css";
 
@@ -132,7 +132,7 @@ function FolderCard({ c, i }: { c: CaseStudy; i: number }) {
           <span key={n} className="jury-card__row ci-card__row"><span>{r.k}</span><span>{r.v}</span></span>
         ))}
       </div>
-      {i === 0 && (
+      {i === 0 && SHOW_TRUCK && (
         <span className="stack-truck ci-truck">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="stack-top" src="/items/bulksource/truck.sm.webp" alt="" draggable={false} loading="lazy" decoding="async" />

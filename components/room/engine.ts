@@ -1256,13 +1256,15 @@ export async function startRoom(o: RoomOptions): Promise<Room> {
     const sh = shiftAt(v);
     shift.retarget(sh, slide ? null : def, now);
     // the case fades out at the desk and at Profile, as .case-world does
-    // there (globals.css: opacity .6s ease .7s); from above the desk, panned
+    // there (globals.css: opacity .7s ease 1.3s at the desk, .6s ease .7s at
+    // Profile); from above the desk, panned
     // along it, it would otherwise stand in the frame
     const opT = v === "profile" || v === "files" || v === "bike" ? 0 : 1;
     const opRule: Rule = still || slide ? null
       : arrived && desk === "offduty" ? { dur: 400, delay: 0, ease: EASE.ease }
       : arrived ? null
-      : v === "profile" || v === "files" ? { dur: 600, delay: 700, ease: EASE.ease }
+      : v === "files" ? { dur: 700, delay: 1300, ease: EASE.ease }
+      : v === "profile" ? { dur: 600, delay: 700, ease: EASE.ease }
       : v === "bike" ? { dur: 400, delay: 0, ease: EASE.ease }
       : { dur: 600, delay: 150, ease: EASE.ease };
     caseOp.retarget(opT, opRule, now);

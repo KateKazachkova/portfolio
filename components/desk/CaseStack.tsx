@@ -1,7 +1,7 @@
 "use client";
 
 import AwardStack from "./AwardStack";
-import { ELSEWHERE, NOTE_GO, PROJECT, STACK_LINKS } from "./stacks";
+import { ELSEWHERE, NOTE_GO, PROJECT, SHOW_TRUCK, STACK_LINKS } from "./stacks";
 import { Calculator, Payslip } from "./OnsiSoftKit";
 
 /**
@@ -62,7 +62,7 @@ export function StackDressing({ slug, title, pic, flat }: {
         </span>
       )}
       {slug === "onsisoft" && <Calculator />}
-      {slug === "bulksource" && (
+      {slug === "bulksource" && SHOW_TRUCK && (
         <span className="stack-truck" aria-hidden>
           {/* its side, standing on the centreline (edge-on from above), and
               its top at the truck's height, so it has a body from the case */}

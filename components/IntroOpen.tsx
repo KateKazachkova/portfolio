@@ -373,5 +373,9 @@ export default function IntroOpen() {
  *  shown only while the opening runs (globals.css). Outside the case's stage,
  *  which is transformed, so it can cover the window. */
 export function IntroCurtain() {
-  return <div className="intro-curtain" aria-hidden><span>Unpacking…</span></div>;
+  return (
+    <div className="intro-curtain" aria-hidden>
+      <span><span className="intro-curtain__word">Unpacking</span><span className="intro-curtain__dots" /></span>
+    </div>
+  );
 }

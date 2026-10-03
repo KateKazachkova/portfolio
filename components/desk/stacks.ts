@@ -18,6 +18,10 @@ export const PROJECT: Record<string, { name: string; about: string }> = {
     about: "A landing page for a swimwear and lingerie brand built on self-love. I designed it in 2020 as a live teaching example for my UX/UI course; its tablet and mobile versions were finished in 2026." },
 };
 
+/** BulkSource's toy truck on its stack: off for now (Kate, 03.10: it does
+ *  not sit well in the camera's moves), until something replaces it. */
+export const SHOW_TRUCK = false;
+
 const BEHANCE = {
   waypro: "https://www.behance.net/gallery/209626437/WayPro-UIUX-iOS-App",
   atumatu: "https://www.behance.net/gallery/256516327/Atumatu-Landing-Page-for-a-Swimwear-Brand",

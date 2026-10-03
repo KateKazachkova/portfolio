@@ -275,6 +275,11 @@ export default function IntroOpen() {
             if (t >= FILES_AT) pushFiles();
             if (t >= END_AT) endClip(true);
           }}
+          // the poster goes as soon as the clip has a frame to show, not when
+          // it starts playing: both carry the case's shadow, and laid one on
+          // the other for the wait before the doors open it darkened, then
+          // lightened again as the poster went
+          onLoadedData={() => setPlaying(true)}
           onPlaying={() => setPlaying(true)}
           onEnded={() => { pushFiles(); endClip(true); }}
           onError={land}

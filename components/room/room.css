@@ -90,6 +90,12 @@ html.room-pointer, html.room-pointer * { cursor: pointer; }
   opacity: 0; transition: opacity .2s ease; --u: calc(100cqw / 1118);
 }
 .room-hit:is(:hover, :focus-visible) + .room-hit__label { opacity: 1; }
+/* a row of a stack's library card, as the page's (globals.css a.jury-card__row):
+   tinted under the pointer, and its label red, "Go to site" */
+.room-hit--row:is(:hover, :focus-visible) { background: rgba(179, 49, 42, .1); }
+.room-hit__label--row { transform: translate(-100%, -50%); border-radius: 0; background: #b3312a; color: #f7f2e6;
+  padding: calc(1.2 * var(--k) * var(--u)) calc(2.1 * var(--k) * var(--u));
+  font-size: calc(3.1 * var(--k) * var(--u)); font-weight: 700; line-height: 1; letter-spacing: .1em; text-transform: uppercase; }
 /* …turned with its ribbon, as the ribbon's own ::after is (AwardRail.css) */
 .room-hit__label--ribbon { transform-origin: 50% var(--oy, 0px); transition: opacity .2s ease, transform .35s cubic-bezier(.3, 1.6, .5, 1); }
 .room-hit--ribbon:is(:hover, :focus-visible) + .room-hit__label { transform: translateX(-50%) rotate(-4deg) translateY(calc(-2 * var(--k) * var(--u))); }

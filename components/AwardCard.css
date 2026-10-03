@@ -22,7 +22,7 @@
 .award-card__link:focus-visible { outline: none; }
 /* and says where it goes, as the desk's copies of the card do (globals.css) */
 .award-card__row:has(.award-card__link):is(:hover, :focus-within)::after {
-  content: "Go to site ↗"; position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none;
+  content: "Go to site"; position: absolute; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none;
   padding: calc(.9 * var(--cu)) calc(1.6 * var(--cu)); background: #b3312a; color: #f7f2e6; white-space: nowrap;
   font: 700 max(9px, calc(2.4 * var(--cu))) / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
 .award-card__row:has(.award-card__link:focus-visible) { outline: 2px solid #b3312a; outline-offset: 1px; }

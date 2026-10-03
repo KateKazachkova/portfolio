@@ -1,7 +1,7 @@
 "use client";
 
 import AwardStack from "./AwardStack";
-import { ELSEWHERE, PROJECT, STACK_LINKS } from "./stacks";
+import { ELSEWHERE, NOTE_GO, PROJECT, STACK_LINKS } from "./stacks";
 import { Calculator, Payslip } from "./OnsiSoftKit";
 
 /**
@@ -53,8 +53,8 @@ export function StackDressing({ slug, title, pic, flat }: {
         <span className="stack-fabric" aria-hidden><Pic src="/items/atumatu/fabric.webp" {...p} /></span>
       )}
       <AwardStack project={PROJECT[slug].name} title={title} about={PROJECT[slug].about}
-        links={STACK_LINKS[slug] ?? []} flat={flat} away={away}
-        picture={PICTURE[slug] && { ...PICTURE[slug], href: away?.href ?? STACK_LINKS[slug][0].href, src: srcOf(`/items/${slug}/postcard.webp`, p) }} />
+        links={STACK_LINKS[slug] ?? []} flat={flat} away={away} noteGo={NOTE_GO[slug]}
+        picture={PICTURE[slug] && { ...PICTURE[slug], href: NOTE_GO[slug].href, src: srcOf(`/items/${slug}/postcard.webp`, p) }} />
       {slug === "waypro" && (
         <span className="stack-moss" aria-hidden>
           <Pic src="/items/waypro/moss.webp" {...p} />

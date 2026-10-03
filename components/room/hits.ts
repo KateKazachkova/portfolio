@@ -242,10 +242,13 @@ export function startHits(o: {
     els.set(h.id, el);
     // its label, under it on hover and focus (a sibling: the control is
     // clipped to its outline, the label must not be)
-    if (h.hover) {
+    // a row of a stack's library card says where it goes, as the page's
+    // row does on hover (globals.css, "Go to site")
+    const hover = h.hover ?? (h.type === "row" ? "Go to site" : null);
+    if (hover) {
       const lab = document.createElement("span");
       lab.className = `room-hit__label room-hit__label--${h.type}`;
-      lab.textContent = h.hover;
+      lab.textContent = hover;
       lab.setAttribute("aria-hidden", "true");
       lab.hidden = true;
       layer.appendChild(lab);
@@ -449,7 +452,9 @@ export function startHits(o: {
         const lab = labels.get(h.id);
         if (lab) {
           const k = Math.hypot(pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]) / (h.w * u);
-          Object.assign(lab.style, { left: `${(x0 + x1) / 2}px`, top: `${y1 + h.h * u * k * 0.04}px` });
+          // (a card's row: at its right end, inside it, as the page's)
+          if (h.type === "row") Object.assign(lab.style, { left: `${x1}px`, top: `${(y0 + y1) / 2}px` });
+          else Object.assign(lab.style, { left: `${(x0 + x1) / 2}px`, top: `${y1 + h.h * u * k * 0.04}px` });
           lab.style.setProperty("--k", String(k));
           // (a ribbon's turns with it, about the ribbon's own origin: 50% 3%)
           lab.style.setProperty("--oy", `${-(y1 + h.h * u * k * 0.04 - (y0 + (y1 - y0) * 0.03))}px`);

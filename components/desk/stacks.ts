@@ -23,8 +23,14 @@ const BEHANCE = {
   atumatu: "https://www.behance.net/gallery/256516327/Atumatu-Landing-Page-for-a-Swimwear-Brand",
 };
 
-export const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {
-  waypro: [{ label: "Behance ↗", href: BEHANCE.waypro, external: true }],
+export const STACK_LINKS: Record<string, { label: string; href: string; external?: boolean }[]> = {};
+
+/** Where a case's sticky note sends you: a red button at its foot, in place
+ *  of "Case study in progress" (WayPro's case is on Behance; Atumatu's is
+ *  there only, ELSEWHERE). */
+export const NOTE_GO: Record<string, { where: string; href: string }> = {
+  waypro: { where: "Behance", href: BEHANCE.waypro },
+  atumatu: { where: "Behance", href: BEHANCE.atumatu },
 };
 
 /** A case written up only elsewhere, with no page here: where, and when it

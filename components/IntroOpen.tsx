@@ -100,6 +100,11 @@ const add = (token: string) => {
   const now = html().getAttribute("data-load");
   if (now !== null && !now.split(" ").includes(token)) html().setAttribute("data-load", `${now} ${token}`);
 };
+/** ?intro=step (for review, not linked anywhere): the opening stops at each
+ *  of its steps, under a small panel that names it and goes on at "Next";
+ *  the doors can be stepped frame by frame (← →) and played (space). */
+const stepMode = () => /[?&]intro=step(&|$)/.test(location.search);
+const FRAME = 1 / 30;
 const ready = (imgs: HTMLImageElement[]) =>
   Promise.race([
     Promise.allSettled(imgs.map((i) => i.decode())),
@@ -116,6 +121,11 @@ export default function IntroOpen() {
   // is transparent between the doors, and the closed trunk would show there
   const [playing, setPlaying] = useState(false);
   const [masked, setMasked] = useState(false);
+  // ?intro=step: the step it is stopped at, and the way on
+  const [stepName, setStepName] = useState<string | null>(null);
+  const next = useRef<(() => void) | null>(null);
+  const [clipT, setClipT] = useState(0);
+  const step = useRef(false);
   const video = useRef<HTMLVideoElement>(null);
   const ended = useRef(false);
   const filed = useRef(false);
@@ -125,6 +135,7 @@ export default function IntroOpen() {
 
   /** data-load goes once the last of the steps still running is done */
   const doneIn = useCallback((ms: number) => {
+    if (step.current) return; // stepping: data-load goes at the last "Next"
     const at = performance.now() + ms;
     if (at <= lastStep.current) return;
     lastStep.current = at;
@@ -169,6 +180,7 @@ export default function IntroOpen() {
       const id = requestAnimationFrame(() => setOn(false));
       return () => cancelAnimationFrame(id);
     }
+    step.current = stepMode();
     const ua = navigator.userAgent;
     // Safari keys alpha only from HEVC; Chrome can decode HEVC but drops its
     // alpha, so the pick is by engine, not by canPlayType.
@@ -180,13 +192,65 @@ export default function IntroOpen() {
     // and the scene runs from the lamp on.
     const stop = new AbortController();
     const poster = document.querySelector<HTMLImageElement>(".intro-open img");
+    const clipSrc = safari ? "/suitcase/intro/open.mov" : "/suitcase/intro/open.webm";
+    if (step.current) {
+      html().setAttribute("data-intro-step", "");
+      const pause = (name: string) => new Promise<void>((res) => {
+        if (stop.signal.aborted) return;
+        setStepName(name);
+        next.current = () => { next.current = null; setStepName(null); res(); };
+      });
+      const clipEnds = () => new Promise<void>((res) => {
+        const v = video.current;
+        if (!v || v.ended) return res();
+        v.addEventListener("ended", () => res(), { once: true });
+      });
+      (async () => {
+        await pause("1 / 8 · Curtain");
+        add("set");
+        setSrc(clipSrc);
+        await pause("2 / 8 · Closed trunk");
+        add("lamp");
+        await pause("3 / 8 · Lamp on");
+        add("text");
+        await pause("4 / 8 · Column in");
+        await pause("5 / 8 · Doors: ← → a frame, space plays, Next plays to the end");
+        await video.current?.play().catch(() => {});
+        await clipEnds();
+        await pause("6 / 8 · Doors stopped, clip still on");
+        endClip(true);
+        await pause("7 / 8 · Live case, shadow at rest, clothes");
+        pushFiles();
+        await pause("8 / 8 · Case files in");
+        html().removeAttribute("data-load");
+        html().removeAttribute("data-intro-step");
+      })();
+      const keys = (e: KeyboardEvent) => {
+        const v = video.current;
+        if (!v) return;
+        if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+          e.preventDefault(); v.pause();
+          v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + (e.key === "ArrowRight" ? FRAME : -FRAME)));
+        } else if (e.key === " ") { e.preventDefault(); if (v.paused) v.play().catch(() => {}); else v.pause(); }
+      };
+      window.addEventListener("keydown", keys);
+      const list = timers.current;
+      return () => {
+        stop.abort();
+        list.forEach(clearTimeout);
+        window.removeEventListener("keydown", keys);
+        html().removeAttribute("data-intro-step");
+        html().removeAttribute("data-intro");
+        html().removeAttribute("data-load");
+      };
+    }
     Promise.race([
       Promise.allSettled([roomUp(stop.signal), poster?.decode(), document.fonts?.ready, new Promise((r) => setTimeout(r, CURTAIN_MIN))]),
       new Promise((r) => setTimeout(r, CURTAIN_MAX)),
     ]).then(() => {
       if (stop.signal.aborted || ended.current) return;
       add("set");
-      later(() => setSrc(safari ? "/suitcase/intro/open.mov" : "/suitcase/intro/open.webm"), CURTAIN_MS);
+      later(() => setSrc(clipSrc), CURTAIN_MS);
       later(() => add("lamp"), CURTAIN_MS + LAMP_AT);
       later(() => add("text"), CURTAIN_MS + TEXT_AT);
       // not started at all
@@ -211,12 +275,12 @@ export default function IntroOpen() {
       html().removeAttribute("data-intro");
       html().removeAttribute("data-load");
     };
-  }, [land, later]);
+  }, [land, later, endClip, pushFiles]);
 
   // the doors open once the lamp is on and the clip can play through
   useEffect(() => {
     const v = video.current;
-    if (!v || !src) return;
+    if (!v || !src || step.current) return;
     const t0 = performance.now();
     const go = () => {
       const wait = Math.max(0, OPEN_AT - (performance.now() - t0));
@@ -239,13 +303,22 @@ export default function IntroOpen() {
     />
   );
 
-  if (!on) return gate;
+  const panel = stepName && (
+    <div className="intro-step" role="status">
+      <span>{stepName}</span>
+      {src && <span className="intro-step__t">{clipT.toFixed(2)} s</span>}
+      <button type="button" onClick={() => next.current?.()}>Next ▶</button>
+    </div>
+  );
+
+  if (!on) return <>{gate}{panel}</>;
   return (
     <>
     {gate}
+    {panel}
     <div
       className="intro-open"
-      onClick={land}
+      onClick={() => { if (!step.current) land(); }}
       style={{
         position: "absolute",
         inset: 0,
@@ -272,6 +345,7 @@ export default function IntroOpen() {
           src={src}
           onTimeUpdate={(e) => {
             const t = e.currentTarget.currentTime;
+            if (step.current) { setClipT(t); return; }
             if (t >= FILES_AT) pushFiles();
             if (t >= END_AT) endClip(true);
           }}
@@ -281,8 +355,9 @@ export default function IntroOpen() {
           // lightened again as the poster went
           onLoadedData={() => setPlaying(true)}
           onPlaying={() => setPlaying(true)}
-          onEnded={() => { pushFiles(); endClip(true); }}
-          onError={land}
+          onEnded={() => { if (!step.current) { pushFiles(); endClip(true); } }}
+          onSeeked={(e) => setClipT(e.currentTarget.currentTime)}
+          onError={() => { if (!step.current) land(); }}
           style={{
             position: "absolute", left: 0, top: 0, width: "100%", height: CLIP_H, objectFit: "fill", display: "block",
             ...(masked ? { mask: DOORS_MASK, WebkitMask: DOORS_MASK } : null),

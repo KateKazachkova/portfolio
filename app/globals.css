@@ -2517,3 +2517,11 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
 [data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(5) { transition-delay: .44s !important; }
 [data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(6) { transition-delay: .55s !important; }
 [data-load~="clothes"] img[src*="/items/wardrobe/right-rail-"]:nth-of-type(7) { transition-delay: .66s !important; }
+
+/* ?intro=step (IntroOpen): the opening stopped at each step, for review */
+[data-intro-step] .intro-curtain { animation: none; }
+.intro-step { position: fixed; left: 16px; bottom: 16px; z-index: 1002; display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 8px; background: rgba(17,17,17,.88); color: #efe6d2;
+  font: 500 12px / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace; }
+.intro-step__t { opacity: .6; }
+.intro-step button { padding: 6px 10px; border-radius: 4px; background: #efe6d2; color: #111; font: inherit; cursor: pointer; }

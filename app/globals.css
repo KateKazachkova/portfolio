@@ -734,6 +734,12 @@ body::after {
        130px is set on the element itself. */
     --case-x: max(130px, calc(50vw - .7447 * (100vh - 16px))) !important; }
 }
+/* On the widest screens (1920 × 1080) the scene sits 95px further left than
+   that: more of the trophy in on the right, and the player on the left down
+   to its corner (Kate, 03.10). The column still clears the case's door. */
+@media (min-width: 1800px) {
+  html .case-stage { --case-x: max(0px, calc(50vw - .7447 * (100vh - 16px) - 95px)) !important; }
+}
 /* <main> starts 56px above the window, under the header, and is one window
    tall, so on home it stopped 56px short and a dark band ran under the
    desk. It reaches the bottom now, as it already did over the desk. */
@@ -2435,6 +2441,23 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
    after another, from the viewer's side of it. The heavier layers load in
    the meantime. Removing the attribute (the end, or a skip) drops the
    transitions with it, so a skip lands at once. */
+/* The curtain: the page opens dark, "Unpacking…", until the room can be shown
+   whole (IntroOpen's "set"), then it lifts onto the desk, the closed trunk
+   and the clock, and the scene runs. Only while the opening runs: without
+   the gate, or once a skip has dropped data-load, it is not there. */
+.intro-curtain { display: none; }
+[data-load] .intro-curtain {
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
+  background: #111; color: #efe6d2; pointer-events: none;
+  font: 500 12px / 1 var(--font-mono, ui-monospace), ui-monospace, monospace; letter-spacing: .3em; text-transform: uppercase;
+  transition: opacity .5s ease;
+  /* lifts by itself if the page's script never runs to lift it (8s, after
+     IntroOpen's own CURTAIN_MAX), so the site is never left dark */
+  animation: curtain-gone .5s ease 8s forwards; }
+@keyframes curtain-gone { to { opacity: 0; visibility: hidden; } }
+[data-load] .intro-curtain > span { animation: curtain-breathe 1.6s ease-in-out infinite; }
+@keyframes curtain-breathe { 50% { opacity: .35; } }
+[data-load~="set"] .intro-curtain { opacity: 0; }
 /* the closed trunk is in the server HTML; without the gate it never shows */
 :root:not([data-intro]):not([data-load]) .intro-open { display: none; }
 /* the clip carries the case's shadow while the doors swing; the case's

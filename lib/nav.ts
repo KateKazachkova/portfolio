@@ -24,7 +24,9 @@ export const NAV_LINKS = [
   { href: "/recognition", stop: "/#recognition", label: "Recognition" },
 ] as const;
 
-export const CONTACT_HREF = "mailto:e.kazachkova.kh@gmail.com";
+/** Let's Talk: a 30-minute call booked on Kate's Notion Calendar (a slot
+ *  picked there lands in both calendars, with the call link). */
+export const CONTACT_HREF = "https://calendar.notion.so/meet/ekazachkovakh/project";
 
 export const CV_HREF =
   "https://docs.google.com/document/d/11tvwCA6ZPIoi8v4u_ycBm_ZK570Rci7f/export?format=pdf";

@@ -48,7 +48,7 @@ export default function NavIndex({ className = "mt-14" }: { className?: string }
       ))}
 
       <div className="nav-calls flex flex-wrap gap-2 mt-4">
-        <a href={CONTACT_HREF} className="nav-call nav-call--primary t-label">Let&rsquo;s Talk</a>
+        <a href={CONTACT_HREF} target="_blank" rel="noopener noreferrer" className="nav-call nav-call--primary t-label">Let&rsquo;s Talk</a>
         <a href={CV_HREF} target="_blank" rel="noopener noreferrer" className="nav-call t-label">CV</a>
       </div>
     </nav>

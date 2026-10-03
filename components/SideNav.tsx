@@ -218,6 +218,8 @@ export default function SideNav() {
 
                 <a
                   href={CONTACT_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
                   className="t-ui block text-center"
                   style={{

@@ -8,7 +8,7 @@ import DeskLamp, { DeskLampSwitch } from "@/components/desk/DeskLamp";
 import KateTalk from "@/components/KateTalk";
 import FlipClock, { clockDate, type ClockTime } from "@/components/FlipClock";
 import HeroAside from "@/components/HeroAside";
-import IntroOpen from "@/components/IntroOpen";
+import IntroOpen, { IntroCurtain } from "@/components/IntroOpen";
 import { useTime } from "@/components/TimeProvider";
 import { EDITIONS, editionForHour, editionForDate } from "@/lib/time";
 import { DeskPlanes, DeskHint, useDeskCamera } from "@/components/DeskScene";
@@ -89,6 +89,7 @@ export default function Home({ shelves, kit }: { shelves: ReactNode; kit: ReactN
       // padding puts the content back where it was.
       style={{ background: "var(--bg)", marginTop: -56, paddingTop: 56 + 56 }}
     >
+      <IntroCurtain />
 
       {/* Suitcase + title block. The box stays centred; the title block sits
           to its left on wide screens (absolute, so the box never shifts). */}

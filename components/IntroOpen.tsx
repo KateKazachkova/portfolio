@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * Home loads as a scene. The desk is there first — the clock, the trophy, the
+ * Home loads as a scene, under a dark curtain ("Unpacking…") until the room
+ * can be shown whole (CURTAIN_MIN / CURTAIN_MAX). The desk is there first — the clock, the trophy, the
  * closed trunk; the lamp clicks on; the column comes in line by line; the
  * trunk unlatches and its doors swing out; and as they settle the case files
  * are pushed onto the desk one after another. Each step waits for what it
@@ -73,6 +74,26 @@ const WAIT_MS = 1500;
 const GIVE_UP_MS = 2500;
 
 const html = () => document.documentElement;
+/** the dark screen over the page while the room gets ready: it lifts once the
+ *  desk, the closed trunk and the clock can be shown whole — the WebGL room's
+ *  first view in at full detail (data-gl-zone, engine.ts), not just the room
+ *  started, else its pictures sharpen in sight — the trunk's picture decoded
+ *  and the fonts in; never before CURTAIN_MIN, and after CURTAIN_MAX anyway.
+ *  The scene's own steps start as it lifts (ms). */
+const CURTAIN_MIN = 1200;
+const CURTAIN_MAX = 6000;
+const CURTAIN_MS = 500;
+/** the WebGL room (html[data-gl]) has its first view in, or has given way to
+ *  the CSS room; then two frames, so that view has been drawn */
+const roomUp = (signal: AbortSignal) => new Promise<void>((res) => {
+  const r = html();
+  const up = () => r.dataset.gl === undefined || !!r.dataset.glZone || !!r.dataset.glFailed;
+  const drawn = () => requestAnimationFrame(() => requestAnimationFrame(() => res()));
+  if (up()) return drawn();
+  const mo = new MutationObserver(() => { if (up()) { mo.disconnect(); drawn(); } });
+  mo.observe(r, { attributes: true, attributeFilter: ["data-gl", "data-gl-zone", "data-gl-failed"] });
+  signal.addEventListener("abort", () => mo.disconnect());
+});
 /** the rail's last hanger done turning (ms after "clothes") */
 const CLOTHES_MS = 6 * 110 + 550 + 150;
 const add = (token: string) => {
@@ -152,14 +173,25 @@ export default function IntroOpen() {
     // Safari keys alpha only from HEVC; Chrome can decode HEVC but drops its
     // alpha, so the pick is by engine, not by canPlayType.
     const safari = /Safari\//.test(ua) && !/Chrome\/|Chromium\/|Edg\//.test(ua);
-    const id = requestAnimationFrame(() => setSrc(safari ? "/suitcase/intro/open.mov" : "/suitcase/intro/open.webm"));
     // the doors' mask is needed in the frame the clip ends: fetched now, as
     // a mask that has not loaded hides the whole clip
     new Image().src = DOORS_MASK_SRC;
-    later(() => add("lamp"), LAMP_AT);
-    later(() => add("text"), TEXT_AT);
-    // not started at all
-    later(() => { if (!video.current || video.current.currentTime === 0) land(); }, GIVE_UP_MS);
+    // Under the curtain until the room can be shown whole; then it lifts
+    // and the scene runs from the lamp on.
+    const stop = new AbortController();
+    const poster = document.querySelector<HTMLImageElement>(".intro-open img");
+    Promise.race([
+      Promise.allSettled([roomUp(stop.signal), poster?.decode(), document.fonts?.ready, new Promise((r) => setTimeout(r, CURTAIN_MIN))]),
+      new Promise((r) => setTimeout(r, CURTAIN_MAX)),
+    ]).then(() => {
+      if (stop.signal.aborted || ended.current) return;
+      add("set");
+      later(() => setSrc(safari ? "/suitcase/intro/open.mov" : "/suitcase/intro/open.webm"), CURTAIN_MS);
+      later(() => add("lamp"), CURTAIN_MS + LAMP_AT);
+      later(() => add("text"), CURTAIN_MS + TEXT_AT);
+      // not started at all
+      later(() => { if (!video.current || video.current.currentTime === 0) land(); }, CURTAIN_MS + GIVE_UP_MS);
+    });
     window.addEventListener("keydown", land);
     // a click anywhere else (the menu, the desk) sends the camera off: the
     // clip is laid over the page, not in the room, so it goes at once rather
@@ -172,7 +204,7 @@ export default function IntroOpen() {
     window.addEventListener("pointerdown", away, true);
     const list = timers.current;
     return () => {
-      cancelAnimationFrame(id);
+      stop.abort();
       list.forEach(clearTimeout);
       window.removeEventListener("keydown", land);
       window.removeEventListener("pointerdown", away, true);
@@ -255,4 +287,11 @@ export default function IntroOpen() {
     </div>
     </>
   );
+}
+
+/** The dark screen home opens under (see CURTAIN_MAX): in the server's HTML,
+ *  shown only while the opening runs (globals.css). Outside the case's stage,
+ *  which is transformed, so it can cover the window. */
+export function IntroCurtain() {
+  return <div className="intro-curtain" aria-hidden><span>Unpacking…</span></div>;
 }

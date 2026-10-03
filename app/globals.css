@@ -2538,3 +2538,10 @@ html[data-desk-focus="ukrainska-15"] .desk-card[data-side="right"] { --slide: 15
   font: 500 12px / 1.2 var(--font-mono, ui-monospace), ui-monospace, monospace; }
 .intro-step__t { opacity: .6; }
 .intro-step button { padding: 6px 10px; border-radius: 4px; background: #efe6d2; color: #111; font: inherit; cursor: pointer; }
+
+/* Focus rings only after Tab (app/layout.tsx, html[data-input]): once the
+   pointer has been pressed, nothing focused shows a ring, until Tab again,
+   whatever a browser decides after a click and a key (Escape, the arrows). */
+html[data-input="mouse"] *:focus,
+html[data-input="mouse"] *:focus-visible { outline: none !important; }
+html[data-input="mouse"] .cd:focus-visible .cd-body { box-shadow: none; }

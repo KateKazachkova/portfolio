@@ -49,6 +49,8 @@ export const metadata: Metadata = {
   description: "Product designer. Limited Edition №001. Available for hire.",
 };
 
+const INPUT_MODE = `try{var h=document.documentElement;addEventListener("pointerdown",function(){h.setAttribute("data-input","mouse")},true);addEventListener("keydown",function(e){if(e.key==="Tab")h.setAttribute("data-input","key")},true)}catch(e){}`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -90,6 +92,11 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* ?gl=1: the WebGL room, before anything paints (lib/room/flag) */}
         <script dangerouslySetInnerHTML={{ __html: GL_BOOT }} />
+        {/* How the visitor is moving through the page: html[data-input]
+            "mouse" from a press of the pointer, "key" from Tab. Focus rings
+            show only after Tab (globals.css), whatever a browser decides
+            after a click and a key (Escape, the arrows). */}
+        <script dangerouslySetInnerHTML={{ __html: INPUT_MODE }} />
       </head>
       <body className="min-h-full flex flex-col">
         <TimeProvider>
